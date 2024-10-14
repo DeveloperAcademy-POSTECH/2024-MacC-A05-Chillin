@@ -11,9 +11,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2C7AE88C2CBCF290004098AF /* Reazy */ = {
+		6E08044B2CBD2B12000AFEEE /* Project */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Reazy;
+			path = Project;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		2C7AE8812CBCF290004098AF = {
 			isa = PBXGroup;
 			children = (
-				2C7AE88C2CBCF290004098AF /* Reazy */,
+				6E08044B2CBD2B12000AFEEE /* Project */,
 				2C7AE88B2CBCF290004098AF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				2C7AE88C2CBCF290004098AF /* Reazy */,
+				6E08044B2CBD2B12000AFEEE /* Project */,
 			);
 			name = Reazy;
 			packageProductDependencies = (
@@ -251,7 +251,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Reazy/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Project/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -283,7 +283,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Reazy/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Project/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
