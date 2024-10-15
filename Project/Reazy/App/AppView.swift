@@ -8,10 +8,10 @@
 import SwiftUI
 
 @main
-struct ReazyApp: App {
+struct AppView: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }
