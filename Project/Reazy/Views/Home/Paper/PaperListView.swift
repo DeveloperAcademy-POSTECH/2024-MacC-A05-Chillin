@@ -18,7 +18,7 @@ struct PaperListView: View {
   @State private var nonselectedIcons: [String] = ["star", "folder.badge.plus", "square.and.arrow.down"]
   @State private var selectedIcons: [String] = ["star.fill", "folder.fill", "checkmark.square.fill"]
   
-  @Binding var navigationPath: [Int]
+  @Binding var navigationPath: NavigationPath
   
   var body: some View {
     VStack(spacing: 0) {
@@ -191,5 +191,5 @@ struct PaperListView: View {
 }
 
 #Preview {
-  PaperListView(navigationPath: .constant([]))
+  PaperListView(navigationPath: .constant(NavigationPath()))
 }

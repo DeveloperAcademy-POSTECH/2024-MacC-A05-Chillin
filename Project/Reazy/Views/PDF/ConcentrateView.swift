@@ -7,10 +7,19 @@
 
 import SwiftUI
 
-// MARK: - 집중 모드 원문 뷰
+// MARK: - 무니꺼 : 집중 모드 원문 뷰
 struct ConcentrateView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+      VStack(spacing: 0) {
+        Spacer()
+        HStack() {
+          Spacer()
+          Text("집중 모드")
+          Spacer()
+        }
+        Spacer()
+      }
+      .background(.gray)
     }
 }
 

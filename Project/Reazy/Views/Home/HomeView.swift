@@ -9,11 +9,13 @@ import SwiftUI
 
 struct HomeView: View {
   
+  
   @State private var isSelected: [Bool] = [true, false, false, false, false, false]
   @State private var nonselectedIcons: [String] = ["text.page", "magnifyingglass", "star", "folder", "link", "gearshape"]
   @State private var selectedIcons: [String] = ["text.page.fill", "magnifyingglass", "star.fill", "folder.fill", "link", "gearshape.fill"]
   
-  @State private var navigationPath: [Int] = []
+  @State private var navigationPath: NavigationPath = NavigationPath()
+  
   
   var body: some View {
     NavigationStack(path: $navigationPath) {
@@ -82,9 +84,10 @@ struct HomeView: View {
       }
       .background(Color(hex: "F7F7FB"))
       .navigationDestination(for: Int.self) { index in
-        PDFView(index: index)
+        PDFView(index: index, navigationPath: $navigationPath)
       }
     }
+    .statusBarHidden()
   }
 }
 

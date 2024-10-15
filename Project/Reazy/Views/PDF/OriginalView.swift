@@ -7,13 +7,22 @@
 
 import SwiftUI
 
-// MARK: - 원문 모드 뷰
+// MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+  var body: some View {
+    VStack(spacing: 0) {
+      Spacer()
+      HStack() {
+        Spacer()
+        Text("원문 모드")
+        Spacer()
+      }
+      Spacer()
     }
+    .background(.gray)
+  }
 }
 
 #Preview {
-    OriginalView()
+  OriginalView()
 }
