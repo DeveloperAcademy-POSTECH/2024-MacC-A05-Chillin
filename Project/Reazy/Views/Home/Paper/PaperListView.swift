@@ -14,9 +14,6 @@ struct PaperListView: View {
   
   @State private var isStarSelected: Bool = false
   @State private var isFolderSelected: Bool = false
-  @State private var isSaveSelected: Bool = false
-  @State private var nonselectedIcons: [String] = ["star", "folder.badge.plus", "square.and.arrow.down"]
-  @State private var selectedIcons: [String] = ["star.fill", "folder.fill", "checkmark.square.fill"]
   
   @Binding var navigationPath: NavigationPath
   
@@ -24,10 +21,20 @@ struct PaperListView: View {
     VStack(spacing: 0) {
       HStack(spacing: 0) {
         Text("논문")
-          .font(.title)
-          .bold()
+          .reazyFont(.h1)
           .padding(.leading, 26)
         Spacer()
+        
+        Button(action: {
+          
+        }) {
+          Image(systemName: "magnifyingglass")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 19)
+            .foregroundStyle(.primary1)
+        }
+        .padding(.trailing, 28)
         
         Button(action: {
           
@@ -35,26 +42,19 @@ struct PaperListView: View {
           Image(systemName: "checkmark.circle")
             .resizable()
             .scaledToFit()
-            .frame(width: 24, height: 24)
-            .foregroundStyle(Color(hex: "2F2C9F"))
+            .frame(height: 19)
+            .foregroundStyle(.primary1)
         }
-        .padding(.trailing, 30)
+        .padding(.trailing, 28)
         
         Button(action: {
           
         }) {
-          HStack(spacing: 0) {
-            Image(systemName: "plus")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 15)
-              .padding(.trailing, 6)
-            Text("업로드")
-              .fontWeight(.semibold)
-          }
-          .foregroundStyle(Color(hex: "2F2C9F"))
+          Text("업로드")
+            .reazyFont(.button1)
+            .foregroundStyle(.primary1)
         }
-        .padding(.trailing, 45)
+        .padding(.trailing, 28)
       }
       .padding(.vertical, 20)
       
@@ -85,19 +85,19 @@ struct PaperListView: View {
           // 세로 Divider
           Rectangle()
             .frame(width: 1)
-            .foregroundStyle(Color(hex: "D9DBE9"))
+            .foregroundStyle(.primary3)
           
           VStack(spacing: 0) {
             HStack {
               Spacer()
               Text("1/16")
-                .font(.system(size: 13))
-                .foregroundStyle(Color(hex: "8B8AAC"))
+                .reazyFont(.text1)
+                .foregroundStyle(.gray600)
                 .padding(.vertical, 3)
                 .padding(.horizontal, 12)
                 .background(
                   RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(hex: "F0F0F7"))
+                    .fill(.gray300)
                 )
               Spacer()
             }
@@ -118,13 +118,30 @@ struct PaperListView: View {
                 }) {
                   RoundedRectangle(cornerRadius: 14)
                     .frame(width: 40, height: 40)
-                    .foregroundStyle(Color(hex: "EFEFF8"))
+                    .foregroundStyle(.gray300)
                     .overlay(
                       Image(systemName: isStarSelected ? "star.fill" : "star")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 19)
-                        .foregroundStyle(Color(hex: "9092A9"))
+                        .frame(height: 17)
+                        .foregroundStyle(.gray600)
+                    )
+                }
+                .padding(.bottom, 11)
+                
+                // 삭제 버튼
+                Button(action: {
+                  
+                }) {
+                  RoundedRectangle(cornerRadius: 14)
+                    .frame(width: 40, height: 40)
+                    .foregroundStyle(.gray300)
+                    .overlay(
+                      Image(systemName: "trash")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 17)
+                        .foregroundStyle(.gray600)
                     )
                 }
                 .padding(.bottom, 11)
@@ -135,30 +152,30 @@ struct PaperListView: View {
                 }) {
                   RoundedRectangle(cornerRadius: 14)
                     .frame(width: 40, height: 40)
-                    .foregroundStyle(Color(hex: "EFEFF8"))
+                    .foregroundStyle(.gray300)
                     .overlay(
                       Image(systemName: isFolderSelected ? "folder.fill" : "folder.badge.plus")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 19)
-                        .foregroundStyle(Color(hex: "9092A9"))
+                        .frame(height: 17)
+                        .foregroundStyle(.gray600)
                     )
                 }
                 .padding(.bottom, 11)
                 
-                // ?? 버튼
+                // 내보내기 버튼
                 Button(action: {
-                  isSaveSelected.toggle()
+                  
                 }) {
                   RoundedRectangle(cornerRadius: 14)
                     .frame(width: 40, height: 40)
-                    .foregroundStyle(Color(hex: "EFEFF8"))
+                    .foregroundStyle(.gray300)
                     .overlay(
-                      Image(systemName: isSaveSelected ? "checkmark.square.fill" : "square.and.arrow.down")
+                      Image(systemName: "square.and.arrow.up")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 19)
-                        .foregroundStyle(Color(hex: "9092A9"))
+                        .frame(height: 17)
+                        .foregroundStyle(.gray600)
                     )
                 }
                 
@@ -186,6 +203,7 @@ struct PaperListView: View {
         }
       }
     }
+    .background(Color(hex: "F7F7FB"))
     .ignoresSafeArea()
   }
 }

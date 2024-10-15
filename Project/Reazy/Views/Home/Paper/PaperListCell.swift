@@ -19,24 +19,25 @@ struct PaperListCell: View {
     ZStack {
       if isSelected {
         RoundedRectangle(cornerRadius: 14)
-          .fill(Color(hex: "E4E6F3"))
+          .fill(.primary2)
           .padding(.vertical, 2)
       }
       
       HStack(spacing: 0) {
+        // 논문 표지 들어갈 자리
         Rectangle()
           .fill(.gray)
           .frame(width: 86, height: 112)
         
         VStack(alignment: .leading, spacing: 0) {
           Text("A Review of Generalized Zero-Shot Learning Methods")
-            .font(.system(size: 16))
-            .padding(.bottom, 6)
+            .reazyFont(.h2)
+            .padding(.bottom, 4)
           Text("1시간 전")
-            .font(.system(size: 14))
-            .foregroundStyle(Color(hex: "9092A9"))
+            .reazyFont(.h4)
+            .foregroundStyle(.gray600)
           
-          HStack() {
+          HStack(spacing: 0) {
             Spacer()
             
             if isSelected {
@@ -46,8 +47,10 @@ struct PaperListCell: View {
                 .hidden()
             }
           }
+//          .padding(.trailing, 21)
         }
         .padding(.leading, 14)
+        .padding(.top, 14)
       }
       .background(.clear)
       .padding(.horizontal, 10)
@@ -69,13 +72,23 @@ struct PaperListCell: View {
         Text("읽기 ")
         Image(systemName: "arrow.up.right")
       }
-      .foregroundStyle(.white)
-      .font(.system(size: 14))
+      .foregroundStyle(.gray100)
+      .reazyFont(.button2)
       .padding(.horizontal, 21)
       .padding(.vertical, 10)
       .background(
         RoundedRectangle(cornerRadius: 18)
-          .fill(Color(hex: "3F3E7E"))
+          .foregroundStyle(
+            LinearGradient(
+              gradient: Gradient(stops: [
+                .init(color: Color(hex:"3F3E7E"), location: 0),
+                .init(color: Color(hex: "313070"), location: 1)
+              ]),
+              startPoint: .top,
+              endPoint: .bottom
+            )
+          )
+          .shadow(color: Color(hex: "383582").opacity(0.2), radius: 30, x: 0, y: 6)
       )
     }
   }

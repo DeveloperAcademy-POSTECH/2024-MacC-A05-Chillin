@@ -42,12 +42,13 @@ struct PDFView: View {
               }) {
                 RoundedRectangle(cornerRadius: 6)
                   .frame(width: 26, height: 26)
+                // MARK: - 부리꺼 : 색상 적용 필요
                   .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
                   .overlay (
                     Image(systemName: icons[index])
                       .resizable()
                       .scaledToFit()
-                      .foregroundStyle(isSelected[index] ? .white : Color(hex: "3C3D4B"))
+                      .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
                       .frame(width: 18)
                   )
               }
@@ -62,11 +63,12 @@ struct PDFView: View {
               }) {
                 RoundedRectangle(cornerRadius: 6)
                   .frame(width: 26, height: 26)
+                // MARK: - 부리꺼 : 색상 적용 필요
                   .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
                   .overlay (
                     Text("Fig")
                       .font(.system(size: 14))
-                      .foregroundStyle(isSelected[index] ? .white : Color(hex: "3C3D4B"))
+                      .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
                   )
               }
             }
@@ -80,13 +82,13 @@ struct PDFView: View {
             Image(systemName: "link.badge.plus")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "4B4C5C"))
-              .frame(width: 21)
+              .foregroundStyle(.gray800)
+              .frame(height: 19)
           }
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 30)
-        .background(Color(hex: "DADDEF"))
+        .background(.primary3)
         
         HStack(spacing: 0) {
           Spacer()
@@ -97,7 +99,7 @@ struct PDFView: View {
             Image(systemName: "text.bubble")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "3C3D4B"))
+              .foregroundStyle(.gray800)
               .frame(height: 19)
           }
           .padding(.trailing, 39)
@@ -108,7 +110,7 @@ struct PDFView: View {
             Image(systemName: "character.bubble")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "3C3D4B"))
+              .foregroundStyle(.gray800)
               .frame(height: 19)
           }
           .padding(.trailing, 39)
@@ -119,7 +121,7 @@ struct PDFView: View {
             Image(systemName: "pencil.tip.crop.circle")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "3C3D4B"))
+              .foregroundStyle(.gray800)
               .frame(height: 19)
           }
           .padding(.trailing, 39)
@@ -130,12 +132,13 @@ struct PDFView: View {
             Image(systemName: "square.dashed")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "3C3D4B"))
+              .foregroundStyle(.gray800)
               .frame(height: 19)
           }
           
           Spacer()
         }
+        .background(.clear)
       }
       
       Divider()
@@ -184,7 +187,7 @@ struct PDFView: View {
     .customNavigationBar(
       centerView: {
         Text("\(index + 1)번째 문서")
-          .font(.system(size: 15))
+          .reazyFont(.h3)
       },
       leftView: {
         HStack {
@@ -196,7 +199,7 @@ struct PDFView: View {
             Image(systemName: "chevron.left")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "494949"))
+              .foregroundStyle(.gray800)
               .frame(height: 22)
           }
           .padding(.trailing, 20)
@@ -206,7 +209,7 @@ struct PDFView: View {
             Image(systemName: "magnifyingglass")
               .resizable()
               .scaledToFit()
-              .foregroundStyle(Color(hex: "494949"))
+              .foregroundStyle(.gray800)
               .frame(height: 22)
           }
         }
@@ -215,11 +218,12 @@ struct PDFView: View {
         Picker("", selection: $selectedMode) {
           ForEach(mode, id: \.self) {
             Text($0)
+              .reazyFont(.button4)
           }
         }
         .pickerStyle(.segmented)
         .frame(width: 158)
-        .background(Color(hex: "CDD0E5"))
+        .background(.gray500)
         .cornerRadius(9)
         .padding(10)
       }

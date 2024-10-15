@@ -38,7 +38,7 @@ struct CustomNavigationBarModifier<C, L, R>: ViewModifier where C : View, L : Vi
         }
       }
       .padding(.top, 10)
-      .background(Color(hex: "EAECF9"))
+      .background(.primary2)
       
       content
     }
@@ -46,7 +46,7 @@ struct CustomNavigationBarModifier<C, L, R>: ViewModifier where C : View, L : Vi
   }
 }
 
-struct WillDisappearModifier: ViewModifier {
+private struct WillDisappearModifier: ViewModifier {
   let callback: () -> Void
   
   func body(content: Content) -> some View {
