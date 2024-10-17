@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PDFView: View {
+struct MainPDFView: View {
   
   // 문서 선택 확인을 위한 인덱스
   let index: Int
@@ -232,7 +232,7 @@ struct PDFView: View {
 }
 
 #Preview {
-  PDFView(
+  MainPDFView(
     index: 1,
     mode: ["원문 모드", "집중 모드"],
     navigationPath: .constant(NavigationPath()))

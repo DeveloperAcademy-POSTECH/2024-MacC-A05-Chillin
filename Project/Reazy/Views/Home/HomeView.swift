@@ -84,7 +84,7 @@ struct HomeView: View {
       }
       .background(Color(hex: "F7F7FB"))
       .navigationDestination(for: Int.self) { index in
-        PDFView(index: index, navigationPath: $navigationPath)
+        MainPDFView(index: index, navigationPath: $navigationPath)
       }
     }
     .statusBarHidden()

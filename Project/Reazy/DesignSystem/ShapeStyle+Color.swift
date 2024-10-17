@@ -28,6 +28,27 @@ extension ShapeStyle where Self == Color {
   static var gray100: Color { Color(hex: "FFFFFF") }
 }
 
+extension UIColor {
+    static var primary1: UIColor { UIColor(hex: "5F5DAA") }
+    static var primary2: UIColor { UIColor(hex: "E4E6F3") }
+    static var primary3: UIColor { UIColor(hex: "DADDEF") }
+    static var primary4: UIColor { UIColor(hex: "CCCEE1") }
+    
+    static var point1: UIColor { UIColor(hex: "05043E") }
+    static var point2: UIColor { UIColor(hex: "26235D") }
+    static var point3: UIColor { UIColor(hex: "D2CFFF") }
+    
+    static var gray900: UIColor { UIColor(hex: "3C3D4D") }
+    static var gray800: UIColor { UIColor(hex: "636577") }
+    static var gray700: UIColor { UIColor(hex: "636577") }
+    static var gray600: UIColor { UIColor(hex: "9092A9") }
+    static var gray500: UIColor { UIColor(hex: "D2D4E5") }
+    static var gray400: UIColor { UIColor(hex: "DDDFEC") }
+    static var gray300: UIColor { UIColor(hex: "EFEFF8") }
+    static var gray200: UIColor { UIColor(hex: "F7F7FB") }
+    static var gray100: UIColor { UIColor(hex: "FFFFFF") }
+}
+
 extension Color {
   init(hex: String) {
     let scanner = Scanner(string: hex)
