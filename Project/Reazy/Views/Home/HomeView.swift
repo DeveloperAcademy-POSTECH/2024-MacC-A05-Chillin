@@ -9,7 +9,6 @@ import SwiftUI
 
 struct HomeView: View {
   
-  
   @State private var isSelected: [Bool] = [true, false, false, false, false]
   @State private var nonselectedIcons: [String] = ["text.page", "star", "folder", "link", "gearshape"]
   @State private var selectedIcons: [String] = ["text.page.fill", "star.fill", "folder.fill", "link", "gearshape.fill"]
@@ -77,14 +76,17 @@ struct HomeView: View {
         .ignoresSafeArea()
         
         if isSelected[0] {
-          PaperListView(navigationPath: $navigationPath)
+          PaperView(navigationPath: $navigationPath)
         } else {
-          EmptyView()
+          TestView()
         }
       }
       .background(Color(hex: "F7F7FB"))
       .navigationDestination(for: Int.self) { index in
         PDFView(index: index, navigationPath: $navigationPath)
+      }
+      .onTapGesture {
+        hideKeyboard()
       }
     }
     .statusBarHidden()
@@ -94,3 +96,11 @@ struct HomeView: View {
 #Preview {
   HomeView()
 }
+
+#if canImport(UIKit)
+extension View {
+  func hideKeyboard() {
+    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+  }
+}
+#endif
