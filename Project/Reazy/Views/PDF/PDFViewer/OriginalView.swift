@@ -9,9 +9,11 @@ import SwiftUI
 
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
+    @EnvironmentObject private var viewModel: OriginalViewModel
+    
     var body: some View {
         VStack(spacing: 0) {
-            MainPDFViewControllerRepresent()
+            OriginalViewControllerRepresent()
         }
     }
 }
