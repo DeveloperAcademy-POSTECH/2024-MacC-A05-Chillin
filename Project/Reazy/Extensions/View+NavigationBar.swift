@@ -28,7 +28,6 @@ struct CustomNavigationBarModifier<C, L, R>: ViewModifier where C : View, L : Vi
           self.rightView?()
         }
         .frame(height: 51)
-        .frame(width: .infinity)
         .padding(.horizontal, 20)
         
         HStack {

@@ -8,9 +8,10 @@
 import UIKit
 import PDFKit
 
-final class MainPDFViewController: UIViewController {
+/// 원문 모드 VC
+final class OriginalViewController: UIViewController {
 
-    let viewModel: MainPDFViewModel = .shared
+    let viewModel: OriginalViewModel = .shared
     
     let mainPDFView: PDFView = {
         let view = PDFView()
@@ -22,15 +23,18 @@ final class MainPDFViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         self.setUI()
+        self.setData()
     }
-    
-
 }
 
-extension MainPDFViewController {
+
+
+// MARK: - 초기 설정
+extension OriginalViewController {
+    /// UI 설정
     private func setUI() {
-        
         self.view.addSubview(self.mainPDFView)
         NSLayoutConstraint.activate([
             self.mainPDFView.topAnchor.constraint(equalTo: self.view.topAnchor),
@@ -38,6 +42,18 @@ extension MainPDFViewController {
             self.mainPDFView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.mainPDFView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
+        
+        
+    }
+    
+    /// ViewModel 설정
+    private func setData() {
+        self.viewModel.setPDFDocument(url: Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!)
+        self.mainPDFView.document = self.viewModel.document
     }
 }
 
+
+#Preview {
+    OriginalViewController()
+}
