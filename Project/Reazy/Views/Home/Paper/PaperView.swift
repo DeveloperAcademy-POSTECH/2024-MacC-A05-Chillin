@@ -25,6 +25,9 @@ struct PaperView: View {
   @State private var isStarSelected: Bool = false
   @State private var isFolderSelected: Bool = false
   
+  @State private var isEditing: Bool = false
+  @State private var selectedItems: Set<Int> = []
+  
   @Binding var navigationPath: NavigationPath
   
   var body: some View {
@@ -54,6 +57,8 @@ struct PaperView: View {
             withAnimation(.easeInOut(duration: 0.3)) {
               selectedMenu = .edit
             }
+            isEditing.toggle()
+            selectedItems.removeAll()
           }) {
             Image(systemName: "checkmark.circle")
               .resizable()
@@ -122,9 +127,9 @@ struct PaperView: View {
           .padding(.trailing, 28)
           
           Button(action: {
-            withAnimation(.easeInOut(duration: 0.3)) {
-              selectedMenu = .main
-            }
+            selectedMenu = .main
+            isEditing = false
+            selectedItems.removeAll()
           }, label: {
             Text("취소")
               .reazyFont(.button1)
@@ -137,7 +142,11 @@ struct PaperView: View {
         
       Divider()
       
-      PaperListView(navigationPath: $navigationPath)
+      PaperListView(
+        isEditing: isEditing,
+        selectedItems: $selectedItems,
+        navigationPath: $navigationPath
+      )
     }
     .background(Color(hex: "F7F7FB"))
     .ignoresSafeArea()

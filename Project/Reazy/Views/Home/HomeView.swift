@@ -75,6 +75,7 @@ struct HomeView: View {
         .frame(width: 80)
         .ignoresSafeArea()
         
+        // 화면 추가 시 수정 예정
         if isSelected[0] {
           PaperView(navigationPath: $navigationPath)
         } else {
@@ -85,9 +86,6 @@ struct HomeView: View {
       .navigationDestination(for: Int.self) { index in
         PDFView(index: index, navigationPath: $navigationPath)
       }
-      .onTapGesture {
-        hideKeyboard()
-      }
     }
     .statusBarHidden()
   }
@@ -96,11 +94,3 @@ struct HomeView: View {
 #Preview {
   HomeView()
 }
-
-#if canImport(UIKit)
-extension View {
-  func hideKeyboard() {
-    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-  }
-}
-#endif

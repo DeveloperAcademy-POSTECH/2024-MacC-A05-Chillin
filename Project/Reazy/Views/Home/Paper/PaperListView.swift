@@ -14,6 +14,9 @@ struct PaperListView: View {
   @State private var isStarSelected: Bool = false
   @State private var isFolderSelected: Bool = false
   
+  let isEditing: Bool
+  @Binding var selectedItems: Set<Int>
+  
   @Binding var navigationPath: NavigationPath
   
   var body: some View {
@@ -26,11 +29,26 @@ struct PaperListView: View {
             PaperListCell(
               index: index,
               isSelected: selectedPaper == index,
+              isEditing: isEditing,
+              isEditingSelected: selectedItems.contains(index),
               onSelect: {
-                selectedPaper = index
+                if !isEditing {
+                  selectedPaper = index
+                }
+              },
+              onEditingSelect: {
+                if isEditing {
+                  if selectedItems.contains(index) {
+                    selectedItems.remove(index)
+                  } else {
+                    selectedItems.insert(index)
+                  }
+                }
               },
               onNavigate: {
-                navigationPath.append(index)
+                if !isEditing {
+                  navigationPath.append(index)
+                }
               }
             )
               .listRowBackground(Color.clear)
@@ -164,5 +182,8 @@ struct PaperListView: View {
 }
 
 #Preview {
-  PaperListView(navigationPath: .constant(NavigationPath()))
+  PaperListView(
+    isEditing: false,
+    selectedItems: .constant([]),
+    navigationPath: .constant(NavigationPath()))
 }
