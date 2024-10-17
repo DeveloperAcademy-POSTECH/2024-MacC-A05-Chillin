@@ -7,7 +7,6 @@
 
 import UIKit
 import PDFKit
-import SwiftUI
 
 
 final class ConcentrateViewController: UIViewController {
@@ -28,6 +27,7 @@ final class ConcentrateViewController: UIViewController {
         view.displayDirection = .vertical
         view.pageShadowsEnabled = false
         view.pageBreakMargins = .init(top: 20, left: 0, bottom: 0, right: 0)
+        view.autoScales = false
         view.subviews.first!.backgroundColor = .gray200
         return view
     }()
@@ -69,6 +69,9 @@ extension ConcentrateViewController {
             self.pdfView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.pdfView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
         ])
+        
+        // pdf view의 초기 scale 설정
+        self.pdfView.scaleFactor = 2.5
     }
 }
 

@@ -50,10 +50,7 @@ extension OriginalViewModel {
             }
             
             let original = page.bounds(for: .mediaBox)
-            
-            print(original)
-            print(annotation.position)
-            
+
             let croppedRect = original.intersection(annotation.position)
             
             

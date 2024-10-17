@@ -82,8 +82,6 @@ extension NetworkManager {
                     continue
                     
                 } else if currentPage != page {
-                    print(currentPage)
-                    print("before: \(x0), \(x1), \(y0), \(y1)    after: \(coord)")
                     let focus = FocusAnnotation(page: currentPage, header: header, position: .init(
                         x: x0,
                         y: pageHeight - y1,
@@ -116,10 +114,6 @@ extension NetworkManager {
                 height: y1 - y0))
             
             result.append(focus)
-        }
-        
-        result.forEach {
-            print($0)
         }
         return result
     }

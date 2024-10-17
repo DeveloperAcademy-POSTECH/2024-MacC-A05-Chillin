@@ -17,6 +17,7 @@ final class OriginalViewController: UIViewController {
         let view = PDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
+        view.autoScales = false
         return view
     }()
 
