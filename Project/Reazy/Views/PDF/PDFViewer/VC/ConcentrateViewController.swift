@@ -28,7 +28,7 @@ final class ConcentrateViewController: UIViewController {
         view.displayDirection = .vertical
         view.pageShadowsEnabled = false
         view.pageBreakMargins = .init(top: 20, left: 0, bottom: 0, right: 0)
-        view.subviews.first!.backgroundColor = .white
+        view.subviews.first!.backgroundColor = .gray200
         return view
     }()
     
@@ -59,7 +59,8 @@ extension ConcentrateViewController {
     
     /// UI 설정
     private func setUI() {
-        self.view.backgroundColor = .white
+        // TODO: 집중모드에서 백그라운드 컬러에 따른 확대,축소 기능 넣을지 여부 확인
+        self.view.backgroundColor = .gray200
         
         self.view.addSubview(self.pdfView)
         NSLayoutConstraint.activate([
