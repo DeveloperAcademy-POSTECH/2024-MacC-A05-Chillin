@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
   
+  
   @State private var isSelected: [Bool] = [true, false, false, false, false]
   @State private var nonselectedIcons: [String] = ["text.page", "star", "folder", "link", "gearshape"]
   @State private var selectedIcons: [String] = ["text.page.fill", "star.fill", "folder.fill", "link", "gearshape.fill"]
@@ -75,11 +76,10 @@ struct HomeView: View {
         .frame(width: 80)
         .ignoresSafeArea()
         
-        // 화면 추가 시 수정 예정
         if isSelected[0] {
-          PaperView(navigationPath: $navigationPath)
+          PaperListView(navigationPath: $navigationPath)
         } else {
-          TestView()
+          EmptyView()
         }
       }
       .background(Color(hex: "F7F7FB"))
