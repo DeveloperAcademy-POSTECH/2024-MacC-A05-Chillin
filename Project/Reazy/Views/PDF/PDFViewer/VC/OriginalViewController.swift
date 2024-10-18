@@ -11,12 +11,13 @@ import PDFKit
 /// 원문 모드 VC
 final class OriginalViewController: UIViewController {
 
-    let viewModel: OriginalViewModel = .shared
+    let viewModel: OriginalViewModel
     
     let mainPDFView: PDFView = {
         let view = PDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
+        view.autoScales = false
         return view
     }()
 
@@ -26,6 +27,15 @@ final class OriginalViewController: UIViewController {
         
         self.setUI()
         self.setData()
+    }
+    
+    init(viewModel: OriginalViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
@@ -42,18 +52,18 @@ extension OriginalViewController {
             self.mainPDFView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.mainPDFView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
-        
-        
     }
     
     /// ViewModel 설정
     private func setData() {
         self.viewModel.setPDFDocument(url: Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!)
         self.mainPDFView.document = self.viewModel.document
+        
+        self.viewModel.fetchFocusAnnotations()
     }
 }
 
 
 #Preview {
-    OriginalViewController()
+    OriginalViewController(viewModel: .init())
 }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MainPDFView: View {
+    
+    @StateObject private var originalViewModel: OriginalViewModel = .init()
   
   // 문서 선택 확인을 위한 인덱스
   let index: Int
@@ -146,8 +148,14 @@ struct MainPDFView: View {
       
       GeometryReader { geometry in
         ZStack {
-          if selectedMode == "원문 모드" { OriginalView() }
-          else if selectedMode == "집중 모드" { ConcentrateView() }
+            if selectedMode == "원문 모드" {
+                OriginalView()
+                    .environmentObject(originalViewModel)
+            }
+            else if selectedMode == "집중 모드" {
+                ConcentrateView()
+                    .environmentObject(originalViewModel)
+            }
           
           // MARK: - 모아보기 창
           HStack(spacing: 0){
