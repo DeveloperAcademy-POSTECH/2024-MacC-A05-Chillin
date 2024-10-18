@@ -12,10 +12,7 @@ struct PaperListCell: View {
   /// 지금은 논문을 분류할 기준이 없어서 index로 대체했습니다
   let index: Int
   let isSelected: Bool
-  let isEditing: Bool
-  let isEditingSelected: Bool
   let onSelect: () -> Void
-  let onEditingSelect: () -> Void
   let onNavigate: () -> Void
   
   var body: some View {
@@ -27,19 +24,6 @@ struct PaperListCell: View {
       }
       
       HStack(spacing: 0) {
-        if isEditing {
-          Image(systemName: isEditingSelected ? "checkmark.circle.fill" : "circle")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 24, height: 24)
-            .foregroundStyle(isEditingSelected ? .primary1 : .primary4)
-            .onTapGesture {
-              onEditingSelect()
-            }
-            .padding(.trailing, 20)
-        }
-        
-        
         // 논문 표지 들어갈 자리
         Rectangle()
           .fill(.gray)
@@ -56,13 +40,14 @@ struct PaperListCell: View {
           HStack(spacing: 0) {
             Spacer()
             
-            if isSelected && !isEditing {
+            if isSelected {
               actionButton()
             } else {
               actionButton()
                 .hidden()
             }
           }
+//          .padding(.trailing, 21)
         }
         .padding(.leading, 14)
         .padding(.top, 14)
@@ -72,11 +57,7 @@ struct PaperListCell: View {
       .padding(.vertical, 10)
       .contentShape(Rectangle())
       .onTapGesture {
-        if isEditing {
-          onEditingSelect()
-        } else {
-          onSelect()
-        }
+        onSelect()
       }
       .allowsHitTesting(isSelected == false)
     }
@@ -111,16 +92,4 @@ struct PaperListCell: View {
       )
     }
   }
-}
-
-#Preview {
-  PaperListCell(
-    index: 1,
-    isSelected: false,
-    isEditing: true,
-    isEditingSelected: false,
-    onSelect: {},
-    onEditingSelect: {},
-    onNavigate: {}
-  )
 }
