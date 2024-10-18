@@ -160,7 +160,7 @@ struct MainPDFView: View {
           // MARK: - 모아보기 창
           HStack(spacing: 0){
             if isSelected[0] {
-              TableView()
+                TableView(originalViewModel: originalViewModel)
                 .background(.white)
                 .frame(width: geometry.size.width * 0.25)
               
@@ -239,9 +239,9 @@ struct MainPDFView: View {
   }
 }
 
-#Preview {
-  MainPDFView(
-    index: 1,
-    mode: ["원문 모드", "집중 모드"],
-    navigationPath: .constant(NavigationPath()))
-}
+//#Preview {
+//  MainPDFView(
+//    index: 1,
+//    mode: ["원문 모드", "집중 모드"],
+//    navigationPath: .constant(NavigationPath()))
+//}
