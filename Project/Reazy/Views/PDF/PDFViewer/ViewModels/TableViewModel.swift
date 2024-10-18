@@ -17,7 +17,14 @@ struct TableViewModel {
         var tableItems: [TableItem] = []
         
         if let outlineRoot = document.outlineRoot {
-            fetchToc(table: outlineRoot, level: 0, parentArray: &tableItems)
+            //outlineRoot의 자식이 하나면 제외하고 fetch 돌리기
+            if outlineRoot.numberOfChildren == 1{
+                if let child = outlineRoot.child(at: 0) {
+                    fetchToc(table: child, level: 0, parentArray: &tableItems)
+                }
+            }else{
+                fetchToc(table: outlineRoot, level: 0, parentArray: &tableItems)
+            }
         }
         
         func fetchToc(table: PDFOutline, level: Int, parentArray: inout [TableItem]) {
