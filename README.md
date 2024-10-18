@@ -1,4 +1,6 @@
-# 우리팀의 규칙
+# 우리 팀의 규칙
+<img src="https://github.com/user-attachments/assets/2dc9351e-68d2-431f-a77b-174cfcae2c7a" width="500"></img>
+
 안녕하세요. 애플 디벨로퍼 아카데미 팀5 Chillin' 입니다❗️
 
 저희 팀의 건강한 레포지토리 유지를 위해 아래와 같은 규칙을 지켜주세요‼️
