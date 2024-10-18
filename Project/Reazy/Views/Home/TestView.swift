@@ -1,5 +1,5 @@
 //
-//  EmptyView.swift
+//  TestView.swift
 //  Reazy
 //
 //  Created by 유지수 on 10/14/24.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 // MARK: - 시험용 뷰 (변경 예정)
-struct EmptyView: View {
+struct TestView: View {
   var body: some View {
     HStack {
       Spacer()
@@ -19,5 +19,5 @@ struct EmptyView: View {
 }
 
 #Preview {
-  EmptyView()
+  TestView()
 }
