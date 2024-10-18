@@ -15,7 +15,6 @@ struct TableView: View {
     let tableViewModel: TableViewModel = .init()
     
     @State var outlineItems: [TableItem] = []
-    @State var selectedDestination: PDFDestination? = nil
     
     var body: some View {
         VStack {
@@ -24,7 +23,7 @@ struct TableView: View {
             } else {
                 List {
                     ForEach(outlineItems) { item in
-                        TableCell(item: item, selected: $selectedDestination)
+                        TableCell(item: item)
                     }
                 }
             }
@@ -37,9 +36,3 @@ struct TableView: View {
         }
     }
 }
-
-//#Preview {
-//    TableView(tableViewModel: TableViewModel(
-//        pdfURL: <#URL#>,
-//        pdfDocument: <#PDFDocument#>))
-//}

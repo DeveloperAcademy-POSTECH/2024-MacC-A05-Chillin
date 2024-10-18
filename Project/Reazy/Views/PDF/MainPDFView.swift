@@ -161,6 +161,7 @@ struct MainPDFView: View {
           HStack(spacing: 0){
             if isSelected[0] {
                 TableView(originalViewModel: originalViewModel)
+                .environmentObject(originalViewModel)
                 .background(.white)
                 .frame(width: geometry.size.width * 0.25)
               
