@@ -30,20 +30,13 @@ struct HomeView: View {
             ForEach(HomeButton.allCases, id: \.self) { btn in
               if btn == .setting {
                 Spacer()
-                HomeViewButton(
-                  button: $selectedButton,
-                  buttonOwner: btn) {
-                    selectedButton = btn
-                  }
-                  .padding(.bottom, 15)
-              } else {
-                HomeViewButton(
-                  button: $selectedButton,
-                  buttonOwner: btn) {
-                    selectedButton = btn
-                  }
-                  .padding(.bottom, 19)
               }
+              HomeViewButton(
+                button: $selectedButton,
+                buttonOwner: btn) {
+                  selectedButton = btn
+                }
+                .padding(.bottom, btn == .setting ? 15 : 19)
             }
           }
         }
