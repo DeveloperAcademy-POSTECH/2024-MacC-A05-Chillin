@@ -160,7 +160,7 @@ struct MainPDFView: View {
           // MARK: - 모아보기 창
           HStack(spacing: 0){
             if isSelected[0] {
-                TableView(originalViewModel: originalViewModel)
+                TableView()
                 .environmentObject(originalViewModel)
                 .background(.white)
                 .frame(width: geometry.size.width * 0.25)

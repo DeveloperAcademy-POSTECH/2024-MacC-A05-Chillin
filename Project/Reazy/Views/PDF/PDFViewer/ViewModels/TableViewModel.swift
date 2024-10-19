@@ -19,7 +19,7 @@ struct TableViewModel {
                 if let child = outlineRoot.child(at: 0) {
                     fetchToc(table: child, level: 0, parentArray: &tableItems)
                 }
-            }else{
+            } else {
                 fetchToc(table: outlineRoot, level: 0, parentArray: &tableItems)
             }
         }
@@ -36,12 +36,4 @@ struct TableViewModel {
         }
         return tableItems
     }
-}
-
-struct TableItem: Identifiable {
-    let id = UUID()
-    let table: PDFOutline
-    let level: Int
-    var children: [TableItem] = []
-    var isExpanded: Bool = false
 }

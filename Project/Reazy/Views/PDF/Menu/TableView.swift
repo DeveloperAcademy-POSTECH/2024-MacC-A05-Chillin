@@ -11,7 +11,8 @@ import PDFKit
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
     
-    let originalViewModel: OriginalViewModel
+    @EnvironmentObject var originalViewModel: OriginalViewModel
+    
     let tableViewModel: TableViewModel = .init()
     
     @State var outlineItems: [TableItem] = []
