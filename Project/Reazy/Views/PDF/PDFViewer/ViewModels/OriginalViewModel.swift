@@ -14,6 +14,8 @@ import PDFKit
 
 
 final class OriginalViewModel: ObservableObject {
+    @Published var selectedDestination: PDFDestination?
+    
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
     

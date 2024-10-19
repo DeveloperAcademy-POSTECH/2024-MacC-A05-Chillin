@@ -6,22 +6,34 @@
 //
 
 import SwiftUI
+import PDFKit
 
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
-  var body: some View {
-    List {
-      ForEach(0..<10, id: \.self) { index in
-        TableCell(index: index)
-          .listRowSeparator(.hidden)
-          .padding(.top, 16)
-          .padding(.leading, 24)
-      }
+    
+    @EnvironmentObject var originalViewModel: OriginalViewModel
+    
+    let tableViewModel: TableViewModel = .init()
+    
+    @State var outlineItems: [TableItem] = []
+    
+    var body: some View {
+        VStack {
+            if outlineItems.isEmpty {
+                Text("No table of contents")
+            } else {
+                List {
+                    ForEach(outlineItems) { item in
+                        TableCell(item: item)
+                    }
+                }
+            }
+        }.onAppear {
+            if let document = originalViewModel.document{
+                outlineItems = tableViewModel.extractToc(from: document)
+            } else {
+                outlineItems = []
+            }
+        }
     }
-    .listStyle(.plain)
-  }
-}
-
-#Preview {
-  TableView()
 }
