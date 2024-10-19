@@ -11,6 +11,9 @@ import PDFKit
 
 // MARK: - Lucid : Figure 뷰
 struct FigureView: View {
+    
+    @EnvironmentObject var originalViewModel: OriginalViewModel
+    
     var body: some View {
         VStack(spacing: 0) {
             Text("피규어를 꺼내서 창에 띄울 수 있어요")
@@ -19,8 +22,8 @@ struct FigureView: View {
                 .padding(.vertical, 24)
             
             List {
-                ForEach(0..<10, id: \.self) { index in
-                    FigureCell()
+                ForEach(0..<originalViewModel.figureAnnotations.count, id: \.self) { index in
+                    FigureCell(index: index)
                         .padding(.bottom, 21)
                         .listRowSeparator(.hidden)
                 }
@@ -30,6 +33,6 @@ struct FigureView: View {
     }
 }
 
-#Preview {
-    FigureView()
-}
+//#Preview {
+//  FigureView()
+//}
