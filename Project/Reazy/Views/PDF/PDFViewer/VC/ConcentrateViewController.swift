@@ -99,11 +99,8 @@ extension ConcentrateViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
                 guard let page = self?.viewModel.findFocusPageNum(destination: destination) else {
-                    print("here?")
                     return
                 }
-                
-                print(page)
                 
                 self?.pdfView.go(to: page)
             }
