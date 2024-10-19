@@ -94,6 +94,18 @@ struct PaperView: View {
           
       case .edit:
           Button(action: {
+            // MARK: - 북마크 로직 확인 필요
+            isStarSelected.toggle()
+          }, label : {
+            Image(systemName: isStarSelected ? "star.fill" : "star")
+              .resizable()
+              .scaledToFit()
+              .frame(height: 19)
+              .foregroundStyle(.primary1)
+          })
+          .padding(.trailing, 28)
+          
+          Button(action: {
             
           }, label: {
             Image(systemName: "trash")
@@ -130,6 +142,7 @@ struct PaperView: View {
             selectedMenu = .main
             isEditing = false
             selectedItems.removeAll()
+            isStarSelected = false
           }, label: {
             Text("취소")
               .reazyFont(.button1)

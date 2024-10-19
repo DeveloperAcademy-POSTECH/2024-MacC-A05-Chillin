@@ -9,10 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
   
-  @State private var isSelected: [Bool] = [true, false, false, false, false]
-  @State private var nonselectedIcons: [String] = ["text.page", "star", "folder", "link", "gearshape"]
-  @State private var selectedIcons: [String] = ["text.page.fill", "star.fill", "folder.fill", "link", "gearshape.fill"]
-  
+  @State private var selectedButton: HomeButton = .page
   @State private var navigationPath: NavigationPath = NavigationPath()
   
   
@@ -30,55 +27,40 @@ struct HomeView: View {
               .padding(.top, 45)
               .padding(.bottom, 40)
             
-            ForEach(0..<isSelected.count, id: \.self) { index in
-              if index < 4 {
-                Button(action: {
-                  isSelected.toggleSelection(at: index)
-                }) {
-                  RoundedRectangle(cornerRadius: 14)
-                    .frame(width: 54, height: 54)
-                    .foregroundStyle(isSelected[index] ? .point2 : .clear)
-                    .overlay(
-                      Image(systemName: isSelected[index] ? selectedIcons[index] : nonselectedIcons[index])
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 21)
-                        .foregroundStyle(isSelected[index] ? .gray100 : .point3)
-                    )
-                }
-                .padding(.bottom, 16)
-              } else {
-                VStack(spacing: 0) {
-                  Spacer()
-                  Button(action: {
-                    isSelected.toggleSelection(at: index)
-                  }) {
-                    RoundedRectangle(cornerRadius: 14)
-                      .frame(width: 54, height: 54)
-                      .foregroundStyle(isSelected[index] ? .point2 : .clear)
-                      .overlay(
-                        Image(systemName: isSelected[index] ? selectedIcons[index] : nonselectedIcons[index])
-                          .resizable()
-                          .scaledToFit()
-                          .frame(width: 15)
-                          .foregroundStyle(isSelected[index] ? .gray100 : .point3)
-                      )
+            ForEach(HomeButton.allCases, id: \.self) { btn in
+              if btn == .setting {
+                Spacer()
+                HomeViewButton(
+                  button: $selectedButton,
+                  buttonOwner: btn) {
+                    selectedButton = btn
                   }
-                  .padding(.bottom, 16)
-                }
+                  .padding(.bottom, 15)
+              } else {
+                HomeViewButton(
+                  button: $selectedButton,
+                  buttonOwner: btn) {
+                    selectedButton = btn
+                  }
+                  .padding(.bottom, 19)
               }
             }
-            
-            Spacer()
           }
         }
         .frame(width: 80)
         .ignoresSafeArea()
         
         // 화면 추가 시 수정 예정
-        if isSelected[0] {
+        switch selectedButton {
+        case .page:
           PaperView(navigationPath: $navigationPath)
-        } else {
+        case .star:
+          TestView()
+        case .folder:
+          TestView()
+        case .link:
+          TestView()
+        case .setting:
           TestView()
         }
       }
@@ -88,6 +70,68 @@ struct HomeView: View {
       }
     }
     .statusBarHidden()
+  }
+}
+
+struct HomeViewButton: View {
+  @Binding var button: HomeButton
+  
+  let buttonOwner: HomeButton
+  let action: () -> Void
+  
+  var body: some View {
+    Button(action: {
+      action()
+    }) {
+      RoundedRectangle(cornerRadius: 14)
+        .frame(width: 54, height: 54)
+        .foregroundStyle(button == buttonOwner ? .point2 : .clear)
+        .overlay(
+          Image(systemName: button == buttonOwner ? buttonOwner.selectedIcon : buttonOwner.nonSelectedIcon)
+            .resizable()
+            .scaledToFit()
+            .frame(height: 21)
+            .foregroundStyle(button == buttonOwner ? .gray100 : .point3)
+        )
+    }
+  }
+}
+
+enum HomeButton: String, CaseIterable {
+  case page
+  case star
+  case folder
+  case link
+  case setting
+  
+  var selectedIcon: String {
+    switch self {
+    case .page:
+      "text.page.fill"
+    case .star:
+      "star.fill"
+    case .folder:
+      "folder.fill"
+    case .link:
+      "link"
+    case .setting:
+      "gearshape.fill"
+    }
+  }
+  
+  var nonSelectedIcon: String {
+    switch self {
+    case .page:
+      "text.page"
+    case .star:
+      "star"
+    case .folder:
+      "folder"
+    case .link:
+      "link"
+    case .setting:
+      "gearshape"
+    }
   }
 }
 
