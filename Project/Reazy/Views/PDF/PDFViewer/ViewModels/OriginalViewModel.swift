@@ -64,5 +64,32 @@ extension OriginalViewModel {
         
         self.focusDocument = document
     }
+    
+    /// Destination의 페이지 넘버 찾는 메소드
+    private func findPageNum(destination: PDFDestination?) -> Int {
+        guard let page = destination?.page else {
+            return -1
+        }
+        
+        guard let num = self.document?.index(for: page) else {
+            return -1
+        }
+        
+        return num
+    }
+    
+    /// 집중 모드에서 
+    public func findFocusPageNum(destination: PDFDestination?) -> PDFPage? {
+        let num = self.findPageNum(destination: destination)
+        print(num)
+        
+        guard let resultNum = self.focusAnnotations.firstIndex(where:{ $0.page == num + 1 }) else {
+            return nil
+        }
+        
+        let page = self.focusDocument?.page(at: resultNum)
+        
+        return page
+    }
 }
 
