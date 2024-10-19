@@ -69,8 +69,7 @@ extension OriginalViewController {
     private func setBinding() {
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
-                guard let destination = destination else { return }
-                guard let page = destination.page else { return }
+                guard let page = destination?.page else { return }
                 self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)

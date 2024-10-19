@@ -7,17 +7,20 @@
 
 import UIKit
 import PDFKit
-
+import Combine
 
 final class ConcentrateViewController: UIViewController {
     
     let viewModel: OriginalViewModel
+    
+    var cancellables: Set<AnyCancellable> = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setData()
         setUI()
+        setBinding()
     }
     
     lazy var pdfView: PDFView = {
@@ -72,6 +75,23 @@ extension ConcentrateViewController {
         
         // pdf view의 초기 scale 설정
         self.pdfView.scaleFactor = 2.5
+    }
+    
+    /// 데이터 바인딩
+    private func setBinding() {
+        self.viewModel.$selectedDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                guard let page = self?.viewModel.findFocusPageNum(destination: destination) else {
+                    print("here?")
+                    return
+                }
+                
+                print(page)
+                
+                self?.pdfView.go(to: page)
+            }
+            .store(in: &cancellables)
     }
 }
 
