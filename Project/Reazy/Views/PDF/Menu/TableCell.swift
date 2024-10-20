@@ -12,28 +12,69 @@ import PDFKit
 struct TableCell: View {
     @EnvironmentObject var viewModel: OriginalViewModel
     @State var item: TableItem
+    @State var isSelected: Bool = false
+    @Binding var selectedID: UUID?
     
     var body: some View {
-        if item.children.isEmpty {
-            Text(item.table.label ?? "None")
-                .onTapGesture {
-                    onTap()
+        ZStack {
+            VStack {
+                if selectedID == item.id {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(.primary2)
+                        .frame(height: 40)
+                        .offset(x: 10)
                 }
-        } else{
-            DisclosureGroup(isExpanded: $item.isExpanded) {
-                ForEach(item.children) { child in
-                    TableCell(item: child)
-                }
-            } label: {
-                Text(item.table.label ?? "None")
-                    .onTapGesture {
-                        onTap()
+                Spacer()
+            }
+            VStack {
+                if item.children.isEmpty {
+                    HStack {
+                        Text(item.table.label ?? "None")
+                            .lineLimit(1)
+                            .reazyFont(.h3)
+                            .foregroundStyle(Color(.gray900))
+                            .onTapGesture {
+                                onTap()
+                            }
+                        Spacer()
                     }
+                    .padding(.leading, 24)
+                    .frame(height: 40)
+                } else {
+                    DisclosureGroup(isExpanded: $item.isExpanded) {
+                        ForEach(item.children) { child in
+                            HStack{
+                                Spacer().frame(width: 20)
+                                TableCell(item: child, selectedID: $selectedID)
+                            }
+                        }
+                    } label: {
+                        HStack{
+                            Text(item.table.label ?? "None")
+                                .lineLimit(1)
+                                .reazyFont(.h3)
+                                .foregroundStyle(Color(.gray900))
+                                .onTapGesture {
+                                    onTap()
+                                }
+                        }
+                        .padding(.leading, 24)
+                        .frame(height: 40)
+                        .accentColor(.gray800)
+                    }
+                    .animation(nil, value: item.isExpanded)
+                }
+                Spacer()
             }
         }
+        .padding(0)
+        .frame(width: 250)
     }
     
     private func onTap() {
+        if selectedID != item.id {
+            selectedID = item.id
+        }
         if let destination = item.table.destination {
             viewModel.selectedDestination = destination
             //test
