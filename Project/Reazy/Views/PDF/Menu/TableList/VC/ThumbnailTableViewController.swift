@@ -7,14 +7,17 @@
 
 import SwiftUI
 import UIKit
+import Combine
 
 
 /**
- 썸네일 뷰 컨트롤러(페이지 리스트)
+ 썸네일 ViewController(페이지 리스트)
  */
 final class ThumbnailTableViewController: UIViewController {
     
     let viewModel: OriginalViewModel
+    
+    var cancellables: Set<AnyCancellable> = []
     
     init(viewModel: OriginalViewModel) {
         self.viewModel = viewModel
@@ -39,6 +42,7 @@ final class ThumbnailTableViewController: UIViewController {
         super.viewDidLoad()
 
         setUI()
+        setBinding()
     }
 }
 
@@ -54,27 +58,44 @@ extension ThumbnailTableViewController {
         ])
         
     }
+    
+    private func setBinding() {
+        self.viewModel.$changedPageNumber
+            .sink { [weak self] num in
+                NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": num])
+            }
+            .store(in: &self.cancellables)
+    }
 }
+
 
 // MARK: - UITableView Delegate
 extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSource {
+    /// 페이지 리스트 갯수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         self.viewModel.thumnailImages.count
     }
     
+    /// 들어갈 셀 추가
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = indexPath.row
         
         let cell = ThumbnailTableViewCell(pageNum: row, thumbnail: self.viewModel.thumnailImages[row])
+        if self.viewModel.changedPageNumber == row {
+            cell.selectCell()
+        }
+        
         return cell
     }
     
+    /// 셀 높이
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         250
     }
     
+    /// 셀 선택 되었을 때
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) as? ThumbnailTableViewCell else { return }
+//        guard let cell = tableView.cellForRow(at: indexPath) as? ThumbnailTableViewCell else { return }
         
         NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": indexPath.row])
         
