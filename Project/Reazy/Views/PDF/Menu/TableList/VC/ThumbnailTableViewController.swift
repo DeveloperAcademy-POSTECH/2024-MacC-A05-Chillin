@@ -76,6 +76,8 @@ extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) as? ThumbnailTableViewCell else { return }
         
+        NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": indexPath.row])
+        
         self.viewModel.goToPage(at: indexPath.row)
     }
 }
