@@ -5,9 +5,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>Pretendard-Bold.ttf</string>
+		<string>Pretendard-SemiBold.ttf</string>
 		<string>Pretendard-Medium.ttf</string>
 		<string>Pretendard-Regular.ttf</string>
-		<string>Pretendard-SemiBold.ttf</string>
 	</array>
 </dict>
 </plist>
