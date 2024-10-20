@@ -27,7 +27,7 @@ final class ThumbnailTableViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.delegate = self
         view.dataSource = self
-        view.register(ThumbnailTableViewCell.self, forCellReuseIdentifier: "thumbnail")
+        view.separatorStyle = .none
         return view
     }()
     
@@ -63,7 +63,19 @@ extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = ThumbnailTableViewCell(pageNum: indexPath.row, thumbnail: self.viewModel.thumnailImages[indexPath.row])
+        let row = indexPath.row
+        
+        let cell = ThumbnailTableViewCell(pageNum: row, thumbnail: self.viewModel.thumnailImages[row])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        250
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? ThumbnailTableViewCell else { return }
+        
+        self.viewModel.goToPage(at: indexPath.row)
     }
 }
