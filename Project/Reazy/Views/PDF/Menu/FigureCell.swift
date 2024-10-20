@@ -57,7 +57,7 @@ struct FigureCell: View {
             
             PDFKitView(document: document)
               .edgesIgnoringSafeArea(.all)        // 전체 화면에 맞추기
-              .frame(width: 200, height: 200 / aspectRatio)
+              .frame(width: 180, height: 180 / aspectRatio)
               .padding(8)
               .onDrag {
                 if let data = document.dataRepresentation() {

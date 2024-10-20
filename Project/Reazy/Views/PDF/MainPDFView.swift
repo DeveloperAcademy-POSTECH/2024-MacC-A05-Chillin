@@ -24,8 +24,9 @@ struct MainPDFView: View {
   var mode = ["원문 모드", "집중 모드"]
   
   // 모아보기 버튼 구분
-  @State private var isSelected: [Bool] = [false, false, false]
-  @State private var icons: [String] = ["list.bullet", "rectangle.grid.1x2", "Fig"]
+  @State private var isSelected: [Bool] = [false, false]
+  @State private var icons: [String] = ["list.bullet", "rectangle.grid.1x2"]
+  @State private var isFigSelected: Bool = false
   
   @Binding var navigationPath: NavigationPath
   
@@ -41,46 +42,26 @@ struct MainPDFView: View {
               // MARK: - 왼쪽 상단 버튼 3개
               /// 버튼 하나가 글자로 이루어져 있어서 분리
               ForEach(0..<isSelected.count, id: \.self) { index in
-                if index < 2 {
-                  Button(action: {
-                    if isSelected[index] {
-                      isSelected[index] = false
-                    } else {
-                      isSelected.toggleSelection(at: index)
-                    }
-                  }) {
-                    RoundedRectangle(cornerRadius: 6)
-                      .frame(width: 26, height: 26)
-                    // MARK: - 부리꺼 : 색상 적용 필요
-                      .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
-                      .overlay (
-                        Image(systemName: icons[index])
-                          .resizable()
-                          .scaledToFit()
-                          .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
-                          .frame(width: 18)
-                      )
+                Button(action: {
+                  if isSelected[index] {
+                    isSelected[index] = false
+                  } else {
+                    isSelected.toggleSelection(at: index)
                   }
-                  .padding(.trailing, 36)
-                } else {
-                  Button(action: {
-                    if isSelected[index] {
-                      isSelected[index] = false
-                    } else {
-                      isSelected.toggleSelection(at: index)
-                    }
-                  }) {
-                    RoundedRectangle(cornerRadius: 6)
-                      .frame(width: 26, height: 26)
-                    // MARK: - 부리꺼 : 색상 적용 필요
-                      .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
-                      .overlay (
-                        Text("Fig")
-                          .font(.system(size: 14))
-                          .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
-                      )
-                  }
+                }) {
+                  RoundedRectangle(cornerRadius: 6)
+                    .frame(width: 26, height: 26)
+                  // MARK: - 부리꺼 : 색상 적용 필요
+                    .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
+                    .overlay (
+                      Image(systemName: icons[index])
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
+                        .frame(width: 18)
+                    )
                 }
+                .padding(.trailing, 36)
               }
               
               Spacer()
@@ -94,6 +75,21 @@ struct MainPDFView: View {
                   .foregroundStyle(.gray800)
                   .frame(height: 19)
               }
+              .padding(.trailing, 36)
+              
+              Button(action: {
+                isFigSelected.toggle()
+              }) {
+                RoundedRectangle(cornerRadius: 6)
+                  .frame(width: 26, height: 26)
+                // MARK: - 부리꺼 : 색상 적용 필요
+                  .foregroundStyle(isFigSelected ? Color(hex: "5F5DAA") : .clear)
+                  .overlay (
+                    Text("Fig")
+                      .font(.system(size: 14))
+                      .foregroundStyle(isFigSelected ? .gray100 : .gray800)
+                  )
+              }
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 30)
@@ -106,17 +102,6 @@ struct MainPDFView: View {
                 // 버튼 액션 추가
               }) {
                 Image(systemName: "text.bubble")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 19)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "character.bubble")
                   .resizable()
                   .scaledToFit()
                   .foregroundStyle(.gray800)
@@ -170,7 +155,7 @@ struct MainPDFView: View {
                   TableView()
                     .environmentObject(originalViewModel)
                     .background(.white)
-                    .frame(width: geometry.size.width * 0.25)
+                    .frame(width: geometry.size.width * 0.22)
                   
                   Rectangle()
                     .frame(width: 1)
@@ -179,16 +164,7 @@ struct MainPDFView: View {
                   PageView()
                     .environmentObject(originalViewModel)
                     .background(.white)
-                    .frame(width: geometry.size.width * 0.25)
-                  
-                  Rectangle()
-                    .frame(width: 1)
-                    .foregroundStyle(Color(hex: "CCCEE1"))
-                } else if isSelected[2] {
-                  FigureView()
-                    .environmentObject(originalViewModel)
-                    .background(.white)
-                    .frame(width: geometry.size.width * 0.25)
+                    .frame(width: geometry.size.width * 0.22)
                   
                   Rectangle()
                     .frame(width: 1)
@@ -197,6 +173,16 @@ struct MainPDFView: View {
                 
                 Spacer()
                 
+                if isFigSelected {
+                  Rectangle()
+                    .frame(width: 1)
+                    .foregroundStyle(Color(hex: "CCCEE1"))
+                  
+                  FigureView()
+                    .environmentObject(originalViewModel)
+                    .background(.white)
+                    .frame(width: geometry.size.width * 0.22)
+                }
               }
             }
             .ignoresSafeArea()
@@ -204,8 +190,11 @@ struct MainPDFView: View {
         }
         .customNavigationBar(
           centerView: {
-            Text("\(index + 1)번째 문서")
+            // MARK: - 모델 생성 시 수정 필요
+            Text("A review of the global climate change impacts, adaptation, and sustainable mitigation measures")
               .reazyFont(.h3)
+              .frame(width: 342)
+              .lineLimit(1)
           },
           leftView: {
             HStack {
