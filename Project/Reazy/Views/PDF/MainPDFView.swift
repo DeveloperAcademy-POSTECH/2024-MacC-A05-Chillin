@@ -170,6 +170,7 @@ struct MainPDFView: View {
                 .foregroundStyle(Color(hex: "CCCEE1"))
             } else if isSelected[1] {
               PageView()
+                .environmentObject(originalViewModel)
                 .background(.white)
                 .frame(width: geometry.size.width * 0.25)
               

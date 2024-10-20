@@ -9,7 +9,9 @@ import UIKit
 import PDFKit
 import Combine
 
-/// 원문 모드 VC
+/**
+ 원문 모드 ViewController
+ */
 final class OriginalViewController: UIViewController {
 
     let viewModel: OriginalViewModel
@@ -62,7 +64,11 @@ extension OriginalViewController {
         self.viewModel.setPDFDocument(url: Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!)
         self.mainPDFView.document = self.viewModel.document
         
+        // 집중모드 데이터 패치
         self.viewModel.fetchFocusAnnotations()
+        
+        // 썸네일 이미지 패치
+        self.viewModel.fetchThumbnailImage()
     }
     
     /// 데이터 Binding
@@ -71,6 +77,14 @@ extension OriginalViewController {
             .sink { [weak self] destination in
                 guard let page = destination?.page else { return }
                 self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
+        
+        NotificationCenter.default.publisher(for: .PDFViewPageChanged)
+            .sink { [weak self] _ in
+                guard let page = self?.mainPDFView.currentPage else { return }
+                guard let num = self?.viewModel.document?.index(for: page) else { return }
+                self?.viewModel.changedPageNumber = num
             }
             .store(in: &self.cancellable)
     }
