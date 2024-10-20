@@ -17,7 +17,7 @@ extension ShapeStyle where Self == Color {
   static var point2: Color { Color(hex: "26235D") }
   static var point3: Color { Color(hex: "D2CFFF") }
   
-  static var gray900: Color { Color(hex: "3C3D4D") }
+  static var gray900: Color { Color(hex: "3C3D4B") }
   static var gray800: Color { Color(hex: "636577") }
   static var gray700: Color { Color(hex: "636577") }
   static var gray600: Color { Color(hex: "9092A9") }
@@ -38,7 +38,7 @@ extension UIColor {
     static var point2: UIColor { UIColor(hex: "26235D") }
     static var point3: UIColor { UIColor(hex: "D2CFFF") }
     
-    static var gray900: UIColor { UIColor(hex: "3C3D4D") }
+    static var gray900: UIColor { UIColor(hex: "3C3D4B") }
     static var gray800: UIColor { UIColor(hex: "636577") }
     static var gray700: UIColor { UIColor(hex: "636577") }
     static var gray600: UIColor { UIColor(hex: "9092A9") }

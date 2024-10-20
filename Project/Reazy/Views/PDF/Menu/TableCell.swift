@@ -12,28 +12,55 @@ import PDFKit
 struct TableCell: View {
     @EnvironmentObject var viewModel: OriginalViewModel
     @State var item: TableItem
+    @State var isSelected: Bool = false
     
     var body: some View {
-        if item.children.isEmpty {
-            Text(item.table.label ?? "None")
-                .onTapGesture {
-                    onTap()
+        ZStack {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(.primary2)
+            }
+            
+            if item.children.isEmpty {
+                HStack {
+                    Text(item.table.label ?? "None")
+                        .reazyFont(.h3)
+                        .padding(.leading, 14)
+                        .padding(.trailing,9)
+                        .padding(.vertical, 11)
+                        .foregroundStyle(Color(.gray900))
+                    
+                        .onTapGesture {
+                            onTap()
+                        }
+                    Spacer()
                 }
-        } else{
-            DisclosureGroup(isExpanded: $item.isExpanded) {
-                ForEach(item.children) { child in
-                    TableCell(item: child)
+            } else{
+                VStack {
+                    DisclosureGroup(isExpanded: $item.isExpanded) {
+                        ForEach(item.children) { child in
+                            TableCell(item: child)
+                        }
+                    } label: {
+                        Text(item.table.label ?? "None")
+                            .reazyFont(.h3)
+                            .foregroundStyle(Color(.gray900))
+                            .padding(.leading, 14)
+                            .padding(.trailing,9)
+                            .padding(.vertical, 11)
+                        
+                            .onTapGesture {
+                                onTap()
+                            }
+                    }.accentColor(.gray800)
                 }
-            } label: {
-                Text(item.table.label ?? "None")
-                    .onTapGesture {
-                        onTap()
-                    }
             }
         }
     }
     
     private func onTap() {
+        isSelected.toggle()
+        
         if let destination = item.table.destination {
             viewModel.selectedDestination = destination
             //test

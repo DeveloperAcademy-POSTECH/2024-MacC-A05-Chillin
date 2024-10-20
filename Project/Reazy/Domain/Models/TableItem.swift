@@ -8,10 +8,11 @@
 import Foundation
 import PDFKit
 
-struct TableItem: Identifiable {
+struct TableItem: Identifiable, Equatable {
     let id = UUID()
     let table: PDFOutline
     let level: Int
     var children: [TableItem] = []
     var isExpanded: Bool = false
+    //var isSelected: Bool = false
 }
