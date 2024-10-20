@@ -71,6 +71,10 @@ extension OriginalViewModel {
 }
 
 // MARK: - 뷰 상호작용 메소드
+
+/**
+ 원본 보기 뷰 관련
+ */
 extension OriginalViewModel {
     /// Destination의 페이지 넘버 찾는 메소드
     private func findPageNum(destination: PDFDestination?) -> Int {
@@ -98,34 +102,13 @@ extension OriginalViewModel {
         
         return page
     }
-  
-    /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
-    public func setFigureDocument(for index: Int) -> PDFDocument? {
+}
 
-        // 인덱스가 유효한지 확인
-        guard index >= 0 && index < self.figureAnnotations.count else {
-            print("Invalid index")
-            return nil
-        }
 
-        let document = PDFDocument()                                    // 새 PDFDocument 생성
-        let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
-
-        // 해당 페이지 가져오기
-        guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
-            print("Failed to get page")
-            return nil
-        }
-
-        let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
-        let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)
-        
-        page.setBounds(croppedRect, for: .mediaBox)                     // 페이지의 bounds 설정
-        document.insert(page, at: 0)                                    // 새 document에 페이지 추가
-        
-        return document                                                 // 생성된 PDFDocument 변환
-    }
-    
+/**
+ PageListView 관련
+ */
+extension OriginalViewModel {
     /// 현재 document 에서 썸네일 이미지 가져오는 메소드
     public func fetchThumbnailImage() {
         var images = [UIImage]()
@@ -152,5 +135,37 @@ extension OriginalViewModel {
         
         let destination = PDFDestination(page: page, at: .zero)
         self.selectedDestination = destination
+    }
+}
+
+/**
+ Figure 모아보기 뷰 관련
+ */
+extension OriginalViewModel {
+    /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
+    public func setFigureDocument(for index: Int) -> PDFDocument? {
+
+        // 인덱스가 유효한지 확인
+        guard index >= 0 && index < self.figureAnnotations.count else {
+            print("Invalid index")
+            return nil
+        }
+
+        let document = PDFDocument()                                    // 새 PDFDocument 생성
+        let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
+
+        // 해당 페이지 가져오기
+        guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
+            print("Failed to get page")
+            return nil
+        }
+
+        let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
+        let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)
+        
+        page.setBounds(croppedRect, for: .mediaBox)                     // 페이지의 bounds 설정
+        document.insert(page, at: 0)                                    // 새 document에 페이지 추가
+        
+        return document                                                 // 생성된 PDFDocument 변환
     }
 }
