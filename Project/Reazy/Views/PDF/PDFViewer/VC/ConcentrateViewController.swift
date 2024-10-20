@@ -73,7 +73,7 @@ extension ConcentrateViewController {
             backView.topAnchor.constraint(equalTo: self.view.topAnchor),
             backView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             backView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            backView.widthAnchor.constraint(equalToConstant: width / 1.8)
+            backView.widthAnchor.constraint(equalToConstant: width * 0.46)
         ])
         
         // TODO: 집중모드에서 백그라운드 컬러에 따른 확대,축소 기능 넣을지 여부 확인
@@ -86,11 +86,11 @@ extension ConcentrateViewController {
 //            self.pdfView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
 //            self.pdfView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             self.pdfView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            self.pdfView.widthAnchor.constraint(equalToConstant: width / 2)
+            self.pdfView.widthAnchor.constraint(equalToConstant: width * 0.4)
         ])
         
         // pdf view의 초기 scale 설정
-        self.pdfView.scaleFactor = 2.5
+        self.pdfView.scaleFactor = 2
     }
     
     /// 데이터 바인딩
