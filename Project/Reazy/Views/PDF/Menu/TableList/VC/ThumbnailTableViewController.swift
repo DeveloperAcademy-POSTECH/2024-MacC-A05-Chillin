@@ -63,6 +63,7 @@ extension ThumbnailTableViewController {
         self.viewModel.$changedPageNumber
             .sink { [weak self] num in
                 NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": num])
+                self?.thumbnailTableView.scrollToRow(at: .init(row: num, section: 0), at: .top, animated: true)
             }
             .store(in: &self.cancellables)
     }

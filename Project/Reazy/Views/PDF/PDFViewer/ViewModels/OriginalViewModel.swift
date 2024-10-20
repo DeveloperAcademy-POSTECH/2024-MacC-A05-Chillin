@@ -92,7 +92,6 @@ extension OriginalViewModel {
     /// 집중 모드에서
     public func findFocusPageNum(destination: PDFDestination?) -> PDFPage? {
         let num = self.findPageNum(destination: destination)
-        print(num)
         
         guard let resultNum = self.focusAnnotations.firstIndex(where:{ $0.page == num + 1 }) else {
             return nil
