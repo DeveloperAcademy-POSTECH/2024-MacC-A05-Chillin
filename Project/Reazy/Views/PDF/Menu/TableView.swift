@@ -12,10 +12,9 @@ import PDFKit
 struct TableView: View {
     
     @EnvironmentObject var originalViewModel: OriginalViewModel
-    
     let tableViewModel: TableViewModel = .init()
-    
     @State var outlineItems: [TableItem] = []
+    @State var selectedID: UUID?
     
     var body: some View {
         VStack {
@@ -24,11 +23,18 @@ struct TableView: View {
             } else {
                 List {
                     ForEach(outlineItems) { item in
-                        TableCell(item: item)
+                        TableCell(item: item, selectedID: $selectedID)
+                        //.frame(height: 40)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .accentColor(.gray800)
                     }
                 }
+                .listStyle(.plain)
+                .listRowInsets(.none)
             }
-        }.onAppear {
+        }
+        .onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
             } else {
