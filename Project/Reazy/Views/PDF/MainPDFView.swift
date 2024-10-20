@@ -283,10 +283,10 @@ struct MainPDFView: View {
                     height: droppedFigures[index].lastOffset.height + value.translation.height
                   )
                   
-                  let maxX = geometry.size.width / 2 - droppedFigures[index].viewWidth / 2
-                  let minX = -(geometry.size.width / 2 - droppedFigures[index].viewWidth / 2)
-                  let maxY = geometry.size.height / 2 - 150
-                  let minY = -(geometry.size.height / 2 - 150)
+                  let maxX = geometry.size.width / 2 - droppedFigures[index].viewWidth / 2 + 200
+                  let minX = -(geometry.size.width / 2 - droppedFigures[index].viewWidth / 2) - 200
+                  let maxY = geometry.size.height / 2 - 150 + 200
+                  let minY = -(geometry.size.height / 2 - 150) - 200
                   
                   droppedFigures[index].viewOffset = CGSize(
                     width: min(max(newOffset.width, minX), maxX),
