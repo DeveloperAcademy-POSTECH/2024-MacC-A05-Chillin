@@ -11,19 +11,7 @@ import SwiftUI
 struct PageView: View {
   var body: some View {
     VStack(spacing: 0) {
-      List {
-        ForEach(0..<10, id: \.self) { index in
-          HStack(spacing: 0){
-            Spacer()
-            PageCell(index: index)
-            Spacer()
-          }
-          .padding(.bottom, 24)
-          .listRowSeparator(.hidden)
-        }
-      }
-      .listStyle(.plain)
-      .padding(.top, 24)
+        ThumbnailView()
     }
   }
 }

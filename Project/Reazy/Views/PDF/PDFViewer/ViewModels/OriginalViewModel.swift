@@ -8,23 +8,26 @@
 import Foundation
 import PDFKit
 
+
+
 /**
  PDFView 전체 관할 View model
  */
-
-
 final class OriginalViewModel: ObservableObject {
     @Published var selectedDestination: PDFDestination?
+    @Published var changedPageNumber: Int = 0
     
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
     
     public var focusAnnotations: [FocusAnnotation] = []
     public var figureAnnotations: [FigureAnnotation] = []       // figure 리스트
+    
+    public var thumnailImages: [UIImage] = []
 }
 
 
-// MARK: - 뷰 액션 메소드들
+// MARK: - 초기 세팅 메소드
 extension OriginalViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
@@ -65,8 +68,38 @@ extension OriginalViewModel {
         
         self.focusDocument = document
     }
+}
+
+// MARK: - 뷰 상호작용 메소드
+extension OriginalViewModel {
+    /// Destination의 페이지 넘버 찾는 메소드
+    private func findPageNum(destination: PDFDestination?) -> Int {
+        guard let page = destination?.page else {
+            return -1
+        }
+        
+        guard let num = self.document?.index(for: page) else {
+            return -1
+        }
+        
+        return num
+    }
     
-    // img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
+    /// 집중 모드에서
+    public func findFocusPageNum(destination: PDFDestination?) -> PDFPage? {
+        let num = self.findPageNum(destination: destination)
+        print(num)
+        
+        guard let resultNum = self.focusAnnotations.firstIndex(where:{ $0.page == num + 1 }) else {
+            return nil
+        }
+        
+        let page = self.focusDocument?.page(at: resultNum)
+        
+        return page
+    }
+  
+    /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
     public func setFigureDocument(for index: Int) -> PDFDocument? {
 
         // 인덱스가 유효한지 확인
@@ -92,5 +125,32 @@ extension OriginalViewModel {
         
         return document                                                 // 생성된 PDFDocument 변환
     }
+    
+    /// 현재 document 에서 썸네일 이미지 가져오는 메소드
+    public func fetchThumbnailImage() {
+        var images = [UIImage]()
+        
+        guard let document = self.document else { return }
+        
+        for i in 0 ..< document.pageCount {
+            if let page = document.page(at: i) {
+                
+                let height = page.bounds(for: .mediaBox).height
+                let width = page.bounds(for: .mediaBox).width
+                
+                let image = page.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
+                images.append(image)
+            }
+        }
+        
+        self.thumnailImages = images
+    }
+    
+    /// 페이지 리스트 뷰에서 PDFDestination 생성 메소드
+    public func goToPage(at num: Int) {
+        guard let page = self.document?.page(at: num) else { return }
+        
+        let destination = PDFDestination(page: page, at: .zero)
+        self.selectedDestination = destination
+    }
 }
-
