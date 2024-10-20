@@ -16,10 +16,14 @@ struct FigureView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Text("피규어를 꺼내서 창에 띄울 수 있어요")
-                .reazyFont(.text2)
-                .foregroundStyle(.gray600)
-                .padding(.vertical, 24)
+            if originalViewModel.figureAnnotations.isEmpty {        // figureAnnotations가 비어있을 경우
+                Text("이미지가 없습니다.")
+            } else {
+                Text("피규어를 꺼내서 창에 띄울 수 있어요")
+                    .reazyFont(.text2)
+                    .foregroundStyle(.gray600)
+                    .padding(.vertical, 24)
+            }
             
             List {
                 ForEach(0..<originalViewModel.figureAnnotations.count, id: \.self) { index in
