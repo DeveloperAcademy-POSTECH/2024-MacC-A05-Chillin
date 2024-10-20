@@ -17,21 +17,25 @@ class ThumbnailTableViewCell: UITableViewCell {
         let view = UIImageView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.image = thumbnail
+        view.contentMode = .scaleAspectFit
+        view.layer.cornerRadius = 4
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.primary3.cgColor
         return view
     }()
     
     lazy var pageNumLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "\(self.pageNum)"
+        label.text = "\(self.pageNum + 1)"
         label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
         return label
     }()
     
     init(pageNum: Int, thumbnail: UIImage) {
         self.pageNum = pageNum
         self.thumbnail = thumbnail
-        
         super.init(style: .default, reuseIdentifier: nil)
         
         setUI()
@@ -45,31 +49,26 @@ class ThumbnailTableViewCell: UITableViewCell {
         super.awakeFromNib()
         // Initialization code
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-
 }
 
 extension ThumbnailTableViewCell {
     func setUI() {
         self.addSubview(pageNumLabel)
+        self.addSubview(thumbnailView)
+        
+        let ratio = thumbnail.size.width / thumbnail.size.height
+        
         NSLayoutConstraint.activate([
-            pageNumLabel.widthAnchor.constraint(equalToConstant: 20),
-            pageNumLabel.heightAnchor.constraint(equalToConstant: 10),
-            pageNumLabel.centerXAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            pageNumLabel.centerYAnchor.constraint(equalTo: self.topAnchor, constant: 20)
+            thumbnailView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            thumbnailView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            thumbnailView.heightAnchor.constraint(equalToConstant: 210 ),
+            thumbnailView.widthAnchor.constraint(equalToConstant: 210 * ratio)
         ])
         
-        self.addSubview(thumbnailView)
         NSLayoutConstraint.activate([
-            thumbnailView.leadingAnchor.constraint(equalTo: pageNumLabel.trailingAnchor),
-            thumbnailView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            thumbnailView.topAnchor.constraint(equalTo: self.topAnchor),
-            thumbnailView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            pageNumLabel.trailingAnchor.constraint(equalTo: thumbnailView.leadingAnchor),
+            pageNumLabel.topAnchor.constraint(equalTo: thumbnailView.topAnchor),
+            pageNumLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
     }
 }

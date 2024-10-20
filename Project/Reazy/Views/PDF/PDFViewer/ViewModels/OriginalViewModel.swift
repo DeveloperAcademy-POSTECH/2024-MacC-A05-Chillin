@@ -132,12 +132,24 @@ extension OriginalViewModel {
         guard let document = self.document else { return }
         
         for i in 0 ..< document.pageCount {
-            guard let thumbnail = document.page(at: i)?.thumbnail(of: .init(width: 120, height: 300), for: .mediaBox) else {
-                return
+            if let page = document.page(at: i) {
+                
+                let height = page.bounds(for: .mediaBox).height
+                let width = page.bounds(for: .mediaBox).width
+                
+                let image = page.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
+                images.append(image)
             }
-            images.append(thumbnail)
         }
         
         self.thumnailImages = images
+    }
+    
+    /// 페이지 리스트 뷰에서 PDFDestination 생성 메소드
+    public func goToPage(at num: Int) {
+        guard let page = self.document?.page(at: num) else { return }
+        
+        let destination = PDFDestination(page: page, at: .zero)
+        self.selectedDestination = destination
     }
 }
