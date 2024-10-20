@@ -33,8 +33,7 @@ class ThumbnailTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "\(self.pageNum + 1)"
-        // TODO: - 폰트 수정
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .reazyManualFont(.semibold, size: 14)
         label.textColor = .init(hex: "9092A9")
         label.textAlignment = .center
         return label
@@ -99,6 +98,7 @@ extension ThumbnailTableViewCell {
         thumbnailView.layer.borderWidth = 2
         thumbnailView.layer.borderColor = UIColor.primary1.cgColor
         pageNumLabel.textColor = .primary1
+        pageNumLabel.font = .reazyManualFont(.semibold, size: 14)
     }
     
     /// Cell 미선택된 이미지로 수정
@@ -106,5 +106,6 @@ extension ThumbnailTableViewCell {
         thumbnailView.layer.borderWidth = 1
         thumbnailView.layer.borderColor = UIColor.primary3.cgColor
         pageNumLabel.textColor = .init(hex: "9092A9")
+        pageNumLabel.font = .reazyManualFont(.medium, size: 14)
     }
 }
