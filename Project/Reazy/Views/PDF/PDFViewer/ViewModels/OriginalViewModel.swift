@@ -8,11 +8,11 @@
 import Foundation
 import PDFKit
 
+
+
 /**
  PDFView 전체 관할 View model
  */
-
-
 final class OriginalViewModel: ObservableObject {
     @Published var selectedDestination: PDFDestination?
     
@@ -21,10 +21,12 @@ final class OriginalViewModel: ObservableObject {
     
     public var focusAnnotations: [FocusAnnotation] = []
     public var figureAnnotations: [FigureAnnotation] = []       // figure 리스트
+    
+    public var thumnailImages: [UIImage] = []
 }
 
 
-// MARK: - 뷰 액션 메소드들
+// MARK: - 초기 세팅 메소드
 extension OriginalViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
@@ -65,7 +67,10 @@ extension OriginalViewModel {
         
         self.focusDocument = document
     }
-    
+}
+
+// MARK: - 뷰 상호작용 메소드
+extension OriginalViewModel {
     /// Destination의 페이지 넘버 찾는 메소드
     private func findPageNum(destination: PDFDestination?) -> Int {
         guard let page = destination?.page else {
@@ -79,7 +84,7 @@ extension OriginalViewModel {
         return num
     }
     
-    /// 집중 모드에서 
+    /// 집중 모드에서
     public func findFocusPageNum(destination: PDFDestination?) -> PDFPage? {
         let num = self.findPageNum(destination: destination)
         print(num)
@@ -93,7 +98,7 @@ extension OriginalViewModel {
         return page
     }
   
-    // img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
+    /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
     public func setFigureDocument(for index: Int) -> PDFDocument? {
 
         // 인덱스가 유효한지 확인
@@ -119,5 +124,20 @@ extension OriginalViewModel {
         
         return document                                                 // 생성된 PDFDocument 변환
     }
+    
+    /// 현재 document 에서 썸네일 이미지 가져오는 메소드
+    public func fetchThumbnailImage() {
+        var images = [UIImage]()
+        
+        guard let document = self.document else { return }
+        
+        for i in 0 ..< document.pageCount {
+            guard let thumbnail = document.page(at: i)?.thumbnail(of: .init(width: 120, height: 300), for: .mediaBox) else {
+                return
+            }
+            images.append(thumbnail)
+        }
+        
+        self.thumnailImages = images
+    }
 }
-
