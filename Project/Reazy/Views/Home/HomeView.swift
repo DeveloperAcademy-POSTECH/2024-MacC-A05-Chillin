@@ -48,13 +48,13 @@ struct HomeView: View {
         case .page:
           PaperView(navigationPath: $navigationPath)
         case .star:
-          TestView()
+          BookmarkView()
         case .folder:
-          TestView()
+          ClippingView()
         case .link:
-          TestView()
+          LinkView()
         case .setting:
-          TestView()
+          SettingView()
         }
       }
       .background(Color(hex: "F7F7FB"))

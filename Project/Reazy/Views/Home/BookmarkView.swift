@@ -8,16 +8,16 @@
 import SwiftUI
 
 // MARK: - 시험용 뷰 (변경 예정)
-struct TestView: View {
+struct BookmarkView: View {
   var body: some View {
     HStack {
       Spacer()
-      Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+      Text("즐겨찾는 논문을 한 눈에 볼 수 있는 페이지가 만들어질 예정입니다.")
       Spacer()
     }
   }
 }
 
 #Preview {
-  TestView()
+  BookmarkView()
 }
