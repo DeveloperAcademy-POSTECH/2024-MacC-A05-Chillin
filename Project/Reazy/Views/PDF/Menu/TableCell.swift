@@ -44,7 +44,7 @@ struct TableCell: View {
                     DisclosureGroup(isExpanded: $item.isExpanded) {
                         ForEach(item.children) { child in
                             HStack{
-                                Spacer().frame(width: 10)
+                                Spacer().frame(width: 15)
                                 TableCell(item: child, selectedID: $selectedID)
                             }
                         }
@@ -67,8 +67,7 @@ struct TableCell: View {
                 Spacer()
             }
         }
-        .padding(0)
-        .frame(width: 232)
+        .padding(.trailing, 8)
     }
     
     private func onTap() {

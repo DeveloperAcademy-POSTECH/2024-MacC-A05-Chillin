@@ -35,6 +35,7 @@ struct TableView: View {
                 .listRowInsets(.none)
             }
         }
+        .padding(.trailing, 5)
         .onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
