@@ -84,7 +84,9 @@ extension OriginalViewController {
             .sink { [weak self] _ in
                 guard let page = self?.mainPDFView.currentPage else { return }
                 guard let num = self?.viewModel.document?.index(for: page) else { return }
-                self?.viewModel.changedPageNumber = num
+                DispatchQueue.main.async {
+                    self?.viewModel.changedPageNumber = num
+                }
             }
             .store(in: &self.cancellable)
     }

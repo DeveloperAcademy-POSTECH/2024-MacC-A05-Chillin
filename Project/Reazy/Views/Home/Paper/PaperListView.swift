@@ -81,8 +81,8 @@ struct PaperListView: View {
         .background(
           LinearGradient(
             gradient: Gradient(stops: [
-              .init(color: Color(hex: "F7F7FB"), location: 0),
-              .init(color: Color(hex: "D2D4E5"), location: isEditing ? 1.5 : 1)
+              .init(color: .gray200, location: 0),
+              .init(color: .gray500, location: isEditing ? 3.5 : 3)
             ]),
             startPoint: .top,
             endPoint: .bottom
