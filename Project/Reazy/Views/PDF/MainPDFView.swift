@@ -6,10 +6,15 @@
 //
 
 import SwiftUI
+import PDFKit
+import UniformTypeIdentifiers
 
 struct MainPDFView: View {
-    
-    @StateObject private var originalViewModel: OriginalViewModel = .init()
+  
+  @StateObject private var originalViewModel: OriginalViewModel = .init()
+  @State private var isDropTargeted: Bool = false
+  @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
+  @State private var topmostIndex: Int? = nil
   
   // 문서 선택 확인을 위한 인덱스
   let index: Int
@@ -25,226 +30,324 @@ struct MainPDFView: View {
   @Binding var navigationPath: NavigationPath
   
   var body: some View {
-    VStack(spacing: 0) {
-      Divider()
-        .foregroundStyle(Color(hex: "CCCEE1"))
-      
+    GeometryReader { geometry in
       ZStack {
-        HStack(spacing: 0) {
-          // MARK: - 왼쪽 상단 버튼 3개
-          /// 버튼 하나가 글자로 이루어져 있어서 분리
-          ForEach(0..<isSelected.count, id: \.self) { index in
-            if index < 2 {
-              Button(action: {
-                if isSelected[index] {
-                  isSelected[index] = false
+        VStack(spacing: 0) {
+          Divider()
+            .foregroundStyle(Color(hex: "CCCEE1"))
+          
+          ZStack {
+            HStack(spacing: 0) {
+              // MARK: - 왼쪽 상단 버튼 3개
+              /// 버튼 하나가 글자로 이루어져 있어서 분리
+              ForEach(0..<isSelected.count, id: \.self) { index in
+                if index < 2 {
+                  Button(action: {
+                    if isSelected[index] {
+                      isSelected[index] = false
+                    } else {
+                      isSelected.toggleSelection(at: index)
+                    }
+                  }) {
+                    RoundedRectangle(cornerRadius: 6)
+                      .frame(width: 26, height: 26)
+                    // MARK: - 부리꺼 : 색상 적용 필요
+                      .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
+                      .overlay (
+                        Image(systemName: icons[index])
+                          .resizable()
+                          .scaledToFit()
+                          .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
+                          .frame(width: 18)
+                      )
+                  }
+                  .padding(.trailing, 36)
                 } else {
-                  isSelected.toggleSelection(at: index)
+                  Button(action: {
+                    if isSelected[index] {
+                      isSelected[index] = false
+                    } else {
+                      isSelected.toggleSelection(at: index)
+                    }
+                  }) {
+                    RoundedRectangle(cornerRadius: 6)
+                      .frame(width: 26, height: 26)
+                    // MARK: - 부리꺼 : 색상 적용 필요
+                      .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
+                      .overlay (
+                        Text("Fig")
+                          .font(.system(size: 14))
+                          .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
+                      )
+                  }
                 }
-              }) {
-                RoundedRectangle(cornerRadius: 6)
-                  .frame(width: 26, height: 26)
-                // MARK: - 부리꺼 : 색상 적용 필요
-                  .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
-                  .overlay (
-                    Image(systemName: icons[index])
-                      .resizable()
-                      .scaledToFit()
-                      .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
-                      .frame(width: 18)
-                  )
               }
-              .padding(.trailing, 36)
-            } else {
+              
+              Spacer()
+              
               Button(action: {
-                if isSelected[index] {
-                  isSelected[index] = false
-                } else {
-                  isSelected.toggleSelection(at: index)
-                }
+                // 버튼 액션 추가
               }) {
-                RoundedRectangle(cornerRadius: 6)
-                  .frame(width: 26, height: 26)
-                // MARK: - 부리꺼 : 색상 적용 필요
-                  .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
-                  .overlay (
-                    Text("Fig")
-                      .font(.system(size: 14))
-                      .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
-                  )
+                Image(systemName: "link.badge.plus")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 19)
               }
             }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 30)
+            .background(.primary3)
+            
+            HStack(spacing: 0) {
+              Spacer()
+              
+              Button(action: {
+                // 버튼 액션 추가
+              }) {
+                Image(systemName: "text.bubble")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 19)
+              }
+              .padding(.trailing, 39)
+              
+              Button(action: {
+                // 버튼 액션 추가
+              }) {
+                Image(systemName: "character.bubble")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 19)
+              }
+              .padding(.trailing, 39)
+              
+              Button(action: {
+                // 버튼 액션 추가
+              }) {
+                Image(systemName: "pencil.tip.crop.circle")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 19)
+              }
+              .padding(.trailing, 39)
+              
+              Button(action: {
+                // 버튼 액션 추가
+              }) {
+                Image(systemName: "square.dashed")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 19)
+              }
+              
+              Spacer()
+            }
+            .background(.clear)
           }
           
-          Spacer()
+          Divider()
+            .foregroundStyle(Color(hex: "CCCEE1"))
           
-          Button(action: {
-            // 버튼 액션 추가
-          }) {
-            Image(systemName: "link.badge.plus")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 19)
-          }
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 30)
-        .background(.primary3)
-        
-        HStack(spacing: 0) {
-          Spacer()
-          
-          Button(action: {
-            // 버튼 액션 추가
-          }) {
-            Image(systemName: "text.bubble")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 19)
-          }
-          .padding(.trailing, 39)
-          
-          Button(action: {
-            // 버튼 액션 추가
-          }) {
-            Image(systemName: "character.bubble")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 19)
-          }
-          .padding(.trailing, 39)
-          
-          Button(action: {
-            // 버튼 액션 추가
-          }) {
-            Image(systemName: "pencil.tip.crop.circle")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 19)
-          }
-          .padding(.trailing, 39)
-          
-          Button(action: {
-            // 버튼 액션 추가
-          }) {
-            Image(systemName: "square.dashed")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 19)
-          }
-          
-          Spacer()
-        }
-        .background(.clear)
-      }
-      
-      Divider()
-        .foregroundStyle(Color(hex: "CCCEE1"))
-      
-      GeometryReader { geometry in
-        ZStack {
-            if selectedMode == "원문 모드" {
+          GeometryReader { geometry in
+            ZStack {
+              if selectedMode == "원문 모드" {
                 OriginalView()
-                    .environmentObject(originalViewModel)
-            }
-            else if selectedMode == "집중 모드" {
+                  .environmentObject(originalViewModel)
+              }
+              else if selectedMode == "집중 모드" {
                 ConcentrateView()
+                  .environmentObject(originalViewModel)
+              }
+              
+              // MARK: - 모아보기 창
+              HStack(spacing: 0){
+                if isSelected[0] {
+                  TableView()
                     .environmentObject(originalViewModel)
+                    .background(.white)
+                    .frame(width: geometry.size.width * 0.25)
+                  
+                  Rectangle()
+                    .frame(width: 1)
+                    .foregroundStyle(Color(hex: "CCCEE1"))
+                } else if isSelected[1] {
+                  PageView()
+                    .background(.white)
+                    .frame(width: geometry.size.width * 0.25)
+                  
+                  Rectangle()
+                    .frame(width: 1)
+                    .foregroundStyle(Color(hex: "CCCEE1"))
+                } else if isSelected[2] {
+                  FigureView()
+                    .environmentObject(originalViewModel)
+                    .background(.white)
+                    .frame(width: geometry.size.width * 0.25)
+                  
+                  Rectangle()
+                    .frame(width: 1)
+                    .foregroundStyle(Color(hex: "CCCEE1"))
+                }
+                
+                Spacer()
+                
+              }
             }
-          
-          // MARK: - 모아보기 창
-          HStack(spacing: 0){
-            if isSelected[0] {
-                TableView()
-                .environmentObject(originalViewModel)
-                .background(.white)
-                .frame(width: geometry.size.width * 0.25)
-              
-              Rectangle()
-                .frame(width: 1)
-                .foregroundStyle(Color(hex: "CCCEE1"))
-            } else if isSelected[1] {
-              PageView()
-                .environmentObject(originalViewModel)
-                .background(.white)
-                .frame(width: geometry.size.width * 0.25)
-              
-              Rectangle()
-                .frame(width: 1)
-                .foregroundStyle(Color(hex: "CCCEE1"))
-            } else if isSelected[2] {
-              FigureView()
-                .environmentObject(originalViewModel)
-                .background(.white)
-                .frame(width: geometry.size.width * 0.25)
-              
-              Rectangle()
-                .frame(width: 1)
-                .foregroundStyle(Color(hex: "CCCEE1"))
-            }
-            
-            Spacer()
-            
+            .ignoresSafeArea()
           }
         }
-        .ignoresSafeArea()
+        .customNavigationBar(
+          centerView: {
+            Text("\(index + 1)번째 문서")
+              .reazyFont(.h3)
+          },
+          leftView: {
+            HStack {
+              Button(action: {
+                if !navigationPath.isEmpty {
+                  navigationPath.removeLast()
+                }
+              }) {
+                Image(systemName: "chevron.left")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 22)
+              }
+              .padding(.trailing, 20)
+              Button(action: {
+                
+              }) {
+                Image(systemName: "magnifyingglass")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 22)
+              }
+            }
+          },
+          rightView: {
+            Picker("", selection: $selectedMode) {
+              ForEach(mode, id: \.self) {
+                Text($0)
+                  .reazyFont(.button4)
+              }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 158)
+            .background(.gray500)
+            .cornerRadius(9)
+            .padding(10)
+          }
+        )
+        
+        ForEach(droppedFigures.indices, id: \.self) { index in
+          let droppedFigure = droppedFigures[index]
+          let isTopmost = (topmostIndex == index)
+          
+          if droppedFigure.isSelected {
+            FloatingView(
+              document: droppedFigure.document,
+              head: droppedFigure.head,
+              isSelected: Binding(
+                get: { droppedFigure.isSelected },
+                set: { newValue in
+                  droppedFigures[index].isSelected = newValue
+                  if newValue {
+                    topmostIndex = index
+                  }
+                }
+              ),
+              viewOffset: Binding(
+                get: { droppedFigures[index].viewOffset },
+                set: { droppedFigures[index].viewOffset = $0 }
+              ),
+              viewWidth: Binding(
+                get: { droppedFigures[index].viewWidth },
+                set: { droppedFigures[index].viewWidth = $0 }
+              )
+            )
+            .aspectRatio(contentMode: .fit)
+            .zIndex(isTopmost ? 1 : 0)
+            .gesture(
+              DragGesture()
+                .onChanged { value in
+                  let newOffset = CGSize(
+                    width: droppedFigures[index].lastOffset.width + value.translation.width,
+                    height: droppedFigures[index].lastOffset.height + value.translation.height
+                  )
+                  
+                  let maxX = geometry.size.width / 2 - droppedFigures[index].viewWidth / 2
+                  let minX = -(geometry.size.width / 2 - droppedFigures[index].viewWidth / 2)
+                  let maxY = geometry.size.height / 2 - 150
+                  let minY = -(geometry.size.height / 2 - 150)
+                  
+                  droppedFigures[index].viewOffset = CGSize(
+                    width: min(max(newOffset.width, minX), maxX),
+                    height: min(max(newOffset.height, minY), maxY)
+                  )
+                }
+                .onEnded { _ in
+                  droppedFigures[index].lastOffset = droppedFigures[index].viewOffset
+                }
+            )
+            .onTapGesture {
+              topmostIndex = index
+            }
+          }
+        }
+      }
+      .onDrop(of: [UTType.pdf.identifier], isTargeted: $isDropTargeted) { providers, location in
+        handleDrop(providers: providers, at: location, in: geometry)
       }
     }
-    .customNavigationBar(
-      centerView: {
-        Text("\(index + 1)번째 문서")
-          .reazyFont(.h3)
-      },
-      leftView: {
-        HStack {
-          Button(action: {
-            if !navigationPath.isEmpty {
-              navigationPath.removeLast()
-            }
-          }) {
-            Image(systemName: "chevron.left")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 22)
-          }
-          .padding(.trailing, 20)
-          Button(action: {
-            
-          }) {
-            Image(systemName: "magnifyingglass")
-              .resizable()
-              .scaledToFit()
-              .foregroundStyle(.gray800)
-              .frame(height: 22)
-          }
-        }
-      },
-      rightView: {
-        Picker("", selection: $selectedMode) {
-          ForEach(mode, id: \.self) {
-            Text($0)
-              .reazyFont(.button4)
-          }
-        }
-        .pickerStyle(.segmented)
-        .frame(width: 158)
-        .background(.gray500)
-        .cornerRadius(9)
-        .padding(10)
-      }
+  }
+  
+  /// PDF 문서 드롭
+  func handleDrop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
+    let geometryWidth = geometry.size.width
+    let geometryHeight = geometry.size.height
+    let adjustedLocation = CGPoint(
+      x: location.x - geometry.frame(in: .global).minX,
+      y: location.y - geometry.frame(in: .global).minY
     )
+    
+    for provider in providers {
+      
+      let head = provider.suggestedName ?? ""
+      
+      provider.loadDataRepresentation(forTypeIdentifier: UTType.pdf.identifier) { data, error in
+        if let data = data, let pdfDocument = PDFDocument(data: data) {
+          DispatchQueue.main.async {
+            withAnimation(.none) {
+              droppedFigures.append(
+                (
+                  document: pdfDocument,
+                  head: head,
+                  isSelected: true,
+                  viewOffset: CGSize(
+                    width: adjustedLocation.x - geometryWidth / 2,
+                    height: adjustedLocation.y - geometryHeight / 2
+                  ),
+                  lastOffset: CGSize(
+                    width: adjustedLocation.x - geometryWidth / 2,
+                    height: adjustedLocation.y - geometryHeight / 2
+                  ),
+                  viewWidth: 300
+                )
+              )
+            }
+          }
+        } else if let error = error {
+          print("Error loading PDF: \(error.localizedDescription)")
+        }
+      }
+    }
+    return true
   }
 }
-
-//#Preview {
-//  MainPDFView(
-//    index: 1,
-//    mode: ["원문 모드", "집중 모드"],
-//    navigationPath: .constant(NavigationPath()))
-//}

@@ -17,8 +17,8 @@ struct FigureView: View {
     var body: some View {
         VStack(spacing: 0) {
             Text("피규어를 꺼내서 창에 띄울 수 있어요")
-                .font(.system(size: 12))
-                .foregroundStyle(Color(hex: "9395A9"))
+                .reazyFont(.text2)
+                .foregroundStyle(.gray600)
                 .padding(.vertical, 24)
             
             List {
