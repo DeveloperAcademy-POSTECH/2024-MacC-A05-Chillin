@@ -16,25 +16,25 @@ struct TableView: View {
     let tableViewModel: TableViewModel = .init()
     
     @State var outlineItems: [TableItem] = []
-    //var isSelected: Bool = false
+    @State var selectedID: UUID?
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack {
             if outlineItems.isEmpty {
                 Text("No table of contents")
             } else {
                 List {
                     ForEach(outlineItems) { item in
-                        TableCell(item: item)
+                        TableCell(item: item, selectedID: $selectedID)
+                            //.padding()
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
-
                     }
                 }
                 .listStyle(.plain)
             }
         }
-        //.padding(.horizontal, 10)
+        .padding(.horizontal, 10)
         .onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
