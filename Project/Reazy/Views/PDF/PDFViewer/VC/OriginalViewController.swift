@@ -7,11 +7,14 @@
 
 import UIKit
 import PDFKit
+import Combine
 
 /// 원문 모드 VC
 final class OriginalViewController: UIViewController {
 
     let viewModel: OriginalViewModel
+    
+    var cancellable: Set<AnyCancellable> = []
     
     let mainPDFView: PDFView = {
         let view = PDFView()
@@ -24,9 +27,9 @@ final class OriginalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         self.setUI()
         self.setData()
+        self.setBinding()
     }
     
     init(viewModel: OriginalViewModel) {
@@ -60,6 +63,16 @@ extension OriginalViewController {
         self.mainPDFView.document = self.viewModel.document
         
         self.viewModel.fetchFocusAnnotations()
+    }
+    
+    /// 데이터 Binding
+    private func setBinding() {
+        self.viewModel.$selectedDestination
+            .sink { [weak self] destination in
+                guard let page = destination?.page else { return }
+                self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
     }
 }
 
