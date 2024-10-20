@@ -9,8 +9,9 @@ import SwiftUI
 
 struct PaperListCell: View {
   
-  /// 지금은 논문을 분류할 기준이 없어서 index로 대체했습니다
-  let index: Int
+  let image: Image
+  let title: String
+  let date: String
   let isSelected: Bool
   let isEditing: Bool
   let isEditingSelected: Bool
@@ -41,15 +42,18 @@ struct PaperListCell: View {
         
         
         // 논문 표지 들어갈 자리
-        Rectangle()
-          .fill(.gray)
-          .frame(width: 86, height: 112)
+        image
+          .resizable()
+          .scaledToFit()
+          .frame(width: 86)
         
         VStack(alignment: .leading, spacing: 0) {
-          Text("A Review of Generalized Zero-Shot Learning Methods")
+          Text(title)
+            .lineLimit(2)
             .reazyFont(.h2)
             .padding(.bottom, 4)
-          Text("1시간 전")
+            .padding(.trailing, 5)
+          Text(date)
             .reazyFont(.h4)
             .foregroundStyle(.gray600)
           
@@ -115,7 +119,9 @@ struct PaperListCell: View {
 
 #Preview {
   PaperListCell(
-    index: 1,
+    image: Image("image"),
+    title: "test",
+    date: "1시간 전",
     isSelected: false,
     isEditing: true,
     isEditingSelected: false,
