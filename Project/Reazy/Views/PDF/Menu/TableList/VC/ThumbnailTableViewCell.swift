@@ -7,6 +7,10 @@
 
 import UIKit
 
+
+/**
+ 페이지 리스트 TableView
+ */
 class ThumbnailTableViewCell: UITableViewCell {
 
     let pageNum: Int
@@ -29,6 +33,7 @@ class ThumbnailTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "\(self.pageNum + 1)"
+        // TODO: - 폰트 수정
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.textColor = .init(hex: "9092A9")
         label.textAlignment = .center
@@ -55,7 +60,10 @@ class ThumbnailTableViewCell: UITableViewCell {
 }
 
 extension ThumbnailTableViewCell {
+    /// UI 초기 설정
     func setUI() {
+        self.selectionStyle = .none
+        
         self.addSubview(pageNumLabel)
         self.addSubview(thumbnailView)
         
@@ -75,17 +83,28 @@ extension ThumbnailTableViewCell {
         ])
     }
     
+    /// Notification에 따른 Cell UI 수정
     @objc
     private func isMyCell(_ notification: Notification) {
         guard let obj = notification.userInfo?["num"] as? Int else { return }
         if obj == self.pageNum {
-            thumbnailView.layer.borderWidth = 2
-            thumbnailView.layer.borderColor = UIColor.primary1.cgColor
-            pageNumLabel.textColor = .primary1
+            selectCell()
         } else {
-            thumbnailView.layer.borderWidth = 1
-            thumbnailView.layer.borderColor = UIColor.primary3.cgColor
-            pageNumLabel.textColor = .init(hex: "9092A9")
+            deselectCell()
         }
+    }
+    
+    /// Cell 선택된 이미지로 수정
+    public func selectCell() {
+        thumbnailView.layer.borderWidth = 2
+        thumbnailView.layer.borderColor = UIColor.primary1.cgColor
+        pageNumLabel.textColor = .primary1
+    }
+    
+    /// Cell 미선택된 이미지로 수정
+    private func deselectCell() {
+        thumbnailView.layer.borderWidth = 1
+        thumbnailView.layer.borderColor = UIColor.primary3.cgColor
+        pageNumLabel.textColor = .init(hex: "9092A9")
     }
 }
