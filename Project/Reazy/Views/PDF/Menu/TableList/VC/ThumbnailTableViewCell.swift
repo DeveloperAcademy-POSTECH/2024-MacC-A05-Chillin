@@ -21,6 +21,7 @@ class ThumbnailTableViewCell: UITableViewCell {
         view.layer.cornerRadius = 4
         view.layer.borderWidth = 1
         view.layer.borderColor = UIColor.primary3.cgColor
+        view.clipsToBounds = true
         return view
     }()
     
@@ -28,7 +29,8 @@ class ThumbnailTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "\(self.pageNum + 1)"
-        label.font = .systemFont(ofSize: 14)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .init(hex: "9092A9")
         label.textAlignment = .center
         return label
     }()
@@ -39,6 +41,8 @@ class ThumbnailTableViewCell: UITableViewCell {
         super.init(style: .default, reuseIdentifier: nil)
         
         setUI()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(isMyCell), name: .didSelectThumbnail, object: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -47,7 +51,6 @@ class ThumbnailTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
 }
 
@@ -70,5 +73,19 @@ extension ThumbnailTableViewCell {
             pageNumLabel.topAnchor.constraint(equalTo: thumbnailView.topAnchor),
             pageNumLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
+    }
+    
+    @objc
+    private func isMyCell(_ notification: Notification) {
+        guard let obj = notification.userInfo?["num"] as? Int else { return }
+        if obj == self.pageNum {
+            thumbnailView.layer.borderWidth = 2
+            thumbnailView.layer.borderColor = UIColor.primary1.cgColor
+            pageNumLabel.textColor = .primary1
+        } else {
+            thumbnailView.layer.borderWidth = 1
+            thumbnailView.layer.borderColor = UIColor.primary3.cgColor
+            pageNumLabel.textColor = .init(hex: "9092A9")
+        }
     }
 }
