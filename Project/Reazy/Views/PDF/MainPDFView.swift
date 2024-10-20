@@ -263,6 +263,12 @@ struct MainPDFView: View {
               )
             )
             .aspectRatio(contentMode: .fit)
+            .shadow(
+              color: Color(hex: "4D4A97").opacity(0.06),
+              radius: 12,
+              x: 0,
+              y: 2)
+            .padding(4.5)
             .zIndex(isTopmost ? 1 : 0)
             .gesture(
               DragGesture()
