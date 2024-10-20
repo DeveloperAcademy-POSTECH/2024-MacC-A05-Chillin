@@ -18,13 +18,14 @@ struct TableView: View {
     
     var body: some View {
         VStack {
+            Spacer().frame(height: 16)
+            
             if outlineItems.isEmpty {
                 Text("No table of contents")
             } else {
                 List {
                     ForEach(outlineItems) { item in
                         TableCell(item: item, selectedID: $selectedID)
-                        //.frame(height: 40)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                             .accentColor(.gray800)

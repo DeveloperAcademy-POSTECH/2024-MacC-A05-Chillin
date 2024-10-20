@@ -22,7 +22,7 @@ struct TableCell: View {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.primary2)
                         .frame(height: 40)
-                        .offset(x: 10)
+                        .offset(x: 5)
                 }
                 Spacer()
             }
@@ -38,13 +38,13 @@ struct TableCell: View {
                             }
                         Spacer()
                     }
-                    .padding(.leading, 24)
+                    .padding(.leading, 10)
                     .frame(height: 40)
                 } else {
                     DisclosureGroup(isExpanded: $item.isExpanded) {
                         ForEach(item.children) { child in
                             HStack{
-                                Spacer().frame(width: 20)
+                                Spacer().frame(width: 10)
                                 TableCell(item: child, selectedID: $selectedID)
                             }
                         }
@@ -58,7 +58,7 @@ struct TableCell: View {
                                     onTap()
                                 }
                         }
-                        .padding(.leading, 24)
+                        .padding(.leading, 10)
                         .frame(height: 40)
                         .accentColor(.gray800)
                     }
@@ -68,7 +68,7 @@ struct TableCell: View {
             }
         }
         .padding(0)
-        .frame(width: 250)
+        .frame(width: 232)
     }
     
     private func onTap() {
