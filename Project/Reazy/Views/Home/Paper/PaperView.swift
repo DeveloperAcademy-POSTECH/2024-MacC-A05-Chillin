@@ -161,7 +161,7 @@ struct PaperView: View {
         navigationPath: $navigationPath
       )
     }
-    .background(Color(hex: "F7F7FB"))
+    .background(.gray200)
     .ignoresSafeArea()
   }
 }
