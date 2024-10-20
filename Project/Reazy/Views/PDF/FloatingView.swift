@@ -34,7 +34,7 @@ struct FloatingView: View {
         // TODO: - 피그마 반영 시 수정 필요
         Text(head)
           .reazyFont(.button5)
-          .foregroundStyle(Color(hex: "4B4C5C"))
+          .foregroundStyle(.gray800)
         
         Spacer()
         
