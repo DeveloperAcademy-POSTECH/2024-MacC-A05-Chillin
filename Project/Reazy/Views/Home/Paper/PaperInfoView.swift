@@ -9,6 +9,9 @@ import SwiftUI
 
 struct PaperInfoView: View {
   
+  // MARK: - 썸네일 이미지 수정 필요
+  let image: Image
+  
   @State private var isStarSelected: Bool = false
   @State private var isFolderSelected: Bool = false
   
@@ -31,8 +34,10 @@ struct PaperInfoView: View {
     HStack(spacing: 0) {
       Spacer()
       // MARK: - 문서 첫 페이지
-      Rectangle()
-        .frame(width: 485, height: 626)
+      image
+        .resizable()
+        .scaledToFit()
+        .frame(width: 460)
         .foregroundStyle(.gray)
         .padding(.leading)
       
@@ -116,5 +121,5 @@ struct PaperInfoView: View {
 }
 
 #Preview {
-  PaperInfoView()
+  PaperInfoView(image: Image("image"))
 }

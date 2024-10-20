@@ -72,3 +72,21 @@ extension View {
       .padding(.vertical, (type.lineHeight - font.lineHeight) / 2)
   }
 }
+
+/// UIKit 용
+extension UIFont {
+    static func reazyFont(_ type: ReazyFontType) -> UIFont {
+        return UIFont(name: type.fontWeight, size: type.fontSize) ?? .systemFont(ofSize: type.fontSize)
+    }
+    
+    static func reazyManualFont(_ type: ReazyUIFontType, size: CGFloat) -> UIFont {
+        UIFont(name: type.rawValue , size: size) ?? .systemFont(ofSize: size)
+    }
+    
+    enum ReazyUIFontType: String {
+        case bold = "Pretendard-Bold"
+        case medium = "Pretendard-Medium"
+        case regular = "Pretendard-Regular"
+        case semibold = "Pretendard-SemiBold"
+    }
+}
