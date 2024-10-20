@@ -21,9 +21,11 @@ struct HomeView: View {
             .foregroundStyle(.point1)
           
           VStack(spacing: 0) {
-            RoundedRectangle(cornerRadius: 20)
-              .frame(width: 59, height: 59)
-              .foregroundStyle(Color(hex: "2F2C9F"))
+            Image("icon")
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .clipShape(RoundedRectangle(cornerRadius: 20))
+              .frame(width: 50, height: 50)
               .padding(.top, 45)
               .padding(.bottom, 40)
             
