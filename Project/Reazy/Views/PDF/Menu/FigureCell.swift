@@ -69,12 +69,7 @@ struct FigureCell: View {
                 }
                 return NSItemProvider()
               } preview: {
-                if isDragging {
-                  PDFKitView(document: document)
-                    .frame(width: 0, height: 0)
-                } else {
-                  Color.clear.frame(width: 0, height: 0)
-                }
+                Color.clear.frame(width: 0, height: 0)
               }
               .onDisappear {
                 isDragging = false
@@ -94,8 +89,4 @@ struct FigureCell: View {
     }
   }
 }
-
-//#Preview {
-//    FigureCell(index: 0)
-//}
 

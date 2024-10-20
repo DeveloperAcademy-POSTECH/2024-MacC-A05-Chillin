@@ -351,10 +351,3 @@ struct MainPDFView: View {
     return true
   }
 }
-
-//#Preview {
-//  MainPDFView(
-//    index: 1,
-//    mode: ["원문 모드", "집중 모드"],
-//    navigationPath: .constant(NavigationPath()))
-//}
