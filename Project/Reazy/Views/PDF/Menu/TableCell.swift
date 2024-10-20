@@ -22,10 +22,11 @@ struct TableCell: View {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.primary2)
                         .frame(height: 40)
+                        .offset(x: 10)
                 }
                 Spacer()
             }
-            VStack{
+            VStack {
                 if item.children.isEmpty {
                     HStack {
                         Text(item.table.label ?? "None")
@@ -37,8 +38,9 @@ struct TableCell: View {
                             }
                         Spacer()
                     }
+                    .padding(.leading, 24)
                     .frame(height: 40)
-                } else{
+                } else {
                     DisclosureGroup(isExpanded: $item.isExpanded) {
                         ForEach(item.children) { child in
                             HStack{
@@ -56,27 +58,23 @@ struct TableCell: View {
                                     onTap()
                                 }
                         }
+                        .padding(.leading, 24)
                         .frame(height: 40)
                         .accentColor(.gray800)
                     }
-                    .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
+                    .animation(nil, value: item.isExpanded)
                 }
                 Spacer()
             }
         }
-        //        .background(
-        //            selectedID == item.id ? Color.primary2 : Color.clear
-        //        )
-        //        .cornerRadius(4)
+        .padding(0)
+        .frame(width: 250)
     }
     
     private func onTap() {
-        
         if selectedID != item.id {
             selectedID = item.id
-            print(selectedID)
         }
-        
         if let destination = item.table.destination {
             viewModel.selectedDestination = destination
             //test
