@@ -13,8 +13,6 @@ import PDFKit
 // MARK: - Lucid : FigureView 커스텀 리스트 셀
 struct PDFKitView: UIViewRepresentable {
     
-    @EnvironmentObject var originalViewModel: OriginalViewModel
-    
     let document: PDFDocument
     
     // PDFView 생성 후 반환
@@ -26,7 +24,6 @@ struct PDFKitView: UIViewRepresentable {
         pdfView.translatesAutoresizingMaskIntoConstraints = false
         pdfView.displayMode = .singlePageContinuous
         pdfView.pageShadowsEnabled = false
-        pdfView.pageBreakMargins = .init(top: 20, left: 0, bottom: 0, right: 0)
         pdfView.subviews.first!.backgroundColor = .white
         
         return pdfView
