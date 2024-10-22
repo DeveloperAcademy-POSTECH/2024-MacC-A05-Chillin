@@ -26,7 +26,6 @@ struct PDFKitView: UIViewRepresentable {
     pdfView.displayMode = .singlePageContinuous
     pdfView.pageShadowsEnabled = false
     pdfView.subviews.first!.backgroundColor = .white
-    pdfView.isUserInteractionEnabled = false
     
     return pdfView
   }
@@ -41,9 +40,9 @@ struct PDFKitView: UIViewRepresentable {
 struct FigureCell: View {
   
   @EnvironmentObject var originalViewModel: OriginalViewModel
-  
   let index: Int
-  @State private var isDragging = false
+  
+  var onSelect: (PDFDocument, String) -> Void
   
   @State private var aspectRatio: CGFloat = 1.0
   
@@ -59,21 +58,13 @@ struct FigureCell: View {
               .edgesIgnoringSafeArea(.all)        // 전체 화면에 맞추기
               .frame(width: 180, height: 180 / aspectRatio)
               .padding(8)
-              .onDrag {
-                if let data = document.dataRepresentation() {
-                  isDragging = true
+              .simultaneousGesture(
+                TapGesture().onEnded {
                   let head = originalViewModel.figureAnnotations[index].head
-                  let itemProvider = NSItemProvider(item: data as NSData, typeIdentifier: UTType.pdf.identifier)
-                  itemProvider.suggestedName = head
-                  return itemProvider
+                  print("FigureCell tapped. Sending document and head to onSelect.")
+                  onSelect(document, head)
                 }
-                return NSItemProvider()
-              } preview: {
-                Color.clear.frame(width: 0, height: 0)
-              }
-              .onDisappear {
-                isDragging = false
-              }
+              )
             
             RoundedRectangle(cornerRadius: 8)
               .stroke(Color(hex: "#CDCFE1"), lineWidth: 1)
