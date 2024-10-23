@@ -13,6 +13,7 @@ import PDFKit
 struct FigureView: View {
     
     @EnvironmentObject var originalViewModel: OriginalViewModel
+    var onSelect: (PDFDocument, String) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -27,7 +28,7 @@ struct FigureView: View {
             
             List {
                 ForEach(0..<originalViewModel.figureAnnotations.count, id: \.self) { index in
-                    FigureCell(index: index)
+                  FigureCell(index: index, onSelect: onSelect)
                         .padding(.bottom, 21)
                         .listRowSeparator(.hidden)
                 }
@@ -36,7 +37,3 @@ struct FigureView: View {
         }
     }
 }
-
-//#Preview {
-//  FigureView()
-//}

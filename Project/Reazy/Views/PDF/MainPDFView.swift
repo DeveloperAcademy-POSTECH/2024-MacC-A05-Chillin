@@ -12,7 +12,6 @@ import UniformTypeIdentifiers
 struct MainPDFView: View {
   
   @StateObject private var originalViewModel: OriginalViewModel = .init()
-  @State private var isDropTargeted: Bool = false
   @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
   @State private var topmostIndex: Int? = nil
   
@@ -178,7 +177,21 @@ struct MainPDFView: View {
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))
                   
-                  FigureView()
+                  FigureView(onSelect: { document, head in
+                    print("Document selected: \(document), head: \(head)")
+                    
+                    droppedFigures.append(
+                      (
+                      document: document,
+                      head: head,
+                      isSelected: true,
+                      viewOffset: CGSize(width: 0, height: 0),
+                      lastOffset: CGSize(width: 0, height: 0),
+                      viewWidth: 300
+                      )
+                    )
+                    print("Current droppedFigures count: \(droppedFigures.count)")
+                  })
                     .environmentObject(originalViewModel)
                     .background(.white)
                     .frame(width: geometry.size.width * 0.22)
@@ -298,52 +311,6 @@ struct MainPDFView: View {
           }
         }
       }
-      .onDrop(of: [UTType.pdf.identifier], isTargeted: $isDropTargeted) { providers, location in
-        handleDrop(providers: providers, at: location, in: geometry)
-      }
     }
-  }
-  
-  /// PDF 문서 드롭
-  func handleDrop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
-    let geometryWidth = geometry.size.width
-    let geometryHeight = geometry.size.height
-    let adjustedLocation = CGPoint(
-      x: location.x - geometry.frame(in: .global).minX,
-      y: location.y - geometry.frame(in: .global).minY
-    )
-    
-    for provider in providers {
-      
-      let head = provider.suggestedName ?? ""
-      
-      provider.loadDataRepresentation(forTypeIdentifier: UTType.pdf.identifier) { data, error in
-        if let data = data, let pdfDocument = PDFDocument(data: data) {
-          DispatchQueue.main.async {
-            withAnimation(.none) {
-              droppedFigures.append(
-                (
-                  document: pdfDocument,
-                  head: head,
-                  isSelected: true,
-                  viewOffset: CGSize(
-                    width: adjustedLocation.x - geometryWidth / 2,
-                    height: adjustedLocation.y - geometryHeight / 2
-                  ),
-                  lastOffset: CGSize(
-                    width: adjustedLocation.x - geometryWidth / 2,
-                    height: adjustedLocation.y - geometryHeight / 2
-                  ),
-                  viewWidth: 300
-                )
-              )
-            }
-          }
-        } else if let error = error {
-          print("Error loading PDF: \(error.localizedDescription)")
-        }
-      }
-    }
-    return true
   }
 }

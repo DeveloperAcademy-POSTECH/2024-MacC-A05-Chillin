@@ -25,7 +25,7 @@ struct FloatingView: View {
           
         }, label: {
           Image(systemName: "rectangle.split.2x1")
-            .font(.system(size: 14))
+            .font(.system(size: 16))
             .foregroundStyle(.gray600)
         })
         
@@ -42,7 +42,7 @@ struct FloatingView: View {
           isSelected.toggle()
         }, label: {
           Image(systemName: "xmark")
-            .font(.system(size: 14))
+            .font(.system(size: 16))
             .foregroundStyle(.gray600)
         })
       }
@@ -52,7 +52,7 @@ struct FloatingView: View {
       
       Divider()
       
-      PDFKitView(document: document)
+      PDFKitView(document: document, isScrollEnabled: true)
         .frame(width: viewWidth - 36, height: (viewWidth - 36) / aspectRatio)
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
@@ -64,18 +64,21 @@ struct FloatingView: View {
         .fill(.white)
     )
     .overlay(
-      Image(systemName: "square.resize")
-        .frame(width: 50, height: 50)
+      Image(systemName: "righttriangle.fill")
+        .frame(width: 80, height: 80)
+        .offset(x: 20, y: 20)
         .foregroundStyle(.gray600)
+        .contentShape(Rectangle())
         .gesture(
           DragGesture()
             .onChanged { value in
-              // TODO: - Floating 크기 제한 조정 필요
-              // 최대 크기 제한 700 + 최소 크기 제한 300
-              let newWidth = max(min(viewWidth + value.translation.width, 700), 300)
+              // 최대 크기 제한 850 + 최소 크기 제한 300
+              let newWidth = max(min(viewWidth + value.translation.width, 850), 300)
               self.viewWidth = newWidth
             }
-        ),
+        )
+        .padding(.leading, 100)
+        .padding(.top, 100),
       alignment: .bottomTrailing
     )
     .offset(viewOffset)
