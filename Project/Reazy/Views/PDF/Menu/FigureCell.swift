@@ -15,6 +15,7 @@ import UniformTypeIdentifiers
 struct PDFKitView: UIViewRepresentable {
   
   let document: PDFDocument
+  var isScrollEnabled: Bool
   
   // PDFView 생성 후 반환
   func makeUIView(context: Context) -> PDFView {
@@ -27,12 +28,19 @@ struct PDFKitView: UIViewRepresentable {
     pdfView.pageShadowsEnabled = false
     pdfView.subviews.first!.backgroundColor = .white
     
+    if let scrollView = pdfView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
+      scrollView.isScrollEnabled = isScrollEnabled
+    }
+    
     return pdfView
   }
   
   // 업데이트 메서드 (필요에 따라 사용)
   func updateUIView(_ uiView: PDFView, context: Context) {
-    // 필요에 따라 업데이트 사항이 있으면 이곳에서 처리
+    // 스크롤 활성화 상태 업데이트
+    if let scrollView = uiView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
+      scrollView.isScrollEnabled = isScrollEnabled
+    }
   }
 }
 
@@ -54,7 +62,7 @@ struct FigureCell: View {
             let pageRect = page.bounds(for: .mediaBox)
             let aspectRatio = pageRect.width / pageRect.height
             
-            PDFKitView(document: document)
+            PDFKitView(document: document, isScrollEnabled: false)
               .edgesIgnoringSafeArea(.all)        // 전체 화면에 맞추기
               .frame(width: 180, height: 180 / aspectRatio)
               .padding(8)

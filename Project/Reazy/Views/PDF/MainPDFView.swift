@@ -12,7 +12,6 @@ import UniformTypeIdentifiers
 struct MainPDFView: View {
   
   @StateObject private var originalViewModel: OriginalViewModel = .init()
-  @State private var isDropTargeted: Bool = false
   @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
   @State private var topmostIndex: Int? = nil
   

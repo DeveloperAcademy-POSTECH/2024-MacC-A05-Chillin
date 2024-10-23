@@ -52,7 +52,7 @@ struct FloatingView: View {
       
       Divider()
       
-      PDFKitView(document: document)
+      PDFKitView(document: document, isScrollEnabled: true)
         .frame(width: viewWidth - 36, height: (viewWidth - 36) / aspectRatio)
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
