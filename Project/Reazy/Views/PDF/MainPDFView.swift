@@ -277,7 +277,7 @@ struct MainPDFView: View {
             )
             .aspectRatio(contentMode: .fit)
             .shadow(
-              color: Color(hex: "4D4A97").opacity(0.06),
+              color: Color(hex: "4D4A97").opacity(0.20),
               radius: 12,
               x: 0,
               y: 2)
