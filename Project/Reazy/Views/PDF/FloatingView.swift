@@ -25,7 +25,7 @@ struct FloatingView: View {
           
         }, label: {
           Image(systemName: "rectangle.split.2x1")
-            .font(.system(size: 14))
+            .font(.system(size: 16))
             .foregroundStyle(.gray600)
         })
         
@@ -42,7 +42,7 @@ struct FloatingView: View {
           isSelected.toggle()
         }, label: {
           Image(systemName: "xmark")
-            .font(.system(size: 14))
+            .font(.system(size: 16))
             .foregroundStyle(.gray600)
         })
       }
@@ -64,9 +64,11 @@ struct FloatingView: View {
         .fill(.white)
     )
     .overlay(
-      Image(systemName: "square.resize")
-        .frame(width: 50, height: 50)
+      Image(systemName: "righttriangle.fill")
+        .frame(width: 80, height: 80)
+        .offset(x: 20, y: 20)
         .foregroundStyle(.gray600)
+        .contentShape(Rectangle())
         .gesture(
           DragGesture()
             .onChanged { value in
@@ -74,7 +76,9 @@ struct FloatingView: View {
               let newWidth = max(min(viewWidth + value.translation.width, 850), 300)
               self.viewWidth = newWidth
             }
-        ),
+        )
+        .padding(.leading, 100)
+        .padding(.top, 100),
       alignment: .bottomTrailing
     )
     .offset(viewOffset)
