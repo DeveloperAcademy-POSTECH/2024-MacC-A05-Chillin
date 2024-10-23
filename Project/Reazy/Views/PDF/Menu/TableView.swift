@@ -8,6 +8,14 @@
 import SwiftUI
 import PDFKit
 
+let models: [Model] = [Model(id: .init(), title: "1.Introduction", children: [
+    Model(id: .init(), title: "1.1. Contribution", children: [], isExpanded: false),
+    Model(id: .init(), title: "1.2. Organization", children: [
+        Model(id: .init(), title: "1.2.1 Organization", children: [], isExpanded: false)
+    ], isExpanded: false),
+    Model(id: .init(), title: "1.3. Contribution", children: [], isExpanded: false)
+], isExpanded: false)]
+
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
     
@@ -17,26 +25,32 @@ struct TableView: View {
     @State var selectedID: UUID?
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Spacer().frame(height: 16)
             
             if outlineItems.isEmpty {
                 Text("No table of contents")
             } else {
-                List {
-                    ForEach(outlineItems) { item in
-                        TableCell(item: item, selectedID: $selectedID)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .accentColor(.gray800)
-                    }
+                ForEach(outlineItems) { item in
+                    TableCell(item: item)
                 }
-                .listStyle(.plain)
-                .listRowInsets(.none)
             }
-        }
-        .padding(.trailing, 5)
-        .onAppear {
+            Spacer()
+            
+            //                List {
+            //                    ForEach(outlineItems) { item in
+            //                        TableCell(models: Model)
+            ////                            .listRowBackground(Color.clear)
+            ////                            .listRowSeparator(.hidden)
+            ////                            .accentColor(.gray800)
+            //                    }
+            //                }
+            //                .listStyle(.plain)
+            //                .listRowInsets(.none)
+            //            }
+            //        }
+            //        //.padding(.trailing, 5)
+        }.onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
             } else {
@@ -45,3 +59,5 @@ struct TableView: View {
         }
     }
 }
+
+
