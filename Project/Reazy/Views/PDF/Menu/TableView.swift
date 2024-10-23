@@ -25,31 +25,19 @@ struct TableView: View {
     @State var selectedID: UUID?
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Spacer().frame(height: 16)
-            
-            if outlineItems.isEmpty {
-                Text("No table of contents")
-            } else {
-                ForEach(outlineItems) { item in
-                    TableCell(item: item)
+        ScrollView {
+            VStack(alignment: .leading) {
+                if outlineItems.isEmpty {
+                    Text("No table of contents")
+                } else {
+                    ForEach(outlineItems) { item in
+                        TableCell(item: item)
+                    }
                 }
+                Spacer()
             }
-            Spacer()
-            
-            //                List {
-            //                    ForEach(outlineItems) { item in
-            //                        TableCell(models: Model)
-            ////                            .listRowBackground(Color.clear)
-            ////                            .listRowSeparator(.hidden)
-            ////                            .accentColor(.gray800)
-            //                    }
-            //                }
-            //                .listStyle(.plain)
-            //                .listRowInsets(.none)
-            //            }
-            //        }
-            //        //.padding(.trailing, 5)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 16)
         }.onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
