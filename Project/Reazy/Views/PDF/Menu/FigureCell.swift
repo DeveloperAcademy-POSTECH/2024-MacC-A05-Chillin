@@ -26,7 +26,7 @@ struct PDFKitView: UIViewRepresentable {
     pdfView.translatesAutoresizingMaskIntoConstraints = false
     pdfView.displayMode = .singlePageContinuous
     pdfView.pageShadowsEnabled = false
-    pdfView.subviews.first!.backgroundColor = .white
+    pdfView.backgroundColor = .white
     
     if let scrollView = pdfView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
       scrollView.isScrollEnabled = isScrollEnabled

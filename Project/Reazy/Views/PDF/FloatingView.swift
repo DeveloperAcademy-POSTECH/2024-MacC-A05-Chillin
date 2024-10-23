@@ -59,10 +59,8 @@ struct FloatingView: View {
     }
     .frame(width: viewWidth)
     .padding(.vertical, 12)
-    .background(
-      RoundedRectangle(cornerRadius: 16)
-        .fill(.white)
-    )
+    .background(.white)
+    .clipShape(RoundedRectangle(cornerRadius: 16))
     .overlay(
       Image(systemName: "righttriangle.fill")
         .frame(width: 80, height: 80)
