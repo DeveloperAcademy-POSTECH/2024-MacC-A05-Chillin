@@ -8,21 +8,14 @@
 import SwiftUI
 import PDFKit
 
-let models: [Model] = [Model(id: .init(), title: "1.Introduction", children: [
-    Model(id: .init(), title: "1.1. Contribution", children: [], isExpanded: false),
-    Model(id: .init(), title: "1.2. Organization", children: [
-        Model(id: .init(), title: "1.2.1 Organization", children: [], isExpanded: false)
-    ], isExpanded: false),
-    Model(id: .init(), title: "1.3. Contribution", children: [], isExpanded: false)
-], isExpanded: false)]
 
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
-    
+
     @EnvironmentObject var originalViewModel: OriginalViewModel
     let tableViewModel: TableViewModel = .init()
     @State var outlineItems: [TableItem] = []
-    @State var selectedID: UUID?
+    @State var selectedID: UUID? = nil
     
     var body: some View {
         ScrollView {
@@ -31,14 +24,14 @@ struct TableView: View {
                     Text("No table of contents")
                 } else {
                     ForEach(outlineItems) { item in
-                        TableCell(item: item)
+                        TableCell(item: item, selectedID: $selectedID)
                     }
                 }
-                Spacer()
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 16)
-        }.onAppear {
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 16)
+        .onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
             } else {
