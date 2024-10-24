@@ -9,12 +9,14 @@ import SwiftUI
 
 struct PaperListView: View {
   
+  @Binding var navigationPath: NavigationPath
+  
   @State private var selectedPaper: Int? = nil
   
-  let isEditing: Bool
-  @Binding var selectedItems: Set<Int>
+  @Binding var isEditing: Bool
+  @State var selectedItems: Set<Int> = []
   
-  @Binding var navigationPath: NavigationPath
+  @State private var isFavoritesSelected: Bool = false
   
   // MARK: - 모델 생성 시 수정 필요
   @State private var paperTitle: [String] = ["A review of the global climate change impacts, adaptation, and sustainable mitigation measures"]
@@ -25,43 +27,71 @@ struct PaperListView: View {
     // 화면 비율에 따라서 리스트 크기 설정 (반응형 UI)
     GeometryReader { geometry in
       HStack(spacing: 0) {
-        // MARK: - CoreData
-        List(content: {
-          ForEach(0..<paperTitle.count, id: \.self) { index in
-            PaperListCell(
-              // MARK: - 썸네일 이미지 수정 필요
-              image: Image("test_thumbnail"),
-              title: paperTitle[index],
-              date: datetime[index],
-              isSelected: selectedPaper == index,
-              isEditing: isEditing,
-              isEditingSelected: selectedItems.contains(index),
-              onSelect: {
-                if !isEditing {
-                  selectedPaper = index
-                }
-              },
-              onEditingSelect: {
-                if isEditing {
-                  if selectedItems.contains(index) {
-                    selectedItems.remove(index)
-                  } else {
-                    selectedItems.insert(index)
+        VStack(spacing: 0) {
+          HStack(spacing: 0) {
+            Button(action: {
+              isFavoritesSelected = false
+            }, label: {
+              Text("전체 논문")
+                .reazyFont(isFavoritesSelected ? .h2 : .text3)
+                .foregroundStyle(isFavoritesSelected ? .primary4 : .primary1)
+            })
+            
+            Rectangle()
+              .foregroundStyle(.gray500)
+              .frame(width: 1, height: 20)
+              .padding(.horizontal, 16)
+            
+            Button(action: {
+              isFavoritesSelected = true
+            }, label: {
+              Text("즐겨찾기")
+                .reazyFont(isFavoritesSelected ? .text3 : .h2)
+                .foregroundStyle(isFavoritesSelected ? .primary1 : .primary4)
+            })
+            
+            Spacer()
+          }
+          .padding(.leading, 28)
+          .padding(.vertical, 20)
+          
+          Divider()
+          
+          // MARK: - CoreData
+          List(content: {
+            ForEach(0..<paperTitle.count, id: \.self) { index in
+              PaperListCell(
+                title: paperTitle[index],
+                date: datetime[index],
+                isSelected: selectedPaper == index,
+                isEditing: isEditing,
+                isEditingSelected: selectedItems.contains(index),
+                onSelect: {
+                  if !isEditing {
+                    if selectedPaper == index {
+                      selectedPaper = nil
+                    } else {
+                      selectedPaper = index
+                    }
+                  }
+                },
+                onEditingSelect: {
+                  if isEditing {
+                    if selectedItems.contains(index) {
+                      selectedItems.remove(index)
+                    } else {
+                      selectedItems.insert(index)
+                    }
                   }
                 }
-              },
-              onNavigate: {
-                if !isEditing {
-                  navigationPath.append(index)
-                }
-              }
-            )
-            .listRowBackground(Color.clear)
-          }
-        })
-        .frame(width: geometry.size.width * 0.4)
+              )
+              .listRowBackground(Color.clear)
+            }
+          })
+        }
+        .frame(width: geometry.size.width * 0.7)
         .listStyle(.plain)
-        .background(Color(hex: "F7F7FB"))
+        .background(.gray300)
         
         // 세로 Divider
         Rectangle()
@@ -72,8 +102,19 @@ struct PaperListView: View {
           if isEditing {
             EmptyView()
           } else {
-            // MARK: - 썸네일 이미지 수정 필요
-            PaperInfoView(image: Image("test_thumbnail"))
+            if let selectedPaper = selectedPaper {
+              // MARK: - 썸네일 이미지 수정 필요
+              PaperInfoView(
+                image: Image("test_thumbnail"),
+                onNavigate: {
+                  if !isEditing {
+                    navigationPath.append(selectedPaper)
+                  }
+                }
+              )
+            } else {
+              EmptyView()
+            }
           }
         }
         .animation(.easeInOut, value: isEditing)
@@ -81,23 +122,23 @@ struct PaperListView: View {
         .background(
           LinearGradient(
             gradient: Gradient(stops: [
-              .init(color: .gray200, location: 0),
-              .init(color: .gray500, location: isEditing ? 3.5 : 3)
+              .init(color: .gray300, location: 0),
+              .init(color: Color(hex: "DADBEA"), location: isEditing ? 3.5 : 4)
             ]),
             startPoint: .top,
             endPoint: .bottom
           )
         )
-        .ignoresSafeArea()
       }
-      .background(.clear)
+      .background(.gray200)
+      .ignoresSafeArea()
     }
   }
 }
 
 #Preview {
   PaperListView(
-    isEditing: false,
-    selectedItems: .constant([]),
-    navigationPath: .constant(NavigationPath()))
+    navigationPath: .constant(NavigationPath()),
+    isEditing: .constant(false)
+  )
 }
