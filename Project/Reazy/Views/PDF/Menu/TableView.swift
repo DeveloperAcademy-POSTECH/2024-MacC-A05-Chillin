@@ -31,7 +31,7 @@ struct TableView: View {
             }
             .transition(.move(edge: .top).combined(with: .opacity))
             .animation(.smooth(duration: 0.5))
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
         .onAppear {
