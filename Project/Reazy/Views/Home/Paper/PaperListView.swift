@@ -11,17 +11,24 @@ struct PaperListView: View {
   
   @Binding var navigationPath: NavigationPath
   
-  @State private var selectedPaper: Int? = nil
+  @State private var selectedPaper: Int = 0
   
   @Binding var isEditing: Bool
+  @Binding var isSearching: Bool
   @State var selectedItems: Set<Int> = []
   
   @State private var isFavoritesSelected: Bool = false
   
-  // MARK: - 모델 생성 시 수정 필요
-  @State private var paperTitle: [String] = ["A review of the global climate change impacts, adaptation, and sustainable mitigation measures"]
-  @State private var datetime: [String] = ["2024. 10. 20. 오후 08:56"]
-  
+  // MARK: - Core Data 모델 생성 시 수정 필요
+  @State var papers: [PaperInfo] = [PaperInfo(
+    title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
+    datetime: "2024. 10. 20. 오후 08:56",
+    author: "Smith, John",
+    year: "2010",
+    pages: 43,
+    publisher: "NATURE"
+  )]
+
   
   var body: some View {
     // 화면 비율에 따라서 리스트 크기 설정 (반응형 UI)
@@ -29,6 +36,8 @@ struct PaperListView: View {
       HStack(spacing: 0) {
         VStack(spacing: 0) {
           HStack(spacing: 0) {
+            Spacer()
+            
             Button(action: {
               isFavoritesSelected = false
             }, label: {
@@ -59,17 +68,17 @@ struct PaperListView: View {
           
           // MARK: - CoreData
           List(content: {
-            ForEach(0..<paperTitle.count, id: \.self) { index in
+            ForEach(0..<papers.count, id: \.self) { index in
               PaperListCell(
-                title: paperTitle[index],
-                date: datetime[index],
+                title: papers[index].title,
+                date: papers[index].dateTime,
                 isSelected: selectedPaper == index,
                 isEditing: isEditing,
                 isEditingSelected: selectedItems.contains(index),
                 onSelect: {
                   if !isEditing {
                     if selectedPaper == index {
-                      selectedPaper = nil
+                      navigationPath.append(selectedPaper)
                     } else {
                       selectedPaper = index
                     }
@@ -89,46 +98,44 @@ struct PaperListView: View {
             }
           })
         }
-        .frame(width: geometry.size.width * 0.7)
+        .frame(width: isEditing || isSearching ? geometry.size.width : geometry.size.width * 0.7)
         .listStyle(.plain)
         .background(.gray300)
         
-        // 세로 Divider
-        Rectangle()
-          .frame(width: 1)
-          .foregroundStyle(.primary3)
-        
-        VStack(spacing: 0) {
-          if isEditing {
-            EmptyView()
-          } else {
-            if let selectedPaper = selectedPaper {
-              // MARK: - 썸네일 이미지 수정 필요
-              PaperInfoView(
-                image: Image("test_thumbnail"),
-                onNavigate: {
-                  if !isEditing {
-                    navigationPath.append(selectedPaper)
-                  }
+        if !isEditing && !isSearching {
+          // 세로 Divider
+          Rectangle()
+            .frame(width: 1)
+            .foregroundStyle(.primary3)
+          
+          VStack(spacing: 0) {
+            // MARK: - 썸네일 이미지 수정 필요
+            PaperInfoView(
+              image: Image("test_thumbnail"),
+              author: papers[selectedPaper].author,
+              year: papers[selectedPaper].year,
+              pages: papers[selectedPaper].pages,
+              publisher: papers[selectedPaper].publisher,
+              onNavigate: {
+                if !isEditing {
+                  navigationPath.append(selectedPaper)
                 }
-              )
-            } else {
-              EmptyView()
-            }
+              }
+            )
           }
-        }
-        .animation(.easeInOut, value: isEditing)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-          LinearGradient(
-            gradient: Gradient(stops: [
-              .init(color: .gray300, location: 0),
-              .init(color: Color(hex: "DADBEA"), location: isEditing ? 3.5 : 4)
-            ]),
-            startPoint: .top,
-            endPoint: .bottom
+          .animation(.easeInOut, value: isEditing)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(
+            LinearGradient(
+              gradient: Gradient(stops: [
+                .init(color: .gray300, location: 0),
+                .init(color: Color(hex: "DADBEA"), location: isEditing ? 3.5 : 4)
+              ]),
+              startPoint: .top,
+              endPoint: .bottom
+            )
           )
-        )
+        }
       }
       .background(.gray200)
       .ignoresSafeArea()
@@ -139,6 +146,14 @@ struct PaperListView: View {
 #Preview {
   PaperListView(
     navigationPath: .constant(NavigationPath()),
-    isEditing: .constant(false)
+    isEditing: .constant(false),
+    isSearching: .constant(false),
+    papers: [PaperInfo(
+      title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
+      datetime: "2024. 10. 20. 오후 08:56",
+      author: "Smith, John",
+      year: "2010",
+      pages: 43,
+      publisher: "NATURE")]
   )
 }

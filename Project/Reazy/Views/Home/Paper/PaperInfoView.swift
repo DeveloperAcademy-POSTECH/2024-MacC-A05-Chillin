@@ -11,6 +11,10 @@ struct PaperInfoView: View {
   
   // MARK: - 썸네일 이미지 수정 필요
   let image: Image
+  let author: String
+  let year: String
+  let pages: Int
+  let publisher: String
   
   @State private var isStarSelected: Bool = false
   @State private var isFolderSelected: Bool = false
@@ -20,8 +24,7 @@ struct PaperInfoView: View {
   var body: some View {
     VStack(spacing: 0) {
       // MARK: - 문서 첫 페이지
-//      image
-      Image("test_thumbnail")
+      image
         .resizable()
         .scaledToFit()
         .padding(.horizontal, 30)
@@ -85,6 +88,9 @@ struct PaperInfoView: View {
       .padding(.top, 18)
       
       VStack(spacing: 0) {
+        Divider()
+          .padding(.bottom, 6)
+          .foregroundStyle(.primary3)
         HStack(spacing: 0) {
           Text("정보")
             .reazyFont(.button1)
@@ -102,12 +108,13 @@ struct PaperInfoView: View {
             Spacer()
             
             // TODO: - 데이터 입력 필요
-            Text("Smith, John")
+            Text(author)
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
           }
           Divider()
             .padding(.vertical, 9)
+            .foregroundStyle(.primary3)
           HStack(spacing: 0) {
             Text("출판연도")
               .reazyFont(.text1)
@@ -116,12 +123,13 @@ struct PaperInfoView: View {
             Spacer()
             
             // TODO: - 데이터 입력 필요
-            Text("2010")
+            Text(year)
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
           }
           Divider()
             .padding(.vertical, 9)
+            .foregroundStyle(.primary3)
           HStack(spacing: 0) {
             Text("페이지")
               .reazyFont(.text1)
@@ -130,12 +138,13 @@ struct PaperInfoView: View {
             Spacer()
             
             // TODO: - 데이터 입력 필요
-            Text("43")
+            Text("\(pages)")
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
           }
           Divider()
             .padding(.vertical, 9)
+            .foregroundStyle(.primary3)
           HStack(spacing: 0) {
             Text("학술지")
               .reazyFont(.text1)
@@ -144,20 +153,21 @@ struct PaperInfoView: View {
             Spacer()
             
             // TODO: - 데이터 입력 필요
-            Text("NATURE")
+            Text(publisher)
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
           }
           Divider()
             .padding(.vertical, 9)
+            .foregroundStyle(.primary3)
         }
       }
-      .padding(.top, 32)
+      .padding(.top, 24)
       .padding(.horizontal, 30)
       
       Spacer()
     }
-    .padding(.top, 58)
+    .padding(.top, 37)
   }
   
   @ViewBuilder
@@ -195,6 +205,10 @@ struct PaperInfoView: View {
 #Preview {
   PaperInfoView(
     image: Image("image"),
+    author: "Smith, John",
+    year: "2010",
+    pages: 43,
+    publisher: "NATURE",
     onNavigate: {}
   )
 }

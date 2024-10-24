@@ -26,6 +26,7 @@ struct HomeView: View {
   @State private var isFolderSelected: Bool = false
   
   @State private var isEditing: Bool = false
+  @State private var isSearching: Bool = false
   @State private var selectedItems: Set<Int> = []
   
   var body: some View {
@@ -51,6 +52,7 @@ struct HomeView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                   selectedMenu = .search
                 }
+                isSearching.toggle()
               }) {
                 Image(systemName: "magnifyingglass")
                   .resizable()
@@ -92,6 +94,7 @@ struct HomeView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                   selectedMenu = .main
                 }
+                isSearching.toggle()
               }, label: {
                 Text("취소")
                   .reazyFont(.button1)
@@ -163,7 +166,8 @@ struct HomeView: View {
         
         PaperListView(
           navigationPath: $navigationPath,
-          isEditing: $isEditing
+          isEditing: $isEditing,
+          isSearching: $isSearching
         )
       }
       .background(Color(hex: "F7F7FB"))

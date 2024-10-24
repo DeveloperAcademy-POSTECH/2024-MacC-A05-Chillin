@@ -19,7 +19,7 @@ struct PaperListCell: View {
   
   var body: some View {
     ZStack {
-      if isSelected {
+      if isSelected && !isEditing {
         RoundedRectangle(cornerRadius: 14)
           .fill(.primary2)
           .padding(.vertical, 2)
