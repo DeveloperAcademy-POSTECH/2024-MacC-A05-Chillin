@@ -1,73 +1,78 @@
-//
-//  TableCell.swift
-//  Reazy
-//
-//  Created by 유지수 on 10/15/24.
-//
-
 import SwiftUI
 import PDFKit
 
 // MARK: - 쿠로꺼 : TableView 커스텀 리스트 셀
+
 struct TableCell: View {
+    
     @EnvironmentObject var viewModel: OriginalViewModel
     @State var item: TableItem
-    @State var isSelected: Bool = false
     @Binding var selectedID: UUID?
     
     var body: some View {
-        ZStack {
-            VStack {
-                if selectedID == item.id {
+        VStack(alignment: .leading){
+            if item.children.isEmpty {
+                HStack{
+                    //들여쓰기
+                    Spacer().frame(width: CGFloat(18 * item.level), height: 0)
+                    Text(item.table.label ?? "none")
+                        .lineLimit(1)
+                        .reazyFont(.h3)
+                        .foregroundStyle(.gray900)
+                }
+                .padding(.vertical, 12)
+                .padding(.leading, 12)
+                .frame(width: 228, alignment: .leading)
+                .background{
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(.primary2)
-                        .frame(height: 40)
-                        .offset(x: 5)
+                        .foregroundStyle(selectedID == item.id ? Color(.primary2) : Color.clear)
                 }
-                Spacer()
-            }
-            VStack {
-                if item.children.isEmpty {
-                    HStack {
-                        Text(item.table.label ?? "None")
-                            .lineLimit(1)
-                            .reazyFont(.h3)
-                            .foregroundStyle(Color(.gray900))
-                            .onTapGesture {
-                                onTap()
-                            }
-                        Spacer()
-                    }
-                    .padding(.leading, 10)
-                    .frame(height: 40)
-                } else {
-                    DisclosureGroup(isExpanded: $item.isExpanded) {
-                        ForEach(item.children) { child in
-                            HStack{
-                                Spacer().frame(width: 15)
-                                TableCell(item: child, selectedID: $selectedID)
-                            }
-                        }
-                    } label: {
-                        HStack{
-                            Text(item.table.label ?? "None")
-                                .lineLimit(1)
-                                .reazyFont(.h3)
-                                .foregroundStyle(Color(.gray900))
-                                .onTapGesture {
-                                    onTap()
-                                }
-                        }
-                        .padding(.leading, 10)
-                        .frame(height: 40)
-                        .accentColor(.gray800)
-                    }
-                    .animation(nil, value: item.isExpanded)
+                .onTapGesture {
+                    onTap()
                 }
-                Spacer()
+            } else {
+                HStack{
+                    //들여쓰기
+                    Spacer().frame(width: CGFloat(18 * item.level), height: 0)
+                    Button(action: {
+                        item.isExpanded.toggle()
+                    }, label: {
+                        if !item.children.isEmpty {
+                            VStack{
+                                Image(systemName:  "chevron.forward" )
+                                    .rotationEffect(.degrees(item.isExpanded ? 90 : 0))
+                                    .animation(.smooth, value: item.isExpanded)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.gray800)
+                            }
+                            //tappable area
+                            .frame(width: 16, height: 16)
+                            .contentShape(Rectangle())
+                        }
+                    })
+                    Text(item.table.label ?? "none")
+                        .lineLimit(1)
+                        .reazyFont(.h3)
+                        .foregroundStyle(.gray900)
+                }
+                .padding(.vertical, 12)
+                .padding(.leading, 12)
+                .frame(width: 228, alignment: .leading)
+                .background{
+                    RoundedRectangle(cornerRadius: 4)
+                        .foregroundStyle(selectedID == item.id ? Color(.primary2) : Color.clear)
+                }
+                .onTapGesture {
+                    onTap()
+                }
+                if item.isExpanded {
+                    ForEach(item.children, id: \.id) { item in
+                        TableCell(item: item, selectedID: $selectedID)
+                    }
+                }
             }
+            Spacer().frame(height: 5)
         }
-        .padding(.trailing, 8)
     }
     
     private func onTap() {
