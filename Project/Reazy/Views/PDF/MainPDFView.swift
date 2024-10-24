@@ -12,20 +12,19 @@ import UniformTypeIdentifiers
 struct MainPDFView: View {
   
   @StateObject private var originalViewModel: OriginalViewModel = .init()
+  
   @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
   @State private var topmostIndex: Int? = nil
   
-  // 문서 선택 확인을 위한 인덱스
-  let index: Int
+  @State private var selectedButton: WriteButton? = nil
+  @State private var selectedColor: HighlightColors = .yellow
   
   // 모드 구분
   @State private var selectedMode = "원문 모드"
   var mode = ["원문 모드", "집중 모드"]
   @Namespace private var animationNamespace
   
-  // 모아보기 버튼 구분
-  @State private var isSelected: [Bool] = [false, false]
-  @State private var icons: [String] = ["list.bullet", "rectangle.grid.1x2"]
+  @State private var selectedIndex: Int = 1
   @State private var isFigSelected: Bool = false
   
   @Binding var navigationPath: NavigationPath
@@ -39,27 +38,43 @@ struct MainPDFView: View {
           
           ZStack {
             HStack(spacing: 0) {
-              ForEach(0..<isSelected.count, id: \.self) { index in
-                Button(action: {
-                  if isSelected[index] {
-                    isSelected[index] = false
-                  } else {
-                    isSelected.toggleSelection(at: index)
-                  }
-                }) {
-                  RoundedRectangle(cornerRadius: 6)
-                    .frame(width: 26, height: 26)
-                  // MARK: - 부리꺼 : 색상 적용 필요
-                    .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
-                    .overlay (
-                      Image(systemName: icons[index])
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
-                        .frame(width: 18)
-                    )
+              Button(action: {
+                if selectedIndex == 1 {
+                  selectedIndex = 0
+                } else {
+                  selectedIndex = 1
                 }
-                .padding(.trailing, 36)
+              }) {
+                RoundedRectangle(cornerRadius: 6)
+                  .frame(width: 26, height: 26)
+                  .foregroundStyle(selectedIndex == 1 ? .primary1 : .clear)
+                  .overlay (
+                    Image(systemName: "list.bullet")
+                      .resizable()
+                      .scaledToFit()
+                      .foregroundStyle(selectedIndex == 1 ? .gray100 : .gray800)
+                      .frame(width: 18)
+                  )
+              }
+              .padding(.trailing, 36)
+              
+              Button(action: {
+                if selectedIndex == 2 {
+                  selectedIndex = 0
+                } else {
+                  selectedIndex = 2
+                }
+              }) {
+                RoundedRectangle(cornerRadius: 6)
+                  .frame(width: 26, height: 26)
+                  .foregroundStyle(selectedIndex == 2 ? .primary1 : .clear)
+                  .overlay (
+                    Image(systemName: "rectangle.grid.1x2")
+                      .resizable()
+                      .scaledToFit()
+                      .foregroundStyle(selectedIndex == 2 ? .gray100 : .gray800)
+                      .frame(width: 18)
+                  )
               }
               
               Spacer()
@@ -85,58 +100,34 @@ struct MainPDFView: View {
             HStack(spacing: 0) {
               Spacer()
               
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "text.bubble")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 18)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "highlighter")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 18)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "scribble")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 18)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "eraser")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 18)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "character.square")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 18)
+              ForEach(WriteButton.allCases, id: \.self) { btn in
+                // 조건부 Padding값 조정
+                let trailingPadding: CGFloat = {
+                  if selectedButton == .highlight && btn == .highlight {
+                    return .zero
+                  } else if btn == .translate {
+                    return .zero
+                  } else {
+                    return 32
+                  }
+                }()
+                
+                // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
+                WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
+                  // MARK: - 작성 관련 버튼 action 입력
+                  /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
+                  if selectedButton == btn {
+                    selectedButton = nil
+                  } else {
+                    selectedButton = btn
+                  }
+                }
+                .padding(.trailing, trailingPadding)
+                
+                // Highlight 버튼이 선택될 경우 색상을 선택
+                if selectedButton == .highlight && btn == .highlight {
+                  highlightColorSelector()
+                }
               }
               
               Spacer()
@@ -158,9 +149,8 @@ struct MainPDFView: View {
                   .environmentObject(originalViewModel)
               }
               
-              // MARK: - 모아보기 창
               HStack(spacing: 0){
-                if isSelected[0] {
+                if selectedIndex == 1 {
                   TableView()
                     .environmentObject(originalViewModel)
                     .background(.white)
@@ -169,7 +159,7 @@ struct MainPDFView: View {
                   Rectangle()
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))
-                } else if isSelected[1] {
+                } else if selectedIndex == 2 {
                   PageView()
                     .environmentObject(originalViewModel)
                     .background(.white)
@@ -178,6 +168,8 @@ struct MainPDFView: View {
                   Rectangle()
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))
+                } else {
+                  EmptyView()
                 }
                 
                 Spacer()
@@ -227,20 +219,16 @@ struct MainPDFView: View {
                 }
               }) {
                 Image(systemName: "chevron.left")
-                  .resizable()
-                  .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 22)
+                  .font(.system(size: 16))
               }
               .padding(.trailing, 20)
               Button(action: {
                 
               }) {
                 Image(systemName: "magnifyingglass")
-                  .resizable()
-                  .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 22)
+                  .font(.system(size: 16))
               }
             }
           },
@@ -266,6 +254,8 @@ struct MainPDFView: View {
                   .frame(height: 19)
               })
               .padding(.trailing, 24)
+              
+              // Custom segmented picker
               HStack(spacing: 0) {
                 ForEach(mode, id: \.self) { item in
                   Text(item)
@@ -277,7 +267,7 @@ struct MainPDFView: View {
                         if selectedMode == item {
                           RoundedRectangle(cornerRadius: 7)
                             .fill(.gray100)
-                            .matchedGeometryEffect(id: "underline", in: animationNamespace) // 애니메이션 효과
+                            .matchedGeometryEffect(id: "underline", in: animationNamespace)
                         }
                       }
                     )
@@ -291,7 +281,7 @@ struct MainPDFView: View {
                     .padding(.vertical, 2)
                 }
               }
-              .background(.gray500) // 전체 배경
+              .background(.gray500)
               .cornerRadius(9)
             }
           }
@@ -360,5 +350,29 @@ struct MainPDFView: View {
         }
       }
     }
+  }
+  
+  @ViewBuilder
+  private func highlightColorSelector() -> some View {
+    Rectangle()
+      .frame(width: 1, height: 19)
+      .foregroundStyle(.primary4)
+      .padding(.leading, 24)
+      .padding(.trailing, 17)
+    
+    ForEach(HighlightColors.allCases, id: \.self) { color in
+      ColorButton(button: $selectedColor, buttonOwner: color) {
+        // MARK: - 펜 색상 변경 action 입력
+        /// 펜 색상을 변경할 경우, 변경된 색상을 입력하는 로직은 여기에 추가
+        selectedColor = color
+      }
+      .padding(.trailing, color == .blue ? .zero : 18)
+    }
+    
+    Rectangle()
+      .frame(width: 1, height: 19)
+      .foregroundStyle(.primary4)
+      .padding(.leading, 24)
+      .padding(.trailing, 17)
   }
 }

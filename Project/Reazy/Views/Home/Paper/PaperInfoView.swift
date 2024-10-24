@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PaperInfoView: View {
   
-  // MARK: - 썸네일 이미지 수정 필요
   let image: Image
   let author: String
   let year: String
@@ -23,13 +22,11 @@ struct PaperInfoView: View {
   
   var body: some View {
     VStack(spacing: 0) {
-      // MARK: - 문서 첫 페이지
       image
         .resizable()
         .scaledToFit()
         .padding(.horizontal, 30)
       
-      // 북마크 버튼
       HStack(spacing: 0) {
         actionButton()
         
@@ -50,8 +47,7 @@ struct PaperInfoView: View {
             )
         }
         .padding(.trailing, 6)
-        
-        // 삭제 버튼
+          
         Button(action: {
           
         }) {
@@ -68,7 +64,6 @@ struct PaperInfoView: View {
         }
         .padding(.trailing, 6)
         
-        // 폴더 저장
         Button(action: {
           isFolderSelected.toggle()
         }) {
@@ -107,7 +102,7 @@ struct PaperInfoView: View {
             
             Spacer()
             
-            // TODO: - 데이터 입력 필요
+            // TODO: - 저자 데이터 입력 필요
             Text(author)
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
@@ -122,7 +117,7 @@ struct PaperInfoView: View {
             
             Spacer()
             
-            // TODO: - 데이터 입력 필요
+            // TODO: - 출판연도 데이터 입력 필요
             Text(year)
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
@@ -137,7 +132,7 @@ struct PaperInfoView: View {
             
             Spacer()
             
-            // TODO: - 데이터 입력 필요
+            // TODO: - 페이지 수 데이터 입력 필요
             Text("\(pages)")
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
@@ -152,7 +147,7 @@ struct PaperInfoView: View {
             
             Spacer()
             
-            // TODO: - 데이터 입력 필요
+            // TODO: - 학술지 데이터 입력 필요
             Text(publisher)
               .reazyFont(.text1)
               .foregroundStyle(.gray600)
@@ -170,10 +165,11 @@ struct PaperInfoView: View {
     .padding(.top, 37)
   }
   
+  
   @ViewBuilder
   private func actionButton() -> some View {
     Button(action: {
-      onNavigate()  // "읽기" 버튼 클릭
+      onNavigate()
     }) {
       HStack(spacing: 0) {
         Text("읽기 ")
@@ -201,6 +197,7 @@ struct PaperInfoView: View {
     .frame(height: 40)
   }
 }
+
 
 #Preview {
   PaperInfoView(

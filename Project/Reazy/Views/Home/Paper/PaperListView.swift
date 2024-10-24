@@ -14,12 +14,13 @@ struct PaperListView: View {
   @State private var selectedPaper: Int = 0
   
   @Binding var isEditing: Bool
-  @Binding var isSearching: Bool
   @State var selectedItems: Set<Int> = []
+  
+  @Binding var isSearching: Bool
   
   @State private var isFavoritesSelected: Bool = false
   
-  // MARK: - Core Data 모델 생성 시 수정 필요
+  // MARK: - Core Data 모델 생성 시 수정 필요 : 예시 데이터
   @State var papers: [PaperInfo] = [PaperInfo(
     title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
     datetime: "2024. 10. 20. 오후 08:56",
@@ -53,6 +54,7 @@ struct PaperListView: View {
             
             Button(action: {
               isFavoritesSelected = true
+              // TODO: - 즐겨찾기 filter 적용 필요
             }, label: {
               Text("즐겨찾기")
                 .reazyFont(isFavoritesSelected ? .text3 : .h2)
@@ -102,8 +104,8 @@ struct PaperListView: View {
         .listStyle(.plain)
         .background(.gray300)
         
+        // 편집 모드 & 검색 모드에서는 문서 정보가 보이지 않아야 함
         if !isEditing && !isSearching {
-          // 세로 Divider
           Rectangle()
             .frame(width: 1)
             .foregroundStyle(.primary3)

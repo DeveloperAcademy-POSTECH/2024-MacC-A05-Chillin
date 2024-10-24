@@ -26,8 +26,9 @@ struct HomeView: View {
   @State private var isFolderSelected: Bool = false
   
   @State private var isEditing: Bool = false
-  @State private var isSearching: Bool = false
   @State private var selectedItems: Set<Int> = []
+  
+  @State private var isSearching: Bool = false
   
   var body: some View {
     NavigationStack(path: $navigationPath) {
@@ -80,7 +81,7 @@ struct HomeView: View {
               Button(action: {
                 
               }) {
-                Text("업로드")
+                Text("가져오기")
                   .reazyFont(.button1)
                   .foregroundStyle(.gray100)
               }
@@ -172,7 +173,7 @@ struct HomeView: View {
       }
       .background(Color(hex: "F7F7FB"))
       .navigationDestination(for: Int.self) { index in
-        MainPDFView(index: index, navigationPath: $navigationPath)
+        MainPDFView(navigationPath: $navigationPath)
       }
     }
     .statusBarHidden()
