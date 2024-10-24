@@ -11,7 +11,7 @@ import PDFKit
 
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
-
+    
     @EnvironmentObject var originalViewModel: OriginalViewModel
     let tableViewModel: TableViewModel = .init()
     @State var outlineItems: [TableItem] = []
@@ -27,10 +27,13 @@ struct TableView: View {
                         TableCell(item: item, selectedID: $selectedID)
                     }
                 }
+                Spacer()
             }
+            .transition(.move(edge: .top).combined(with: .opacity))
+            .animation(.smooth(duration: 0.5))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 16)
         .onAppear {
             if let document = originalViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)

@@ -14,7 +14,7 @@ struct TableCell: View {
             if item.children.isEmpty {
                 HStack{
                     //들여쓰기
-                    Spacer().frame(width: CGFloat(20 * item.level), height: 0)
+                    Spacer().frame(width: CGFloat(18 * item.level), height: 0)
                     Text(item.table.label ?? "none")
                         .lineLimit(1)
                         .reazyFont(.h3)
@@ -22,7 +22,6 @@ struct TableCell: View {
                 }
                 .padding(.vertical, 12)
                 .padding(.leading, 12)
-                //이렇게 너비를 지정하는 게 ㄱㅊ은지?
                 .frame(width: 228, alignment: .leading)
                 .background{
                     RoundedRectangle(cornerRadius: 4)
@@ -34,25 +33,30 @@ struct TableCell: View {
             } else {
                 HStack{
                     //들여쓰기
-                    Spacer().frame(width: CGFloat(20 * item.level), height: 0)
+                    Spacer().frame(width: CGFloat(18 * item.level), height: 0)
                     Button(action: {
                         item.isExpanded.toggle()
                     }, label: {
                         if !item.children.isEmpty {
-                            Image(systemName:  "chevron.forward" )
-                                .rotationEffect(.degrees(item.isExpanded ? 90 : 0))
-                                .animation(.smooth, value: item.isExpanded)
-                                .font(.system(size: 11))
-                                .foregroundStyle(.gray800)
+                            VStack{
+                                Image(systemName:  "chevron.forward" )
+                                    .rotationEffect(.degrees(item.isExpanded ? 90 : 0))
+                                    .animation(.smooth, value: item.isExpanded)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.gray800)
+                            }
+                            //tappable area
+                            .frame(width: 16, height: 16)
+                            .contentShape(Rectangle())
                         }
                     })
-                    .padding(.leading, 12)
                     Text(item.table.label ?? "none")
                         .lineLimit(1)
                         .reazyFont(.h3)
                         .foregroundStyle(.gray900)
                 }
                 .padding(.vertical, 12)
+                .padding(.leading, 12)
                 .frame(width: 228, alignment: .leading)
                 .background{
                     RoundedRectangle(cornerRadius: 4)
@@ -64,15 +68,11 @@ struct TableCell: View {
                 if item.isExpanded {
                     ForEach(item.children, id: \.id) { item in
                         TableCell(item: item, selectedID: $selectedID)
-                            .animation(.smooth(duration: 0.3), value: item.isExpanded)
-                            .padding(0)
                     }
                 }
             }
             Spacer().frame(height: 5)
         }
-        //.transition(AnyTransition.opacity.animation(.default))
-        //.animation(.smooth(duration: 0.3), value: item.isExpanded)
     }
     
     private func onTap() {
