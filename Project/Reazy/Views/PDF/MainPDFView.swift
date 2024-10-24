@@ -21,6 +21,7 @@ struct MainPDFView: View {
   // 모드 구분
   @State private var selectedMode = "원문 모드"
   var mode = ["원문 모드", "집중 모드"]
+  @Namespace private var animationNamespace
   
   // 모아보기 버튼 구분
   @State private var isSelected: [Bool] = [false, false]
@@ -38,8 +39,6 @@ struct MainPDFView: View {
           
           ZStack {
             HStack(spacing: 0) {
-              // MARK: - 왼쪽 상단 버튼 3개
-              /// 버튼 하나가 글자로 이루어져 있어서 분리
               ForEach(0..<isSelected.count, id: \.self) { index in
                 Button(action: {
                   if isSelected[index] {
@@ -64,17 +63,6 @@ struct MainPDFView: View {
               }
               
               Spacer()
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "link.badge.plus")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 19)
-              }
-              .padding(.trailing, 36)
               
               Button(action: {
                 isFigSelected.toggle()
@@ -104,29 +92,51 @@ struct MainPDFView: View {
                   .resizable()
                   .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 19)
+                  .frame(height: 18)
               }
               .padding(.trailing, 39)
               
               Button(action: {
                 // 버튼 액션 추가
               }) {
-                Image(systemName: "pencil.tip.crop.circle")
+                Image(systemName: "highlighter")
                   .resizable()
                   .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 19)
+                  .frame(height: 18)
               }
               .padding(.trailing, 39)
               
               Button(action: {
                 // 버튼 액션 추가
               }) {
-                Image(systemName: "square.dashed")
+                Image(systemName: "scribble")
                   .resizable()
                   .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 19)
+                  .frame(height: 18)
+              }
+              .padding(.trailing, 39)
+              
+              Button(action: {
+                // 버튼 액션 추가
+              }) {
+                Image(systemName: "eraser")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 18)
+              }
+              .padding(.trailing, 39)
+              
+              Button(action: {
+                // 버튼 액션 추가
+              }) {
+                Image(systemName: "character.square")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(.gray800)
+                  .frame(height: 18)
               }
               
               Spacer()
@@ -182,19 +192,19 @@ struct MainPDFView: View {
                     
                     droppedFigures.append(
                       (
-                      document: document,
-                      head: head,
-                      isSelected: true,
-                      viewOffset: CGSize(width: 0, height: 0),
-                      lastOffset: CGSize(width: 0, height: 0),
-                      viewWidth: 300
+                        document: document,
+                        head: head,
+                        isSelected: true,
+                        viewOffset: CGSize(width: 0, height: 0),
+                        lastOffset: CGSize(width: 0, height: 0),
+                        viewWidth: 300
                       )
                     )
                     print("Current droppedFigures count: \(droppedFigures.count)")
                   })
-                    .environmentObject(originalViewModel)
-                    .background(.white)
-                    .frame(width: geometry.size.width * 0.22)
+                  .environmentObject(originalViewModel)
+                  .background(.white)
+                  .frame(width: geometry.size.width * 0.22)
                 }
               }
             }
@@ -235,17 +245,55 @@ struct MainPDFView: View {
             }
           },
           rightView: {
-            Picker("", selection: $selectedMode) {
-              ForEach(mode, id: \.self) {
-                Text($0)
-                  .reazyFont(.button4)
+            HStack(spacing: 0) {
+              Button(action: {
+                // TODO: - 뒤로 가기 버튼 활성화 필요
+              }, label: {
+                Image(systemName: "arrow.uturn.left")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(Color(hex: "BABCCF"))
+                  .frame(height: 19)
+              })
+              .padding(.trailing, 18)
+              Button(action: {
+                // TODO: - 앞으로 가기 버튼 활성화 필요
+              }, label: {
+                Image(systemName: "arrow.uturn.right")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(Color(hex: "BABCCF"))
+                  .frame(height: 19)
+              })
+              .padding(.trailing, 24)
+              HStack(spacing: 0) {
+                ForEach(mode, id: \.self) { item in
+                  Text(item)
+                    .reazyFont(selectedMode == item ? .button4 : .button5)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 11)
+                    .background(
+                      ZStack {
+                        if selectedMode == item {
+                          RoundedRectangle(cornerRadius: 7)
+                            .fill(.gray100)
+                            .matchedGeometryEffect(id: "underline", in: animationNamespace) // 애니메이션 효과
+                        }
+                      }
+                    )
+                    .foregroundColor(selectedMode == item ? .gray900 : .gray600)
+                    .onTapGesture {
+                      withAnimation(.spring()) {
+                        selectedMode = item
+                      }
+                    }
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 2)
+                }
               }
+              .background(.gray500) // 전체 배경
+              .cornerRadius(9)
             }
-            .pickerStyle(.segmented)
-            .frame(width: 158)
-            .background(.gray500)
-            .cornerRadius(9)
-            .padding(10)
           }
         )
         
