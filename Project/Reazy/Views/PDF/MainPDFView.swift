@@ -12,19 +12,19 @@ import UniformTypeIdentifiers
 struct MainPDFView: View {
   
   @StateObject private var originalViewModel: OriginalViewModel = .init()
+  
   @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
   @State private var topmostIndex: Int? = nil
   
-  // 문서 선택 확인을 위한 인덱스
-  let index: Int
+  @State private var selectedButton: WriteButton? = nil
+  @State private var selectedColor: HighlightColors = .yellow
   
   // 모드 구분
   @State private var selectedMode = "원문 모드"
   var mode = ["원문 모드", "집중 모드"]
+  @Namespace private var animationNamespace
   
-  // 모아보기 버튼 구분
-  @State private var isSelected: [Bool] = [false, false]
-  @State private var icons: [String] = ["list.bullet", "rectangle.grid.1x2"]
+  @State private var selectedIndex: Int = 1
   @State private var isFigSelected: Bool = false
   
   @Binding var navigationPath: NavigationPath
@@ -38,43 +38,46 @@ struct MainPDFView: View {
           
           ZStack {
             HStack(spacing: 0) {
-              // MARK: - 왼쪽 상단 버튼 3개
-              /// 버튼 하나가 글자로 이루어져 있어서 분리
-              ForEach(0..<isSelected.count, id: \.self) { index in
-                Button(action: {
-                  if isSelected[index] {
-                    isSelected[index] = false
-                  } else {
-                    isSelected.toggleSelection(at: index)
-                  }
-                }) {
-                  RoundedRectangle(cornerRadius: 6)
-                    .frame(width: 26, height: 26)
-                  // MARK: - 부리꺼 : 색상 적용 필요
-                    .foregroundStyle(isSelected[index] ? Color(hex: "5F5DAA") : .clear)
-                    .overlay (
-                      Image(systemName: icons[index])
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundStyle(isSelected[index] ? .gray100 : .gray800)
-                        .frame(width: 18)
-                    )
+              Button(action: {
+                if selectedIndex == 1 {
+                  selectedIndex = 0
+                } else {
+                  selectedIndex = 1
                 }
-                .padding(.trailing, 36)
+              }) {
+                RoundedRectangle(cornerRadius: 6)
+                  .frame(width: 26, height: 26)
+                  .foregroundStyle(selectedIndex == 1 ? .primary1 : .clear)
+                  .overlay (
+                    Image(systemName: "list.bullet")
+                      .resizable()
+                      .scaledToFit()
+                      .foregroundStyle(selectedIndex == 1 ? .gray100 : .gray800)
+                      .frame(width: 18)
+                  )
+              }
+              .padding(.trailing, 36)
+              
+              Button(action: {
+                if selectedIndex == 2 {
+                  selectedIndex = 0
+                } else {
+                  selectedIndex = 2
+                }
+              }) {
+                RoundedRectangle(cornerRadius: 6)
+                  .frame(width: 26, height: 26)
+                  .foregroundStyle(selectedIndex == 2 ? .primary1 : .clear)
+                  .overlay (
+                    Image(systemName: "rectangle.grid.1x2")
+                      .resizable()
+                      .scaledToFit()
+                      .foregroundStyle(selectedIndex == 2 ? .gray100 : .gray800)
+                      .frame(width: 18)
+                  )
               }
               
               Spacer()
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "link.badge.plus")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 19)
-              }
-              .padding(.trailing, 36)
               
               Button(action: {
                 isFigSelected.toggle()
@@ -97,36 +100,34 @@ struct MainPDFView: View {
             HStack(spacing: 0) {
               Spacer()
               
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "text.bubble")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 19)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "pencil.tip.crop.circle")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 19)
-              }
-              .padding(.trailing, 39)
-              
-              Button(action: {
-                // 버튼 액션 추가
-              }) {
-                Image(systemName: "square.dashed")
-                  .resizable()
-                  .scaledToFit()
-                  .foregroundStyle(.gray800)
-                  .frame(height: 19)
+              ForEach(WriteButton.allCases, id: \.self) { btn in
+                // 조건부 Padding값 조정
+                let trailingPadding: CGFloat = {
+                  if selectedButton == .highlight && btn == .highlight {
+                    return .zero
+                  } else if btn == .translate {
+                    return .zero
+                  } else {
+                    return 32
+                  }
+                }()
+                
+                // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
+                WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
+                  // MARK: - 작성 관련 버튼 action 입력
+                  /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
+                  if selectedButton == btn {
+                    selectedButton = nil
+                  } else {
+                    selectedButton = btn
+                  }
+                }
+                .padding(.trailing, trailingPadding)
+                
+                // Highlight 버튼이 선택될 경우 색상을 선택
+                if selectedButton == .highlight && btn == .highlight {
+                  highlightColorSelector()
+                }
               }
               
               Spacer()
@@ -148,9 +149,8 @@ struct MainPDFView: View {
                   .environmentObject(originalViewModel)
               }
               
-              // MARK: - 모아보기 창
               HStack(spacing: 0){
-                if isSelected[0] {
+                if selectedIndex == 1 {
                   TableView()
                     .environmentObject(originalViewModel)
                     .background(.white)
@@ -159,7 +159,7 @@ struct MainPDFView: View {
                   Rectangle()
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))
-                } else if isSelected[1] {
+                } else if selectedIndex == 2 {
                   PageView()
                     .environmentObject(originalViewModel)
                     .background(.white)
@@ -168,6 +168,8 @@ struct MainPDFView: View {
                   Rectangle()
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))
+                } else {
+                  EmptyView()
                 }
                 
                 Spacer()
@@ -182,19 +184,19 @@ struct MainPDFView: View {
                     
                     droppedFigures.append(
                       (
-                      document: document,
-                      head: head,
-                      isSelected: true,
-                      viewOffset: CGSize(width: 0, height: 0),
-                      lastOffset: CGSize(width: 0, height: 0),
-                      viewWidth: 300
+                        document: document,
+                        head: head,
+                        isSelected: true,
+                        viewOffset: CGSize(width: 0, height: 0),
+                        lastOffset: CGSize(width: 0, height: 0),
+                        viewWidth: 300
                       )
                     )
                     print("Current droppedFigures count: \(droppedFigures.count)")
                   })
-                    .environmentObject(originalViewModel)
-                    .background(.white)
-                    .frame(width: geometry.size.width * 0.22)
+                  .environmentObject(originalViewModel)
+                  .background(.white)
+                  .frame(width: geometry.size.width * 0.22)
                 }
               }
             }
@@ -217,35 +219,71 @@ struct MainPDFView: View {
                 }
               }) {
                 Image(systemName: "chevron.left")
-                  .resizable()
-                  .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 22)
+                  .font(.system(size: 16))
               }
               .padding(.trailing, 20)
               Button(action: {
                 
               }) {
                 Image(systemName: "magnifyingglass")
-                  .resizable()
-                  .scaledToFit()
                   .foregroundStyle(.gray800)
-                  .frame(height: 22)
+                  .font(.system(size: 16))
               }
             }
           },
           rightView: {
-            Picker("", selection: $selectedMode) {
-              ForEach(mode, id: \.self) {
-                Text($0)
-                  .reazyFont(.button4)
+            HStack(spacing: 0) {
+              Button(action: {
+                // TODO: - 뒤로 가기 버튼 활성화 필요
+              }, label: {
+                Image(systemName: "arrow.uturn.left")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(Color(hex: "BABCCF"))
+                  .frame(height: 19)
+              })
+              .padding(.trailing, 18)
+              Button(action: {
+                // TODO: - 앞으로 가기 버튼 활성화 필요
+              }, label: {
+                Image(systemName: "arrow.uturn.right")
+                  .resizable()
+                  .scaledToFit()
+                  .foregroundStyle(Color(hex: "BABCCF"))
+                  .frame(height: 19)
+              })
+              .padding(.trailing, 24)
+              
+              // Custom segmented picker
+              HStack(spacing: 0) {
+                ForEach(mode, id: \.self) { item in
+                  Text(item)
+                    .reazyFont(selectedMode == item ? .button4 : .button5)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 11)
+                    .background(
+                      ZStack {
+                        if selectedMode == item {
+                          RoundedRectangle(cornerRadius: 7)
+                            .fill(.gray100)
+                            .matchedGeometryEffect(id: "underline", in: animationNamespace)
+                        }
+                      }
+                    )
+                    .foregroundColor(selectedMode == item ? .gray900 : .gray600)
+                    .onTapGesture {
+                      withAnimation(.spring()) {
+                        selectedMode = item
+                      }
+                    }
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 2)
+                }
               }
+              .background(.gray500)
+              .cornerRadius(9)
             }
-            .pickerStyle(.segmented)
-            .frame(width: 158)
-            .background(.gray500)
-            .cornerRadius(9)
-            .padding(10)
           }
         )
         
@@ -312,5 +350,29 @@ struct MainPDFView: View {
         }
       }
     }
+  }
+  
+  @ViewBuilder
+  private func highlightColorSelector() -> some View {
+    Rectangle()
+      .frame(width: 1, height: 19)
+      .foregroundStyle(.primary4)
+      .padding(.leading, 24)
+      .padding(.trailing, 17)
+    
+    ForEach(HighlightColors.allCases, id: \.self) { color in
+      ColorButton(button: $selectedColor, buttonOwner: color) {
+        // MARK: - 펜 색상 변경 action 입력
+        /// 펜 색상을 변경할 경우, 변경된 색상을 입력하는 로직은 여기에 추가
+        selectedColor = color
+      }
+      .padding(.trailing, color == .blue ? .zero : 18)
+    }
+    
+    Rectangle()
+      .frame(width: 1, height: 19)
+      .foregroundStyle(.primary4)
+      .padding(.leading, 24)
+      .padding(.trailing, 17)
   }
 }
