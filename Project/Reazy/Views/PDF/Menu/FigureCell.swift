@@ -16,6 +16,14 @@ struct PDFKitView: UIViewRepresentable {
     
     let document: PDFDocument
     var isScrollEnabled: Bool
+
+    pdfView.autoScales = true       // PDF가 뷰에 맞춰서 스케일 조정
+    pdfView.document = document
+    pdfView.translatesAutoresizingMaskIntoConstraints = false
+    pdfView.displayMode = .singlePageContinuous
+    pdfView.pageShadowsEnabled = false
+    pdfView.backgroundColor = .white
+
     
     // PDFView 생성 후 반환
     func makeUIView(context: Context) -> PDFView {

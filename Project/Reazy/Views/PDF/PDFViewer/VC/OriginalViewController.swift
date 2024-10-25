@@ -23,6 +23,7 @@ final class OriginalViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
         view.autoScales = false
+        view.pageShadowsEnabled = false
         return view
     }()
 

@@ -22,6 +22,7 @@ public enum ReazyFontType {
   
   case text1
   case text2
+  case text3 // 임의 추가
   
   static let pretendardBoldFont: String = "Pretendard-Bold"
   static let pretendardMediumFont: String = "Pretendard-Medium"
@@ -34,7 +35,7 @@ public enum ReazyFontType {
     case .button4, .button5, .text2: return 12
     case .text1: return 13
     case .h3, .h4, .button2, .button3: return 14
-    case .h2: return 15
+    case .h2, .text3: return 15
     case .button1: return 16
     case .h1: return 24
     }
@@ -46,7 +47,7 @@ public enum ReazyFontType {
     case .text2: return 16
     case .h3, .button3: return 17
     case .h4, .text1: return 18
-    case .h2, .button2: return 20
+    case .h2, .button2, .text3: return 20
     case .button1: return 23
     case .h1: return 34
     }
@@ -57,7 +58,7 @@ public enum ReazyFontType {
     case .h1, .button1, .button2: return ReazyFontType.pretendardSemiboldFont
     case .h2, .h3, .button5, .text1: return ReazyFontType.pretendardMediumFont
     case .h4, .button3, .text2: return ReazyFontType.pretendardRegularFont
-    case .button4: return ReazyFontType.pretendardBoldFont
+    case .button4, .text3: return ReazyFontType.pretendardBoldFont
     }
   }
 }

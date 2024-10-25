@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PaperListCell: View {
   
-  let image: Image
   let title: String
   let date: String
   let isSelected: Bool
@@ -17,11 +16,10 @@ struct PaperListCell: View {
   let isEditingSelected: Bool
   let onSelect: () -> Void
   let onEditingSelect: () -> Void
-  let onNavigate: () -> Void
   
   var body: some View {
     ZStack {
-      if isSelected {
+      if isSelected && !isEditing {
         RoundedRectangle(cornerRadius: 14)
           .fill(.primary2)
           .padding(.vertical, 2)
@@ -40,36 +38,29 @@ struct PaperListCell: View {
             .padding(.trailing, 20)
         }
         
-        
-        // 논문 표지 들어갈 자리
-        image
-          .resizable()
-          .scaledToFit()
-          .frame(width: 86)
+        RoundedRectangle(cornerRadius: 10)
+          .frame(width: 42, height: 42)
+          .foregroundStyle(.gray500)
+          .overlay(
+            Image(systemName: "text.page.fill")
+              .resizable()
+              .scaledToFit()
+              .frame(height: 21)
+              .foregroundStyle(.gray100)
+          )
         
         VStack(alignment: .leading, spacing: 0) {
           Text(title)
             .lineLimit(2)
             .reazyFont(.h2)
-            .padding(.bottom, 4)
-            .padding(.trailing, 5)
+            .padding(.bottom, 6)
           Text(date)
             .reazyFont(.h4)
             .foregroundStyle(.gray600)
-          
-          HStack(spacing: 0) {
-            Spacer()
-            
-            if isSelected && !isEditing {
-              actionButton()
-            } else {
-              actionButton()
-                .hidden()
-            }
-          }
         }
-        .padding(.leading, 14)
-        .padding(.top, 14)
+        .padding(.leading, 15)
+        
+        Spacer()
       }
       .background(.clear)
       .padding(.horizontal, 10)
@@ -82,51 +73,18 @@ struct PaperListCell: View {
           onSelect()
         }
       }
-      .allowsHitTesting(isSelected == false)
-    }
-  }
-  
-  @ViewBuilder
-  private func actionButton() -> some View {
-    Button(action: {
-      onNavigate()  // "읽기" 버튼 클릭
-    }) {
-      HStack(spacing: 0) {
-        Text("읽기 ")
-        Image(systemName: "arrow.up.right")
-      }
-      .foregroundStyle(.gray100)
-      .reazyFont(.button2)
-      .padding(.horizontal, 21)
-      .padding(.vertical, 10)
-      .background(
-        RoundedRectangle(cornerRadius: 18)
-          .foregroundStyle(
-            LinearGradient(
-              gradient: Gradient(stops: [
-                .init(color: Color(hex:"3F3E7E"), location: 0),
-                .init(color: Color(hex: "313070"), location: 1)
-              ]),
-              startPoint: .top,
-              endPoint: .bottom
-            )
-          )
-          .shadow(color: Color(hex: "383582").opacity(0.2), radius: 30, x: 0, y: 6)
-      )
     }
   }
 }
 
 #Preview {
   PaperListCell(
-    image: Image("image"),
     title: "test",
     date: "1시간 전",
     isSelected: false,
     isEditing: true,
     isEditingSelected: false,
     onSelect: {},
-    onEditingSelect: {},
-    onNavigate: {}
+    onEditingSelect: {}
   )
 }

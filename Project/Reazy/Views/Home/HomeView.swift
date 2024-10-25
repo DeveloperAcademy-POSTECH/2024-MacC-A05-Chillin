@@ -7,126 +7,176 @@
 
 import SwiftUI
 
+enum options {
+  case main
+  case search
+  case edit
+}
+
 struct HomeView: View {
   
-  @State private var selectedButton: HomeButton = .page
   @State private var navigationPath: NavigationPath = NavigationPath()
   
+  @State var selectedMenu: options = .main
+  
+  // 검색 모드 search text
+  @State private var searchText: String = ""
+  
+  @State private var isStarSelected: Bool = false
+  @State private var isFolderSelected: Bool = false
+  
+  @State private var isEditing: Bool = false
+  @State private var selectedItems: Set<Int> = []
+  
+  @State private var isSearching: Bool = false
   
   var body: some View {
     NavigationStack(path: $navigationPath) {
-      HStack(spacing: 0) {
+      VStack(spacing: 0) {
         ZStack {
           Rectangle()
             .foregroundStyle(.point1)
           
-          VStack(spacing: 0) {
+          HStack(spacing: 0) {
             Image("icon")
               .resizable()
-              .aspectRatio(contentMode: .fill)
-              .clipShape(RoundedRectangle(cornerRadius: 20))
-              .frame(width: 50, height: 50)
-              .padding(.top, 45)
-              .padding(.bottom, 40)
+              .scaledToFit()
+              .frame(width: 54, height: 50)
+              .padding(.vertical, 31)
+              .padding(.leading, 28)
             
-            ForEach(HomeButton.allCases, id: \.self) { btn in
-              if btn == .setting {
-                Spacer()
-              }
-              HomeViewButton(
-                button: $selectedButton,
-                buttonOwner: btn) {
-                  selectedButton = btn
+            Spacer()
+            
+            switch selectedMenu {
+            case .main:
+              Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                  selectedMenu = .search
                 }
-                .padding(.bottom, btn == .setting ? 15 : 19)
+                isSearching.toggle()
+              }) {
+                Image(systemName: "magnifyingglass")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(height: 19)
+                  .foregroundStyle(.gray100)
+              }
+              .padding(.trailing, 28)
+              
+              Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                  selectedMenu = .edit
+                }
+                isEditing.toggle()
+                selectedItems.removeAll()
+              }) {
+                Image(systemName: "checkmark.circle")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(height: 19)
+                  .foregroundStyle(.gray100)
+              }
+              .padding(.trailing, 28)
+              
+              Button(action: {
+                
+              }) {
+                Text("가져오기")
+                  .reazyFont(.button1)
+                  .foregroundStyle(.gray100)
+              }
+              .padding(.trailing, 28)
+              
+            case .search:
+              SearchBar(text: $searchText)
+                .frame(width: 400)
+              
+              Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                  selectedMenu = .main
+                }
+                isSearching.toggle()
+              }, label: {
+                Text("취소")
+                  .reazyFont(.button1)
+                  .foregroundStyle(.gray100)
+              })
+              .padding(.trailing, 28)
+              
+            case .edit:
+              Button(action: {
+                // MARK: - 북마크 로직 확인 필요
+                isStarSelected.toggle()
+              }, label : {
+                Image(systemName: isStarSelected ? "star.fill" : "star")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(height: 19)
+                  .foregroundStyle(.gray100)
+              })
+              .padding(.trailing, 28)
+              
+              Button(action: {
+                
+              }, label: {
+                Image(systemName: "trash")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(height: 19)
+                  .foregroundStyle(.gray100)
+              })
+              .padding(.trailing, 28)
+              
+              Button(action: {
+                
+              }, label: {
+                Image(systemName: "folder.badge.plus")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(height: 19)
+                  .foregroundStyle(.gray100)
+              })
+              .padding(.trailing, 28)
+              
+              Button(action: {
+                
+              }, label: {
+                Image(systemName: "square.and.arrow.up")
+                  .resizable()
+                  .scaledToFit()
+                  .frame(height: 19)
+                  .foregroundStyle(.gray100)
+              })
+              .padding(.trailing, 28)
+              
+              Button(action: {
+                selectedMenu = .main
+                isEditing = false
+                selectedItems.removeAll()
+                isStarSelected = false
+              }, label: {
+                Text("취소")
+                  .reazyFont(.button1)
+                  .foregroundStyle(.gray100)
+              })
+              .padding(.trailing, 28)
             }
           }
         }
-        .frame(width: 80)
-        .ignoresSafeArea()
+        .frame(height: 80)
         
-        // 화면 추가 시 수정 예정
-        switch selectedButton {
-        case .page:
-          PaperView(navigationPath: $navigationPath)
-        case .star:
-          BookmarkView()
-        case .folder:
-          ClippingView()
-        case .link:
-          LinkView()
-        case .setting:
-          SettingView()
-        }
+        PaperListView(
+          navigationPath: $navigationPath,
+          isEditing: $isEditing,
+          isSearching: $isSearching
+        )
       }
       .background(Color(hex: "F7F7FB"))
       .navigationDestination(for: Int.self) { index in
-        MainPDFView(index: index, navigationPath: $navigationPath)
+        MainPDFView(navigationPath: $navigationPath)
       }
     }
     .statusBarHidden()
-  }
-}
-
-struct HomeViewButton: View {
-  @Binding var button: HomeButton
-  
-  let buttonOwner: HomeButton
-  let action: () -> Void
-  
-  var body: some View {
-    Button(action: {
-      action()
-    }) {
-      RoundedRectangle(cornerRadius: 14)
-        .frame(width: 54, height: 54)
-        .foregroundStyle(button == buttonOwner ? .point2 : .clear)
-        .overlay(
-          Image(systemName: button == buttonOwner ? buttonOwner.selectedIcon : buttonOwner.nonSelectedIcon)
-            .resizable()
-            .scaledToFit()
-            .frame(height: 21)
-            .foregroundStyle(button == buttonOwner ? .gray100 : .point3)
-        )
-    }
-  }
-}
-
-enum HomeButton: String, CaseIterable {
-  case page
-  case star
-  case folder
-  case link
-  case setting
-  
-  var selectedIcon: String {
-    switch self {
-    case .page:
-      "text.page.fill"
-    case .star:
-      "star.fill"
-    case .folder:
-      "folder.fill"
-    case .link:
-      "link"
-    case .setting:
-      "gearshape.fill"
-    }
-  }
-  
-  var nonSelectedIcon: String {
-    switch self {
-    case .page:
-      "text.page"
-    case .star:
-      "star"
-    case .folder:
-      "folder"
-    case .link:
-      "link"
-    case .setting:
-      "gearshape"
-    }
   }
 }
 
