@@ -10,6 +10,8 @@ import PDFKit
 
 struct TableViewModel {
     
+    public var tableItems: [TableItem] = []
+    
     func extractToc(from document: PDFDocument) -> [TableItem] {
         var tableItems: [TableItem] = []
         

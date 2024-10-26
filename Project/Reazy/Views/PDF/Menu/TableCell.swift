@@ -5,7 +5,7 @@ import PDFKit
 
 struct TableCell: View {
     
-    @EnvironmentObject var viewModel: OriginalViewModel
+    @EnvironmentObject var OriginalViewModel: OriginalViewModel
     @State var item: TableItem
     @Binding var selectedID: UUID?
     
@@ -35,7 +35,9 @@ struct TableCell: View {
                     //들여쓰기
                     Spacer().frame(width: CGFloat(18 * item.level), height: 0)
                     Button(action: {
-                        item.isExpanded.toggle()
+                        withAnimation(.smooth(duration: 0.5)) {
+                            item.isExpanded.toggle()
+                        }
                     }, label: {
                         if !item.children.isEmpty {
                             VStack{
@@ -68,6 +70,7 @@ struct TableCell: View {
                 if item.isExpanded {
                     ForEach(item.children, id: \.id) { item in
                         TableCell(item: item, selectedID: $selectedID)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
             }
@@ -80,7 +83,7 @@ struct TableCell: View {
             selectedID = item.id
         }
         if let destination = item.table.destination {
-            viewModel.selectedDestination = destination
+            OriginalViewModel.selectedDestination = destination
             //test
             dump(destination)
         } else {
