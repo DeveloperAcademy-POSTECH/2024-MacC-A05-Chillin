@@ -7,6 +7,7 @@
 
 import Foundation
 import PDFKit
+import SwiftUI
 
 
 /**
@@ -17,6 +18,20 @@ import PDFKit
 final class OriginalViewModel: ObservableObject {
     @Published var selectedDestination: PDFDestination?
     @Published var changedPageNumber: Int = 0
+    @Published var selectedText: String = "" {
+        didSet {
+            // 선택된 텍스트가 변경될 때 추가 작업
+            updateBubbleView(selectedText: selectedText, bubblePosition: bubbleViewPosition)
+        }
+    }
+    // PDFView 인스턴스를 저장할 프로퍼티 추가
+    weak var pdfView: PDFView?
+    
+    @Published var isTranslateMode: Bool = false
+    
+    // BubbleView의 상태와 위치
+    @Published var bubbleViewVisible: Bool = false
+    @Published var bubbleViewPosition: CGPoint = .zero
     
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
@@ -25,6 +40,8 @@ final class OriginalViewModel: ObservableObject {
     public var figureAnnotations: [FigureAnnotation] = []       // figure 리스트
     
     public var thumnailImages: [UIImage] = []
+    
+
 }
 
 
@@ -168,5 +185,19 @@ extension OriginalViewModel {
         document.insert(page, at: 0)                                    // 새 document에 페이지 추가
         
         return document                                                 // 생성된 PDFDocument 변환
+    }
+}
+
+extension OriginalViewModel {
+    private func updateBubbleView(selectedText: String, bubblePosition: CGPoint) {
+        print(selectedText)
+        
+        // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
+        if !selectedText.isEmpty {
+            bubbleViewVisible = true
+            
+        } else {
+            bubbleViewVisible = false
+        }
     }
 }
