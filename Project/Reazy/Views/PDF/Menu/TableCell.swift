@@ -22,7 +22,7 @@ struct TableCell: View {
                 }
                 .padding(.vertical, 12)
                 .padding(.leading, 12)
-                .frame(width: 228, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background{
                     RoundedRectangle(cornerRadius: 4)
                         .foregroundStyle(selectedID == item.id ? Color(.primary2) : Color.clear)
@@ -59,7 +59,7 @@ struct TableCell: View {
                 }
                 .padding(.vertical, 12)
                 .padding(.leading, 12)
-                .frame(width: 228, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background{
                     RoundedRectangle(cornerRadius: 4)
                         .foregroundStyle(selectedID == item.id ? Color(.primary2) : Color.clear)

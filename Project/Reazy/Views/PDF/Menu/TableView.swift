@@ -11,7 +11,7 @@ import PDFKit
 
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
-
+    
     @EnvironmentObject var originalViewModel: OriginalViewModel
     
     @State var tableViewModel: TableViewModel = .init()
@@ -31,8 +31,9 @@ struct TableView: View {
                 }
                 Spacer()
             }
-            .padding(.horizontal, 20)
             .padding(.vertical, 16)
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity)
         }
         .onAppear {
             if let document = originalViewModel.document{
