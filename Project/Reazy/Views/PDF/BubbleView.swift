@@ -33,91 +33,20 @@ struct BubbleView: View {
                 triggerTranslation() // selectedText가 변경될 때마다 triggerTranslation 호출
             }
             
-            
-            // Pass the configuration to the task.
+            // 번역
             .translationTask(configuration) { session in
                 do {
-                    // Use the session the task provides to translate the text.
                     let response = try await session.translate(selectedText)
                     
-                    // Update the view with the translated result.
+                    // 번역된 결과로 뷰 업데이트
                     targetText = response.targetText
                 } catch {
-                    // Handle any errors.
+                    // TODO: 에러 해결
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         } else {
-            // Fallback on earlier versions
-        }
-        if #available(iOS 18.0, *) {
-            VStack {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.gray100)
-                        .shadow(radius: 3)
-                        .overlay(Triangle().fill(Color.white))
-                    
-                    Text(targetText)
-                        .font(.system(size: 12))
-                        .padding(8)
-                        .foregroundColor(.black)
-                }
-                .frame(maxWidth: 680)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .onChange(of: selectedText) { newValue in
-                triggerTranslation() // selectedText가 변경될 때마다 triggerTranslation 호출
-            }
-            // Pass the configuration to the task.
-            .translationTask(configuration) { session in
-                do {
-                    // Use the session the task provides to translate the text.
-                    let response = try await session.translate(selectedText)
-                    
-                    // Update the view with the translated result.
-                    targetText = response.targetText
-                } catch {
-                    // Handle any errors.
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        } else {
-            // Fallback on earlier versions
-        }
-        if #available(iOS 18.0, *) {
-            VStack {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.gray100)
-                        .shadow(radius: 1)
-//                        .overlay(Triangle().fill(Color.white))
-                    
-                    Text(targetText)
-                        .font(.system(size: 12))
-                        .padding(8)
-                        .foregroundColor(.black)
-                }
-                .frame(maxWidth: 680)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .onChange(of: selectedText) { newValue in
-                triggerTranslation() // selectedText가 변경될 때마다 triggerTranslation 호출
-            }
-            // Pass the configuration to the task.
-            .translationTask(configuration) { session in
-                do {
-                    // Use the session the task provides to translate the text.
-                    let response = try await session.translate(selectedText)
-                    
-                    // Update the view with the translated result.
-                    targetText = response.targetText
-                } catch {
-                    // Handle any errors.
-                }
-            }
-            .frame(maxWidth: 680, maxHeight: 800, alignment: .top)
-        } else {
+            // 18.0 미만 버전에서 보여줄 화면 
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -149,7 +78,7 @@ struct BubbleView: View {
     }
 }
 
-// 삼각형 모양
+// 삼각형 모양 필요 시 사용
 struct Triangle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()

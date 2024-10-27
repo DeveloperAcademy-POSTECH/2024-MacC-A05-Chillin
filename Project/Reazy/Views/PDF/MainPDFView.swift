@@ -124,12 +124,13 @@ struct MainPDFView: View {
                       mainPDFViewModel.isTranslateMode = false
                   } else {
                     selectedButton = btn
+                      
+                      // 번역 버튼
                       if selectedButton == .translate {
                           mainPDFViewModel.isTranslateMode = true // translation mode
                           NotificationCenter.default.post(name: .translateModeActivated, object: nil)
                           print("번역모드 on")
                       }
-                      
                       
                   }
                 }
