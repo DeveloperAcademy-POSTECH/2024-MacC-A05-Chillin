@@ -24,8 +24,6 @@ final class MainPDFViewModel: ObservableObject {
             updateBubbleView(selectedText: selectedText, bubblePosition: bubbleViewPosition)
         }
     }
-    // PDFView 인스턴스를 저장할 프로퍼티 추가
-    weak var pdfView: PDFView?
     
     @Published var isTranslateMode: Bool = false
     
@@ -189,6 +187,12 @@ extension MainPDFViewModel {
 }
 
 extension MainPDFViewModel {
+    public var isBubbleViewVisible: Bool {
+        get {
+            self.isTranslateMode && self.bubbleViewVisible && !self.selectedText.isEmpty
+        }
+    }
+    
     private func updateBubbleView(selectedText: String, bubblePosition: CGPoint) {
         print(selectedText)
         

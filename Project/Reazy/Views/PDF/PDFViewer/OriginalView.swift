@@ -18,13 +18,9 @@ struct OriginalView: View {
             }
             // 번역에 사용되는 말풍선뷰
             if viewModel.isTranslateMode {
-                if viewModel.bubbleViewVisible {
-                    if !viewModel.selectedText.isEmpty {
-                        if #available(iOS 18.0, *) {
-                            BubbleView(selectedText: $viewModel.selectedText)
-                        } else {
-                            // TODO: 이전 버전에서 어떻게 보여줄 지
-                        }
+                if viewModel.isBubbleViewVisible {
+                    if #available(iOS 18.0, *) {
+                        BubbleView(selectedText: $viewModel.selectedText)
                     }
                 }
             }
@@ -34,8 +30,4 @@ struct OriginalView: View {
     
 #Preview {
     OriginalView()
-}
-
-extension Notification.Name {
-    static let translateModeActivated = Notification.Name("translateModeActivated")
 }

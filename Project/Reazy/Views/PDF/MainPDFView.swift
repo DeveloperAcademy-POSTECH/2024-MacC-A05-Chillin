@@ -8,8 +8,6 @@
 import SwiftUI
 import PDFKit
 import UniformTypeIdentifiers
-import Combine
-import UIKit
 
 struct MainPDFView: View {
   
