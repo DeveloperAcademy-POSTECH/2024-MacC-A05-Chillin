@@ -14,7 +14,7 @@ import Combine
  */
 final class OriginalViewController: UIViewController {
 
-    let viewModel: OriginalViewModel
+    let viewModel: MainPDFViewModel
     
     var cancellable: Set<AnyCancellable> = []
     
@@ -35,7 +35,7 @@ final class OriginalViewController: UIViewController {
         self.setBinding()
     }
     
-    init(viewModel: OriginalViewModel) {
+    init(viewModel: MainPDFViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }

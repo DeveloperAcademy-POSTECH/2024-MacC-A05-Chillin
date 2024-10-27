@@ -47,7 +47,7 @@ struct PDFKitView: UIViewRepresentable {
 
 struct FigureCell: View {
   
-  @EnvironmentObject var originalViewModel: OriginalViewModel
+  @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
   let index: Int
   
   var onSelect: (PDFDocument, String) -> Void
@@ -57,7 +57,7 @@ struct FigureCell: View {
   var body: some View {
     VStack(spacing: 0) {
       ZStack  {
-        if let document = originalViewModel.setFigureDocument(for: index) {
+        if let document = mainPDFViewModel.setFigureDocument(for: index) {
           if let page = document.page(at: 0) {
             let pageRect = page.bounds(for: .mediaBox)
             let aspectRatio = pageRect.width / pageRect.height
@@ -68,7 +68,7 @@ struct FigureCell: View {
               .padding(8)
               .simultaneousGesture(
                 TapGesture().onEnded {
-                  let head = originalViewModel.figureAnnotations[index].head
+                  let head = mainPDFViewModel.figureAnnotations[index].head
                   print("FigureCell tapped. Sending document and head to onSelect.")
                   onSelect(document, head)
                 }
@@ -83,7 +83,7 @@ struct FigureCell: View {
       }
       .padding(.bottom, 10)
       
-      Text(originalViewModel.figureAnnotations[index].head)
+      Text(mainPDFViewModel.figureAnnotations[index].head)
         .reazyFont(.text2)
     }
   }
