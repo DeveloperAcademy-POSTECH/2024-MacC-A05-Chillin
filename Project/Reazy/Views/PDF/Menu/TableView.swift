@@ -12,7 +12,7 @@ import PDFKit
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
     
-    @EnvironmentObject var originalViewModel: OriginalViewModel
+    @EnvironmentObject var originalViewModel: MainPDFViewModel
     
     @State var tableViewModel: TableViewModel = .init()
     @State var selectedID: UUID? = nil
