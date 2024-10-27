@@ -62,31 +62,12 @@ extension ConcentrateViewController {
     
     /// UI 설정
     private func setUI() {
-        let width = UIScreen.main.bounds.width
-        
-        let backView = UIView()
-        backView.translatesAutoresizingMaskIntoConstraints = false
-        backView.backgroundColor = .white
-        
-        self.view.addSubview(backView)
-        NSLayoutConstraint.activate([
-            backView.topAnchor.constraint(equalTo: self.view.topAnchor),
-            backView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-            backView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            backView.widthAnchor.constraint(equalToConstant: width * 0.46)
-        ])
-        
-        // TODO: 집중모드에서 백그라운드 컬러에 따른 확대,축소 기능 넣을지 여부 확인
-        self.view.backgroundColor = .gray200
-        
         self.view.addSubview(self.pdfView)
         NSLayoutConstraint.activate([
             self.pdfView.topAnchor.constraint(equalTo: self.view.topAnchor),
             self.pdfView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-//            self.pdfView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-//            self.pdfView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            self.pdfView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            self.pdfView.widthAnchor.constraint(equalToConstant: width * 0.4)
+            self.pdfView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.pdfView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
         
         // pdf view의 초기 scale 설정
