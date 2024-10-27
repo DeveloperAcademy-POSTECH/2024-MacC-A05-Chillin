@@ -84,7 +84,7 @@ struct TableCell: View {
             selectedID = item.id
         }
         if let destination = item.table.destination {
-            OriginalViewModel.selectedDestination = destination
+            viewModel.selectedDestination = destination
             //test
             dump(destination)
         } else {
