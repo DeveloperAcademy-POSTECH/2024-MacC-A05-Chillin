@@ -21,7 +21,11 @@ struct OriginalView: View {
                 // Show BubbleView if translation mode is active
                 if viewModel.bubbleViewVisible {
                     if !viewModel.selectedText.isEmpty {
-                        BubbleView(selectedText: viewModel.selectedText, position: viewModel.bubbleViewPosition)
+                        if #available(iOS 18.0, *) {
+                            BubbleView(selectedText: $viewModel.selectedText)
+                        } else {
+                            // Fallback on earlier versions
+                        }
                     }
                 }
             }

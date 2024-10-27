@@ -198,6 +198,7 @@ extension OriginalViewModel {
             
         } else {
             bubbleViewVisible = false
+            self.selectedText = ""
         }
     }
 }

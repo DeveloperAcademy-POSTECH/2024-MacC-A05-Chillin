@@ -90,15 +90,15 @@ struct FloatingView: View {
     }
   }
 }
-
-#Preview {
-  @Previewable @State var viewOffset: CGSize = .zero
-  @Previewable @State var viewWidth: CGFloat = 500
-  FloatingView(
-    document: PDFDocument(),
-    head: "Fig 3.1",
-    isSelected: .constant(true),
-    viewOffset: $viewOffset,
-    viewWidth: $viewWidth
-  )
-}
+//
+//#Preview {
+//  @Previewable @State var viewOffset: CGSize = .zero
+//  @Previewable @State var viewWidth: CGFloat = 500
+//  FloatingView(
+//    document: PDFDocument(),
+//    head: "Fig 3.1",
+//    isSelected: .constant(true),
+//    viewOffset: $viewOffset,
+//    viewWidth: $viewWidth
+//  )
+//}
