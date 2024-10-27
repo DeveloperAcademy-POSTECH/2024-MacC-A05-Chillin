@@ -5,7 +5,7 @@ import PDFKit
 
 struct TableCell: View {
     
-    @EnvironmentObject var viewModel: OriginalViewModel
+    @EnvironmentObject var OriginalViewModel: OriginalViewModel
     @State var item: TableItem
     @Binding var selectedID: UUID?
     
@@ -14,15 +14,16 @@ struct TableCell: View {
             if item.children.isEmpty {
                 HStack{
                     //들여쓰기
-                    Spacer().frame(width: CGFloat(18 * item.level), height: 0)
+                    Spacer().frame(width: CGFloat(22 * item.level), height: 0)
                     Text(item.table.label ?? "none")
                         .lineLimit(1)
                         .reazyFont(.h3)
                         .foregroundStyle(.gray900)
                 }
+                .padding(.leading, 30)
+                .padding(.trailing, 9)
                 .padding(.vertical, 12)
-                .padding(.leading, 12)
-                .frame(width: 228, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background{
                     RoundedRectangle(cornerRadius: 4)
                         .foregroundStyle(selectedID == item.id ? Color(.primary2) : Color.clear)
@@ -33,31 +34,33 @@ struct TableCell: View {
             } else {
                 HStack{
                     //들여쓰기
-                    Spacer().frame(width: CGFloat(18 * item.level), height: 0)
+                    Spacer().frame(width: CGFloat(22 * item.level), height: 0)
                     Button(action: {
-                        item.isExpanded.toggle()
+                        withAnimation(.smooth(duration: 0.5)) {
+                            item.isExpanded.toggle()
+                        }
                     }, label: {
                         if !item.children.isEmpty {
-                            VStack{
+                            VStack(alignment: .leading){
                                 Image(systemName:  "chevron.forward" )
                                     .rotationEffect(.degrees(item.isExpanded ? 90 : 0))
                                     .animation(.smooth, value: item.isExpanded)
                                     .font(.system(size: 11))
                                     .foregroundStyle(.gray800)
                             }
-                            //tappable area
-                            .frame(width: 16, height: 16)
-                            .contentShape(Rectangle())
                         }
                     })
+                    .padding(.trailing, 8)
+                    
                     Text(item.table.label ?? "none")
                         .lineLimit(1)
                         .reazyFont(.h3)
                         .foregroundStyle(.gray900)
                 }
+                .padding(.trailing, 9)
+                .padding(.leading, 4)
                 .padding(.vertical, 12)
-                .padding(.leading, 12)
-                .frame(width: 228, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background{
                     RoundedRectangle(cornerRadius: 4)
                         .foregroundStyle(selectedID == item.id ? Color(.primary2) : Color.clear)
@@ -68,6 +71,7 @@ struct TableCell: View {
                 if item.isExpanded {
                     ForEach(item.children, id: \.id) { item in
                         TableCell(item: item, selectedID: $selectedID)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
             }
@@ -80,7 +84,7 @@ struct TableCell: View {
             selectedID = item.id
         }
         if let destination = item.table.destination {
-            viewModel.selectedDestination = destination
+            OriginalViewModel.selectedDestination = destination
             //test
             dump(destination)
         } else {
