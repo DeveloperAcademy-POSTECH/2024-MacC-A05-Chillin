@@ -121,11 +121,11 @@ struct MainPDFView: View {
                   /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
                   if selectedButton == btn {
                     selectedButton = nil
-                      originalViewModel.isTranslateMode = false
+                      mainPDFViewModel.isTranslateMode = false
                   } else {
                     selectedButton = btn
                       if selectedButton == .translate {
-                          originalViewModel.isTranslateMode = true // translation mode
+                          mainPDFViewModel.isTranslateMode = true // translation mode
                           NotificationCenter.default.post(name: .translateModeActivated, object: nil)
                           print("번역모드 on")
                       }

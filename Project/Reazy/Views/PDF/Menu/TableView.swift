@@ -12,7 +12,7 @@ import PDFKit
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
     
-    @EnvironmentObject var originalViewModel: OriginalViewModel
+    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     
     @State var tableViewModel: TableViewModel = .init()
     @State var selectedID: UUID? = nil
@@ -37,7 +37,7 @@ struct TableView: View {
             .frame(maxWidth: .infinity)
         }
         .onAppear {
-            if let document = originalViewModel.document{
+            if let document = mainPDFViewModel.document{
                 tableViewModel.tableItems = tableViewModel.extractToc(from: document)
             } else {
                 tableViewModel.tableItems = []

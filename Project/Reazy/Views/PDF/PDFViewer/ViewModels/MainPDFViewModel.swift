@@ -188,7 +188,7 @@ extension MainPDFViewModel {
     }
 }
 
-extension OriginalViewModel {
+extension MainPDFViewModel {
     private func updateBubbleView(selectedText: String, bubblePosition: CGPoint) {
         print(selectedText)
         

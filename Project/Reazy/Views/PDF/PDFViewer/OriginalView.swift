@@ -12,12 +12,30 @@ struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     
     var body: some View {
-        VStack(spacing: 0) {
-            OriginalViewControllerRepresent()
+        ZStack{
+            VStack(spacing: 0) {
+                OriginalViewControllerRepresent() // PDF 뷰를 표시
+            }
+            // 번역에 사용되는 말풍선뷰
+            if viewModel.isTranslateMode {
+                if viewModel.bubbleViewVisible {
+                    if !viewModel.selectedText.isEmpty {
+                        if #available(iOS 18.0, *) {
+                            BubbleView(selectedText: $viewModel.selectedText)
+                        } else {
+                            // TODO: 이전 버전에서 어떻게 보여줄 지
+                        }
+                    }
+                }
+            }
         }
     }
 }
     
 #Preview {
     OriginalView()
+}
+
+extension Notification.Name {
+    static let translateModeActivated = Notification.Name("translateModeActivated")
 }
