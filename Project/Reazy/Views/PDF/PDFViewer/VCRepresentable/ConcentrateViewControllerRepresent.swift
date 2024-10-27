@@ -14,7 +14,7 @@ import SwiftUI
 struct ConcentrateViewControllerRepresent: UIViewControllerRepresentable {
     typealias UIViewControllerType = ConcentrateViewController
     
-    @EnvironmentObject var viewModel: OriginalViewModel
+    @EnvironmentObject var viewModel: MainPDFViewModel
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
         ConcentrateViewController(viewModel: viewModel)

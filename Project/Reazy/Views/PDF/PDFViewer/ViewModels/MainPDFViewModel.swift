@@ -15,7 +15,7 @@ import SwiftUI
  */
 
 
-final class OriginalViewModel: ObservableObject {
+final class MainPDFViewModel: ObservableObject {
     @Published var selectedDestination: PDFDestination?
     @Published var changedPageNumber: Int = 0
     @Published var selectedText: String = "" {
@@ -46,7 +46,7 @@ final class OriginalViewModel: ObservableObject {
 
 
 // MARK: - 초기 세팅 메소드
-extension OriginalViewModel {
+extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
@@ -93,7 +93,7 @@ extension OriginalViewModel {
 /**
  원본 보기 뷰 관련
  */
-extension OriginalViewModel {
+extension MainPDFViewModel {
     /// Destination의 페이지 넘버 찾는 메소드
     private func findPageNum(destination: PDFDestination?) -> Int {
         guard let page = destination?.page else {
@@ -124,7 +124,7 @@ extension OriginalViewModel {
 /**
  PageListView 관련
  */
-extension OriginalViewModel {
+extension MainPDFViewModel {
     /// 현재 document 에서 썸네일 이미지 가져오는 메소드
     public func fetchThumbnailImage() {
         var images = [UIImage]()
@@ -157,7 +157,7 @@ extension OriginalViewModel {
 /**
  Figure 모아보기 뷰 관련
  */
-extension OriginalViewModel {
+extension MainPDFViewModel {
     /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
     public func setFigureDocument(for index: Int) -> PDFDocument? {
 

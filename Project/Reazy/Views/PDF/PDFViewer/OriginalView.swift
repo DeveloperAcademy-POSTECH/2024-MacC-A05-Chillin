@@ -9,35 +9,15 @@ import SwiftUI
 
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
-    @EnvironmentObject var viewModel: OriginalViewModel
+    @EnvironmentObject private var viewModel: MainPDFViewModel
     
     var body: some View {
-        ZStack{
-            VStack(spacing: 0) {
-                OriginalViewControllerRepresent() // PDF 뷰를 표시
-            }
-            // BubbleView 표시
-            if viewModel.isTranslateMode {
-                // Show BubbleView if translation mode is active
-                if viewModel.bubbleViewVisible {
-                    if !viewModel.selectedText.isEmpty {
-                        if #available(iOS 18.0, *) {
-                            BubbleView(selectedText: $viewModel.selectedText)
-                        } else {
-                            // Fallback on earlier versions
-                        }
-                    }
-                }
-            }
+        VStack(spacing: 0) {
+            OriginalViewControllerRepresent()
         }
-
     }
 }
     
 #Preview {
     OriginalView()
-}
-
-extension Notification.Name {
-    static let translateModeActivated = Notification.Name("translateModeActivated")
 }

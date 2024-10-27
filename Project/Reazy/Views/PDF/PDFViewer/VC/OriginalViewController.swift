@@ -13,8 +13,8 @@ import Combine
  원문 모드 ViewController
  */
 final class OriginalViewController: UIViewController {
-    
-    let viewModel: OriginalViewModel
+
+    let viewModel: MainPDFViewModel
     
     var cancellable: Set<AnyCancellable> = []
     
@@ -26,7 +26,7 @@ final class OriginalViewController: UIViewController {
         view.pageShadowsEnabled = false
         return view
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,7 +35,7 @@ final class OriginalViewController: UIViewController {
         self.setBinding()
     }
     
-    init(viewModel: OriginalViewModel) {
+    init(viewModel: MainPDFViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -90,42 +90,10 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
-        
-        // 드래그해서 선택된 텍스트 불러오는 함수
-        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                guard let selection = self.mainPDFView.currentSelection else { return }
-                
-                // 선택된 텍스트 가져오기
-                let selectedText = selection.string ?? ""
-                
-//                // 현재 선택된 텍스트의 위치 가져오기
-//                let selectionRect = selection.bounds(for: self.mainPDFView.currentPage!)
-//                
-//                // PDF 뷰의 확대/축소 비율 가져오기
-//                let scaleFactor = self.mainPDFView.scaleFactor
-//                
-//                // 선택된 텍스트의 중심 위치 계산 (확대/축소 비율을 고려)
-//                let bubblePosition = CGPoint(
-//                    x: selectionRect.midX * scaleFactor,
-//                    y: selectionRect.midY * scaleFactor - selectionRect.height / 2 * scaleFactor - 20 // 약간 위로 이동 (여백)
-//                )
-//                
-                DispatchQueue.main.async {
-                    // ViewModel에 선택된 텍스트와 위치 업데이트
-                    self.viewModel.selectedText = selectedText
-//                    self.viewModel.bubbleViewPosition = bubblePosition // 위치 업데이트
-                    
-                    // BubbleView의 가시성을 업데이트
-                    self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
-                }
-            }
-            .store(in: &self.cancellable)
     }
 }
 
-//
-//#Preview {
-//    OriginalViewController(viewModel: .init())
-//} 
+
+#Preview {
+    OriginalViewController(viewModel: .init())
+}

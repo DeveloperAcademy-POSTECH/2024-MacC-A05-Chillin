@@ -13,7 +13,7 @@ import UIKit
 
 struct MainPDFView: View {
   
-  @StateObject private var originalViewModel: OriginalViewModel = .init()
+  @StateObject private var mainPDFViewModel: MainPDFViewModel = .init()
   
   @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
   @State private var topmostIndex: Int? = nil
@@ -153,17 +153,17 @@ struct MainPDFView: View {
             ZStack {
               if selectedMode == "원문 모드" {
                 OriginalView()
-                  .environmentObject(originalViewModel)
+                  .environmentObject(mainPDFViewModel)
               }
               else if selectedMode == "집중 모드" {
                 ConcentrateView()
-                  .environmentObject(originalViewModel)
+                  .environmentObject(mainPDFViewModel)
               }
               
               HStack(spacing: 0){
                 if selectedIndex == 1 {
                   TableView()
-                    .environmentObject(originalViewModel)
+                    .environmentObject(mainPDFViewModel)
                     .background(.white)
                     .frame(width: geometry.size.width * 0.22)
                   
@@ -172,7 +172,7 @@ struct MainPDFView: View {
                     .foregroundStyle(Color(hex: "CCCEE1"))
                 } else if selectedIndex == 2 {
                   PageView()
-                    .environmentObject(originalViewModel)
+                    .environmentObject(mainPDFViewModel)
                     .background(.white)
                     .frame(width: geometry.size.width * 0.22)
                   
@@ -205,7 +205,7 @@ struct MainPDFView: View {
                     )
                     print("Current droppedFigures count: \(droppedFigures.count)")
                   })
-                  .environmentObject(originalViewModel)
+                  .environmentObject(mainPDFViewModel)
                   .background(.white)
                   .frame(width: geometry.size.width * 0.22)
                 }
