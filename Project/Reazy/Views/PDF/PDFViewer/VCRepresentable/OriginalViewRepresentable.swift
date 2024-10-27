@@ -11,10 +11,10 @@ import SwiftUI
 struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
     typealias UIViewControllerType = OriginalViewController
     
-    @EnvironmentObject var originalViewModel: OriginalViewModel
+    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
-        OriginalViewController(viewModel: originalViewModel)
+        OriginalViewController(viewModel: mainPDFViewModel)
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {

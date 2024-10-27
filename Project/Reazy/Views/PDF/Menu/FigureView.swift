@@ -12,12 +12,12 @@ import PDFKit
 // MARK: - Lucid : Figure 뷰
 struct FigureView: View {
     
-    @EnvironmentObject var originalViewModel: OriginalViewModel
+    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     var onSelect: (PDFDocument, String) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
-            if originalViewModel.figureAnnotations.isEmpty {        // figureAnnotations가 비어있을 경우
+            if mainPDFViewModel.figureAnnotations.isEmpty {        // figureAnnotations가 비어있을 경우
                 Text("이미지가 없습니다.")
             } else {
                 Text("피규어를 꺼내서 창에 띄울 수 있어요")
@@ -27,7 +27,7 @@ struct FigureView: View {
             }
             
             List {
-                ForEach(0..<originalViewModel.figureAnnotations.count, id: \.self) { index in
+                ForEach(0..<mainPDFViewModel.figureAnnotations.count, id: \.self) { index in
                   FigureCell(index: index, onSelect: onSelect)
                         .padding(.bottom, 21)
                         .listRowSeparator(.hidden)

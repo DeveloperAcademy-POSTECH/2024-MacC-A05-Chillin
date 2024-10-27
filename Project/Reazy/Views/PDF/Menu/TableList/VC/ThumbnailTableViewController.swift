@@ -15,11 +15,11 @@ import Combine
  */
 final class ThumbnailTableViewController: UIViewController {
     
-    let viewModel: OriginalViewModel
+    let viewModel: MainPDFViewModel
     
     var cancellables: Set<AnyCancellable> = []
     
-    init(viewModel: OriginalViewModel) {
+    init(viewModel: MainPDFViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }

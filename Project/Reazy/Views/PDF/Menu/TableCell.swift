@@ -5,7 +5,7 @@ import PDFKit
 
 struct TableCell: View {
     
-    @EnvironmentObject var viewModel: OriginalViewModel
+    @EnvironmentObject var viewModel: MainPDFViewModel
     @State var item: TableItem
     @Binding var selectedID: UUID?
     

@@ -11,7 +11,7 @@ import Combine
 
 final class ConcentrateViewController: UIViewController {
     
-    let viewModel: OriginalViewModel
+    let viewModel: MainPDFViewModel
     
     var cancellables: Set<AnyCancellable> = []
     
@@ -37,7 +37,7 @@ final class ConcentrateViewController: UIViewController {
     
     
     
-    init(viewModel: OriginalViewModel) {
+    init(viewModel: MainPDFViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }

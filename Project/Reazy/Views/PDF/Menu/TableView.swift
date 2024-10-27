@@ -12,7 +12,7 @@ import PDFKit
 // MARK: - 쿠로꺼 : 목차 뷰
 struct TableView: View {
     
-    @EnvironmentObject var originalViewModel: OriginalViewModel
+    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     let tableViewModel: TableViewModel = .init()
     @State var outlineItems: [TableItem] = []
     @State var selectedID: UUID? = nil
@@ -35,7 +35,7 @@ struct TableView: View {
             .padding(.vertical, 16)
         }
         .onAppear {
-            if let document = originalViewModel.document{
+            if let document = mainPDFViewModel.document{
                 outlineItems = tableViewModel.extractToc(from: document)
             } else {
                 outlineItems = []

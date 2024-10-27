@@ -11,7 +11,7 @@ import SwiftUI
  썸네일 뷰 컨트롤러 -> SwiftUI
  */
 struct ThumbnailView: UIViewControllerRepresentable {
-    @EnvironmentObject var viewModel: OriginalViewModel
+    @EnvironmentObject var viewModel: MainPDFViewModel
     
     typealias UIViewControllerType = ThumbnailTableViewController
     
