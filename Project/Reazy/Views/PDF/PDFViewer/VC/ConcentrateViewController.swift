@@ -86,6 +86,20 @@ extension ConcentrateViewController {
                 self?.pdfView.go(to: page)
             }
             .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .PDFViewPageChanged)
+            .sink { [weak self] _ in
+                guard let currentPage = self?.pdfView.currentPage,
+                      let currentPageNum = self?.viewModel.focusDocument?.index(for: currentPage),
+                      let pageNum = self?.viewModel.focusAnnotations[currentPageNum] else {
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    self?.viewModel.changedPageNumber = pageNum.page
+                }
+            }
+            .store(in: &self.cancellables)
     }
 }
 
