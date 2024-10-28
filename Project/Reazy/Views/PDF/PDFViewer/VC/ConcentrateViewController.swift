@@ -28,7 +28,7 @@ final class ConcentrateViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         let focusPageNum = self.viewModel.focusAnnotations.firstIndex { $0.page == self.viewModel.changedPageNumber + 1}
         
-        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum!) else { return }
+        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum ?? 0) else { return }
 
         self.pdfView.go(to: page)
     }
@@ -90,12 +90,13 @@ extension ConcentrateViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
                 self?.isPageDestinationWorking = true
+                
                 guard let page = self?.viewModel.findFocusPageNum(destination: destination) else {
+                    self?.isPageDestinationWorking = false
                     return
                 }
                 
                 self?.pdfView.go(to: page)
-                
                 self?.isPageDestinationWorking = false
             }
             .store(in: &cancellables)
