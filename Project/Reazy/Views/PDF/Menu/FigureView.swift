@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-import Foundation
 import PDFKit
-import Combine
 
 // MARK: - Lucid : Figure 뷰
 struct FigureView: View {
@@ -38,7 +36,7 @@ struct FigureView: View {
                     }
                 }
                 .listStyle(.plain)
-                .onChange(of: scrollToIndex) { oldValue, newValue in
+                .onChange(of: scrollToIndex) { _, newValue in
                     if let index = newValue {
                         withAnimation {
                             // 자동 스크롤
@@ -49,7 +47,7 @@ struct FigureView: View {
             }
         }
         // 원문보기 페이지 변경시 자동 스크롤
-        .onChange(of: mainPDFViewModel.changedPageNumber) { oldValue, newValue in
+        .onChange(of: mainPDFViewModel.changedPageNumber) { _, newValue in
             
             let pageCount = mainPDFViewModel.figureAnnotations.count
             var foundIndex: Int? = nil

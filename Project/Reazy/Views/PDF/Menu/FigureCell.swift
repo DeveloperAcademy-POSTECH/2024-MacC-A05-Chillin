@@ -48,9 +48,9 @@ struct PDFKitView: UIViewRepresentable {
 struct FigureCell: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
-    let index: Int
     
-    var onSelect: (PDFDocument, String) -> Void
+    let index: Int
+    let onSelect: (PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
     
