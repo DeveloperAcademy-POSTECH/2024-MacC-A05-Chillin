@@ -8,8 +8,15 @@
 import Foundation
 import PDFKit
 
-struct Comment {
-    var comment: String
-    var isExpanded: Bool
-    let selectedText: PDFDestination
+class Comment {
+    let id = UUID()
+    var coordinates: (x: CGFloat, y: CGFloat)
+    var text: String
+    var isSelected: Bool = false
+    
+    init(coordinates: (x: CGFloat, y: CGFloat), text: String, isSelected: Bool) {
+        self.coordinates = coordinates
+        self.text = text
+        self.isSelected = isSelected
+    }
 }
