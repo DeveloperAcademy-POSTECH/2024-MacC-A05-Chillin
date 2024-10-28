@@ -20,7 +20,7 @@ struct OriginalView: View {
             if viewModel.isTranslateMode {
                 if viewModel.isBubbleViewVisible {
                     if #available(iOS 18.0, *) {
-                        BubbleView(selectedText: $viewModel.selectedText)
+                        BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
                     }
                 }
             }
