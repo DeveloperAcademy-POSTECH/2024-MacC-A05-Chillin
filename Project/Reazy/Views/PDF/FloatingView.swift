@@ -10,6 +10,7 @@ import PDFKit
 
 struct FloatingView: View {
   
+  let documentID: String
   let document: PDFDocument
   let head: String
   @Binding var isSelected: Bool

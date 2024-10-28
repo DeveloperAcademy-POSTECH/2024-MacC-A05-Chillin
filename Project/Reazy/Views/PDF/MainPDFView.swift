@@ -13,13 +13,13 @@ struct MainPDFView: View {
   
   @StateObject private var mainPDFViewModel: MainPDFViewModel = .init()
   
-  @State private var droppedFigures: [(document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
+  @State private var droppedFigures: [(documentID: String, document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
   @State private var topmostIndex: Int? = nil
   
   @State private var selectedButton: WriteButton? = nil
   @State private var selectedColor: HighlightColors = .yellow
-    
-    
+  
+  
   // 모드 구분
   @State private var selectedMode = "원문 모드"
   var mode = ["원문 모드", "집중 모드"]
@@ -119,19 +119,19 @@ struct MainPDFView: View {
                   /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
                   if selectedButton == btn {
                     selectedButton = nil
-                      mainPDFViewModel.isTranslateMode = false
+                    mainPDFViewModel.isTranslateMode = false
                   } else {
                     selectedButton = btn
-                      
-                      // 번역 버튼
-                      if selectedButton == .translate {
-                          mainPDFViewModel.isTranslateMode = true // translation mode
-                          NotificationCenter.default.post(name: .translateModeActivated, object: nil)
-                          print("번역모드 on")
-                      } else {
-                        mainPDFViewModel.isTranslateMode = false
-                      }
-                      
+                    
+                    // 번역 버튼
+                    if selectedButton == .translate {
+                      mainPDFViewModel.isTranslateMode = true // translation mode
+                      NotificationCenter.default.post(name: .translateModeActivated, object: nil)
+                      print("번역모드 on")
+                    } else {
+                      mainPDFViewModel.isTranslateMode = false
+                    }
+                    
                   }
                 }
                 .padding(.trailing, trailingPadding)
@@ -191,20 +191,22 @@ struct MainPDFView: View {
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))
                   
-                  FigureView(onSelect: { document, head in
-                    print("Document selected: \(document), head: \(head)")
-                    
-                    droppedFigures.append(
-                      (
-                        document: document,
-                        head: head,
-                        isSelected: true,
-                        viewOffset: CGSize(width: 0, height: 0),
-                        lastOffset: CGSize(width: 0, height: 0),
-                        viewWidth: 300
+                  FigureView(onSelect: { documentID, document, head in
+                    if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
+                      droppedFigures.remove(at: existingIndex)
+                    } else {
+                      droppedFigures.append(
+                        (
+                          documentID: documentID,
+                          document: document,
+                          head: head,
+                          isSelected: true,
+                          viewOffset: CGSize(width: 0, height: 0),
+                          lastOffset: CGSize(width: 0, height: 0),
+                          viewWidth: 300
+                        )
                       )
-                    )
-                    print("Current droppedFigures count: \(droppedFigures.count)")
+                    }
                   })
                   .environmentObject(mainPDFViewModel)
                   .background(.white)
@@ -305,6 +307,7 @@ struct MainPDFView: View {
           
           if droppedFigure.isSelected {
             FloatingView(
+              documentID: droppedFigure.documentID,
               document: droppedFigure.document,
               head: droppedFigure.head,
               isSelected: Binding(

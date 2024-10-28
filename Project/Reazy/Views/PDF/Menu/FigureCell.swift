@@ -50,7 +50,7 @@ struct FigureCell: View {
   @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
   let index: Int
   
-  var onSelect: (PDFDocument, String) -> Void
+  var onSelect: (String, PDFDocument, String) -> Void
   
   @State private var aspectRatio: CGFloat = 1.0
   
@@ -69,8 +69,9 @@ struct FigureCell: View {
               .simultaneousGesture(
                 TapGesture().onEnded {
                   let head = mainPDFViewModel.figureAnnotations[index].head
+                  let documentID = "figure-\(index)"
                   print("FigureCell tapped. Sending document and head to onSelect.")
-                  onSelect(document, head)
+                  onSelect(documentID, document, head)
                 }
               )
             

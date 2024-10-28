@@ -13,7 +13,7 @@ import PDFKit
 struct FigureView: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
-    var onSelect: (PDFDocument, String) -> Void
+    var onSelect: (String, PDFDocument, String) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
