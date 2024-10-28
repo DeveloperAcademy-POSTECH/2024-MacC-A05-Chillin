@@ -128,6 +128,8 @@ struct MainPDFView: View {
                           mainPDFViewModel.isTranslateMode = true // translation mode
                           NotificationCenter.default.post(name: .translateModeActivated, object: nil)
                           print("번역모드 on")
+                      } else {
+                        mainPDFViewModel.isTranslateMode = false
                       }
                       
                   }
