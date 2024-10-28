@@ -39,6 +39,7 @@ final class MainPDFViewModel: ObservableObject {
     
     public var thumnailImages: [UIImage] = []
     
+    public var comments: [Comment] = []
 
 }
 
