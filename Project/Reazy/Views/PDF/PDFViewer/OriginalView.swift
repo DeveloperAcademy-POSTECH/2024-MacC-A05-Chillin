@@ -21,6 +21,8 @@ struct OriginalView: View {
                 if viewModel.isBubbleViewVisible {
                     if #available(iOS 18.0, *) {
                         BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
+                    } else {
+                        // TODO : 이전 버전 처리
                     }
                 }
             }

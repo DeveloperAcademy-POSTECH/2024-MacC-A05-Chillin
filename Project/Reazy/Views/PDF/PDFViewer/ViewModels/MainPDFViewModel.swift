@@ -38,8 +38,6 @@ final class MainPDFViewModel: ObservableObject {
     public var figureAnnotations: [FigureAnnotation] = []       // figure 리스트
     
     public var thumnailImages: [UIImage] = []
-    
-
 }
 
 
