@@ -9,15 +9,17 @@ import SwiftUI
 import PDFKit
 
 struct CommentView: View {
-    
-    @StateObject var commentViewModel: CommentViewModel
+    @EnvironmentObject var pdfViewModel: MainPDFViewModel
+    @StateObject var viewModel: CommentViewModel
     @State var text: String = ""
+    let selection: PDFSelection
     
     var body: some View {
-        VStack {
+        VStack() {
             TextField(
                 LocalizedStringKey("AddComment"), text: $text,
                 prompt: Text("코멘트 추가").foregroundColor(.primary4)
+                ,axis: .vertical
             )
             .foregroundStyle(.point2)
             .padding(.vertical, 14)
@@ -27,25 +29,23 @@ struct CommentView: View {
                 Spacer()
                 
                 Button(action: {
-                    
+                    if !text.isEmpty {
+                        viewModel.addComment(text: text, selection: selection, selectedText: pdfViewModel.selectedText)
+                        text = "" // 코멘트 추가 후 텍스트 필드 비우기
+                    }
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .foregroundStyle(text.isEmpty ? .primary4 : .point2)
                         .font(.system(size: 20))
                 })
+                .disabled(text.isEmpty)
             }
-                .padding(.top, 14)
-                .padding(.bottom, 8)
-                .padding(.trailing, 12)
+            .padding(.top, 14)
+            .padding(.bottom, 8)
+            .padding(.trailing, 12)
         }
         .background(Color.gray200)
         .cornerRadius(12)
         .frame(width: 312)
     }
-}
-
-
-
-#Preview {
-    CommentView(commentViewModel: CommentViewModel(comments: []))
 }

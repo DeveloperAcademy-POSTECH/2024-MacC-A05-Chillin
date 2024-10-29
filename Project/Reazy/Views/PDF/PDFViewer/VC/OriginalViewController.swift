@@ -101,27 +101,38 @@ extension OriginalViewController {
                 guard let self = self else { return }
                 guard let selection = self.mainPDFView.currentSelection else { return }
                 
-                // 선택된 텍스트 가져오기
-                let selectedText = selection.string ?? ""
-                
-//                // 현재 선택된 텍스트의 위치 가져오기
-//                let selectionRect = selection.bounds(for: self.mainPDFView.currentPage!)
-//
-//                // PDF 뷰의 확대/축소 비율 가져오기
-//                let scaleFactor = self.mainPDFView.scaleFactor
-//
-//                // 선택된 텍스트의 중심 위치 계산 (확대/축소 비율을 고려)
-//                let bubblePosition = CGPoint(
-//                    x: selectionRect.midX * scaleFactor,
-//                    y: selectionRect.midY * scaleFactor - selectionRect.height / 2 * scaleFactor - 20 // 약간 위로 이동 (여백)
-//                )
-                
-                DispatchQueue.main.async {
-                    // ViewModel에 선택된 텍스트와 위치 업데이트
-                    self.viewModel.selectedText = selectedText
-                    // self.viewModel.bubbleViewPosition = bubblePosition // 위치 업데이트
+                if let page = selection.pages.first {
                     
-                    self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
+                    let selectionBounds = selection.bounds(for: page)
+                    let convertedBounds = self.mainPDFView.convert(selectionBounds, from: page)
+                    let commentPosition = CGPoint(
+                        x: convertedBounds.midX,
+                        y: convertedBounds.maxY + 70 // 선택 영역 바로 위로 약간 이동
+                    )
+                    
+                    // 선택된 텍스트 가져오기
+                    let selectedText = selection.string ?? ""
+                    
+                    //              현재 선택된 텍스트의 위치 가져오기
+                    //                                let selectionRect = selection.bounds(for: self.mainPDFView.currentPage!)
+                    //
+                    //                                // PDF 뷰의 확대/축소 비율 가져오기
+                    //                                let scaleFactor = self.mainPDFView.scaleFactor
+                    //
+                    //                                // 선택된 텍스트의 중심 위치 계산 (확대/축소 비율을 고려)
+                    //                                let bubblePosition = CGPoint(
+                    //                                    x: selectionRect.midX * scaleFactor,
+                    //                                    y: selectionRect.midY * scaleFactor - selectionRect.height / 2 * scaleFactor - 20 // 약간 위로 이동 (여백)
+                    //                                )
+                    DispatchQueue.main.async {
+                        // ViewModel에 선택된 텍스트와 위치 업데이트
+                        self.viewModel.selectedText = selectedText
+                        // self.viewModel.bubbleViewPosition = bubblePosition // 위치 업데이트
+                        self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
+                        
+                        self.viewModel.selection = selection
+                        self.viewModel.commentPosition = commentPosition
+                    }
                 }
             }
             .store(in: &self.cancellable)

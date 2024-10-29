@@ -120,6 +120,11 @@ struct MainPDFView: View {
                     mainPDFViewModel.isTranslateMode = false
                   } else {
                     selectedButton = btn
+                      
+                      // 코멘트 버튼
+                     if selectedButton == .comment {
+                         mainPDFViewModel.isCommentMode = true
+                     }
                     
                     // 번역 버튼
                     if selectedButton == .translate {
@@ -129,7 +134,7 @@ struct MainPDFView: View {
                     } else {
                       mainPDFViewModel.isTranslateMode = false
                     }
-                    
+
                   }
                 }
                 .padding(.trailing, trailingPadding)
@@ -151,7 +156,7 @@ struct MainPDFView: View {
           GeometryReader { geometry in
             ZStack {
               if selectedMode == "원문 모드" {
-                OriginalView()
+                  OriginalView()
                   .environmentObject(mainPDFViewModel)
               }
               else if selectedMode == "집중 모드" {

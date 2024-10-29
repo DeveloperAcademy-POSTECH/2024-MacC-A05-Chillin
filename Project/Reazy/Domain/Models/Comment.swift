@@ -10,13 +10,17 @@ import PDFKit
 
 class Comment {
     let id = UUID()
-    var coordinates: (x: CGFloat, y: CGFloat)
-    var text: String
-    var isSelected: Bool = false
+    let underLine: (page: Int, bounds: CGRect) // 텍스트 밑줄
+    let coordinates: (x: CGFloat, y: CGFloat)
+    let selectedText: String // 선택한 텍스트
+    var text: String // 코멘트 내용
+    var isPresent: Bool = false
     
-    init(coordinates: (x: CGFloat, y: CGFloat), text: String, isSelected: Bool) {
+    init(underLine: (page: Int, bounds: CGRect), coordinates: (x: CGFloat, y: CGFloat), text: String, selectedText: String, isPresent: Bool) {
+        self.underLine = underLine
         self.coordinates = coordinates
         self.text = text
-        self.isSelected = isSelected
+        self.selectedText = selectedText
+        self.isPresent = isPresent
     }
 }

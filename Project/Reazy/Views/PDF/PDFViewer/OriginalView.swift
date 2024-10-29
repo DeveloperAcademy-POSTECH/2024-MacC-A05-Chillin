@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import PDFKit
 
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
+    @StateObject private var commentViewModel: CommentViewModel = .init()
     
     var body: some View {
         ZStack{
@@ -24,10 +26,15 @@ struct OriginalView: View {
                     }
                 }
             }
+            
+            if viewModel.isCommentVisible {
+                CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
+                    .position(viewModel.commentPosition) // 위치 지정
+            }
         }
     }
 }
-    
-#Preview {
-    OriginalView()
-}
+
+//#Preview {
+//    OriginalView(commentViewModel: CommentViewModel)
+//}
