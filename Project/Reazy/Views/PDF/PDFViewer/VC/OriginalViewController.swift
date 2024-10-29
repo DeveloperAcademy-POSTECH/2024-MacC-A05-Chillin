@@ -95,7 +95,12 @@ extension OriginalViewController {
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                guard let selection = self.mainPDFView.currentSelection else { return }
+                guard let selection = self.mainPDFView.currentSelection else {
+                    // 선택된 텍스트가 없을 때 특정 액션
+                    self.viewModel.selectedText = "" // 선택된 텍스트 초기화
+                    self.viewModel.bubbleViewVisible = false // 말풍선 뷰 숨김
+                    return
+                }
                 
                 guard let page = selection.pages.first else {
                     return
