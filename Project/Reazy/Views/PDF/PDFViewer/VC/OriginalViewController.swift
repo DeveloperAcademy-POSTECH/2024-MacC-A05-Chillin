@@ -121,7 +121,6 @@ extension OriginalViewController {
                 
                 // PDFView의 좌표를 Screen의 좌표로 변환
                 let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                print(screenPosition)
                 
                 DispatchQueue.main.async {
                     // ViewModel에 선택된 텍스트와 위치 업데이트

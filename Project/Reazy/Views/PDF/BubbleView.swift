@@ -31,7 +31,7 @@ struct BubbleView: View {
                     VStack(alignment: .center, spacing: 0) {
                         if isTranslationComplete {
                             ZStack (alignment: .center) {
-                                // 배경에 깔릴 테두리용 삼각형
+                                // 배경에 깔릴 테두리 용 삼각형
                                 Image(systemName: "triangle.fill")
                                     .resizable()
                                     .foregroundStyle(.primary3)
@@ -59,15 +59,15 @@ struct BubbleView: View {
                                                 return 0
                                             }
                                         }(),
-                                        y: bubbleDirection == .bottom ? -(min(textHeight, maxBubbleHeight) / 2) - 2 : 0 // 높이의 반만큼 화살표 위로 이동
+                                        y: bubbleDirection == .bottom ? -(min(textHeight, maxBubbleHeight) / 2) - 2 : 0 // 전체 높이의 중간에 화살표가 오게 조정
                                     )
-                                    .shadow(color: Color(hex: "#767676").opacity(0.25), radius: 6, x: 0, y: 2) // 그림자 추가
+                                    .shadow(color: Color(hex: "#767676").opacity(0.25), radius: 6, x: 0, y: 2)
                                 
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(.gray200)
                                     .stroke(.primary3, lineWidth: 1)
                                     .frame(width: min(textWidth, maxBubbleWidth), height: min(textHeight, maxBubbleHeight))
-                                    .shadow(color: Color(hex: "#767676").opacity(0.25), radius: 6, x: 0, y: 2) // 그림자 추가
+                                    .shadow(color: Color(hex: "#767676").opacity(0.25), radius: 6, x: 0, y: 2)
                                 
                                 // 말풍선 옆에 붙어있는 삼각형
                                 Image(systemName: "triangle.fill")
@@ -143,7 +143,6 @@ struct BubbleView: View {
                             targetText = response.targetText
                             if !targetText.isEmpty {
                                 isTranslationComplete = true
-                                print(" 번역 완료 ")
                             }
                         } catch {
                             print(" 번역 중 에러 발생 ")
@@ -152,7 +151,7 @@ struct BubbleView: View {
                 
             }
         } else {
-            // 18.0 미만 버전에서 보여줄 화면
+            // TODO: - 18.0 미만 버전에서 보여줄 화면
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -178,6 +177,7 @@ struct BubbleView: View {
             return
         }
         
+        // 현재 언어는 영어 -> 한국어로 고정
         configuration = .init(source: Locale.Language(identifier: "en"),
                               target: Locale.Language(identifier: "ko"))
     }
@@ -185,11 +185,15 @@ struct BubbleView: View {
     // BubbleView 위치 조정하는 함수
     private func bubblePositionForScreen(_ rect: CGRect, in screenSize: CGSize) {
         
-        if rect.maxX + maxBubbleWidth > screenSize.width {
+        if rect.width > (screenSize.width / 2) { // 선택 영역이 차지하는 범위가 1/2 이상이면
+            // 말풍선이 선택 영역 아래에 붙음
+            bubbleDirection = .bottom
+            updatedBubblePosition = CGPoint(x: rect.midX, y: rect.maxY) // 아래로 이동
+        } else if rect.maxX > (screenSize.width / 2) && rect.minX > (screenSize.width / 3) {
             // 말풍선이 선택 영역 왼쪽에 붙음
             bubbleDirection = .left
             updatedBubblePosition = CGPoint(x: rect.minX - maxBubbleWidth + 150, y: rect.midY - 100)
-        } else if rect.maxX + maxBubbleWidth > screenSize.width {
+        } else if rect.maxX < (screenSize.width / 2) || rect.minX > (screenSize.width / 3){
             // 말풍선이 선택 영역 오른쪽에 붙음
             bubbleDirection = .right
             updatedBubblePosition = CGPoint(x: rect.maxX + maxBubbleWidth - 150, y: rect.midY - 100)
@@ -213,8 +217,7 @@ struct BubbleView: View {
                 result += line + "\n" // '-'가 없는 줄은 그대로 추가
             }
         }
-        
-        return result.trimmingCharacters(in: .whitespacesAndNewlines) // 불필요한 공백 제거
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
