@@ -124,7 +124,9 @@ struct MainPDFView: View {
                       // 코멘트 버튼
                      if selectedButton == .comment {
                          mainPDFViewModel.isCommentMode = true
-                     }
+                     }else {
+                         mainPDFViewModel.isCommentMode = false
+                       }
                     
                     // 번역 버튼
                     if selectedButton == .translate {
