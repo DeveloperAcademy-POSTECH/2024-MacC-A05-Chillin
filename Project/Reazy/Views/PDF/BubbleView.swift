@@ -29,7 +29,7 @@ struct BubbleView: View {
             .onAppear(){
                 triggerTranslation()
             }
-            .onChange(of: selectedText) { newValue in
+            .onChange(of: selectedText) { 
                 triggerTranslation() // selectedText가 변경될 때마다 triggerTranslation 호출
             }
             
