@@ -12,9 +12,7 @@ import UniformTypeIdentifiers
 struct MainPDFView: View {
   
   @StateObject private var mainPDFViewModel: MainPDFViewModel = .init()
-  
-  @State private var droppedFigures: [(documentID: String, document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat)] = []
-  @State private var topmostIndex: Int? = nil
+  @StateObject private var floatingViewModel: FloatingViewModel = .init()
   
   @State private var selectedButton: WriteButton? = nil
   @State private var selectedColor: HighlightColors = .yellow
@@ -192,23 +190,10 @@ struct MainPDFView: View {
                     .foregroundStyle(Color(hex: "CCCEE1"))
                   
                   FigureView(onSelect: { documentID, document, head in
-                    if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
-                      droppedFigures.remove(at: existingIndex)
-                    } else {
-                      droppedFigures.append(
-                        (
-                          documentID: documentID,
-                          document: document,
-                          head: head,
-                          isSelected: true,
-                          viewOffset: CGSize(width: 0, height: 0),
-                          lastOffset: CGSize(width: 0, height: 0),
-                          viewWidth: 300
-                        )
-                      )
-                    }
+                    floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
                   })
                   .environmentObject(mainPDFViewModel)
+                  .environmentObject(floatingViewModel)
                   .background(.white)
                   .frame(width: geometry.size.width * 0.22)
                 }
@@ -301,68 +286,9 @@ struct MainPDFView: View {
           }
         )
         
-        ForEach(droppedFigures.indices, id: \.self) { index in
-          let droppedFigure = droppedFigures[index]
-          let isTopmost = (topmostIndex == index)
-          
-          if droppedFigure.isSelected {
-            FloatingView(
-              documentID: droppedFigure.documentID,
-              document: droppedFigure.document,
-              head: droppedFigure.head,
-              isSelected: Binding(
-                get: { droppedFigure.isSelected },
-                set: { newValue in
-                  droppedFigures[index].isSelected = newValue
-                  if newValue {
-                    topmostIndex = index
-                  }
-                }
-              ),
-              viewOffset: Binding(
-                get: { droppedFigures[index].viewOffset },
-                set: { droppedFigures[index].viewOffset = $0 }
-              ),
-              viewWidth: Binding(
-                get: { droppedFigures[index].viewWidth },
-                set: { droppedFigures[index].viewWidth = $0 }
-              )
-            )
-            .aspectRatio(contentMode: .fit)
-            .shadow(
-              color: Color(hex: "4D4A97").opacity(0.20),
-              radius: 12,
-              x: 0,
-              y: 2)
-            .padding(4.5)
-            .zIndex(isTopmost ? 1 : 0)
-            .gesture(
-              DragGesture()
-                .onChanged { value in
-                  let newOffset = CGSize(
-                    width: droppedFigures[index].lastOffset.width + value.translation.width,
-                    height: droppedFigures[index].lastOffset.height + value.translation.height
-                  )
-                  
-                  let maxX = geometry.size.width / 2 - droppedFigures[index].viewWidth / 2 + 200
-                  let minX = -(geometry.size.width / 2 - droppedFigures[index].viewWidth / 2) - 200
-                  let maxY = geometry.size.height / 2 - 150 + 200
-                  let minY = -(geometry.size.height / 2 - 150) - 200
-                  
-                  droppedFigures[index].viewOffset = CGSize(
-                    width: min(max(newOffset.width, minX), maxX),
-                    height: min(max(newOffset.height, minY), maxY)
-                  )
-                }
-                .onEnded { _ in
-                  droppedFigures[index].lastOffset = droppedFigures[index].viewOffset
-                }
-            )
-            .onTapGesture {
-              topmostIndex = index
-            }
-          }
-        }
+        // MARK: - Floating 뷰
+        FloatingViewsContainer(geometry: geometry)
+          .environmentObject(floatingViewModel)
       }
     }
   }
