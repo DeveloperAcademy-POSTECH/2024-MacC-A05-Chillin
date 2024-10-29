@@ -32,7 +32,7 @@ struct OriginalView: View {
                 }
             }
         }
-        .onChange(of: viewModel.selectedText) { newValue in
+        .onChange(of: viewModel.selectedText) { _, newValue in
             viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
         }
     }

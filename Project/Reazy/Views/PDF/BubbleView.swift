@@ -127,7 +127,7 @@ struct BubbleView: View {
                         textWidth = bubblePosition.width * 1.5 // 글자 수 적을 때 너비 여유롭게
                         triggerTranslation()
                     }
-                    .onChange(of: selectedText) { _ in
+                    .onChange(of: selectedText) {
                         isTranslationComplete = false // 번역 완료 되었을 때 뷰 다시 그리게 false 처리
                         bubblePositionForScreen(bubblePosition, in: geometry.size)
                         textWidth = bubblePosition.width * 1.5
@@ -222,7 +222,7 @@ struct BubbleView: View {
 }
 
 // 텍스트 높이 계산에 사용할 PreferenceKey
-struct ViewHeightKey: PreferenceKey {
+private struct ViewHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())
