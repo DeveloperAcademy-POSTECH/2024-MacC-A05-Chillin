@@ -103,7 +103,7 @@ extension MainPDFViewModel {
         return num
     }
     
-    /// 집중 모드에서
+    /// 집중 모드에서 페이지 넘버 찾는 메소드
     public func findFocusPageNum(destination: PDFDestination?) -> PDFPage? {
         let num = self.findPageNum(destination: destination)
         
@@ -146,7 +146,9 @@ extension MainPDFViewModel {
         guard let page = self.document?.page(at: num) else { return }
         
         let destination = PDFDestination(page: page, at: .zero)
-        self.selectedDestination = destination
+        DispatchQueue.main.async {
+            self.selectedDestination = destination
+        }
     }
 }
 

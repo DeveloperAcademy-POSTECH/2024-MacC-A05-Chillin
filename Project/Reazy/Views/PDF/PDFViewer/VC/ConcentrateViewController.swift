@@ -15,12 +15,22 @@ final class ConcentrateViewController: UIViewController {
     
     var cancellables: Set<AnyCancellable> = []
     
+    var isPageDestinationWorking: Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setData()
         setUI()
         setBinding()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        let focusPageNum = self.viewModel.focusAnnotations.firstIndex { $0.page == self.viewModel.changedPageNumber + 1}
+        
+        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum ?? 0) else { return }
+
+        self.pdfView.go(to: page)
     }
     
     lazy var pdfView: PDFView = {
@@ -79,15 +89,38 @@ extension ConcentrateViewController {
         self.viewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
+                self?.isPageDestinationWorking = true
+                
                 guard let page = self?.viewModel.findFocusPageNum(destination: destination) else {
+                    self?.isPageDestinationWorking = false
                     return
                 }
                 
                 self?.pdfView.go(to: page)
+                self?.isPageDestinationWorking = false
             }
             .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .PDFViewPageChanged)
+            .sink { [weak self] _ in
+                if let flag = self?.isPageDestinationWorking, flag { return }
+                
+                guard let currentPage = self?.pdfView.currentPage,
+                      let currentPageNum = self?.viewModel.focusDocument?.index(for: currentPage),
+                      let pageNum = self?.viewModel.focusAnnotations[currentPageNum] else {
+                    return
+                }
+                
+                defer {
+                    DispatchQueue.main.async {
+                        self?.viewModel.changedPageNumber = pageNum.page
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    self?.viewModel.changedPageNumber = pageNum.page
+                }
+            }
+            .store(in: &self.cancellables)
     }
 }
-
-
-
