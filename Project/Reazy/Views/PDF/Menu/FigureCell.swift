@@ -51,7 +51,7 @@ struct FigureCell: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     let index: Int
-    var onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (String, PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
     

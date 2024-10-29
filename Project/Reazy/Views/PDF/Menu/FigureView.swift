@@ -14,7 +14,7 @@ struct FigureView: View {
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
   
     @State private var scrollToIndex: Int? = nil
-    var onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (String, PDFDocument, String) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
