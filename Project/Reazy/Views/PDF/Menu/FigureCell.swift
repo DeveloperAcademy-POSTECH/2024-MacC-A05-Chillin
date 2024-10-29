@@ -48,9 +48,10 @@ struct PDFKitView: UIViewRepresentable {
 struct FigureCell: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
+    @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     let index: Int
-    let onSelect: (PDFDocument, String) -> Void
+    let onSelect: (String, PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
     
@@ -61,6 +62,8 @@ struct FigureCell: View {
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
                         let aspectRatio = pageRect.width / pageRect.height
+                        let head = mainPDFViewModel.figureAnnotations[index].head
+                        let documentID = "figure-\(index)"
                         
                         PDFKitView(document: document, isScrollEnabled: false)
                             .edgesIgnoringSafeArea(.all)        // 전체 화면에 맞추기
@@ -68,14 +71,12 @@ struct FigureCell: View {
                             .padding(8)
                             .simultaneousGesture(
                                 TapGesture().onEnded {
-                                    let head = mainPDFViewModel.figureAnnotations[index].head
-                                    print("FigureCell tapped. Sending document and head to onSelect.")
-                                    onSelect(document, head)
+                                    onSelect(documentID, document, head)
                                 }
                             )
                         
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(hex: "#CDCFE1"), lineWidth: 1)
+                            .stroke(floatingViewModel.isFigureSelected(documentID: documentID) ? .primary1 : .primary3, lineWidth: floatingViewModel.isFigureSelected(documentID: documentID) ? 1.5 : 1)
                     }
                 } else {
                     Text("pdf 로드 실패 ")

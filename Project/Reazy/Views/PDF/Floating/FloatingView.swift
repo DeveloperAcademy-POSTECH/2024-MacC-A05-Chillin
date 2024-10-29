@@ -10,6 +10,7 @@ import PDFKit
 
 struct FloatingView: View {
   
+  let documentID: String
   let document: PDFDocument
   let head: String
   @Binding var isSelected: Bool
@@ -17,6 +18,7 @@ struct FloatingView: View {
   @Binding var viewWidth: CGFloat
   
   @State private var aspectRatio: CGFloat = 1.0
+  @EnvironmentObject var floatingViewModel: FloatingViewModel
   
   var body: some View {
     VStack(spacing: 0) {
@@ -39,7 +41,7 @@ struct FloatingView: View {
         Spacer()
         
         Button(action: {
-          isSelected.toggle()
+          floatingViewModel.deselect(documentID: documentID)
         }, label: {
           Image(systemName: "xmark")
             .font(.system(size: 16))
@@ -90,15 +92,3 @@ struct FloatingView: View {
     }
   }
 }
-//
-//#Preview {
-//  @Previewable @State var viewOffset: CGSize = .zero
-//  @Previewable @State var viewWidth: CGFloat = 500
-//  FloatingView(
-//    document: PDFDocument(),
-//    head: "Fig 3.1",
-//    isSelected: .constant(true),
-//    viewOffset: $viewOffset,
-//    viewWidth: $viewWidth
-//  )
-//}
