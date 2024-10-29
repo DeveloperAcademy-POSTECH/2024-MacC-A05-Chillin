@@ -35,6 +35,10 @@ final class OriginalViewController: UIViewController {
         self.setBinding()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        viewModel.goToPage(at: viewModel.changedPageNumber)
+    }
+    
     init(viewModel: MainPDFViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
