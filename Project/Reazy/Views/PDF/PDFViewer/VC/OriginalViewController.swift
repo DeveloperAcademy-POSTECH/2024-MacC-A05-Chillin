@@ -107,38 +107,15 @@ extension OriginalViewController {
                     return
                 }
                 
-                guard let page = selection.pages.first else {
-                    return
-                }
-                
-                // PDFSelection의 bounds 추출(CGRect)
-                let bound = selection.bounds(for: page)
-                
-                // 선택된 텍스트 가져오기
-                let selectedText = selection.string ?? ""
-                
-                // PDFPage의 좌표를 PDFView의 좌표로 변환
-                let pagePosition = self.mainPDFView.convert(bound, from: page)
-                
-                // PDFView의 좌표를 Screen의 좌표로 변환
-                let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                
-                DispatchQueue.main.async {
-                    // ViewModel에 선택된 텍스트와 위치 업데이트
-                    self.viewModel.selectedText = selectedText
-                    self.viewModel.bubbleViewPosition = screenPosition // 위치 업데이트
-                    
-                    self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
-                }
-                
                 self.selectionWorkItem?.cancel()
                 
                 let workItem = DispatchWorkItem { [weak self] in
                     guard let self = self else { return }
                     if let page = selection.pages.first {
                         
-                        let selectionBounds = selection.bounds(for: page)
-                        let convertedBounds = self.mainPDFView.convert(selectionBounds, from: page)
+                        // PDFSelection의 bounds 추출(CGRect)
+                        let bound = selection.bounds(for: page)
+                        let convertedBounds = self.mainPDFView.convert(bound, from: page)
                         
                         //comment position 설정
                         let commentPosition = CGPoint(
@@ -149,21 +126,16 @@ extension OriginalViewController {
                         // 선택된 텍스트 가져오기
                         let selectedText = selection.string ?? ""
                         
-                        //              현재 선택된 텍스트의 위치 가져오기
-                        //                                let selectionRect = selection.bounds(for: self.mainPDFView.currentPage!)
-                        //
-                        //                                // PDF 뷰의 확대/축소 비율 가져오기
-                        //                                let scaleFactor = self.mainPDFView.scaleFactor
-                        //
-                        //                                // 선택된 텍스트의 중심 위치 계산 (확대/축소 비율을 고려)
-                        //                                let bubblePosition = CGPoint(
-                        //                                    x: selectionRect.midX * scaleFactor,
-                        //                                    y: selectionRect.midY * scaleFactor - selectionRect.height / 2 * scaleFactor - 20 // 약간 위로 이동 (여백)
-                        //                                )
+                        // PDFPage의 좌표를 PDFView의 좌표로 변환
+                        let pagePosition = self.mainPDFView.convert(bound, from: page)
+                        
+                        // PDFView의 좌표를 Screen의 좌표로 변환
+                        let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+                        
                         DispatchQueue.main.async {
                             // ViewModel에 선택된 텍스트와 위치 업데이트
                             self.viewModel.selectedText = selectedText
-                            // self.viewModel.bubbleViewPosition = bubblePosition // 위치 업데이트
+                            self.viewModel.bubbleViewPosition = screenPosition // 위치 업데이트
                             self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
                             
                             self.viewModel.selection = selection

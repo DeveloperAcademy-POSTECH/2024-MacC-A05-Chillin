@@ -31,7 +31,6 @@ struct OriginalView: View {
 
                     } else {
                         // TODO : 이전 버전 처리
-                        BubbleView(selectedText: $viewModel.selectedText)
                     }
                 }
             }
