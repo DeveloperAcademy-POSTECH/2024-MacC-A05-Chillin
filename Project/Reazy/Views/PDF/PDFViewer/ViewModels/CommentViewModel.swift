@@ -20,10 +20,11 @@ class CommentViewModel: ObservableObject {
         let bounds = selection.bounds(for: page)
         let pageIndex = page.pageRef?.pageNumber ?? 0
         
+        /// 선택 영역 좌표
         let coordinates = (x: bounds.origin.x, y: bounds.origin.y)
         let underline = (page: pageIndex, bounds: bounds)
         
-        
+        /// 코멘트 배열에 저장
         let newComment = Comment(underLine: underline, coordinates: coordinates, text: text, selectedText: selectedText, isPresent: false)
         comments.append(newComment)
     }

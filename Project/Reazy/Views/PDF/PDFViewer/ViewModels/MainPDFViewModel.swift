@@ -204,7 +204,7 @@ extension MainPDFViewModel {
         }
     }
     
-    private func updateBubbleView(selectedText: String, bubblePosition: CGPoint) {
+    public func updateBubbleView(selectedText: String, bubblePosition: CGPoint) {
         print(selectedText)
         
         // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
@@ -212,8 +212,7 @@ extension MainPDFViewModel {
             bubbleViewVisible = true
             
         } else {
-            //bubbleViewVisible = false
-            //self.selectedText = ""
+            bubbleViewVisible = false
         }
     }
 }
