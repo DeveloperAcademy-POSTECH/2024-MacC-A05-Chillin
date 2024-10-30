@@ -12,6 +12,7 @@ import PDFKit
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     @StateObject private var commentViewModel: CommentViewModel = .init()
+    @State private var showCommentView = false
     
     var body: some View {
         ZStack{
@@ -29,12 +30,11 @@ struct OriginalView: View {
             
             if viewModel.isCommentVisible {
                 CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
-                    .position(viewModel.commentPosition) // 위치 지정
+                    .position(viewModel.commentPosition)
             }
         }
     }
 }
-
 //#Preview {
 //    OriginalView(commentViewModel: CommentViewModel)
 //}

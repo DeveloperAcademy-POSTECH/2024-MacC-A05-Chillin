@@ -23,7 +23,10 @@ final class MainPDFViewModel: ObservableObject {
         didSet {
             /// 선택된 텍스트가 변경될 때 추가 작업
             updateBubbleView(selectedText: selectedText, bubblePosition: bubbleViewPosition)
-            updateCommentView(at: commentPosition)
+            
+            if isCommentVisible {
+                updateCommentPosition(at: commentPosition)
+            }
         }
     }
     
@@ -36,7 +39,8 @@ final class MainPDFViewModel: ObservableObject {
     // Comment
     @Published var isCommentMode: Bool = false
     @Published var selection: PDFSelection?
-    @Published var commentPosition: CGPoint = .zero // CommentView의 위치를 저장할 변수
+    @Published var commentPosition: CGPoint = .zero
+    @Published var isCommentSaved: Bool = false
     
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
@@ -208,8 +212,8 @@ extension MainPDFViewModel {
             bubbleViewVisible = true
             
         } else {
-            bubbleViewVisible = false
-            self.selectedText = ""
+            //bubbleViewVisible = false
+            //self.selectedText = ""
         }
     }
 }
@@ -220,8 +224,8 @@ extension MainPDFViewModel {
         return self.isCommentMode && !self.selectedText.isEmpty
     }
     
-    func updateCommentView(at position: CGPoint) {
+    func updateCommentPosition(at position: CGPoint) {
         self.commentPosition = position
-        self.isCommentMode = !selectedText.isEmpty
+        //self.isCommentMode = !selectedText.isEmpty
     }
 }

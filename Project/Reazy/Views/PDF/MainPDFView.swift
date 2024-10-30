@@ -116,8 +116,11 @@ struct MainPDFView: View {
                   // MARK: - 작성 관련 버튼 action 입력
                   /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
                   if selectedButton == btn {
+                      
                     selectedButton = nil
                     mainPDFViewModel.isTranslateMode = false
+                    mainPDFViewModel.isCommentMode = false
+                      
                   } else {
                     selectedButton = btn
                       
@@ -131,7 +134,7 @@ struct MainPDFView: View {
                     // 번역 버튼
                     if selectedButton == .translate {
                       mainPDFViewModel.isTranslateMode = true // translation mode
-                      NotificationCenter.default.post(name: .translateModeActivated, object: nil)
+                      NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                       print("번역모드 on")
                     } else {
                       mainPDFViewModel.isTranslateMode = false

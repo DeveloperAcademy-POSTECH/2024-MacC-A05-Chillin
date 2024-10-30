@@ -30,8 +30,10 @@ struct CommentView: View {
                 
                 Button(action: {
                     if !text.isEmpty {
+                        pdfViewModel.isCommentSaved = true
                         viewModel.addComment(text: text, selection: selection, selectedText: pdfViewModel.selectedText)
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
+                        dump(viewModel.comments)
                     }
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
