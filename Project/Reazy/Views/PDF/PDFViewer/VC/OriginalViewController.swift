@@ -77,6 +77,11 @@ extension OriginalViewController {
         self.viewModel.fetchThumbnailImage()
     }
     
+    /// 텍스트 선택 해제
+    private func cleanTextSelection() {
+        self.mainPDFView.currentSelection = nil
+    }
+    
     /// 데이터 Binding
     private func setBinding() {
         self.viewModel.$selectedDestination
@@ -149,6 +154,15 @@ extension OriginalViewController {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
             }
             .store(in: &self.cancellable)
+        
+        // 저장하면 currentSelection 해제
+        self.viewModel.$isCommentSaved
+                .sink { [weak self] isCommentSaved in
+                    if isCommentSaved {
+                        self?.cleanTextSelection()
+                    }
+                }
+                .store(in: &self.cancellable)
     }
 }
 
