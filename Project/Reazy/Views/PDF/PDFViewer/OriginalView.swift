@@ -38,6 +38,8 @@ struct OriginalView: View {
             if viewModel.isCommentVisible {
                 CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
                     .position(viewModel.commentPosition)
+                    .animation(.smooth(duration: 0.6))
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .onChange(of: viewModel.selectedText) { _, newValue in
