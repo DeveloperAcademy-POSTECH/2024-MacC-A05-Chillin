@@ -36,7 +36,8 @@ extension PDFAnnotation {
         var hitPath: CGPath?
         
         if let path = paths?.first {
-            hitPath = path.cgPath.copy(strokingWithWidth: 10.0, lineCap: .round, lineJoin: .round, miterLimit: 0)
+            // 얼마나 가까이 닿아야 닿는 거라고 처리할 건지 관련
+            hitPath = path.cgPath.copy(strokingWithWidth: 1.0, lineCap: .round, lineJoin: .round, miterLimit: 0)
         }
         
         return hitPath?.contains(point) ?? false

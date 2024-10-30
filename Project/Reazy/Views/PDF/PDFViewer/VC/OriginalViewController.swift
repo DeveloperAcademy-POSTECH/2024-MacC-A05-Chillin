@@ -35,7 +35,6 @@ final class OriginalViewController: UIViewController {
     
     // for drawing
     var shouldUpdatePDFScrollPosition = true
-    let pdfDrawer = PDFDrawer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,15 +43,12 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setBinding()
         
-        print("여기까진 왔다!")
-        
+        // for drawing
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
         self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-        print("여기까진 왔다!2")
-        pdfDrawingGestureRecognizer.drawingDelegate = pdfDrawer
-        pdfDrawer.pdfView = self.mainPDFView
-        pdfDrawer.drawingTool = .pencil
-        print("여기까진 왔다!3")
+        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+        viewModel.pdfDrawer.pdfView = self.mainPDFView
+        viewModel.pdfDrawer.drawingTool = .none
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -8,22 +8,27 @@
 import Foundation
 import PDFKit
 
+// pencil과 highlighter는 버전 2에서 사용할 것 같아 없애지 않았어요
+
 enum DrawingTool: Int {
-    case eraser = 0
-    case pencil = 1
-    case pen = 2
-    case highlighter = 3
+    case none = 0
+    case eraser = 1
+    case pencil = 2
+    case pen = 3
+    case highlighter = 4
     
     var width: CGFloat {
         switch self {
+        case .eraser:
+            return 7
         case .pencil:
             return 1
         case .pen:
-            return 10
+            return 8
         case .highlighter:
             return 10
         default:
-            return 10
+            return 0
         }
     }
     
@@ -31,6 +36,8 @@ enum DrawingTool: Int {
         switch self {
         case .highlighter:
             return 0.3 //0,5
+        case .none:
+            return 0
         default:
             return 1
         }
@@ -42,8 +49,8 @@ class PDFDrawer {
     private var path: UIBezierPath?
     private var currentAnnotation : DrawingAnnotation?
     private var currentPage: PDFPage?
-    var color = UIColor.gray700 // default color is red
-    var drawingTool = DrawingTool.pen
+    var color = UIColor.init(hex: "#727BC7")
+    var drawingTool = DrawingTool.none
 }
 
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
@@ -56,20 +63,27 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     }
     
     func gestureRecognizerMoved(_ location: CGPoint) {
+
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         
         if drawingTool == .eraser {
-            // 원형 경로를 지우개 위치에 생성
-            let eraserCirclePath = UIBezierPath(arcCenter: convertedPoint, radius: drawingTool.width / 2, startAngle: 0, endAngle: .pi * 2, clockwise: true)
+            let eraserCirclePath = UIBezierPath(arcCenter: location, radius: 14, startAngle: 0, endAngle: .pi * 2, clockwise: true)
             
-            // 지우개 경로를 표시할 임시 주석 생성
-            let eraserAnnotation = PDFAnnotation(bounds: eraserCirclePath.bounds, forType: .circle, withProperties: nil)
-            eraserAnnotation.color = UIColor.white.withAlphaComponent(1)
+            // 실시간 지우개 위치를 표시하는 회색 테두리의 동그란 원
+            let eraserLayer = CAShapeLayer()
+            eraserLayer.path = eraserCirclePath.cgPath
+            eraserLayer.fillColor = UIColor(hex: "#EFEFF8").cgColor
+            eraserLayer.strokeColor = UIColor(hex: "#BABCCF").cgColor
+            eraserLayer.lineWidth = 1.0
+        
+            pdfView.layer.addSublayer(eraserLayer)
             
-            page.addAnnotation(eraserAnnotation)
+            DispatchQueue.main.asyncAfter(deadline: .now()) {
+                eraserLayer.removeFromSuperlayer()
+            }
             
-            // 기존의 주석을 지워서 원형이 유지되도록 함
+            // 지우개 기능
             removeAnnotationAtPoint(point: location, page: page)
             return
         }

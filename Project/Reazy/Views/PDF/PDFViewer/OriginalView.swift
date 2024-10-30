@@ -7,15 +7,11 @@
 
 import SwiftUI
 import PencilKit
+import PDFKit
 
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
-    @State var canvas = PKCanvasView() // 캔버스 도화지
-    @State var isPenciled: Bool = true // 도구선택유무
-    
-    @State var colors: [Color] = [.black] // 추후 색깔 추가
-    @State var selectedColor: Color = .black // 디폴트 검정펜
     
     var body: some View {
         ZStack {
@@ -37,10 +33,23 @@ struct OriginalView: View {
                     }
                 }
             }
-            // 드로잉 & 지우개에 사용되는 캔버스뷰 -> 이건 미리 깔아두고 그리기 모드만 on 해야할 듯
-            if viewModel.isPencilMode || viewModel.isEraserMode { // 둘 중 하나라도 활성화 중이면
-                CanvasView(canvas: $canvas, isPencilMode: $viewModel.isPencilMode, color: $selectedColor)
-                    .allowsHitTesting(viewModel.isPencilMode ? true : false)
+        }
+        .onChange(of: viewModel.isPencilMode) {
+            // 드로잉 모드
+            if viewModel.isPencilMode {
+                viewModel.pdfDrawer.drawingTool = .pencil
+            } else {
+                print("드로잉 모드 off")
+                viewModel.pdfDrawer.drawingTool = .none
+            }
+        }
+        .onChange(of: viewModel.isEraserMode) {
+            // 지우개 모드
+            if viewModel.isEraserMode {
+                viewModel.pdfDrawer.drawingTool = .eraser
+            } else {
+                print("지우개 모드 off")
+                viewModel.pdfDrawer.drawingTool = .none
             }
         }
         .onChange(of: viewModel.selectedText) { _, newValue in
