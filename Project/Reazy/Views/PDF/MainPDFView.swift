@@ -117,41 +117,31 @@ struct MainPDFView: View {
                                     /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
                                     if selectedButton == btn {
                                         selectedButton = nil
-                                        mainPDFViewModel.isTranslateMode = false
-                                        mainPDFViewModel.isPencilMode = false
-                                        mainPDFViewModel.isEraserMode = false
+                                        mainPDFViewModel.toolMode = .none
                                     } else {
                                         selectedButton = btn
                                     }
                                     
                                     switch selectedButton {
                                     case .translate:
-                                        // 번역 모드 활성화, 나머지 비활성화
-                                        mainPDFViewModel.isTranslateMode = true
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                                        print("번역 모드 on")
-                                        mainPDFViewModel.isPencilMode = false
-                                        mainPDFViewModel.isEraserMode = false
+                                        mainPDFViewModel.toolMode = .translate
                                         
                                     case .pencil:
-                                        // 펜 모드 활성화, 나머지 비활성화
-                                        mainPDFViewModel.isTranslateMode = false
-                                        mainPDFViewModel.isPencilMode = true
-                                        mainPDFViewModel.isEraserMode = false
-                                        print("펜 모드 on")
+                                        mainPDFViewModel.toolMode = .pencil
                                         
                                     case .eraser:
-                                        // 지우개 모드 활성화, 나머지 비활성화
-                                        mainPDFViewModel.isTranslateMode = false
-                                        mainPDFViewModel.isPencilMode = false
-                                        mainPDFViewModel.isEraserMode = true
-                                        print("지우개 모드 on")
+                                        mainPDFViewModel.toolMode = .eraser
+                                        
+                                    case .highlight:
+                                        mainPDFViewModel.toolMode = .highlight
+                                        
+                                    case .comment:
+                                        mainPDFViewModel.toolMode = .comment
                                         
                                     default:
                                         // 전체 비활성화
-                                        mainPDFViewModel.isTranslateMode = false
-                                        mainPDFViewModel.isPencilMode = false
-                                        mainPDFViewModel.isEraserMode = false
+                                        mainPDFViewModel.toolMode = .none
                                     }
                                     
                                     

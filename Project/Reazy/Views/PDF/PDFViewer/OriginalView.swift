@@ -23,7 +23,7 @@ struct OriginalView: View {
                 viewModel.updateBubbleView(selectedText: "", bubblePosition: .zero)
             }
             // 번역에 사용되는 말풍선뷰
-            if viewModel.isTranslateMode {
+            if viewModel.toolMode == .translate {
                 if viewModel.isBubbleViewVisible {
                     if #available(iOS 18.0, *) {
                         BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
@@ -32,24 +32,6 @@ struct OriginalView: View {
                         // TODO : 이전 버전 처리
                     }
                 }
-            }
-        }
-        .onChange(of: viewModel.isPencilMode) {
-            // 드로잉 모드
-            if viewModel.isPencilMode {
-                viewModel.pdfDrawer.drawingTool = .pencil
-            } else {
-                print("드로잉 모드 off")
-                viewModel.pdfDrawer.drawingTool = .none
-            }
-        }
-        .onChange(of: viewModel.isEraserMode) {
-            // 지우개 모드
-            if viewModel.isEraserMode {
-                viewModel.pdfDrawer.drawingTool = .eraser
-            } else {
-                print("지우개 모드 off")
-                viewModel.pdfDrawer.drawingTool = .none
             }
         }
         .onChange(of: viewModel.selectedText) { _, newValue in

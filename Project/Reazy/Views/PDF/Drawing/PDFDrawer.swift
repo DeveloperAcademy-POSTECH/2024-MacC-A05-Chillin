@@ -20,7 +20,7 @@ enum DrawingTool: Int {
     var width: CGFloat {
         switch self {
         case .eraser:
-            return 7
+            return 5
         case .pencil:
             return 1
         case .pen:
@@ -49,7 +49,7 @@ class PDFDrawer {
     private var path: UIBezierPath?
     private var currentAnnotation : DrawingAnnotation?
     private var currentPage: PDFPage?
-    var color = UIColor.init(hex: "#727BC7")
+    var color = UIColor.init(hex: "#5F5CAB")
     var drawingTool = DrawingTool.none
 }
 
@@ -159,7 +159,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     
     private func removeAnnotationAtPoint(point: CGPoint, page: PDFPage) {
         let convertedPoint = pdfView.convert(point, to: page)
-        let hitTestRect = CGRect(x: convertedPoint.x - 4, y: convertedPoint.y - 4, width: 8, height: 8)
+        let hitTestRect = CGRect(x: convertedPoint.x - 3, y: convertedPoint.y - 3, width: 6, height: 6)
         
         let annotations = page.annotations.filter { annotation in
             return annotation.bounds.intersects(hitTestRect)
