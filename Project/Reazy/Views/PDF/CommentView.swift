@@ -49,5 +49,7 @@ struct CommentView: View {
         .background(Color.gray200)
         .cornerRadius(12)
         .frame(width: 312)
+        .border(.primary2, width: 1)
+        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
 }
