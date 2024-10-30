@@ -24,7 +24,7 @@ struct FloatingView: View {
     VStack(spacing: 0) {
       HStack(spacing: 0) {
         Button(action: {
-          
+          floatingViewModel.setSplitDocument(documentID: documentID)
         }, label: {
           Image(systemName: "rectangle.split.2x1")
             .font(.system(size: 16))

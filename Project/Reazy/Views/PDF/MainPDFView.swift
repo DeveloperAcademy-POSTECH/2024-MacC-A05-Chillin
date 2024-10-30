@@ -17,7 +17,6 @@ struct MainPDFView: View {
   @State private var selectedButton: WriteButton? = nil
   @State private var selectedColor: HighlightColors = .yellow
   
-  
   // 모드 구분
   @State private var selectedMode = "원문 모드"
   var mode = ["원문 모드", "집중 모드"]
@@ -151,8 +150,25 @@ struct MainPDFView: View {
           GeometryReader { geometry in
             ZStack {
               if selectedMode == "원문 모드" {
-                OriginalView()
-                  .environmentObject(mainPDFViewModel)
+                HStack(spacing: 0) {
+                  OriginalView()
+                    .environmentObject(mainPDFViewModel)
+                  
+                  if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                    Rectangle()
+                      .frame(width: 1)
+                      .foregroundStyle(.gray300)
+                    
+                    FloatingSplitView(
+                      documentID: splitDetails.documentID,
+                      document: splitDetails.document,
+                      head: splitDetails.head,
+                      isFigSelected: isFigSelected
+                    )
+                    .environmentObject(mainPDFViewModel)
+                    .environmentObject(floatingViewModel)
+                  }
+                }
               }
               else if selectedMode == "집중 모드" {
                 ConcentrateView()
@@ -184,7 +200,7 @@ struct MainPDFView: View {
                 
                 Spacer()
                 
-                if isFigSelected {
+                if isFigSelected && !floatingViewModel.splitMode {
                   Rectangle()
                     .frame(width: 1)
                     .foregroundStyle(Color(hex: "CCCEE1"))

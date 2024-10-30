@@ -67,8 +67,8 @@ struct FigureCell: View {
                         
                         PDFKitView(document: document, isScrollEnabled: false)
                             .edgesIgnoringSafeArea(.all)        // 전체 화면에 맞추기
-                            .frame(width: 180, height: 180 / aspectRatio)
                             .padding(8)
+                            .aspectRatio(aspectRatio, contentMode: .fit)
                             .simultaneousGesture(
                                 TapGesture().onEnded {
                                     onSelect(documentID, document, head)

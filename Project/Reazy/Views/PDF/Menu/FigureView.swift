@@ -36,6 +36,7 @@ struct FigureView: View {
                             .listRowSeparator(.hidden)
                     }
                 }
+                .padding(.horizontal, 10)
                 .listStyle(.plain)
                 .onChange(of: scrollToIndex) { _, newValue in
                     if let index = newValue {
