@@ -7,7 +7,7 @@
 
 import SwiftUI
 import PDFKit
-import UniformTypeIdentifiers
+
 
 struct MainPDFView: View {
   
@@ -288,6 +288,7 @@ struct MainPDFView: View {
         )
         .overlay {
           OverlaySearchView(isSearchSelected: self.$isSearchSelected)
+            .environmentObject(mainPDFViewModel)
         }
         // MARK: - Floating 뷰
         FloatingViewsContainer(geometry: geometry)
