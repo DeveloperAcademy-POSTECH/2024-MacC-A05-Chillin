@@ -14,32 +14,22 @@ import SwiftUI
 struct SearchListCell: View {
     let result: SearchViewModel.SearchResult
     
-    
     var body: some View {
         HStack {
-            Image(uiImage: result.image)
-                .resizable()
-                .frame(height: 60)
-                .scaledToFit()
+            Text(result.text)
+                .multilineTextAlignment(.leading)
+                .lineLimit(3)
+                .padding(12)
             
-            VStack {
-                HStack {
-                    Text("\(result.page)")
-                    
-                    Spacer()
-                    
-                    Text("\(result.count)")
-                }
-                
-                Text(result.text)
-            }
+            Spacer()
         }
+        .frame(width: 232)
         .background(.white)
     }
 }
 
 #Preview {
-    let sample = SearchViewModel.SearchResult(image: .init(systemName: "plus")!, text: "sample입니다", page: 1, count: 10)
+    let sample = SearchViewModel.SearchResult(image: .init(systemName: "plus")!, text: "sample입 fpl fasdjf10 fdsfffffff fvbas -0123rj e입니다", page: 1, count: 10)
     
     SearchListCell(result: sample)
         .frame(width: 300)

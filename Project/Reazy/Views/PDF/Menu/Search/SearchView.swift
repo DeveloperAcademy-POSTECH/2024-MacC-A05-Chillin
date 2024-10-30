@@ -16,41 +16,91 @@ struct SearchView: View {
     
     @StateObject private var viewModel: SearchViewModel = .init()
     
+    @State private var searchTimer: Timer?
+    
     var body: some View {
         VStack {
             ZStack {
                 SearchBoxView()
                 
                 VStack {
+                    searchTextFieldView
                     
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .frame(width: 232, height: 33)
-                            .foregroundStyle(.gray.opacity(0.7))
-                        
-                        TextField("검색", text: $viewModel.searchText)
-                            .frame(width: 232, height: 33)
+                    if !self.viewModel.searchText.isEmpty {
+                        searchTopView
                     }
-                    .padding(.top, 25)
                     
-                    Spacer()
-                    
-                    ScrollView {
-                        VStack {
-                            ForEach(self.viewModel.searchResults, id: \.self) { search in
-                                SearchListCell(result: search)
-                                    .frame(width: 230)
-                            }
-                        }
-                    }
+                    searchListView
                 }
             }
-            .frame(height: viewModel.searchText.isEmpty ? 79 : nil)
+            .frame(width: 252, height: viewModel.searchText.isEmpty ? 79 : nil)
             .onChange(of: viewModel.searchText) {
-                // TODO: 입력 후 일정 시간이 지나고 검색이 되게 수정
-                guard let document = mainViewModel.document else { return }
-                viewModel.fetchSearchResults(document: document)
+                fetchSearchResult()
             }
+        }
+    }
+    
+    private var searchTextFieldView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .frame(width: 232, height: 33)
+                .foregroundStyle(.gray.opacity(0.7))
+            
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .padding(.leading, 18)
+                TextField("검색", text: $viewModel.searchText)
+            }
+            .frame(width: 252, height: 33)
+        }
+        .padding(.top, 25)
+    }
+    
+    private var searchTopView: some View {
+        HStack {
+            Text("\(viewModel.searchResults.count)개 일치")
+            
+            Spacer()
+            
+            Button {
+                
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            
+            Button {
+                
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+        }
+        .padding(12)
+    }
+    
+    private var searchListView: some View {
+        ScrollView {
+            VStack {
+                ForEach(self.viewModel.searchResults, id: \.self) { search in
+                    SearchListCell(result: search)
+                }
+            }
+        }
+    }
+    
+    private func fetchSearchResult() {
+        if viewModel.searchText.isEmpty {
+            viewModel.searchResults.removeAll()
+            return
+        }
+        
+        guard let document = mainViewModel.document else { return }
+        
+        if let timer = self.searchTimer {
+            timer.invalidate()
+        }
+        
+        self.searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            viewModel.fetchSearchResults(document: document)
         }
     }
 }
