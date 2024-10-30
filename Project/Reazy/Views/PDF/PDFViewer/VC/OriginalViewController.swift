@@ -82,6 +82,19 @@ extension OriginalViewController {
         self.mainPDFView.currentSelection = nil
     }
     
+    /// 코멘트 밑줄 추가
+    private func drawCommentUnderline() {
+        guard let selection = self.mainPDFView.currentSelection else { return }
+            
+            for page in selection.pages {
+                let bounds = selection.bounds(for: page)
+                let underlineAnnotation = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
+                underlineAnnotation.color = .gray600
+                underlineAnnotation.border?.lineWidth = 1.2
+                page.addAnnotation(underlineAnnotation)
+            }
+    }
+    
     /// 데이터 Binding
     private func setBinding() {
         self.viewModel.$selectedDestination
@@ -159,6 +172,7 @@ extension OriginalViewController {
         self.viewModel.$isCommentSaved
                 .sink { [weak self] isCommentSaved in
                     if isCommentSaved {
+                        self?.drawCommentUnderline()
                         self?.cleanTextSelection()
                     }
                 }
