@@ -34,7 +34,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // BubbleView의 상태와 위치
     @Published var bubbleViewVisible: Bool = false
-    @Published var bubbleViewPosition: CGPoint = .zero
+    @Published var bubbleViewPosition: CGRect = .zero
     
     // Comment
     @Published var isCommentMode: Bool = false
@@ -203,14 +203,15 @@ extension MainPDFViewModel {
             self.isTranslateMode && self.bubbleViewVisible && !self.selectedText.isEmpty
         }
     }
-    
-    public func updateBubbleView(selectedText: String, bubblePosition: CGPoint) {
+
+    // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
+    public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
         print(selectedText)
         
         // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
         if !selectedText.isEmpty {
             bubbleViewVisible = true
-            
+            self.bubbleViewPosition = bubblePosition
         } else {
             bubbleViewVisible = false
         }
