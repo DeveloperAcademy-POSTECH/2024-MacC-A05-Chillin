@@ -13,5 +13,5 @@ import Foundation
  */
 extension Notification.Name {
     static let didSelectThumbnail = Notification.Name("didSelectThumbnail")
-    static let translateModeActivated = Notification.Name("translateModeActivated")
+    static let translateModeActivated = Notification.Name("PDFViewSelectionChanged")
 }
