@@ -181,13 +181,35 @@ extension OriginalViewController {
                 DispatchQueue.main.async {
                     // ViewModel에 선택된 텍스트와 위치 업데이트
                     self.viewModel.selectedText = selectedText
-                    self.viewModel.bubbleViewPosition = screenPosition // 위치 업데이트
+                    self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
                     
-                    self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
+                    self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
+                    self.highlightText()
                 }
             }
             .store(in: &self.cancellable)
 
+    }
+    // 하이라이트 기능
+    @objc
+    func highlightText() {
+        // PDFView 안에서 스크롤 영역 파악
+        guard let currentSelection = self.mainPDFView.currentSelection else { return }
+        
+        // 선택된 텍스트를 줄 단위로 나눔
+        let selections = currentSelection.selectionsByLine()
+        
+        guard let page = selections.first?.pages.first else { return }
+        
+        selections.forEach { selection in
+            let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
+            highlight.endLineStyle = .none
+            highlight.color = .cyan
+            page.addAnnotation(highlight)
+        }
+        
+        // 하이라이트 후 자동 선택 해제
+//        self.mainPDFView.clearSelection()
     }
 }
 
