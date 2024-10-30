@@ -16,8 +16,8 @@ struct MainPDFView: View {
   
   @State private var selectedButton: WriteButton? = nil
   @State private var selectedColor: HighlightColors = .yellow
-  
-  
+    
+    
   // 모드 구분
   @State private var selectedMode = "원문 모드"
   var mode = ["원문 모드", "집중 모드"]
