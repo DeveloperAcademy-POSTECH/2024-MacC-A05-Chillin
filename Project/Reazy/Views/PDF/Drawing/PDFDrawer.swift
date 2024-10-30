@@ -159,7 +159,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     
     private func removeAnnotationAtPoint(point: CGPoint, page: PDFPage) {
         let convertedPoint = pdfView.convert(point, to: page)
-        let hitTestRect = CGRect(x: convertedPoint.x - 5, y: convertedPoint.y - 5, width: 10, height: 10)
+        let hitTestRect = CGRect(x: convertedPoint.x - 4, y: convertedPoint.y - 4, width: 8, height: 8)
         
         let annotations = page.annotations.filter { annotation in
             return annotation.bounds.intersects(hitTestRect)
