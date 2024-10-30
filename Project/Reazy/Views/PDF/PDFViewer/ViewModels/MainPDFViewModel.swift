@@ -26,6 +26,8 @@ final class MainPDFViewModel: ObservableObject {
     }
     
     @Published var isTranslateMode: Bool = false
+    @Published var isPencilMode: Bool = false
+    @Published var isEraserMode: Bool = false
     
     // BubbleView의 상태와 위치
     @Published var bubbleViewVisible: Bool = false

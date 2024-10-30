@@ -121,14 +121,35 @@ struct MainPDFView: View {
                   } else {
                     selectedButton = btn
                     
-                    // 번역 버튼
-                    if selectedButton == .translate {
-                      mainPDFViewModel.isTranslateMode = true // translation mode
+                  switch selectedButton {
+                  case .translate:
+                      // 번역 모드 활성화, 나머지 비활성화
+                      mainPDFViewModel.isTranslateMode = true
                       NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                      print("번역모드 on")
-                    } else {
+                      print("번역 모드 on")
+                      mainPDFViewModel.isPencilMode = false
+                      mainPDFViewModel.isEraserMode = false
+                      
+                  case .pencil:
+                      // 펜 모드 활성화, 나머지 비활성화
                       mainPDFViewModel.isTranslateMode = false
-                    }
+                      mainPDFViewModel.isPencilMode = true
+                      mainPDFViewModel.isEraserMode = false
+                      print("펜 모드 on")
+                      
+                  case .eraser:
+                      // 지우개 모드 활성화, 나머지 비활성화
+                      mainPDFViewModel.isTranslateMode = false
+                      mainPDFViewModel.isPencilMode = false
+                      mainPDFViewModel.isEraserMode = true
+                      print("지우개 모드 on")
+                      
+                  default:
+                      // 전체 비활성화
+                      mainPDFViewModel.isTranslateMode = false
+                      mainPDFViewModel.isPencilMode = false
+                      mainPDFViewModel.isEraserMode = false
+                  }
                     
                   }
                 }
