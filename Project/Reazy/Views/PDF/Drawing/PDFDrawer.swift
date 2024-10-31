@@ -8,14 +8,13 @@
 import Foundation
 import PDFKit
 
-// pencil과 highlighter는 버전 2에서 사용할 것 같아 없애지 않았어요
+// 각종 그리기 도구와 관련된 부분, 지우개와 펜슬 둘 다 여기서 처리
+// pencil과 highlighter는 추후 사용할 것 같아 주석처리만 했어요
 
 enum DrawingTool: Int {
     case none = 0
     case eraser = 1
     case pencil = 2
-    case pen = 3
-    case highlighter = 4
     
     var width: CGFloat {
         switch self {
@@ -23,19 +22,14 @@ enum DrawingTool: Int {
             return 5
         case .pencil:
             return 1
-        case .pen:
-            return 8
-        case .highlighter:
-            return 10
         default:
             return 0
         }
     }
     
+    // 투명도
     var alpha: CGFloat {
         switch self {
-        case .highlighter:
-            return 0.3 //0,5
         case .none:
             return 0
         default:
@@ -49,11 +43,12 @@ class PDFDrawer {
     private var path: UIBezierPath?
     private var currentAnnotation : DrawingAnnotation?
     private var currentPage: PDFPage?
-    var color = UIColor.init(hex: "#5F5CAB")
+    var color = UIColor.init(hex: "#5F5CAB") // 펜 색상
     var drawingTool = DrawingTool.none
 }
 
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
+    // 펜 처음 터치 했을 때 작동되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
@@ -62,6 +57,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         path?.move(to: convertedPoint)
     }
     
+    // 펜을 떼지 않고 움직이는 동안 작동되는 함수 - 조금이라도 움직일 때마다 호출
     func gestureRecognizerMoved(_ location: CGPoint) {
 
         guard let page = currentPage else { return }
@@ -93,23 +89,23 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         drawAnnotation(onPage: page)
     }
     
+    // 펜을 떼는 시점에 작동하는 함수
     func gestureRecognizerEnded(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         
-        // Erasing
+        // 지우개
         if drawingTool == .eraser {
             removeAnnotationAtPoint(point: location, page: page)
             return
         }
         
-        // Drawing
+        // 드로잉
         guard let _ = currentAnnotation else { return }
         
         path?.addLine(to: convertedPoint)
         path?.move(to: convertedPoint)
         
-        // Final annotation
         page.removeAnnotation(currentAnnotation!)
         let finalAnnotation = createFinalAnnotation(path: path!, page: page)
         currentAnnotation = nil

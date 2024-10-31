@@ -12,6 +12,7 @@ import PDFKit
 class DrawingAnnotation: PDFAnnotation {
     public var path = UIBezierPath()
     
+    // 펜슬이 지나간 자리 그리기
     override func draw(with box: PDFDisplayBox, in context: CGContext) {
         let pathCopy = path.copy() as! UIBezierPath
         UIGraphicsPushContext(context)
@@ -31,12 +32,12 @@ class DrawingAnnotation: PDFAnnotation {
 }
 
 extension PDFAnnotation {
-    
+    // 지우개에서 사용하는 함수
     func contains(point: CGPoint) -> Bool {
         var hitPath: CGPath?
         
         if let path = paths?.first {
-            // 얼마나 가까이 닿아야 닿는 거라고 처리할 건지 관련
+            // 얼마나 가까이 닿아야 닿았다고 인식할 건지
             hitPath = path.cgPath.copy(strokingWithWidth: 1.0, lineCap: .round, lineJoin: .round, miterLimit: 0)
         }
         

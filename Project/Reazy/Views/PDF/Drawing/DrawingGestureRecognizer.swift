@@ -13,12 +13,13 @@ protocol DrawingGestureRecognizerDelegate: AnyObject {
     func gestureRecognizerEnded(_ location: CGPoint)
 }
 
+// PDF 위에서 일어나는 제스처들을 다루는 부분
 class DrawingGestureRecognizer: UIGestureRecognizer {
     weak var drawingDelegate: DrawingGestureRecognizerDelegate?
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first,
-           touch.type == .pencil, // Uncomment this line to test on device with Apple Pencil
+           touch.type == .pencil, // 시뮬레이터에서 펜슬 없이 테스트할 때는 이 줄 주석 해야함!
             let numberOfTouches = event?.allTouches?.count,
             numberOfTouches == 1 {
             state = .began
