@@ -25,7 +25,7 @@ enum WriteButton: String, CaseIterable {
     case .eraser:
       "eraser"
     case .translate:
-      "character.square"
+      "globe"
     }
   }
 }
