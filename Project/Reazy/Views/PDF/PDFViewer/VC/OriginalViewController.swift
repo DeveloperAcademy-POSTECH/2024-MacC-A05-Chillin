@@ -182,9 +182,9 @@ extension OriginalViewController {
                     // ViewModel에 선택된 텍스트와 위치 업데이트
                     self.viewModel.selectedText = selectedText
                     self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
-                    
                     self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
-                    self.highlightText()
+                    
+                    self.highlightText()                                            // 하이라이트 기능
                 }
             }
             .store(in: &self.cancellable)
@@ -193,6 +193,9 @@ extension OriginalViewController {
     // 하이라이트 기능
     @objc
     func highlightText() {
+        // toolMode가 highlight일때 동작
+        guard viewModel.toolMode == .highlight else { return }
+        
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = self.mainPDFView.currentSelection else { return }
         
@@ -204,12 +207,9 @@ extension OriginalViewController {
         selections.forEach { selection in
             let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
-            highlight.color = .cyan
+            highlight.color = .yellow
             page.addAnnotation(highlight)
         }
-        
-        // 하이라이트 후 자동 선택 해제
-//        self.mainPDFView.clearSelection()
     }
 }
 
