@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Foundation
 import PDFKit
 
 class DrawingAnnotation: PDFAnnotation {
