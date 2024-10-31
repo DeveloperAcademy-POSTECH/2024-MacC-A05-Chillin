@@ -51,6 +51,9 @@ struct SearchView: View {
                 UITextField.appearance().clearButtonMode = .whileEditing
             }
         }
+        .onDisappear {
+            viewModel.removeAllAnnotations()
+        }
     }
 }
 
@@ -204,6 +207,7 @@ extension SearchView {
         }
         
         self.searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            viewModel.removeAllAnnotations()
             viewModel.fetchSearchResults(document: document)
             self.selectedIndex = 0
         }

@@ -16,6 +16,8 @@ final class SearchViewModel: ObservableObject {
     @Published public var searchText: String = ""
     @Published public var searchResults = [SearchResult]()
     
+    private var searchAnnotations: [PDFAnnotation] = []
+    
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
         let image: UIImage  // 페이지 썸네일
@@ -44,6 +46,8 @@ extension SearchViewModel {
         
         searchSelections.forEach { selection in
             guard let page = selection.pages.first, let pageText = page.string else { return }
+            
+            self.addAnnotations(document: document, selection: selection)
             
             // 해당 페이지 인덱스
             let pageCount = document.index(for: page)
@@ -208,6 +212,30 @@ extension SearchViewModel {
         }
         
         return resultText
+    }
+    
+    
+    private func addAnnotations(document: PDFDocument, selection: PDFSelection) {
+        guard let page = selection.pages.first else { return }
+        
+        selection.selectionsByLine().forEach { select in
+            let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
+            highlight.endLineStyle = .square
+            highlight.color = .init(hex: "FED366")
+            
+            self.searchAnnotations.append(highlight)
+            page.addAnnotation(highlight)
+        }
+    }
+    
+    public func removeAllAnnotations() {
+        self.searchAnnotations.forEach { annotation in
+            guard let page = annotation.page else { return }
+            
+            page.removeAnnotation(annotation)
+        }
+        
+        self.searchAnnotations.removeAll()
     }
 }
 

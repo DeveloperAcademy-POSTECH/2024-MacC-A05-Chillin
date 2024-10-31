@@ -327,14 +327,15 @@ private struct OverlaySearchView: View {
     @Binding var isSearchSelected: Bool
     
     var body: some View {
-        HStack {
-            VStack(spacing: 0) {
-                SearchView()
-                    .padding(EdgeInsets(top: 60, leading: 20, bottom: 0, trailing: 0))
+        if isSearchSelected {
+            HStack {
+                VStack(spacing: 0) {
+                    SearchView()
+                        .padding(EdgeInsets(top: 60, leading: 20, bottom: 0, trailing: 0))
+                    Spacer()
+                }
                 Spacer()
             }
-            Spacer()
         }
-        .opacity(self.isSearchSelected ? 1 : 0)
     }
 }
