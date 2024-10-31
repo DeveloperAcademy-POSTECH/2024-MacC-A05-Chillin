@@ -18,6 +18,8 @@ struct SearchView: View {
     
     @State private var searchTimer: Timer?
     
+    @State private var selectedIndex: Int?
+    
     var body: some View {
         VStack {
             ZStack {
@@ -76,7 +78,7 @@ struct SearchView: View {
             Spacer()
             
             Button {
-                
+                previousResult()
             } label: {
                 Image(systemName: "chevron.left")
                     .resizable()
@@ -87,7 +89,7 @@ struct SearchView: View {
             .padding(.trailing, 16)
             
             Button {
-                
+                nextResult()
             } label: {
                 Image(systemName: "chevron.right")
                     .resizable()
@@ -102,13 +104,21 @@ struct SearchView: View {
     
     private var searchListView: some View {
         ScrollView {
-            VStack {
-                ForEach(self.viewModel.searchResults, id: \.self) { search in
+            VStack(spacing: 0) {
+                ForEach(Array(zip(0 ..< self.viewModel.searchResults.count, self.viewModel.searchResults)), id: \.0) { index, search in
                     VStack(spacing: 0) {
                         SearchListCell(result: search)
+                            .onTapGesture {
+                                self.selectedIndex = index
+                            }
+                            .background {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .foregroundStyle(.primary2)
+                                    .opacity( selectedIndex == index ? 1 : 0)
+                            }
                         
                         seperator
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 18)
                     }
                 }
             }
@@ -135,6 +145,31 @@ struct SearchView: View {
         
         self.searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
             viewModel.fetchSearchResults(document: document)
+            self.selectedIndex = 0
         }
+    }
+    
+    private func nextResult() {
+        if self.selectedIndex == nil { return }
+        
+        let count = self.viewModel.searchResults.count
+        
+        if self.selectedIndex! == count - 1 {
+            self.selectedIndex = 0
+            return
+        }
+        
+        self.selectedIndex! += 1
+    }
+    
+    private func previousResult() {
+        if self.selectedIndex == nil { return }
+        
+        if self.selectedIndex! == 0 {
+            self.selectedIndex = self.viewModel.searchResults.count - 1
+            return
+        }
+        
+        self.selectedIndex! -= 1
     }
 }
