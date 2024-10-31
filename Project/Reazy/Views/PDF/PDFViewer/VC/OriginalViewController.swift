@@ -24,8 +24,17 @@ final class OriginalViewController: UIViewController {
         view.backgroundColor = .gray200
         view.autoScales = false
         view.pageShadowsEnabled = false
+        
+        // for drawing
+        view.displayDirection = .vertical
+        view.usePageViewController(false)
+        view.pageBreakMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        view.autoScales = true
         return view
     }()
+    
+    // for drawing
+    var shouldUpdatePDFScrollPosition = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +42,13 @@ final class OriginalViewController: UIViewController {
         self.setUI()
         self.setData()
         self.setBinding()
+        
+        // for drawing
+        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+        viewModel.pdfDrawer.pdfView = self.mainPDFView
+        viewModel.pdfDrawer.drawingTool = .none
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -131,6 +147,7 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
+
     }
 }
 

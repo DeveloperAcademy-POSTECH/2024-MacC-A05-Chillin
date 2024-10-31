@@ -25,7 +25,11 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
-    @Published var isTranslateMode: Bool = false
+    @Published var toolMode: ToolMode = .none {
+        didSet {
+            updateDrawingTool()
+        }
+    }
     
     // BubbleView의 상태와 위치
     @Published var bubbleViewVisible: Bool = false
@@ -38,6 +42,9 @@ final class MainPDFViewModel: ObservableObject {
     public var figureAnnotations: [FigureAnnotation] = []       // figure 리스트
     
     public var thumnailImages: [UIImage] = []
+    
+    // for drawing
+    public var pdfDrawer = PDFDrawer() // PDFDrawer
 }
 
 
@@ -189,7 +196,7 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     public var isBubbleViewVisible: Bool {
         get {
-            self.isTranslateMode && self.bubbleViewVisible && !self.selectedText.isEmpty
+            self.toolMode == .translate && self.bubbleViewVisible && !self.selectedText.isEmpty
         }
     }
 
@@ -203,6 +210,28 @@ extension MainPDFViewModel {
             self.bubbleViewPosition = bubblePosition
         } else {
             bubbleViewVisible = false
+        }
+    }
+}
+
+enum ToolMode {
+    case none
+    case translate
+    case pencil
+    case eraser
+    case highlight
+    case comment
+}
+
+extension MainPDFViewModel {
+    private func updateDrawingTool() {
+        switch toolMode {
+        case .pencil:
+            pdfDrawer.drawingTool = .pencil
+        case .eraser:
+            pdfDrawer.drawingTool = .eraser
+        default:
+            pdfDrawer.drawingTool = .none
         }
     }
 }
