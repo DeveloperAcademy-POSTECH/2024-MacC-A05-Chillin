@@ -19,6 +19,10 @@ struct SearchView: View {
     
     @State private var searchTimer: Timer?
     @State private var selectedIndex: Int?
+    @State private var isTapGesture: Bool = false
+    @State private var isSearchViewHidden: Bool = false
+    
+    let publisher = NotificationCenter.default.publisher(for: .isSearchViewHidden)
     
     var body: some View {
         VStack {
@@ -26,24 +30,28 @@ struct SearchView: View {
                 SearchBoxView()
                 
                 VStack {
-                    SearchTextFieldView(viewModel: viewModel)
+                    SearchTextFieldView(viewModel: viewModel, isSearchViewHidden: $isSearchViewHidden)
+                        .padding(.bottom, isSearchViewHidden ? 21 : 0)
                     
-                    if !self.viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
-                        SearchTopView(viewModel: viewModel, selectedIndex: $selectedIndex)
+                    if !self.isSearchViewHidden {
+                        if !self.viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
+                            SearchTopView(viewModel: viewModel, isTapGesture: $isTapGesture, selectedIndex: $selectedIndex)
+                        }
+                        
+                        if !self.viewModel.searchText.isEmpty && self.viewModel.searchResults.isEmpty {
+                            Spacer()
+                            Text("일치하는 결과 없음")
+                                .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                        }
+                        
+                        SearchListView(viewModel: viewModel, isTapGesture: $isTapGesture, selectedIndex: $selectedIndex)
                     }
                     
-                    if !self.viewModel.searchText.isEmpty && self.viewModel.searchResults.isEmpty {
-                        Spacer()
-                        Text("일치하는 결과 없음")
-                            .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
-                            .foregroundStyle(.gray800)
-                        Spacer()
-                    } else {
-                        SearchListView(viewModel: viewModel, selectedIndex: $selectedIndex)
-                    }
                 }
             }
-            .frame(width: 252, height: viewModel.searchText.isEmpty ? 79 : nil)
+            .frame(width: 252, height: (viewModel.searchText.isEmpty || isSearchViewHidden) ? 79 : nil)
             .onChange(of: viewModel.searchText) {
                 fetchSearchResult()
             }
@@ -57,15 +65,26 @@ struct SearchView: View {
             .onAppear {
                 UITextField.appearance().clearButtonMode = .whileEditing
             }
+            .onReceive(publisher) { a in
+                if let _ = a.userInfo?["hitted"] as? Bool {
+                    print("hitted!!!!")
+                    self.isSearchViewHidden = true
+                }
+            }
         }
         .onDisappear {
             viewModel.removeAllAnnotations()
         }
     }
+    
+    
 }
+
 
 private struct SearchTextFieldView: View {
     @ObservedObject var viewModel: SearchViewModel
+    
+    @Binding var isSearchViewHidden: Bool
     
     var body: some View {
         ZStack {
@@ -81,10 +100,11 @@ private struct SearchTextFieldView: View {
                     .padding(.leading, 18)
                     .foregroundStyle(Color(hex: "9092A9"))
                 
-                TextField("검색", text: $viewModel.searchText)
+                TextField("검색", text: $viewModel.searchText, onEditingChanged: { isSearchViewHidden = !$0 })
                     .padding(.trailing, 10)
                     .foregroundStyle(.gray800)
                     .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
+                    
             }
             .frame(width: 252, height: 33)
         }
@@ -96,6 +116,7 @@ private struct SearchTopView: View {
     @EnvironmentObject var mainViewModel: MainPDFViewModel
     @ObservedObject var viewModel: SearchViewModel
     
+    @Binding var isTapGesture: Bool
     @Binding var selectedIndex: Int?
     
     var body: some View {
@@ -132,6 +153,7 @@ private struct SearchTopView: View {
     }
     
     private func nextResult() {
+        self.isTapGesture = false
         if self.selectedIndex == nil { return }
         
         let count = self.viewModel.searchResults.count
@@ -145,6 +167,7 @@ private struct SearchTopView: View {
     }
     
     private func previousResult() {
+        self.isTapGesture = false
         if self.selectedIndex == nil { return }
         
         if self.selectedIndex! == 0 {
@@ -161,6 +184,8 @@ private struct SearchListView: View {
     @EnvironmentObject var mainViewModel: MainPDFViewModel
     
     @ObservedObject var viewModel: SearchViewModel
+    
+    @Binding var isTapGesture: Bool
     @Binding var selectedIndex: Int?
     
     var body: some View {
@@ -171,6 +196,7 @@ private struct SearchListView: View {
                         VStack(spacing: 0) {
                             SearchListCell(result: search)
                                 .onTapGesture {
+                                    self.isTapGesture = true
                                     self.selectedIndex = index
                                 }
                                 .background {
@@ -186,7 +212,9 @@ private struct SearchListView: View {
                 }
             }
             .onChange(of: selectedIndex) {
-                proxy.scrollTo(selectedIndex, anchor: .center)
+                if !isTapGesture {
+                    proxy.scrollTo(selectedIndex)
+                }
             }
         }
     }

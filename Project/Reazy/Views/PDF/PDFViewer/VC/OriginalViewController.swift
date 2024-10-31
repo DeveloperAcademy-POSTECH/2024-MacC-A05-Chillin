@@ -49,6 +49,10 @@ final class OriginalViewController: UIViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
+        
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
+        gesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(gesture)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -62,6 +66,11 @@ final class OriginalViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc
+    func postScreenTouch() {
+        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
     }
 }
 
