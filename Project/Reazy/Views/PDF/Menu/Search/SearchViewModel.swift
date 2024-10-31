@@ -19,7 +19,7 @@ final class SearchViewModel: ObservableObject {
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
         let image: UIImage  // 페이지 썸네일
-        let text: String    // 검색 결과가 포함된 텍스트
+        let text: AttributedString    // 검색 결과가 포함된 텍스트
         let page: Int       // 키워드가 포함된 페이지 인덱스
         let count: Int      // 해당 페이지에 키워드가 포함된 갯수
     }
@@ -58,12 +58,14 @@ extension SearchViewModel {
             // 해당 페이지 썸네일 가져오기
             let thumbnail = page.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
             
-            let textArray = pageText.split(separator: " ")
-            
+            let textArray = pageText.split { $0 == " " || $0 == "\n"}
+
+            let keyword = selection.string!.lowercased()
+
             if currentIndex == -1 {
-                let index = textArray.firstIndex { String($0).lowercased().contains(selection.string!.lowercased()) }!
+                let index = textArray.firstIndex { String($0).lowercased().contains(keyword) }!
                 
-                let resultText = self.fetchKeywordContainedString(index: index, textArray: textArray)
+                let resultText = self.fetchKeywordContainedString(index: index, textArray: textArray, keyword: keyword)
                 
                 currentIndex = index + 1
                 
@@ -73,11 +75,11 @@ extension SearchViewModel {
                     if String(textArray[i]).lowercased().contains(selection.string!.lowercased()) {
                         currentIndex = i + 1
                         
-                        print(self.fetchKeywordContainedString(index: i, textArray: textArray))
+                        print(self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword))
                         
                         results.append(.init(
                             image: thumbnail,
-                            text: self.fetchKeywordContainedString(index: i, textArray: textArray),
+                            text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
                             page: pageCount,
                             count: 1))
                         break
@@ -92,23 +94,51 @@ extension SearchViewModel {
     }
     
     /// 해당 키워드가 포함된 문장 앞 뒤로 짤라서 가져오는 메소드
-    private func fetchKeywordContainedString(index: Int, textArray: [String.SubSequence]) -> String {
-        var resultText = ""
+    private func fetchKeywordContainedString(index: Int, textArray: [String.SubSequence], keyword: String) -> AttributedString {
+        var resultText: AttributedString = .init()
         
         if index < 4 {
             for i in 0 ..< 10 {
                 let text = textArray[i].replacingOccurrences(of: "\n", with: " ")
-                resultText.append(text + " ")
+                if i == index {
+                    var attributedText = AttributedString(text)
+                    
+                    let range = attributedText.range(of: keyword, options: .caseInsensitive)
+                    attributedText[range!].foregroundColor = UIColor.systemGreen
+                    
+                    resultText.append(attributedText + " ")
+                    continue
+                }
+                resultText.append(AttributedString(text) + " ")
             }
         } else if index > textArray.count - 5 {
             for i in textArray.count - 10 ..< textArray.count {
                 let text = textArray[i].replacingOccurrences(of: "\n", with: " ")
-                resultText.append(text + " ")
+                
+                if i == index {
+                    var attributedText = AttributedString(text)
+                    
+                    let range = attributedText.range(of: keyword, options: .caseInsensitive)
+                    attributedText[range!].foregroundColor = UIColor.systemGreen
+                    
+                    resultText.append(attributedText + " ")
+                    continue
+                }
+                resultText.append(AttributedString(text) + " ")
             }
         } else {
             for i in index - 5 ..< index + 5 {
                 let text = textArray[i].replacingOccurrences(of: "\n", with: " ")
-                resultText.append(text + " ")
+                
+                if i == index {
+                    var attributedText = AttributedString(text)
+                    
+                    let range = attributedText.range(of: keyword, options: .caseInsensitive)
+                    attributedText[range!].foregroundColor = UIColor.systemGreen
+                    resultText.append(attributedText + " ")
+                    continue
+                }
+                resultText.append(AttributedString(text) + " ")
             }
         }
         
