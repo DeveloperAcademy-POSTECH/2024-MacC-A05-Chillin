@@ -7,7 +7,7 @@
 
 import SwiftUI
 import PDFKit
-import UniformTypeIdentifiers
+
 
 struct MainPDFView: View {
     
@@ -25,6 +25,7 @@ struct MainPDFView: View {
     
     @State private var selectedIndex: Int = 1
     @State private var isFigSelected: Bool = false
+    @State private var isSearchSelected: Bool = false
     
     @Binding var navigationPath: NavigationPath
     
@@ -241,7 +242,7 @@ struct MainPDFView: View {
                             }
                             .padding(.trailing, 20)
                             Button(action: {
-                                
+                                self.isSearchSelected.toggle()
                             }) {
                                 Image(systemName: "magnifyingglass")
                                     .foregroundStyle(.gray800)
@@ -303,13 +304,18 @@ struct MainPDFView: View {
                         }
                     }
                 )
+                .overlay {
+                    OverlaySearchView(isSearchSelected: self.$isSearchSelected)
+                        .environmentObject(mainPDFViewModel)
+                }
                 
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
             }
         }
-    }
+      }
+    
     
     @ViewBuilder
     private func highlightColorSelector() -> some View {
@@ -333,5 +339,23 @@ struct MainPDFView: View {
             .foregroundStyle(.primary4)
             .padding(.leading, 24)
             .padding(.trailing, 17)
+    }
+}
+
+
+private struct OverlaySearchView: View {
+    @Binding var isSearchSelected: Bool
+    
+    var body: some View {
+        if isSearchSelected {
+            HStack {
+                VStack(spacing: 0) {
+                    SearchView()
+                        .padding(EdgeInsets(top: 60, leading: 20, bottom: 0, trailing: 0))
+                    Spacer()
+                }
+                Spacer()
+            }
+        }
     }
 }

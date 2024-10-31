@@ -101,6 +101,12 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
+        self.viewModel.$searchSelection
+            .sink { [weak self] selection in
+                self?.mainPDFView.setCurrentSelection(selection, animate: true)
+            }
+            .store(in: &self.cancellable)
+        
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .sink { [weak self] _ in
                 guard let page = self?.mainPDFView.currentPage else { return }

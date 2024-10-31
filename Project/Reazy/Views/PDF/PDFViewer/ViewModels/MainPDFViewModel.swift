@@ -5,7 +5,6 @@
 //  Created by 문인범 on 10/17/24.
 //
 
-import Foundation
 import PDFKit
 import SwiftUI
 
@@ -13,10 +12,9 @@ import SwiftUI
 /**
  PDFView 전체 관할 View model
  */
-
-
 final class MainPDFViewModel: ObservableObject {
     @Published var selectedDestination: PDFDestination?
+    @Published var searchSelection: PDFSelection?
     @Published var changedPageNumber: Int = 0
     @Published var selectedText: String = "" {
         didSet {
