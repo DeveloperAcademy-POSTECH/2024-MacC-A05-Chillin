@@ -213,6 +213,10 @@ struct MainPDFView: View {
                                 }
                             }
                         }
+                        .onChange(of: selectedMode) {
+                            // 원문 <-> 집중 바뀔 때마다 버튼 5개 상태 초기화
+                            selectedButton = nil
+                        }
                         .ignoresSafeArea()
                     }
                 }
