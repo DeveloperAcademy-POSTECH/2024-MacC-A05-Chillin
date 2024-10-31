@@ -22,6 +22,7 @@ final class SearchViewModel: ObservableObject {
         let text: AttributedString    // 검색 결과가 포함된 텍스트
         let page: Int       // 키워드가 포함된 페이지 인덱스
         let count: Int      // 해당 페이지에 키워드가 포함된 갯수
+        let selection: PDFSelection
     }
 }
 
@@ -70,6 +71,14 @@ extension SearchViewModel {
                 currentIndex = index + 1
                 
                 print(resultText)
+                
+                results.append(.init(
+                    image: thumbnail,
+                    text: resultText,
+                    page: pageCount,
+                    count: 1,
+                    selection: selection))
+                
             } else {
                 for i in currentIndex ..< textArray.count {
                     if String(textArray[i]).lowercased().contains(selection.string!.lowercased()) {
@@ -81,7 +90,8 @@ extension SearchViewModel {
                             image: thumbnail,
                             text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
                             page: pageCount,
-                            count: 1))
+                            count: 1,
+                            selection: selection))
                         break
                     }
                 }

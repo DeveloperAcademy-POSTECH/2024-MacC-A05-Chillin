@@ -14,6 +14,7 @@ import SwiftUI
  */
 final class MainPDFViewModel: ObservableObject {
     @Published var selectedDestination: PDFDestination?
+    @Published var searchSelection: PDFSelection?
     @Published var changedPageNumber: Int = 0
     @Published var selectedText: String = "" {
         didSet {

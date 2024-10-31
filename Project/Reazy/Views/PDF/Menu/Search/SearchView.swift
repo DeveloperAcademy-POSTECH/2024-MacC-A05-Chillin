@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PDFKit
 
 
 /**
@@ -17,8 +18,8 @@ struct SearchView: View {
     @StateObject private var viewModel: SearchViewModel = .init()
     
     @State private var searchTimer: Timer?
-    
     @State private var selectedIndex: Int?
+    @State private var selectedSelection: PDFSelection?
     
     var body: some View {
         VStack {
@@ -26,26 +27,37 @@ struct SearchView: View {
                 SearchBoxView()
                 
                 VStack {
-                    searchTextFieldView
+                    SearchTextFieldView(viewModel: viewModel)
                     
                     if !self.viewModel.searchText.isEmpty {
-                        searchTopView
+                        SearchTopView(viewModel: viewModel, selectedIndex: $selectedIndex)
                     }
                     
-                    searchListView
+                    SearchListView(viewModel: viewModel, selectedIndex: $selectedIndex, selectedSelection: $selectedSelection)
                 }
             }
             .frame(width: 252, height: viewModel.searchText.isEmpty ? 79 : nil)
             .onChange(of: viewModel.searchText) {
                 fetchSearchResult()
             }
+            .onChange(of: selectedIndex) {
+                if viewModel.searchResults.isEmpty { return }
+                guard let index = self.selectedIndex else { return }
+                
+                mainViewModel.searchSelection = viewModel.searchResults[index].selection
+                mainViewModel.goToPage(at: viewModel.searchResults[index].page)
+            }
             .onAppear {
                 UITextField.appearance().clearButtonMode = .whileEditing
             }
         }
     }
+}
+
+private struct SearchTextFieldView: View {
+    @ObservedObject var viewModel: SearchViewModel
     
-    private var searchTextFieldView: some View {
+    var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .frame(width: 232, height: 33)
@@ -68,8 +80,15 @@ struct SearchView: View {
         }
         .padding(.top, 25)
     }
+}
+
+private struct SearchTopView: View {
+    @EnvironmentObject var mainViewModel: MainPDFViewModel
+    @ObservedObject var viewModel: SearchViewModel
     
-    private var searchTopView: some View {
+    @Binding var selectedIndex: Int?
+    
+    var body: some View {
         HStack {
             Text("\(viewModel.searchResults.count)개 일치")
                 .foregroundStyle(.gray700)
@@ -102,53 +121,6 @@ struct SearchView: View {
         .padding(12)
     }
     
-    private var searchListView: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(Array(zip(0 ..< self.viewModel.searchResults.count, self.viewModel.searchResults)), id: \.0) { index, search in
-                    VStack(spacing: 0) {
-                        SearchListCell(result: search)
-                            .onTapGesture {
-                                self.selectedIndex = index
-                            }
-                            .background {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .foregroundStyle(.primary2)
-                                    .opacity( selectedIndex == index ? 1 : 0)
-                            }
-                        
-                        seperator
-                            .padding(.horizontal, 18)
-                    }
-                }
-            }
-        }
-    }
-    
-    private var seperator: some View {
-        Rectangle()
-            .frame(height: 1)
-            .foregroundStyle(.gray400)
-    }
-    
-    private func fetchSearchResult() {
-        if viewModel.searchText.isEmpty {
-            viewModel.searchResults.removeAll()
-            return
-        }
-        
-        guard let document = mainViewModel.document else { return }
-        
-        if let timer = self.searchTimer {
-            timer.invalidate()
-        }
-        
-        self.searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
-            viewModel.fetchSearchResults(document: document)
-            self.selectedIndex = 0
-        }
-    }
-    
     private func nextResult() {
         if self.selectedIndex == nil { return }
         
@@ -171,5 +143,69 @@ struct SearchView: View {
         }
         
         self.selectedIndex! -= 1
+    }
+}
+
+
+private struct SearchListView: View {
+    @EnvironmentObject var mainViewModel: MainPDFViewModel
+    
+    @ObservedObject var viewModel: SearchViewModel
+    @Binding var selectedIndex: Int?
+    @Binding var selectedSelection: PDFSelection?
+    
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(Array(zip(0 ..< self.viewModel.searchResults.count, self.viewModel.searchResults)), id: \.0) { index, search in
+                        VStack(spacing: 0) {
+                            SearchListCell(result: search)
+                                .onTapGesture {
+                                    self.selectedIndex = index
+                                }
+                                .background {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .foregroundStyle(.primary2)
+                                        .opacity( selectedIndex == index ? 1 : 0)
+                                }
+                                .id(index)
+                            seperator
+                                .padding(.horizontal, 18)
+                        }
+                    }
+                }
+            }
+            .onChange(of: selectedIndex) {
+                proxy.scrollTo(selectedIndex, anchor: .center)
+            }
+        }
+    }
+    
+    private var seperator: some View {
+        Rectangle()
+            .frame(height: 1)
+            .foregroundStyle(.gray400)
+    }
+}
+
+
+extension SearchView {
+    private func fetchSearchResult() {
+        if viewModel.searchText.isEmpty {
+            viewModel.searchResults.removeAll()
+            return
+        }
+        
+        guard let document = mainViewModel.document else { return }
+        
+        if let timer = self.searchTimer {
+            timer.invalidate()
+        }
+        
+        self.searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            viewModel.fetchSearchResults(document: document)
+            self.selectedIndex = 0
+        }
     }
 }
