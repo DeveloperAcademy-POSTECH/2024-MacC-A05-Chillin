@@ -20,10 +20,8 @@ final class SearchViewModel: ObservableObject {
     
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
-        let image: UIImage  // 페이지 썸네일
         let text: AttributedString    // 검색 결과가 포함된 텍스트
         let page: Int       // 키워드가 포함된 페이지 인덱스
-        let count: Int      // 해당 페이지에 키워드가 포함된 갯수
         let selection: PDFSelection
     }
 }
@@ -57,12 +55,6 @@ extension SearchViewModel {
                 currentIndex = -1
             }
             
-            let width = page.bounds(for: .mediaBox).width
-            let height = page.bounds(for: .mediaBox).height
-            
-            // 해당 페이지 썸네일 가져오기
-            let thumbnail = page.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
-            
             let textArray = pageText.split { $0 == " " || $0 == "\n"}
 
             let keyword = selection.string!.lowercased()
@@ -77,10 +69,8 @@ extension SearchViewModel {
                 print(resultText)
                 
                 results.append(.init(
-                    image: thumbnail,
                     text: resultText,
                     page: pageCount,
-                    count: 1,
                     selection: selection))
                 
             } else {
@@ -91,10 +81,8 @@ extension SearchViewModel {
                         print(self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword))
                         
                         results.append(.init(
-                            image: thumbnail,
                             text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
                             page: pageCount,
-                            count: 1,
                             selection: selection))
                         break
                     }
