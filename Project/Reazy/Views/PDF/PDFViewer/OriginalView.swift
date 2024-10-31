@@ -24,13 +24,13 @@ struct OriginalView: View {
             }
             // 번역에 사용되는 말풍선뷰
             if viewModel.toolMode == .translate {
-                if viewModel.isBubbleViewVisible {
-                    if #available(iOS 18.0, *) {
+                if #available(iOS 18.0, *) {
+                    if viewModel.isBubbleViewVisible {
                         BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
 
-                    } else {
-                        // TODO : 이전 버전 처리
                     }
+                } else {
+                    BubbleViewOlderVer()
                 }
             }
         }
