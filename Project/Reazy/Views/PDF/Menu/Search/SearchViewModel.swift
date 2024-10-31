@@ -221,7 +221,7 @@ extension SearchViewModel {
         selection.selectionsByLine().forEach { select in
             let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .square
-            highlight.color = .init(hex: "FED366")
+            highlight.color = .init(hex: "FED366").withAlphaComponent(0.5)
             
             self.searchAnnotations.append(highlight)
             page.addAnnotation(highlight)

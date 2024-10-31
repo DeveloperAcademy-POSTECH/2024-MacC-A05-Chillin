@@ -19,7 +19,6 @@ struct SearchView: View {
     
     @State private var searchTimer: Timer?
     @State private var selectedIndex: Int?
-    @State private var selectedSelection: PDFSelection?
     
     var body: some View {
         VStack {
@@ -29,11 +28,19 @@ struct SearchView: View {
                 VStack {
                     SearchTextFieldView(viewModel: viewModel)
                     
-                    if !self.viewModel.searchText.isEmpty {
+                    if !self.viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
                         SearchTopView(viewModel: viewModel, selectedIndex: $selectedIndex)
                     }
                     
-                    SearchListView(viewModel: viewModel, selectedIndex: $selectedIndex, selectedSelection: $selectedSelection)
+                    if !self.viewModel.searchText.isEmpty && self.viewModel.searchResults.isEmpty {
+                        Spacer()
+                        Text("일치하는 결과 없음")
+                            .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
+                            .foregroundStyle(.gray800)
+                        Spacer()
+                    } else {
+                        SearchListView(viewModel: viewModel, selectedIndex: $selectedIndex)
+                    }
                 }
             }
             .frame(width: 252, height: viewModel.searchText.isEmpty ? 79 : nil)
@@ -155,7 +162,6 @@ private struct SearchListView: View {
     
     @ObservedObject var viewModel: SearchViewModel
     @Binding var selectedIndex: Int?
-    @Binding var selectedSelection: PDFSelection?
     
     var body: some View {
         ScrollViewReader { proxy in
