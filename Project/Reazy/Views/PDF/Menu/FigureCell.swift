@@ -71,7 +71,9 @@ struct FigureCell: View {
                             .aspectRatio(aspectRatio, contentMode: .fit)
                             .simultaneousGesture(
                                 TapGesture().onEnded {
-                                    onSelect(documentID, document, head)
+                                  if floatingViewModel.selectedFigureCellID != documentID {
+                                      onSelect(documentID, document, head)
+                                  }
                                 }
                             )
                         

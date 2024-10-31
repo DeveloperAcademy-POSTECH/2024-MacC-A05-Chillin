@@ -13,6 +13,7 @@ class FloatingViewModel: ObservableObject {
   @Published var topmostIndex: Int? = nil
   
   @Published var selectedFigureCellID: String? = nil
+  @Published var selectedFigureIndex: Int = 0
   @Published var splitMode: Bool = false
   
   func toggleSelection(for documentID: String, document: PDFDocument, head: String) {
@@ -62,6 +63,12 @@ class FloatingViewModel: ObservableObject {
     if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
       droppedFigures[index].isInSplitMode = true
     }
+    
+    for i in 0..<droppedFigures.count where droppedFigures[i].documentID != documentID {
+      droppedFigures[i].isSelected = false
+    }
+    
+    selectedFigureCellID = documentID
   }
   
   func setFloatingDocument(documentID: String) {
@@ -73,11 +80,45 @@ class FloatingViewModel: ObservableObject {
     }
   }
   
+  func updateSplitDocument(with newDocument: PDFDocument, documentID: String, head: String) {
+    if splitMode, let currentSelectedID = selectedFigureCellID {
+      if currentSelectedID != documentID {
+        if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == selectedFigureCellID }) {
+          droppedFigures[existingIndex] = (
+            documentID: documentID,
+            document: newDocument,
+            head: head,
+            isSelected: true,
+            viewOffset: droppedFigures[existingIndex].viewOffset,
+            lastOffset: droppedFigures[existingIndex].lastOffset,
+            viewWidth: droppedFigures[existingIndex].viewWidth,
+            isInSplitMode: true
+          )
+          
+          selectedFigureCellID = documentID
+          droppedFigures = droppedFigures.map { $0 }
+        }
+      }
+    }
+  }
+  
   func getSplitDocumentDetails() -> (documentID: String, document: PDFDocument, head: String)? {
     guard splitMode, let selectedID = selectedFigureCellID else { return nil }
     if let selectedFigure = droppedFigures.first(where: { $0.documentID == selectedID }) {
       return (documentID: selectedFigure.documentID, document: selectedFigure.document, head: selectedFigure.head)
     }
     return nil
+  }
+}
+
+class ObservableDocument: ObservableObject {
+  @Published var document: PDFDocument
+  
+  init(document: PDFDocument) {
+    self.document = document
+  }
+  
+  func updateDocument(to newDocument: PDFDocument) {
+    document = newDocument
   }
 }

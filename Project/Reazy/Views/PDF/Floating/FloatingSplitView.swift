@@ -13,10 +13,21 @@ struct FloatingSplitView: View {
   @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
   @EnvironmentObject var floatingViewModel: FloatingViewModel
   
+  @ObservedObject var observableDocument: ObservableDocument
+  
   let documentID: String
   let document: PDFDocument
   let head: String
   let isFigSelected: Bool
+  
+  init(documentID: String, document: PDFDocument, head: String, isFigSelected: Bool) {
+    self.document = document
+    _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
+    
+    self.documentID = documentID
+    self.head = head
+    self.isFigSelected = isFigSelected
+  }
   
   var body: some View {
     GeometryReader { geometry in
@@ -80,7 +91,8 @@ struct FloatingSplitView: View {
         Divider()
           .background(.gray300)
         
-        PDFKitView(document: document, isScrollEnabled: true)
+        PDFKitView(document: observableDocument.document, isScrollEnabled: true)
+          .id(observableDocument.document)
           .padding(.horizontal, 30)
           .padding(.vertical, 14)
         
@@ -91,8 +103,11 @@ struct FloatingSplitView: View {
           ScrollView(.horizontal) {
             HStack(spacing: 8) {
               ForEach(0..<mainPDFViewModel.figureAnnotations.count, id: \.self) { index in
-                FigureCell(index: index, onSelect: { documentID, document, head in
-                  floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                FigureCell(index: index, onSelect: { newDocumentID, newDocument, newHead in
+                  if floatingViewModel.selectedFigureCellID != newDocumentID {
+                    floatingViewModel.updateSplitDocument(with: newDocument, documentID: newDocumentID, head: newHead)
+                    observableDocument.updateDocument(to: newDocument)
+                  }
                 })
                 .environmentObject(mainPDFViewModel)
                 .environmentObject(floatingViewModel)

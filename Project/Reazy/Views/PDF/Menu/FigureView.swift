@@ -40,40 +40,42 @@ struct FigureView: View {
                 .listStyle(.plain)
                 .onChange(of: scrollToIndex) { _, newValue in
                     if let index = newValue {
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         withAnimation {
-                            // 자동 스크롤
-                            proxy.scrollTo(index, anchor: .top)
+                          // 자동 스크롤
+                          proxy.scrollTo(index, anchor: .top)
                         }
+                      }
                     }
                 }
             }
         }
         // 원문보기 페이지 변경시 자동 스크롤
         .onChange(of: mainPDFViewModel.changedPageNumber) { _, newValue in
-            
-            let pageCount = mainPDFViewModel.figureAnnotations.count
-            var foundIndex: Int? = nil
-            
-            // num과 같은 이미지 page 찾기
-            for index in 0..<pageCount {
-                if mainPDFViewModel.figureAnnotations[index].page == newValue {
-                    foundIndex = index
-                    break
-                }
-            }
-            
-            // num과 같은 page가 있는 경우
-            if let index = foundIndex {
-                scrollToIndex = index + 1                    // 해당 인덱스로 스크롤
-            } else {
-                // num과 같은 page가 없는 경우, num보다 큰 첫 번째 page 찾기
-                for index in 0..<pageCount {
-                    if mainPDFViewModel.figureAnnotations[index].page > newValue {
-                        scrollToIndex = index                // 해당 인덱스로 스크롤
-                        break
-                    }
-                }
-            }
+          updateScrollIndex(for: newValue)
         }
     }
+  
+  private func updateScrollIndex(for pageNumber: Int) {
+    let pageCount = mainPDFViewModel.figureAnnotations.count
+    var foundIndex: Int? = nil
+    
+    for index in 0..<pageCount {
+      if mainPDFViewModel.figureAnnotations[index].page == pageNumber {
+        foundIndex = index
+        break
+      }
+    }
+    
+    if let index = foundIndex {
+      scrollToIndex = index + 1
+    } else {
+      for index in 0..<pageCount {
+        if mainPDFViewModel.figureAnnotations[index].page > pageNumber {
+          scrollToIndex = index
+          break
+        }
+      }
+    }
+  }
 }
