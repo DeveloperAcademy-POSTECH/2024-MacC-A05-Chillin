@@ -14,9 +14,11 @@ struct SearchBoxView: View {
             RoundedCornerTriangleView()
                 .frame(width: 46, height: 10)
         
+            // TODO: 그림자 수정
             RoundedRectangle(cornerRadius: 12)
                 .frame(width: 252)
-                .foregroundStyle(Color(uiColor: .systemGreen))
+                .foregroundStyle(.gray100)
+                .shadow(radius: 0.5, x: 5, y: 5)
         }
     }
 }

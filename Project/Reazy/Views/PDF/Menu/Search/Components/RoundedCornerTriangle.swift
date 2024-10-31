@@ -14,7 +14,7 @@ class RoundedCornerTriangle: UIView {
         super.init(frame: frame)
 
         let triangle = CAShapeLayer()
-        triangle.fillColor = UIColor.systemGreen.cgColor
+        triangle.fillColor = UIColor.gray100.cgColor
         triangle.path = createRoundedTriangle(width: 46, height: 30, radius: 4)
         triangle.position = .init(x: 51, y: 0)
         self.layer.addSublayer(triangle)

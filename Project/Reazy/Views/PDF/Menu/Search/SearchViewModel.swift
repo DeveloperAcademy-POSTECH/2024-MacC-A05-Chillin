@@ -96,6 +96,9 @@ extension SearchViewModel {
     /// 해당 키워드가 포함된 문장 앞 뒤로 짤라서 가져오는 메소드
     private func fetchKeywordContainedString(index: Int, textArray: [String.SubSequence], keyword: String) -> AttributedString {
         var resultText: AttributedString = .init()
+        // TODO: 필요 시 행간 조절 필요
+//        let paragraphStyle: NSMutableParagraphStyle = .init()
+//        paragraphStyle.lineSpacing = -10
         
         if index < 4 {
             for i in 0 ..< 10 {
@@ -103,13 +106,30 @@ extension SearchViewModel {
                 if i == index {
                     var attributedText = AttributedString(text)
                     
+                    let attributes: AttributeContainer = .init([
+                        .foregroundColor: UIColor.gray800,
+                        .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                    ])
+                    
+                    attributedText.setAttributes(attributes)
+                    
                     let range = attributedText.range(of: keyword, options: .caseInsensitive)
-                    attributedText[range!].foregroundColor = UIColor.systemGreen
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
                     
                     resultText.append(attributedText + " ")
                     continue
                 }
-                resultText.append(AttributedString(text) + " ")
+                
+                var attributedText = AttributedString(text)
+                
+                let attributes: AttributeContainer = .init([
+                    .foregroundColor: UIColor.gray800,
+                    .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                ])
+                
+                attributedText.setAttributes(attributes)
+                
+                resultText.append(attributedText + " ")
             }
         } else if index > textArray.count - 5 {
             for i in textArray.count - 10 ..< textArray.count {
@@ -118,13 +138,30 @@ extension SearchViewModel {
                 if i == index {
                     var attributedText = AttributedString(text)
                     
+                    let attributes: AttributeContainer = .init([
+                        .foregroundColor: UIColor.gray800,
+                        .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                    ])
+                    
+                    attributedText.setAttributes(attributes)
+                    
                     let range = attributedText.range(of: keyword, options: .caseInsensitive)
-                    attributedText[range!].foregroundColor = UIColor.systemGreen
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
                     
                     resultText.append(attributedText + " ")
                     continue
                 }
-                resultText.append(AttributedString(text) + " ")
+                
+                var attributedText = AttributedString(text)
+                
+                let attributes: AttributeContainer = .init([
+                    .foregroundColor: UIColor.gray800,
+                    .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                ])
+                
+                attributedText.setAttributes(attributes)
+                
+                resultText.append(attributedText + " ")
             }
         } else {
             for i in index - 5 ..< index + 5 {
@@ -133,12 +170,30 @@ extension SearchViewModel {
                 if i == index {
                     var attributedText = AttributedString(text)
                     
+                    let attributes: AttributeContainer = .init([
+                        .foregroundColor: UIColor.gray800,
+                        .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                    ])
+                    
+                    attributedText.setAttributes(attributes)
+                    
                     let range = attributedText.range(of: keyword, options: .caseInsensitive)
-                    attributedText[range!].foregroundColor = UIColor.systemGreen
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
+                    
                     resultText.append(attributedText + " ")
                     continue
                 }
-                resultText.append(AttributedString(text) + " ")
+                
+                var attributedText = AttributedString(text)
+                
+                let attributes: AttributeContainer = .init([
+                    .foregroundColor: UIColor.gray800,
+                    .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                ])
+                
+                attributedText.setAttributes(attributes)
+                
+                resultText.append(attributedText + " ")
             }
         }
         
