@@ -15,6 +15,7 @@ import Combine
 final class OriginalViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
+    let commentViewModel: CommentViewModel
     
     var cancellable: Set<AnyCancellable> = []
     var selectionWorkItem: DispatchWorkItem?
@@ -34,19 +35,57 @@ final class OriginalViewController: UIViewController {
         self.setUI()
         self.setData()
         self.setBinding()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handlePDFViewTap(_:)))
+        mainPDFView.addGestureRecognizer(tapGesture)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         viewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
-    init(viewModel: MainPDFViewModel) {
+    init(viewModel: MainPDFViewModel, commentViewModel: CommentViewModel) {
         self.viewModel = viewModel
+        self.commentViewModel = commentViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func handlePDFViewTap(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: mainPDFView)
+        
+        guard let page = mainPDFView.page(for: location, nearest: true) else { return }
+        let pageLocation = mainPDFView.convert(location, to: page)
+        
+        // 해당 위치에 Annotation이 있는지 확인
+        if let tappedAnnotation = page.annotation(at: pageLocation) {
+            print("found annotation")
+            
+            if let commentIDString = tappedAnnotation.contents {
+                print(commentIDString)
+                
+                if let commentID = UUID(uuidString: commentIDString) {
+                    print("\(commentID)")
+                    
+                    if let tappedComment = commentViewModel.comments.first(where: { $0.id == commentID }) {
+                        
+                        // 코멘트와 연결된 주석 클릭 시 액션 처리
+                        print("Comment tapped with text: \(tappedComment)")
+                        
+                    } else {
+                        dump(commentViewModel.comments)
+                        print("No match comment annotation")
+                    }
+                } else {
+                    print("Cannot convert UUID")
+                }
+            } else {
+                print("No comment ID String")
+            }
+        }
     }
 }
 
@@ -80,19 +119,6 @@ extension OriginalViewController {
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
         self.mainPDFView.currentSelection = nil
-    }
-    
-    /// 코멘트 밑줄 추가
-    private func drawCommentUnderline() {
-        guard let selection = self.mainPDFView.currentSelection else { return }
-            
-            for page in selection.pages {
-                let bounds = selection.bounds(for: page)
-                let underlineAnnotation = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
-                underlineAnnotation.color = .gray600
-                underlineAnnotation.border?.lineWidth = 1.2
-                page.addAnnotation(underlineAnnotation)
-            }
     }
     
     /// 데이터 Binding
@@ -170,17 +196,16 @@ extension OriginalViewController {
         
         // 저장하면 currentSelection 해제
         self.viewModel.$isCommentSaved
-                .sink { [weak self] isCommentSaved in
-                    if isCommentSaved {
-                        self?.drawCommentUnderline()
-                        self?.cleanTextSelection()
-                    }
+            .sink { [weak self] isCommentSaved in
+                if isCommentSaved {
+                    self?.cleanTextSelection()
                 }
-                .store(in: &self.cancellable)
+            }
+            .store(in: &self.cancellable)
     }
 }
 
 
 #Preview {
-    OriginalViewController(viewModel: .init())
+    OriginalViewController(viewModel: .init(), commentViewModel: .init())
 }

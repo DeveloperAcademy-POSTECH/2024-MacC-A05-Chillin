@@ -13,11 +13,12 @@ struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     @StateObject private var commentViewModel: CommentViewModel = .init()
     @State private var showCommentView = false
+    @State private var keyboardHeight: CGFloat = 0
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                OriginalViewControllerRepresent() // PDF 뷰를 표시
+                OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
             }
             .onTapGesture {
                 // 터치 시 말풍선 뷰를 숨기는 처리 추가
@@ -28,22 +29,50 @@ struct OriginalView: View {
                 if viewModel.isBubbleViewVisible {
                     if #available(iOS 18.0, *) {
                         BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
-
+                        
                     } else {
                         // TODO : 이전 버전 처리
                     }
                 }
             }
-            
-            if viewModel.isCommentVisible {
-                CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
-                    .position(viewModel.commentPosition)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+                if viewModel.isCommentVisible {
+                    CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
+                        .position(viewModel.commentPosition)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
         }
+        .keyboardHeight($keyboardHeight)
+        .offset(y: -keyboardHeight / 1.7)
         .animation(.smooth(duration: 0.5))
         .onChange(of: viewModel.selectedText) { _, newValue in
             viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
         }
+    }
+}
+
+struct KeyboardProvider: ViewModifier {
+    
+    var keyboardHeight: Binding<CGFloat>
+    
+    func body(content: Content) -> some View {
+        content
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification),
+                       perform: { notification in
+                guard let userInfo = notification.userInfo,
+                      let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+                
+                self.keyboardHeight.wrappedValue = keyboardRect.height
+                
+            }).onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification),
+                         perform: { _ in
+                self.keyboardHeight.wrappedValue = 0
+            })
+    }
+}
+
+
+public extension View {
+    func keyboardHeight(_ state: Binding<CGFloat>) -> some View {
+        self.modifier(KeyboardProvider(keyboardHeight: state))
     }
 }

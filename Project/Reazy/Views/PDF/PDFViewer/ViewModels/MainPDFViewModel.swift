@@ -37,7 +37,8 @@ final class MainPDFViewModel: ObservableObject {
     @Published var bubbleViewPosition: CGRect = .zero
     
     // Comment
-    @Published var isCommentMode: Bool = false
+    @Published var isAddCommentMode: Bool = false
+    @Published var isCommentViewMode: Bool = false
     @Published var selection: PDFSelection?
     @Published var commentPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
@@ -221,7 +222,7 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
 
     public var isCommentVisible: Bool {
-        return self.isCommentMode && !self.selectedText.isEmpty
+        return self.isAddCommentMode && !self.selectedText.isEmpty
     }
     
     func updateCommentPosition(at position: CGPoint) {
