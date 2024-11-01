@@ -38,7 +38,7 @@ struct OriginalView: View {
             }
                 if viewModel.isCommentVisible == true {
                     CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
-                        .position(viewModel.commentPosition)
+                        .position(viewModel.isCommentTapped ? viewModel.commentTappedPosition : viewModel.commentPosition)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
         }

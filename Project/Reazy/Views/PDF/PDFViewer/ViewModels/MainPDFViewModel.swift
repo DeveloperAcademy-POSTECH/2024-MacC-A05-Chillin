@@ -38,6 +38,8 @@ final class MainPDFViewModel: ObservableObject {
     
     // Comment
     @Published var isCommentTapped: Bool = false
+    @Published var commentTappedPosition: CGPoint = .zero
+    
     @Published var isCommentMode: Bool = false
     @Published var selection: PDFSelection?
     @Published var commentPosition: CGPoint = .zero

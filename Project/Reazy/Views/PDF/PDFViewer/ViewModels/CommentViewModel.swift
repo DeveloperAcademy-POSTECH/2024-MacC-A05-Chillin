@@ -18,13 +18,9 @@ class CommentViewModel: ObservableObject {
         /// 선택 영역이 여러 페이지에 걸쳐 있을 수 있음
         guard let page = selection.pages.first else { return }
         let bounds = selection.bounds(for: page)
-        let pageIndex = page.pageRef?.pageNumber ?? 0
-        
-        /// 선택 영역 좌표
-        let coordinates = (x: bounds.origin.x, y: bounds.origin.y)
         
         /// 코멘트 배열에 저장
-        let newComment = Comment(coordinates: coordinates, text: text, isPresent: false)
+        let newComment = Comment(text: text, isPresent: false)
         comments.append(newComment)
         
         addCommentIcon(selection: selection, newComment: newComment)

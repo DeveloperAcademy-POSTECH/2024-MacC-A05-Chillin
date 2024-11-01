@@ -10,12 +10,11 @@ import PDFKit
 
 class Comment {
     let id = UUID()
-    let coordinates: (x: CGFloat, y: CGFloat)
-    var text: String = ""// 코멘트 내용
+    var coordinates: CGPoint = .zero
+    var text: String = "" // 코멘트 내용
     var isPresent: Bool = false
     
-    init(coordinates: (x: CGFloat, y: CGFloat), text: String, isPresent: Bool) {
-        self.coordinates = coordinates
+    init(text: String, isPresent: Bool) {
         self.text = text
         self.isPresent = isPresent
     }

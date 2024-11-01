@@ -71,7 +71,7 @@ final class OriginalViewController: UIViewController {
                 
                 print(tappedComment)
                 viewModel.isCommentTapped = true
-                tappedComment.isPresent = true
+                viewModel.commentTappedPosition = tappedComment.coordinates
                 
             } else {
                 print("No match comment annotation")
