@@ -45,51 +45,79 @@ class PDFDrawer {
     private var currentPage: PDFPage?
     var color = UIColor.init(hex: "#5F5CAB") // 펜 색상
     var drawingTool = DrawingTool.none
+    private var eraserLayer: CAShapeLayer? = nil
 }
+
 
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
     // 펜 처음 터치 했을 때 작동되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
-        let convertedPoint = pdfView.convert(location, to: currentPage!)
-        path = UIBezierPath()
-        path?.move(to: convertedPoint)
+        
+        let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
+        
+         // 페이지 경계 내에서만 드로잉 시작
+         if pageBounds.contains(location) {
+             let convertedPoint = pdfView.convert(location, to: currentPage!)
+             path = UIBezierPath()
+             path?.move(to: convertedPoint)
+         }
+        
     }
     
     // 펜을 떼지 않고 움직이는 동안 작동되는 함수 - 조금이라도 움직일 때마다 호출
     func gestureRecognizerMoved(_ location: CGPoint) {
-
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         
-        if drawingTool == .eraser {
-            let eraserCirclePath = UIBezierPath(arcCenter: location, radius: 14, startAngle: 0, endAngle: .pi * 2, clockwise: true)
-            
-            // 실시간 지우개 위치를 표시하는 회색 테두리의 동그란 원
-            let eraserLayer = CAShapeLayer()
-            eraserLayer.path = eraserCirclePath.cgPath
-            eraserLayer.fillColor = UIColor(hex: "#EFEFF8").cgColor
-            eraserLayer.strokeColor = UIColor(hex: "#BABCCF").cgColor
-            eraserLayer.lineWidth = 1.0
+        let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page).insetBy(dx: -5, dy: -5)
         
-            pdfView.layer.addSublayer(eraserLayer)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now()) {
-                eraserLayer.removeFromSuperlayer()
-            }
-            
-            // 지우개 기능
+        // 페이지 경계를 벗어났다면 현재 경로를 완료하고 종료
+        if !pageBounds.contains(location) {
+            completeCurrentPath(on: page)
+            return
+        }
+        
+        if drawingTool == .eraser {
+            updateEraserLayer(at: location)
             removeAnnotationAtPoint(point: location, page: page)
             return
         }
         
-        path?.addLine(to: convertedPoint)
-        path?.move(to: convertedPoint)
+        if path == nil {
+            // 새로운 path 시작
+            path = UIBezierPath()
+            path?.move(to: convertedPoint)
+        } else {
+            path?.addLine(to: convertedPoint)
+        }
         drawAnnotation(onPage: page)
     }
+
+    private func completeCurrentPath(on page: PDFPage) {
+        if let path = path {
+            let finalAnnotation = createFinalAnnotation(path: path, page: page)
+            page.addAnnotation(finalAnnotation)
+            self.path = nil
+            currentAnnotation = nil
+        }
+    }
+
+    private func updateEraserLayer(at location: CGPoint) {
+        if eraserLayer == nil {
+            eraserLayer = CAShapeLayer()
+            eraserLayer?.fillColor = UIColor(hex: "#EFEFF8").cgColor
+            eraserLayer?.strokeColor = UIColor(hex: "#BABCCF").cgColor
+            eraserLayer?.lineWidth = 1.0
+            pdfView.layer.addSublayer(eraserLayer!)
+        }
+        
+        let eraserCirclePath = UIBezierPath(arcCenter: location, radius: 14, startAngle: 0, endAngle: .pi * 2, clockwise: true)
+        eraserLayer?.path = eraserCirclePath.cgPath
+    }
+
     
-    // 펜을 떼는 시점에 작동하는 함수
     func gestureRecognizerEnded(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
@@ -97,6 +125,10 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         // 지우개
         if drawingTool == .eraser {
             removeAnnotationAtPoint(point: location, page: page)
+            
+            // 지우개 모양 제거
+            eraserLayer?.removeFromSuperlayer()
+            eraserLayer = nil
             return
         }
         
@@ -110,7 +142,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         let finalAnnotation = createFinalAnnotation(path: path!, page: page)
         currentAnnotation = nil
     }
-    
+
     private func createAnnotation(path: UIBezierPath, page: PDFPage) -> DrawingAnnotation {
         let border = PDFBorder()
         border.lineWidth = drawingTool.width
