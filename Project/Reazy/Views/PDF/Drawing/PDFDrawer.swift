@@ -9,7 +9,6 @@ import Foundation
 import PDFKit
 
 // 각종 그리기 도구와 관련된 부분, 지우개와 펜슬 둘 다 여기서 처리
-// pencil과 highlighter는 추후 사용할 것 같아 주석처리만 했어요
 
 enum DrawingTool: Int {
     case none = 0
@@ -71,7 +70,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         
-        let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page).insetBy(dx: -5, dy: -5)
+        let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
         
         // 페이지 경계를 벗어났다면 현재 경로를 완료하고 종료
         if !pageBounds.contains(location) {
