@@ -48,7 +48,7 @@ extension SearchViewModel {
             var results = [SearchResult]()
             
             // 키워드 검색
-            let searchSelections = document.findString(self.searchText)
+            let searchSelections = document.findString(self.searchText, withOptions: .caseInsensitive)
             
             var currentPage = -1
             var currentIndex = -1
@@ -79,8 +79,6 @@ extension SearchViewModel {
                     
                     currentIndex = index + 1
                     
-                    print(resultText)
-                    
                     results.append(.init(
                         text: resultText,
                         page: pageCount,
@@ -90,8 +88,6 @@ extension SearchViewModel {
                     for i in currentIndex ..< textArray.count {
                         if String(textArray[i]).lowercased().contains(selection.string!.lowercased()) {
                             currentIndex = i + 1
-                            
-                            print(self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword))
                             
                             results.append(.init(
                                 text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
