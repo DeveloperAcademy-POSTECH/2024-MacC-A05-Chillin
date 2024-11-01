@@ -13,7 +13,7 @@ class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     
     // 코멘트 추가
-    func addComment(text: String, selection: PDFSelection, selectedText: String) {
+    func addComment(text: String, selection: PDFSelection) {
         
         /// 선택 영역이 여러 페이지에 걸쳐 있을 수 있음
         guard let page = selection.pages.first else { return }
@@ -22,10 +22,9 @@ class CommentViewModel: ObservableObject {
         
         /// 선택 영역 좌표
         let coordinates = (x: bounds.origin.x, y: bounds.origin.y)
-        let underline = (page: pageIndex, bounds: bounds)
         
         /// 코멘트 배열에 저장
-        let newComment = Comment(underLine: underline, coordinates: coordinates, text: text, selectedText: selectedText, isPresent: false)
+        let newComment = Comment(coordinates: coordinates, text: text, isPresent: false)
         comments.append(newComment)
         
         addCommentIcon(selection: selection, newComment: newComment)

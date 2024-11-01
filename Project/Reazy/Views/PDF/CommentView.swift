@@ -12,6 +12,8 @@ struct CommentView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     @State var text: String = ""
+    //@State var comment: Comment
+    
 //    @State var selectedId: UUID
     
     let selection: PDFSelection
@@ -19,14 +21,14 @@ struct CommentView: View {
     var body: some View {
         VStack {
             VStack{
-                if pdfViewModel.isAddCommentMode {
+                if pdfViewModel.isCommentTapped == true {
+                    Text("코멘트뷰어")
+                } else {
                     TextField(
                         LocalizedStringKey("AddComment"), text: $text,
                         prompt: Text("코멘트 추가").foregroundColor(.primary4),
                         axis: .vertical
                     )
-                } else if pdfViewModel.isCommentViewMode {
-                    //Text(viewModel.comments.id)
                 }
             }
             .padding(.top, 16)
@@ -34,11 +36,19 @@ struct CommentView: View {
             .foregroundStyle(.point2)
             HStack {
                 Spacer()
-                if pdfViewModel.isAddCommentMode {
+                if pdfViewModel.isCommentTapped == true {
+                    Button(action: {
+                        // 버튼 액션
+                    }, label: {
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundStyle(Color(hex: "BABCCF"))
+                            .font(.system(size: 20))
+                    })
+                } else {
                     Button(action: {
                         if !text.isEmpty {
                             pdfViewModel.isCommentSaved = true
-                            viewModel.addComment(text: text, selection: selection, selectedText: pdfViewModel.selectedText)
+                            viewModel.addComment(text: text, selection: selection)
                             text = "" // 코멘트 추가 후 텍스트 필드 비우기
                             dump(viewModel.comments)
                         }
@@ -48,14 +58,6 @@ struct CommentView: View {
                             .font(.system(size: 20))
                     })
                     .disabled(text.isEmpty)
-                } else if pdfViewModel.isCommentViewMode {
-                    Button(action: {
-                        // 버튼 액션
-                    }, label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(Color(hex: "BABCCF"))
-                            .font(.system(size: 20))
-                    })
                 }
             }
             .padding(.top, 4)

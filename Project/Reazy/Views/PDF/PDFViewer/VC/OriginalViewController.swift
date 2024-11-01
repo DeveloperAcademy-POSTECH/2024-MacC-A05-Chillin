@@ -36,7 +36,8 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setBinding()
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handlePDFViewTap(_:)))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleAnnotationTap(_:)))
+        tapGesture.delegate = self
         mainPDFView.addGestureRecognizer(tapGesture)
     }
     
@@ -54,7 +55,7 @@ final class OriginalViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func handlePDFViewTap(_ sender: UITapGestureRecognizer) {
+    @objc func handleAnnotationTap(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: mainPDFView)
         
         guard let page = mainPDFView.page(for: location, nearest: true) else { return }
@@ -64,32 +65,20 @@ final class OriginalViewController: UIViewController {
         if let tappedAnnotation = page.annotation(at: pageLocation) {
             print("found annotation")
             
-            if let commentIDString = tappedAnnotation.contents {
-                print(commentIDString)
+            if let commentIDString = tappedAnnotation.contents,
+               let commentID = UUID(uuidString: commentIDString),
+               let tappedComment = commentViewModel.comments.first(where: { $0.id == commentID }) {
                 
-                if let commentID = UUID(uuidString: commentIDString) {
-                    print("\(commentID)")
-                    
-                    if let tappedComment = commentViewModel.comments.first(where: { $0.id == commentID }) {
-                        
-                        // 코멘트와 연결된 주석 클릭 시 액션 처리
-                        print("Comment tapped with text: \(tappedComment)")
-                        
-                    } else {
-                        dump(commentViewModel.comments)
-                        print("No match comment annotation")
-                    }
-                } else {
-                    print("Cannot convert UUID")
-                }
+                print(tappedComment)
+                viewModel.isCommentTapped = true
+                tappedComment.isPresent = true
+                
             } else {
-                print("No comment ID String")
+                print("No match comment annotation")
             }
         }
     }
 }
-
-
 
 // MARK: - 초기 설정
 extension OriginalViewController {
@@ -164,7 +153,7 @@ extension OriginalViewController {
                         //comment position 설정
                         let commentPosition = CGPoint(
                             x: convertedBounds.midX,
-                            y: convertedBounds.maxY + 70
+                            y: convertedBounds.maxY + 50
                         )
                         
                         // 선택된 텍스트 가져오기
@@ -205,6 +194,21 @@ extension OriginalViewController {
     }
 }
 
+// MARK: - 탭 제스처 관련
+extension OriginalViewController: UIGestureRecognizerDelegate {
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let location = touch.location(in: mainPDFView)
+        
+        // 버튼 annotation이 있는 위치인지 확인
+        if let page = mainPDFView.page(for: location, nearest: true),
+           let annotation = page.annotation(at: mainPDFView.convert(location, to: page)),
+           annotation.widgetFieldType == .button {
+            return true
+        }
+        return false
+    }
+}
 
 #Preview {
     OriginalViewController(viewModel: .init(), commentViewModel: .init())

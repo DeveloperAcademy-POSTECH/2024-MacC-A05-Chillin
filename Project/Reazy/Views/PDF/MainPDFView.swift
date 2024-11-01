@@ -119,16 +119,16 @@ struct MainPDFView: View {
                       
                     selectedButton = nil
                     mainPDFViewModel.isTranslateMode = false
-                    mainPDFViewModel.isAddCommentMode = false
+                    mainPDFViewModel.isCommentMode = false
                       
                   } else {
                     selectedButton = btn
                       
                       // 코멘트 버튼
                      if selectedButton == .comment {
-                         mainPDFViewModel.isAddCommentMode = true
+                         mainPDFViewModel.isCommentMode = true
                      }else {
-                         mainPDFViewModel.isAddCommentMode = false
+                         mainPDFViewModel.isCommentMode = false
                        }
                     
                     // 번역 버튼

@@ -23,6 +23,7 @@ struct OriginalView: View {
             .onTapGesture {
                 // 터치 시 말풍선 뷰를 숨기는 처리 추가
                 viewModel.updateBubbleView(selectedText: "", bubblePosition: .zero)
+                viewModel.isCommentTapped = false
             }
             // 번역에 사용되는 말풍선뷰
             if viewModel.isTranslateMode {
@@ -35,14 +36,14 @@ struct OriginalView: View {
                     }
                 }
             }
-                if viewModel.isCommentVisible {
+                if viewModel.isCommentVisible == true {
                     CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
                         .position(viewModel.commentPosition)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
         }
-        .keyboardHeight($keyboardHeight)
-        .offset(y: -keyboardHeight / 1.7)
+        //.keyboardHeight($keyboardHeight)
+        //.offset(y: -keyboardHeight / 1.7)
         .animation(.smooth(duration: 0.5))
         .onChange(of: viewModel.selectedText) { _, newValue in
             viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
