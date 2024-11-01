@@ -15,8 +15,14 @@ import PDFKit
 final class SearchViewModel: ObservableObject {
     @Published public var searchText: String = ""
     @Published public var searchResults = [SearchResult]()
+    @Published public var isLoading: Bool = false
+    @Published public var isSearched: Bool = false
     
     private var searchAnnotations: [PDFAnnotation] = []
+    
+    public var isNoMatchTextVisible: Bool {
+        !searchText.isEmpty && searchResults.isEmpty && !isLoading && isSearched
+    }
     
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
@@ -30,79 +36,90 @@ final class SearchViewModel: ObservableObject {
 // MARK: - 데이터 Fetch method
 extension SearchViewModel {
     public func fetchSearchResults(document: PDFDocument) {
-        guard !searchText.isEmpty else {
-            return
-        }
-        
-        var results = [SearchResult]()
-        
-        // 키워드 검색
-        let searchSelections = document.findString(self.searchText)
-        
-        var currentPage = -1
-        var currentIndex = -1
-        
-        searchSelections.forEach { selection in
-            guard let page = selection.pages.first, let pageText = page.string else { return }
-            
-            self.addAnnotations(document: document, selection: selection)
-            
-            // 해당 페이지 인덱스
-            let pageCount = document.index(for: page)
-            
-            if currentPage != pageCount {
-                currentPage = pageCount
-                currentIndex = -1
+        DispatchQueue.global().async {
+            DispatchQueue.main.async {
+                self.isLoading = true
             }
             
-            let textArray = pageText.split { $0 == " " || $0 == "\n"}
-
-            let keyword = selection.string!.lowercased()
-
-            if currentIndex == -1 {
-                let index = textArray.firstIndex { String($0).lowercased().contains(keyword) }!
+            guard !self.searchText.isEmpty else {
+                return
+            }
+            
+            var results = [SearchResult]()
+            
+            // 키워드 검색
+            let searchSelections = document.findString(self.searchText)
+            
+            var currentPage = -1
+            var currentIndex = -1
+            
+            searchSelections.forEach { selection in
+                guard let page = selection.pages.first, let pageText = page.string else { return }
                 
-                let resultText = self.fetchKeywordContainedString(index: index, textArray: textArray, keyword: keyword)
+                DispatchQueue.main.async{
+                    self.addAnnotations(document: document, selection: selection)
+                }
                 
-                currentIndex = index + 1
+                // 해당 페이지 인덱스
+                let pageCount = document.index(for: page)
                 
-                print(resultText)
+                if currentPage != pageCount {
+                    currentPage = pageCount
+                    currentIndex = -1
+                }
                 
-                results.append(.init(
-                    text: resultText,
-                    page: pageCount,
-                    selection: selection))
+                let textArray = pageText.split { $0 == " " || $0 == "\n"}
                 
-            } else {
-                for i in currentIndex ..< textArray.count {
-                    if String(textArray[i]).lowercased().contains(selection.string!.lowercased()) {
-                        currentIndex = i + 1
-                        
-                        print(self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword))
-                        
-                        results.append(.init(
-                            text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
-                            page: pageCount,
-                            selection: selection))
-                        break
+                let keyword = selection.string!.lowercased()
+                
+                if currentIndex == -1 {
+                    let index = textArray.firstIndex { String($0).lowercased().contains(keyword) }!
+                    
+                    let resultText = self.fetchKeywordContainedString(index: index, textArray: textArray, keyword: keyword)
+                    
+                    currentIndex = index + 1
+                    
+                    print(resultText)
+                    
+                    results.append(.init(
+                        text: resultText,
+                        page: pageCount,
+                        selection: selection))
+                    
+                } else {
+                    for i in currentIndex ..< textArray.count {
+                        if String(textArray[i]).lowercased().contains(selection.string!.lowercased()) {
+                            currentIndex = i + 1
+                            
+                            print(self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword))
+                            
+                            results.append(.init(
+                                text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
+                                page: pageCount,
+                                selection: selection))
+                            break
+                        }
                     }
                 }
             }
             
-            // TODO: 해당 키워드가 포함된 텍스트(수정 예정)
+            DispatchQueue.main.async {
+                self.searchResults = results
+                self.isLoading = false
+                self.isSearched = true
+            }
         }
-        
-        self.searchResults = results
     }
     
     /// 해당 키워드가 포함된 문장 앞 뒤로 짤라서 가져오는 메소드
     private func fetchKeywordContainedString(index: Int, textArray: [String.SubSequence], keyword: String) -> AttributedString {
+        
         var resultText: AttributedString = .init()
         // TODO: 필요 시 행간 조절 필요
 //        let paragraphStyle: NSMutableParagraphStyle = .init()
 //        paragraphStyle.lineSpacing = -10
         
-        if index < 4 {
+        if index < 5 {
             for i in 0 ..< 10 {
                 let text = textArray[i].replacingOccurrences(of: "\n", with: " ")
                 if i == index {
