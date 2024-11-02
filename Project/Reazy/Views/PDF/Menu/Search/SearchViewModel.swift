@@ -46,6 +46,9 @@ extension SearchViewModel {
             }
             
             guard !self.searchText.isEmpty else {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                }
                 return
             }
             
