@@ -22,7 +22,7 @@ class Comment {
         let converted = pdfView.convert(bounds, from: page)
         let commentPosition = CGPoint(
             x: converted.midX,
-            y: converted.midY
+            y: converted.maxY + 50
         )
         return commentPosition
     }

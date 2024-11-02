@@ -63,7 +63,9 @@ extension MainPDFViewModel {
     }
     
     public func setupPDFContent(with mainPDFView: PDFView) {
-        self.pdfContent = PDFContent(pdfView: mainPDFView)
+        DispatchQueue.main.async {
+                self.pdfContent = PDFContent(pdfView: mainPDFView)
+            }
         }
     
     public func fetchFocusAnnotations() {
