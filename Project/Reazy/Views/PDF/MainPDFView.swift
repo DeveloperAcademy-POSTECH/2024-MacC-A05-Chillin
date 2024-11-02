@@ -22,7 +22,7 @@ struct MainPDFView: View {
   var mode = ["원문 모드", "집중 모드"]
   @Namespace private var animationNamespace
   
-  @State private var selectedIndex: Int = 1
+  @State private var selectedIndex: Int = 0
   @State private var isFigSelected: Bool = false
   @State private var isPaperViewFirst = true
   @State private var isVertical = false
@@ -97,53 +97,55 @@ struct MainPDFView: View {
             .padding(.horizontal, 30)
             .background(.primary3)
             
-            HStack(spacing: 0) {
-              Spacer()
-              
-              ForEach(WriteButton.allCases, id: \.self) { btn in
-                // 조건부 Padding값 조정
-                let trailingPadding: CGFloat = {
-                  if selectedButton == .highlight && btn == .highlight {
-                    return .zero
-                  } else if btn == .translate {
-                    return .zero
-                  } else {
-                    return 32
-                  }
-                }()
+            if selectedMode == "원문 모드" {
+              HStack(spacing: 0) {
+                Spacer()
                 
-                // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
-                WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
-                  // MARK: - 작성 관련 버튼 action 입력
-                  /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
-                  if selectedButton == btn {
-                    selectedButton = nil
-                    mainPDFViewModel.isTranslateMode = false
-                  } else {
-                    selectedButton = btn
-                    
-                    // 번역 버튼
-                    if selectedButton == .translate {
-                      mainPDFViewModel.isTranslateMode = true // translation mode
-                      NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                      print("번역모드 on")
+                ForEach(WriteButton.allCases, id: \.self) { btn in
+                  // 조건부 Padding값 조정
+                  let trailingPadding: CGFloat = {
+                    if selectedButton == .highlight && btn == .highlight {
+                      return .zero
+                    } else if btn == .translate {
+                      return .zero
                     } else {
-                      mainPDFViewModel.isTranslateMode = false
+                      return 32
                     }
-                    
+                  }()
+                  
+                  // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
+                  WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
+                    // MARK: - 작성 관련 버튼 action 입력
+                    /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
+                    if selectedButton == btn {
+                      selectedButton = nil
+                      mainPDFViewModel.isTranslateMode = false
+                    } else {
+                      selectedButton = btn
+                      
+                      // 번역 버튼
+                      if selectedButton == .translate {
+                        mainPDFViewModel.isTranslateMode = true // translation mode
+                        NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
+                        print("번역모드 on")
+                      } else {
+                        mainPDFViewModel.isTranslateMode = false
+                      }
+                      
+                    }
+                  }
+                  .padding(.trailing, trailingPadding)
+                  
+                  // Highlight 버튼이 선택될 경우 색상을 선택
+                  if selectedButton == .highlight && btn == .highlight {
+                    highlightColorSelector()
                   }
                 }
-                .padding(.trailing, trailingPadding)
                 
-                // Highlight 버튼이 선택될 경우 색상을 선택
-                if selectedButton == .highlight && btn == .highlight {
-                  highlightColorSelector()
-                }
+                Spacer()
               }
-              
-              Spacer()
+              .background(.clear)
             }
-            .background(.clear)
           }
           
           Divider()
@@ -276,6 +278,11 @@ struct MainPDFView: View {
                     .onTapGesture {
                       withAnimation(.spring()) {
                         selectedMode = item
+                        if item == "원문 모드" {
+                          selectedIndex = 0
+                        } else if item == "집중 모드" {
+                          selectedIndex = 1
+                        }
                       }
                     }
                     .padding(.horizontal, 2)
