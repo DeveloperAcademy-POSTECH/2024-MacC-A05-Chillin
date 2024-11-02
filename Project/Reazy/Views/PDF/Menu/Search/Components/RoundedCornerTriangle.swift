@@ -7,8 +7,10 @@
 
 import UIKit
 
-
-class RoundedCornerTriangle: UIView {
+/**
+ 코너를 둥글게 한 삼각형 
+ */
+final class RoundedCornerTriangle: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)

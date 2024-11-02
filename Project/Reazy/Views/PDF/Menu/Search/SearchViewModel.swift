@@ -13,12 +13,12 @@ import PDFKit
  검색 결과를 관할하는 ViewModel
  */
 final class SearchViewModel: ObservableObject {
-    @Published public var searchText: String = ""
-    @Published public var searchResults = [SearchResult]()
-    @Published public var isLoading: Bool = false
-    @Published public var isSearched: Bool = false
+    @Published public var searchText: String = ""           // TextField 텍스트
+    @Published public var searchResults = [SearchResult]()  // 검색 결과 array
+    @Published public var isLoading: Bool = false           // 검색 중 알려주는 flag
+    @Published public var isSearched: Bool = false          // 검색이 완료되었는지 알려주는 flag
     
-    private var searchAnnotations: [PDFAnnotation] = []
+    private var searchAnnotations: [PDFAnnotation] = []     // 하이라이팅을 위한 annotation 배열
     
     public var isNoMatchTextVisible: Bool {
         !searchText.isEmpty && searchResults.isEmpty && !isLoading && isSearched
@@ -26,18 +26,22 @@ final class SearchViewModel: ObservableObject {
     
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
-        let text: AttributedString    // 검색 결과가 포함된 텍스트
-        let page: Int       // 키워드가 포함된 페이지 인덱스
-        let selection: PDFSelection
+        let text: AttributedString      // 검색 결과가 포함된 텍스트
+        let page: Int                   // 키워드가 포함된 페이지 인덱스
+        let selection: PDFSelection     // 선택된 selection
     }
 }
 
 
 // MARK: - 데이터 Fetch method
 extension SearchViewModel {
+    
+    /// pdf 검색 메소드
     public func fetchSearchResults(document: PDFDocument) {
+        // 백그라운드 쓰레드에서 진행
+        // 메인 쓰레드에서 진행 시 검색 중 앱 사용 불가
         DispatchQueue.global().async {
-            DispatchQueue.main.async {
+            DispatchQueue.main.async {  // view 업데이트 관련은 메인 쓰레드에서 진행
                 self.isLoading = true
             }
             
@@ -115,6 +119,8 @@ extension SearchViewModel {
 //        let paragraphStyle: NSMutableParagraphStyle = .init()
 //        paragraphStyle.lineSpacing = -10
         
+        // 찾은 키워드의 인덱스가 5보다 작을 경우
+        // 0-10 까지의 string을 들고옴
         if index < 5 {
             for i in 0 ..< 10 {
                 let text = textArray[i].replacingOccurrences(of: "\n", with: " ")
@@ -215,7 +221,7 @@ extension SearchViewModel {
         return resultText
     }
     
-    
+    /// 찾은 키워드를 pdfview에 하이라이팅 하는 메소드
     private func addAnnotations(document: PDFDocument, selection: PDFSelection) {
         guard let page = selection.pages.first else { return }
         
@@ -229,6 +235,7 @@ extension SearchViewModel {
         }
     }
     
+    /// 검색을 종료할 때 하이라이팅을 지우는 메소드
     public func removeAllAnnotations() {
         self.searchAnnotations.forEach { annotation in
             guard let page = annotation.page else { return }

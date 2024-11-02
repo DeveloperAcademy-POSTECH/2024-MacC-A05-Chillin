@@ -91,7 +91,9 @@ struct SearchView: View {
     
 }
 
-
+/**
+ 검색 TextField 뷰
+ */
 private struct SearchTextFieldView: View {
     @ObservedObject var viewModel: SearchViewModel
     
@@ -133,6 +135,9 @@ private struct SearchTextFieldView: View {
     }
 }
 
+/**
+ 검색 결과 상단(검색 결과 갯수, 좌 우 버튼) 뷰
+ */
 private struct SearchTopView: View {
     @EnvironmentObject var mainViewModel: MainPDFViewModel
     @ObservedObject var viewModel: SearchViewModel
@@ -200,7 +205,9 @@ private struct SearchTopView: View {
     }
 }
 
-
+/**
+ 검색 결과 테이블 뷰
+ */
 private struct SearchListView: View {
     @EnvironmentObject var mainViewModel: MainPDFViewModel
     
@@ -247,7 +254,9 @@ private struct SearchListView: View {
     }
 }
 
-
+/**
+ 뷰모델 업데이트 메소드
+ */
 extension SearchView {
     private func fetchSearchResult() {
         if viewModel.searchText.isEmpty {

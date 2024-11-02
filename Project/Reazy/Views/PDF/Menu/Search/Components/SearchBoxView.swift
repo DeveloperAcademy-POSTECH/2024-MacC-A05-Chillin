@@ -8,6 +8,9 @@
 import SwiftUI
 
 
+/**
+ 검색 창 View
+ */
 struct SearchBoxView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
