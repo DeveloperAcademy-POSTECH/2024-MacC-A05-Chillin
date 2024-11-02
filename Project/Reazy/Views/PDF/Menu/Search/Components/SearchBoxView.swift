@@ -18,7 +18,13 @@ struct SearchBoxView: View {
             RoundedRectangle(cornerRadius: 12)
                 .frame(width: 252)
                 .foregroundStyle(.gray100)
-                .shadow(radius: 0.5, x: 5, y: 5)
+                .offset(y: -5)
+        }
+        .background {
+            Color.white
+                .cornerRadius(12)
+                .shadow(color:Color(hex: "6A6A6A").opacity(0.1), radius: 16)
+                .padding(.vertical, 5)
         }
     }
 }
@@ -32,4 +38,9 @@ private struct RoundedCornerTriangleView: UIViewRepresentable {
     func updateUIView(_ uiView: RoundedCornerTriangle, context: Context) {
         
     }
+}
+
+
+#Preview {
+    SearchBoxView()
 }
