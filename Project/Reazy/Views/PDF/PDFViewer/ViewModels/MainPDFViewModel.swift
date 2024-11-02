@@ -37,6 +37,7 @@ final class MainPDFViewModel: ObservableObject {
     @Published var bubbleViewPosition: CGRect = .zero
     
     // Comment
+    @Published var pdfContent: PDFContent?
     @Published var isCommentTapped: Bool = false
     @Published var commentTappedPosition: CGPoint = .zero
     
@@ -60,6 +61,10 @@ extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
+    
+    public func setupPDFContent(with mainPDFView: PDFView) {
+        self.pdfContent = PDFContent(pdfView: mainPDFView)
+        }
     
     public func fetchFocusAnnotations() {
         guard let page = self.document?.page(at: 0) else {

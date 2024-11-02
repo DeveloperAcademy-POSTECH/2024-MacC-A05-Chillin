@@ -11,7 +11,7 @@ import PDFKit
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
-    @StateObject private var commentViewModel: CommentViewModel
+    @StateObject private var commentViewModel: CommentViewModel = .init(pdfContent: PDFContent(pdfView: PDFView()))
     
     @State private var keyboardHeight: CGFloat = 0
     
@@ -41,18 +41,6 @@ struct OriginalView: View {
                         .position(viewModel.isCommentTapped ? viewModel.commentTappedPosition : viewModel.commentPosition)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-        }
-        .onAppear {
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                if let userInfo = notification.userInfo,
-                   let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    self.keyboardHeight = keyboardFrame.height
-                }
-            }
-            
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                self.keyboardHeight = 0
-            }
         }
         //.keyboardHeight($keyboardHeight)
         //.offset(y: -keyboardHeight / 1.7)

@@ -14,12 +14,15 @@ import Combine
  원문 모드 ViewController
  */
 
-class PDFContext: ObservableObject {
-    @Published var mainPDFView: PDFView?
+class PDFContent: ObservableObject {
+    @Published var pdfView: PDFView
+    
+    init(pdfView: PDFView) {
+        self.pdfView = pdfView
+    }
 }
 
 final class OriginalViewController: UIViewController {
-    @ObservedObject var pdfContext = PDFContext()
     
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
@@ -39,7 +42,6 @@ final class OriginalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.pdfContext.mainPDFView = mainPDFView
         self.setUI()
         self.setData()
         self.setBinding()
@@ -113,6 +115,8 @@ extension OriginalViewController {
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()
+        
+        self.viewModel.setupPDFContent(with: mainPDFView)
     }
     
     /// 텍스트 선택 해제
