@@ -21,11 +21,11 @@ enum WriteButton: String, CaseIterable {
     case .highlight:
       "highlighter"
     case .pencil:
-      "scribble"
+      "pencil.tip.crop.circle"
     case .eraser:
       "eraser"
     case .translate:
-      "character.square"
+      "globe"
     }
   }
 }

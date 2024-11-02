@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PDFKit
 
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
@@ -21,14 +22,14 @@ struct OriginalView: View {
                 viewModel.updateBubbleView(selectedText: "", bubblePosition: .zero)
             }
             // 번역에 사용되는 말풍선뷰
-            if viewModel.isTranslateMode {
-                if viewModel.isBubbleViewVisible {
-                    if #available(iOS 18.0, *) {
+            if viewModel.toolMode == .translate {
+                if #available(iOS 18.0, *) {
+                    if viewModel.isBubbleViewVisible {
                         BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
 
-                    } else {
-                        // TODO : 이전 버전 처리
                     }
+                } else {
+                    BubbleViewOlderVer()
                 }
             }
         }

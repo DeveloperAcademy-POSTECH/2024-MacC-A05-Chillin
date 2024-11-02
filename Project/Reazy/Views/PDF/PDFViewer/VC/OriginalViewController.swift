@@ -24,8 +24,16 @@ final class OriginalViewController: UIViewController {
         view.backgroundColor = .gray200
         view.autoScales = false
         view.pageShadowsEnabled = false
+        
+        // for drawing
+        view.displayDirection = .vertical
+        view.usePageViewController(false)
+        view.pageBreakMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return view
     }()
+    
+    // for drawing
+    var shouldUpdatePDFScrollPosition = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +41,24 @@ final class OriginalViewController: UIViewController {
         self.setUI()
         self.setData()
         self.setBinding()
+        
+        // 기본 설정: 제스처 추가
+        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+        viewModel.pdfDrawer.pdfView = self.mainPDFView
+        viewModel.pdfDrawer.drawingTool = .none
+
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
+        gesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(gesture)
+
+        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
+        viewModel.$toolMode
+            .sink { [weak self] mode in
+                self?.updateGestureRecognizer(for: mode)
+            }
+            .store(in: &cancellable)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -46,6 +72,29 @@ final class OriginalViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc
+    func postScreenTouch() {
+        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
+    }
+
+    private func updateGestureRecognizer(for mode: ToolMode) {
+        // 현재 설정된 제스처 인식기를 제거
+        if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
+            for recognizer in gestureRecognizers {
+                self.mainPDFView.removeGestureRecognizer(recognizer)
+            }
+        }
+
+        // toolMode에 따라 제스처 인식기를 추가
+        if mode == .pencil || mode == .eraser {
+            let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+            self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+            pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+            viewModel.pdfDrawer.pdfView = self.mainPDFView
+            viewModel.pdfDrawer.drawingTool = .none
+        }
     }
 }
 
@@ -80,8 +129,15 @@ extension OriginalViewController {
     private func setBinding() {
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
-                guard let page = destination?.page else { return }
+                guard let destination = destination else { return }
+                guard let page = destination.page else { return }
                 self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
+        
+        self.viewModel.$searchSelection
+            .sink { [weak self] selection in
+                self?.mainPDFView.setCurrentSelection(selection, animate: true)
             }
             .store(in: &self.cancellable)
         
@@ -131,6 +187,7 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
+
     }
 }
 
