@@ -108,7 +108,11 @@ private struct SearchTextFieldView: View {
                     .padding(.leading, 18)
                     .foregroundStyle(Color(hex: "9092A9"))
                 
-                TextField("검색", text: $viewModel.searchText, onEditingChanged: { isSearchViewHidden = !$0 })
+                TextField("검색", text: $viewModel.searchText) {
+                    if $0 {
+                        isSearchViewHidden = false
+                    }
+                }
                     .padding(.trailing, 10)
                     .foregroundStyle(.gray800)
                     .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
