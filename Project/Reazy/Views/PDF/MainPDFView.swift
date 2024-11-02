@@ -24,6 +24,8 @@ struct MainPDFView: View {
   
   @State private var selectedIndex: Int = 1
   @State private var isFigSelected: Bool = false
+  @State private var isPaperViewFirst = true
+  @State private var isVertical = false
   
   @Binding var navigationPath: NavigationPath
   
@@ -149,30 +151,14 @@ struct MainPDFView: View {
           
           GeometryReader { geometry in
             ZStack {
-              if selectedMode == "원문 모드" {
-                HStack(spacing: 0) {
-                  OriginalView()
-                    .environmentObject(mainPDFViewModel)
-                  
-                  if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                    Rectangle()
-                      .frame(width: 1)
-                      .foregroundStyle(.gray300)
-                    
-                    FloatingSplitView(
-                      documentID: splitDetails.documentID,
-                      document: splitDetails.document,
-                      head: splitDetails.head,
-                      isFigSelected: isFigSelected
-                    )
-                    .environmentObject(mainPDFViewModel)
-                    .environmentObject(floatingViewModel)
+              if selectedMode == "원문 모드" || selectedMode == "집중 모드" {
+                ZStack {
+                  if isVertical {
+                    verticalLayout
+                  } else {
+                    horizontalLayout
                   }
                 }
-              }
-              else if selectedMode == "집중 모드" {
-                ConcentrateView()
-                  .environmentObject(mainPDFViewModel)
               }
               
               HStack(spacing: 0){
@@ -306,7 +292,101 @@ struct MainPDFView: View {
         FloatingViewsContainer(geometry: geometry)
           .environmentObject(floatingViewModel)
       }
+      .onAppear {
+        updateOrientation(with: geometry)
+      }
+      .onChange(of: geometry.size) {
+        updateOrientation(with: geometry)
+      }
     }
+  }
+  
+  @ViewBuilder
+  private func mainView(for mode: String) -> some View {
+    if mode == "원문 모드" {
+      OriginalView()
+        .environmentObject(mainPDFViewModel)
+    } else if mode == "집중 모드" {
+      ConcentrateView()
+        .environmentObject(mainPDFViewModel)
+    }
+  }
+  
+  var verticalLayout: some View {
+    VStack(spacing: 0) {
+      if isPaperViewFirst {
+        mainView(for: selectedMode)
+      }
+      
+      if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+        Rectangle()
+          .frame(height: 1)
+          .foregroundStyle(isPaperViewFirst ? .gray300 : .clear)
+        
+        FloatingSplitView(
+          documentID: splitDetails.documentID,
+          document: splitDetails.document,
+          head: splitDetails.head,
+          isFigSelected: isFigSelected,
+          onSelect: {
+            withAnimation {
+              isPaperViewFirst.toggle()
+            }
+          }
+        )
+        .environmentObject(mainPDFViewModel)
+        .environmentObject(floatingViewModel)
+        
+        Rectangle()
+          .frame(height: 1)
+          .foregroundStyle(isPaperViewFirst ? .clear : .gray300)
+      }
+      
+      if !isPaperViewFirst {
+        mainView(for: selectedMode)
+      }
+    }
+  }
+  
+  var horizontalLayout: some View {
+    HStack(spacing: 0) {
+      if isPaperViewFirst {
+        mainView(for: selectedMode)
+      }
+      
+      if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+        Rectangle()
+          .frame(width: 1)
+          .foregroundStyle(isPaperViewFirst ? .gray300 : .clear)
+        
+        FloatingSplitView(
+          documentID: splitDetails.documentID,
+          document: splitDetails.document,
+          head: splitDetails.head,
+          isFigSelected: isFigSelected,
+          onSelect: {
+            withAnimation {
+              isPaperViewFirst.toggle()
+            }
+          }
+        )
+        .environmentObject(mainPDFViewModel)
+        .environmentObject(floatingViewModel)
+        
+        Rectangle()
+          .frame(width: 1)
+          .foregroundStyle(isPaperViewFirst ? .clear : .gray300)
+      }
+      
+      if !isPaperViewFirst {
+        mainView(for: selectedMode)
+      }
+    }
+  }
+  
+  // 기기의 방향에 따라 isVertical 상태를 업데이트하는 함수
+  private func updateOrientation(with geometry: GeometryProxy) {
+    isVertical = geometry.size.height > geometry.size.width
   }
   
   @ViewBuilder

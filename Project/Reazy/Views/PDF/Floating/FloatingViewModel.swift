@@ -57,18 +57,24 @@ class FloatingViewModel: ObservableObject {
   }
   
   func setSplitDocument(documentID: String) {
-    self.selectedFigureCellID = documentID
-    self.splitMode = true
-    
-    if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
-      droppedFigures[index].isInSplitMode = true
+    DispatchQueue.main.async {
+      self.selectedFigureCellID = documentID
+      self.splitMode = true
+      
+      if let index = Int(documentID.components(separatedBy: "-").last ?? "") {
+        self.selectedFigureIndex = index
+      }
+      
+      if let index = self.droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
+        self.droppedFigures[index].isInSplitMode = true
+      }
+      
+      for i in 0..<self.droppedFigures.count where self.droppedFigures[i].documentID != documentID {
+        self.droppedFigures[i].isSelected = false
+      }
+      
+      self.selectedFigureCellID = documentID
     }
-    
-    for i in 0..<droppedFigures.count where droppedFigures[i].documentID != documentID {
-      droppedFigures[i].isSelected = false
-    }
-    
-    selectedFigureCellID = documentID
   }
   
   func setFloatingDocument(documentID: String) {
@@ -96,10 +102,38 @@ class FloatingViewModel: ObservableObject {
           )
           
           selectedFigureCellID = documentID
+          if let index = Int(documentID.components(separatedBy: "-").last ?? "") {
+            selectedFigureIndex = index
+          }
           droppedFigures = droppedFigures.map { $0 }
         }
       }
     }
+  }
+  
+  func moveToNextFigure(mainPDFViewModel: MainPDFViewModel, observableDocument: ObservableDocument) {
+    let newIndex = (selectedFigureIndex + 1) % mainPDFViewModel.figureAnnotations.count
+    DispatchQueue.main.async {
+      self.selectedFigureIndex = newIndex
+      self.moveToFigure(at: newIndex, mainPDFViewModel: mainPDFViewModel, observableDocument: observableDocument)
+    }
+  }
+  
+  func moveToPreviousFigure(mainPDFViewModel: MainPDFViewModel, observableDocument: ObservableDocument) {
+    let newIndex = (selectedFigureIndex - 1 + mainPDFViewModel.figureAnnotations.count) % mainPDFViewModel.figureAnnotations.count
+    DispatchQueue.main.async {
+      self.selectedFigureIndex = newIndex
+      self.moveToFigure(at: newIndex, mainPDFViewModel: mainPDFViewModel, observableDocument: observableDocument)
+    }
+  }
+  
+  private func moveToFigure(at index: Int, mainPDFViewModel: MainPDFViewModel, observableDocument: ObservableDocument) {
+    guard let document = mainPDFViewModel.setFigureDocument(for: index) else { return }
+    let figure = mainPDFViewModel.figureAnnotations[index]
+    
+    updateSplitDocument(with: document, documentID: "figure-\(index)", head: figure.head)
+    observableDocument.updateDocument(to: document)
+    selectedFigureIndex = index
   }
   
   func getSplitDocumentDetails() -> (documentID: String, document: PDFDocument, head: String)? {
