@@ -307,6 +307,7 @@ struct MainPDFView: View {
                 .overlay {
                     OverlaySearchView(isSearchSelected: self.$isSearchSelected)
                         .environmentObject(mainPDFViewModel)
+                        .animation(.spring(.bouncy), value: self.isSearchSelected)
                 }
                 
                 // MARK: - Floating 뷰

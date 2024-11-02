@@ -48,7 +48,11 @@ final class OriginalViewController: UIViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-        
+
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
+        gesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(gesture)
+
         // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
         viewModel.$toolMode
             .sink { [weak self] mode in
@@ -68,6 +72,11 @@ final class OriginalViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc
+    func postScreenTouch() {
+        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
     }
 
     private func updateGestureRecognizer(for mode: ToolMode) {
@@ -120,7 +129,8 @@ extension OriginalViewController {
     private func setBinding() {
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
-                guard let page = destination?.page else { return }
+                guard let destination = destination else { return }
+                guard let page = destination.page else { return }
                 self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)
