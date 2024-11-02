@@ -12,16 +12,16 @@ import SwiftUI
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     
-    var pdfContent: PDFContent
-    
-    init(pdfContent: PDFContent) {
-        self.pdfContent = .init(pdfView: PDFView())
-    }
+//    var pdfContent: PDFContent
+//    
+//    init(pdfContent: PDFContent) {
+//        self.pdfContent = .init(pdfView: PDFView())
+//    }
     
     // 코멘트 추가
-    func addComment(text: String, selection: PDFSelection) {
+    func addComment(pdfView: PDFView, text: String, selection: PDFSelection) {
         
-        let pdfView = pdfContent.pdfView
+//        let pdfView = pdfContent.pdfView
         /// 코멘트 배열에 저장
         let newComment = Comment(pdfView: pdfView, selection: selection, text: text)
         comments.append(newComment)

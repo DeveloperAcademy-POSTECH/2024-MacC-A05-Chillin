@@ -11,7 +11,7 @@ import PDFKit
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
-    @StateObject private var commentViewModel: CommentViewModel = .init(pdfContent: PDFContent(pdfView: PDFView()))
+    @StateObject private var commentViewModel: CommentViewModel = .init()
     
     @State private var keyboardHeight: CGFloat = 0
     

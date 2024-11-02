@@ -45,7 +45,7 @@ struct CommentView: View {
                     Button(action: {
                         if !text.isEmpty {
                             pdfViewModel.isCommentSaved = true
-                            viewModel.addComment(text: text, selection: selection)
+                            viewModel.addComment(pdfView: pdfViewModel.pdfContent?.pdfView ?? PDFView(), text: text, selection: selection)
                             text = "" // 코멘트 추가 후 텍스트 필드 비우기
                             dump(viewModel.comments)
                         }
