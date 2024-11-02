@@ -29,7 +29,6 @@ final class OriginalViewController: UIViewController {
         view.displayDirection = .vertical
         view.usePageViewController(false)
         view.pageBreakMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        view.autoScales = true
         return view
     }()
     
@@ -43,16 +42,23 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setBinding()
         
-        // for drawing
+        // 기본 설정: 제스처 추가
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
         self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-        
+
         let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
         gesture.cancelsTouchesInView = false
         self.view.addGestureRecognizer(gesture)
+
+        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
+        viewModel.$toolMode
+            .sink { [weak self] mode in
+                self?.updateGestureRecognizer(for: mode)
+            }
+            .store(in: &cancellable)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -71,6 +77,24 @@ final class OriginalViewController: UIViewController {
     @objc
     func postScreenTouch() {
         NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
+    }
+
+    private func updateGestureRecognizer(for mode: ToolMode) {
+        // 현재 설정된 제스처 인식기를 제거
+        if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
+            for recognizer in gestureRecognizers {
+                self.mainPDFView.removeGestureRecognizer(recognizer)
+            }
+        }
+
+        // toolMode에 따라 제스처 인식기를 추가
+        if mode == .pencil || mode == .eraser {
+            let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+            self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+            pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+            viewModel.pdfDrawer.pdfView = self.mainPDFView
+            viewModel.pdfDrawer.drawingTool = .none
+        }
     }
 }
 
