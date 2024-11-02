@@ -53,6 +53,7 @@ struct PaperListCell: View {
           Text(title)
             .lineLimit(2)
             .reazyFont(.h2)
+            .foregroundStyle(.gray900)
             .padding(.bottom, 6)
           Text(date)
             .reazyFont(.h4)

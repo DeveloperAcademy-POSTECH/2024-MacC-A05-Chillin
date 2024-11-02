@@ -27,15 +27,14 @@ struct FloatingView: View {
           floatingViewModel.setSplitDocument(documentID: documentID)
         }, label: {
           Image(systemName: "rectangle.split.2x1")
-            .font(.system(size: 16))
+            .font(.system(size: 14))
             .foregroundStyle(.gray600)
         })
         
         Spacer()
         
-        // TODO: - 피그마 반영 시 수정 필요
         Text(head)
-          .reazyFont(.button5)
+          .reazyFont(.body3)
           .foregroundStyle(.gray800)
         
         Spacer()
@@ -44,7 +43,7 @@ struct FloatingView: View {
           floatingViewModel.deselect(documentID: documentID)
         }, label: {
           Image(systemName: "xmark")
-            .font(.system(size: 16))
+            .font(.system(size: 14))
             .foregroundStyle(.gray600)
         })
       }
@@ -60,7 +59,7 @@ struct FloatingView: View {
         .padding(.vertical, 14)
     }
     .frame(width: viewWidth)
-    .padding(.vertical, 12)
+    .padding(.vertical, 11)
     .background(.white)
     .clipShape(RoundedRectangle(cornerRadius: 16))
     .overlay(

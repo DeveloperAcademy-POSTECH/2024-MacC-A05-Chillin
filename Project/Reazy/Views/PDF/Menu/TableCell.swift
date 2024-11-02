@@ -17,7 +17,7 @@ struct TableCell: View {
                     Spacer().frame(width: CGFloat(22 * item.level), height: 0)
                     Text(item.table.label ?? "none")
                         .lineLimit(1)
-                        .reazyFont(.h3)
+                        .reazyFont(.button5)
                         .foregroundStyle(.gray900)
                 }
                 .padding(.leading, 30)
@@ -54,7 +54,7 @@ struct TableCell: View {
                     
                     Text(item.table.label ?? "none")
                         .lineLimit(1)
-                        .reazyFont(.h3)
+                        .reazyFont(.button5)
                         .foregroundStyle(.gray900)
                 }
                 .padding(.trailing, 9)

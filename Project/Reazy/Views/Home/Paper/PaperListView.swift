@@ -114,6 +114,7 @@ struct PaperListView: View {
             // MARK: - 썸네일 이미지 수정 필요
             PaperInfoView(
               image: Image("test_thumbnail"),
+              title: papers[selectedPaper].title,
               author: papers[selectedPaper].author,
               year: papers[selectedPaper].year,
               pages: papers[selectedPaper].pages,
