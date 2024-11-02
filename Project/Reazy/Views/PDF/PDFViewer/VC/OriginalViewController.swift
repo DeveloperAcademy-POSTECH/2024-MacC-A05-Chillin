@@ -5,6 +5,7 @@
 //  Created by 문인범 on 10/17/24.
 //
 
+import SwiftUI
 import UIKit
 import PDFKit
 import Combine
@@ -12,7 +13,13 @@ import Combine
 /**
  원문 모드 ViewController
  */
+
+class PDFContext: ObservableObject {
+    @Published var mainPDFView: PDFView?
+}
+
 final class OriginalViewController: UIViewController {
+    @ObservedObject var pdfContext = PDFContext()
     
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
@@ -32,10 +39,12 @@ final class OriginalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.pdfContext.mainPDFView = mainPDFView
         self.setUI()
         self.setData()
         self.setBinding()
         
+        // annotation 버튼 클릭시 제스처
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleAnnotationTap(_:)))
         tapGesture.delegate = self
         mainPDFView.addGestureRecognizer(tapGesture)
@@ -55,13 +64,14 @@ final class OriginalViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // 제스처
     @objc func handleAnnotationTap(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: mainPDFView)
         
         guard let page = mainPDFView.page(for: location, nearest: true) else { return }
         let pageLocation = mainPDFView.convert(location, to: page)
         
-        // 해당 위치에 Annotation이 있는지 확인
+        /// 해당 위치에 Annotation이 있는지 확인
         if let tappedAnnotation = page.annotation(at: pageLocation) {
             print("found annotation")
             
@@ -71,7 +81,7 @@ final class OriginalViewController: UIViewController {
                 
                 print(tappedComment)
                 viewModel.isCommentTapped = true
-                viewModel.commentTappedPosition = tappedComment.coordinates
+                viewModel.commentTappedPosition = tappedComment.position
                 
             } else {
                 print("No match comment annotation")
@@ -210,6 +220,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
 }
 
-#Preview {
-    OriginalViewController(viewModel: .init(), commentViewModel: .init())
-}
+//#Preview {
+//    OriginalViewController(viewModel: .init(), commentViewModel: .init(mainPDFViewModel: .init()))
+//}

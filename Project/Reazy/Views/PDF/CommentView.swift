@@ -12,9 +12,6 @@ struct CommentView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     @State var text: String = ""
-    //@State var comment: Comment
-    
-//    @State var selectedId: UUID
     
     let selection: PDFSelection
     

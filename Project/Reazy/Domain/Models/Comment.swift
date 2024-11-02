@@ -9,13 +9,28 @@ import Foundation
 import PDFKit
 
 class Comment {
-    let id = UUID()
-    var coordinates: CGPoint = .zero
-    var text: String = "" // 코멘트 내용
-    var isPresent: Bool = false
+    let id : UUID = .init()
     
-    init(text: String, isPresent: Bool) {
+    var pdfView: PDFView
+    var selection: PDFSelection
+    var text: String
+    var isPresent: Bool
+    
+    var position: CGPoint {
+        guard let page = selection.pages.first else { return .zero }
+        let bounds = selection.bounds(for: page)
+        let converted = pdfView.convert(bounds, from: page)
+        let commentPosition = CGPoint(
+            x: converted.midX,
+            y: converted.maxY + 50
+        )
+        return commentPosition
+    }
+    
+    init(pdfView: PDFView, selection: PDFSelection, text: String) {
+        self.pdfView = pdfView
+        self.selection = selection
         self.text = text
-        self.isPresent = isPresent
+        self.isPresent = false
     }
 }

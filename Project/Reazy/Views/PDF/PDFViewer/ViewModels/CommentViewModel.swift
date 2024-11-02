@@ -7,20 +7,22 @@
 
 import Foundation
 import PDFKit
-import SwiftUICore
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     
+    var pdfContext: PDFContext
+    
+    init(pdfContext: PDFContext) {
+        self.pdfContext = pdfContext
+    }
+    
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {
         
-        /// 선택 영역이 여러 페이지에 걸쳐 있을 수 있음
-        guard let page = selection.pages.first else { return }
-        let bounds = selection.bounds(for: page)
-        
+        guard let pdfView = pdfContext.mainPDFView else { return }
         /// 코멘트 배열에 저장
-        let newComment = Comment(text: text, isPresent: false)
+        let newComment = Comment(pdfView: pdfView, selection: selection, text: text)
         comments.append(newComment)
         
         addCommentIcon(selection: selection, newComment: newComment)
