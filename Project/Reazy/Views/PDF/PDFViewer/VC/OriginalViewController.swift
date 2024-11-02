@@ -106,7 +106,8 @@ extension OriginalViewController {
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
                 guard let destination = destination else { return }
-                self?.mainPDFView.go(to: destination)
+                guard let page = destination.page else { return }
+                self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)
         
