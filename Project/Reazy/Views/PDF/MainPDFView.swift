@@ -17,7 +17,6 @@ struct MainPDFView: View {
     @State private var selectedButton: WriteButton? = nil
     @State private var selectedColor: HighlightColors = .yellow
     
-    
     // 모드 구분
     @State private var selectedMode = "원문 모드"
     var mode = ["원문 모드", "집중 모드"]
@@ -26,6 +25,8 @@ struct MainPDFView: View {
     @State private var selectedIndex: Int = 1
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
+    @State private var isPaperViewFirst = true
+    @State private var isVertical = false
     
     @Binding var navigationPath: NavigationPath
     
@@ -97,67 +98,67 @@ struct MainPDFView: View {
                         .padding(.horizontal, 30)
                         .background(.primary3)
                         
-                        HStack(spacing: 0) {
-                            Spacer()
+                        if selectedMode == "원문 모드" {
+                            HStack(spacing: 0) {
+                                Spacer()
                             
-                            ForEach(WriteButton.allCases, id: \.self) { btn in
-                                // 조건부 Padding값 조정
-                                let trailingPadding: CGFloat = {
+                                ForEach(WriteButton.allCases, id: \.self) { btn in
+                                    // 조건부 Padding값 조정
+                                    let trailingPadding: CGFloat = {
+                                        if selectedButton == .highlight && btn == .highlight {
+                                            return .zero
+                                        } else if btn == .translate {
+                                            return .zero
+                                        } else {
+                                            return 32
+                                        }
+                                    }()
+                                
+                                    // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
+                                    WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
+                                        // MARK: - 작성 관련 버튼 action 입력
+                                        /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
+                                        if selectedButton == btn {
+                                            selectedButton = nil
+                                            mainPDFViewModel.toolMode = .none
+                                        } else {
+                                            selectedButton = btn
+                                        }
+                                    
+                                        switch selectedButton {
+                                        case .translate:
+                                            NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
+                                            mainPDFViewModel.toolMode = .translate
+                                        
+                                        case .pencil:
+                                            mainPDFViewModel.toolMode = .pencil
+                                        
+                                        case .eraser:
+                                            mainPDFViewModel.toolMode = .eraser
+                                        
+                                        case .highlight:
+                                            mainPDFViewModel.toolMode = .highlight
+                                        
+                                        case .comment:
+                                            mainPDFViewModel.toolMode = .comment
+                                        
+                                        default:
+                                            // 전체 비활성화
+                                            mainPDFViewModel.toolMode = .none
+                                        }
+                                    }
+                                    .padding(.trailing, trailingPadding)
+                                
+                                    // Highlight 버튼이 선택될 경우 색상을 선택
                                     if selectedButton == .highlight && btn == .highlight {
-                                        return .zero
-                                    } else if btn == .translate {
-                                        return .zero
-                                    } else {
-                                        return 32
+                                        highlightColorSelector()
                                     }
-                                }()
-                                
-                                // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
-                                WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
-                                    // MARK: - 작성 관련 버튼 action 입력
-                                    /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
-                                    if selectedButton == btn {
-                                        selectedButton = nil
-                                        mainPDFViewModel.toolMode = .none
-                                    } else {
-                                        selectedButton = btn
-                                    }
-                                    
-                                    switch selectedButton {
-                                    case .translate:
-                                        NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                                        mainPDFViewModel.toolMode = .translate
-                                        
-                                    case .pencil:
-                                        mainPDFViewModel.toolMode = .pencil
-                                        
-                                    case .eraser:
-                                        mainPDFViewModel.toolMode = .eraser
-                                        
-                                    case .highlight:
-                                        mainPDFViewModel.toolMode = .highlight
-                                        
-                                    case .comment:
-                                        mainPDFViewModel.toolMode = .comment
-                                        
-                                    default:
-                                        // 전체 비활성화
-                                        mainPDFViewModel.toolMode = .none
-                                    }
-                                    
-                                    
                                 }
-                                .padding(.trailing, trailingPadding)
-                                
-                                // Highlight 버튼이 선택될 경우 색상을 선택
-                                if selectedButton == .highlight && btn == .highlight {
-                                    highlightColorSelector()
-                                }
-                            }
                             
-                            Spacer()
+                                Spacer()
+                            }
+                            .background(.clear)
                         }
-                        .background(.clear)
                     }
                     
                     Divider()
@@ -165,13 +166,14 @@ struct MainPDFView: View {
                     
                     GeometryReader { geometry in
                         ZStack {
-                            if selectedMode == "원문 모드" {
-                                OriginalView()
-                                    .environmentObject(mainPDFViewModel)
-                            }
-                            else if selectedMode == "집중 모드" {
-                                ConcentrateView()
-                                    .environmentObject(mainPDFViewModel)
+                            if selectedMode == "원문 모드" || selectedMode == "집중 모드" {
+                                ZStack {
+                                    if isVertical {
+                                        verticalLayout
+                                    } else {
+                                        horizontalLayout
+                                    }
+                                }
                             }
                             
                             HStack(spacing: 0){
@@ -199,7 +201,7 @@ struct MainPDFView: View {
                                 
                                 Spacer()
                                 
-                                if isFigSelected {
+                                if isFigSelected && !floatingViewModel.splitMode {
                                     Rectangle()
                                         .frame(width: 1)
                                         .foregroundStyle(Color(hex: "CCCEE1"))
@@ -293,6 +295,11 @@ struct MainPDFView: View {
                                         .onTapGesture {
                                             withAnimation(.spring()) {
                                                 selectedMode = item
+                                                if item == "원문 모드" {
+                                                    selectedIndex = 0
+                                                } else if item == "집중 모드" {
+                                                    selectedIndex = 1
+                                                }
                                             }
                                         }
                                         .padding(.horizontal, 2)
@@ -314,10 +321,103 @@ struct MainPDFView: View {
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
             }
+            .onAppear {
+                updateOrientation(with: geometry)
+            }
+            .onChange(of: geometry.size) {
+                updateOrientation(with: geometry)
+            }
         }
-      }
+    }
     
-    
+    @ViewBuilder
+    private func mainView(for mode: String) -> some View {
+        if mode == "원문 모드" {
+            OriginalView()
+                .environmentObject(mainPDFViewModel)
+        } else if mode == "집중 모드" {
+            ConcentrateView()
+                .environmentObject(mainPDFViewModel)
+        }
+    }
+  
+    var verticalLayout: some View {
+        VStack(spacing: 0) {
+            if isPaperViewFirst {
+                mainView(for: selectedMode)
+            }
+      
+            if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundStyle(isPaperViewFirst ? .gray300 : .clear)
+        
+                FloatingSplitView(
+                    documentID: splitDetails.documentID,
+                    document: splitDetails.document,
+                    head: splitDetails.head,
+                    isFigSelected: isFigSelected,
+                    onSelect: {
+                        withAnimation {
+                            isPaperViewFirst.toggle()
+                        }
+                    }
+                )
+                .environmentObject(mainPDFViewModel)
+                .environmentObject(floatingViewModel)
+        
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundStyle(isPaperViewFirst ? .clear : .gray300)
+                }
+      
+            if !isPaperViewFirst {
+                mainView(for: selectedMode)
+            }
+        }
+    }
+  
+    var horizontalLayout: some View {
+        HStack(spacing: 0) {
+            if isPaperViewFirst {
+                mainView(for: selectedMode)
+            }
+      
+            if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                Rectangle()
+                    .frame(width: 1)
+                    .foregroundStyle(isPaperViewFirst ? .gray300 : .clear)
+        
+                FloatingSplitView(
+                    documentID: splitDetails.documentID,
+                    document: splitDetails.document,
+                    head: splitDetails.head,
+                    isFigSelected: isFigSelected,
+                    onSelect: {
+                        withAnimation {
+                            isPaperViewFirst.toggle()
+                        }
+                    }
+                )
+                .environmentObject(mainPDFViewModel)
+                .environmentObject(floatingViewModel)
+        
+                Rectangle()
+                    .frame(width: 1)
+                    .foregroundStyle(isPaperViewFirst ? .clear : .gray300)
+            }
+      
+            if !isPaperViewFirst {
+                mainView(for: selectedMode)
+            }
+        }
+    }
+  
+    // 기기의 방향에 따라 isVertical 상태를 업데이트하는 함수
+    private func updateOrientation(with geometry: GeometryProxy) {
+        isVertical = geometry.size.height > geometry.size.width
+    }
+
     @ViewBuilder
     private func highlightColorSelector() -> some View {
         Rectangle()
@@ -334,7 +434,7 @@ struct MainPDFView: View {
             }
             .padding(.trailing, color == .blue ? .zero : 18)
         }
-        
+ 
         Rectangle()
             .frame(width: 1, height: 19)
             .foregroundStyle(.primary4)
