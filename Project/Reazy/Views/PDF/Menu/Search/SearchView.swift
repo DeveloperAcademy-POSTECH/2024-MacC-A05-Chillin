@@ -44,15 +44,19 @@ struct SearchView: View {
                             Text("일치하는 결과 없음")
                                 .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
                                 .foregroundStyle(.gray800)
-                            Spacer()
                         }
                         
                         if viewModel.isLoading {
+                            Spacer()
                             ProgressView()
                                 .progressViewStyle(.circular)
                         }
                         
-                        SearchListView(viewModel: viewModel, isTapGesture: $isTapGesture, selectedIndex: $selectedIndex)
+                        if !viewModel.searchResults.isEmpty {
+                            SearchListView(viewModel: viewModel, isTapGesture: $isTapGesture, selectedIndex: $selectedIndex)
+                        } else {
+                            Spacer()
+                        }
                     }
                     
                 }
@@ -77,6 +81,7 @@ struct SearchView: View {
                     self.isSearchViewHidden = true
                 }
             }
+            .animation(.spring, value: isSearchViewHidden)
         }
         .onDisappear {
             viewModel.removeAllAnnotations()
