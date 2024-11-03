@@ -39,13 +39,13 @@ enum HighlightColors: String, CaseIterable {
     var color: Color {
         switch self {
         case .yellow:
-            return Color(hex: "FEF166")
+              return .highlight1
         case .pink:
-            return Color(hex: "F799D1")
+              return .highlight2
         case .green:
-            return Color(hex: "7DF066")
+              return .highlight3
         case .blue:
-            return Color(hex: "8FDEF9")
+              return .highlight4
         }
     }
     
