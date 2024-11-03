@@ -22,7 +22,7 @@ struct MainPDFView: View {
     var mode = ["원문 모드", "집중 모드"]
     @Namespace private var animationNamespace
     
-    @State private var selectedIndex: Int = 1
+    @State private var selectedIndex: Int = 0
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isPaperViewFirst = true
@@ -94,8 +94,8 @@ struct MainPDFView: View {
                                     )
                             }
                         }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 30)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 22)
                         .background(.primary3)
                         
                         if selectedMode == "원문 모드" {
@@ -228,11 +228,12 @@ struct MainPDFView: View {
                         // MARK: - 모델 생성 시 수정 필요
                         Text("A review of the global climate change impacts, adaptation, and sustainable mitigation measures")
                             .reazyFont(.h3)
+                            .foregroundStyle(.gray800)
                             .frame(width: 342)
                             .lineLimit(1)
                     },
                     leftView: {
-                        HStack {
+                        HStack(spacing: 0) {
                             Button(action: {
                                 if !navigationPath.isEmpty {
                                     navigationPath.removeLast()
@@ -240,9 +241,9 @@ struct MainPDFView: View {
                             }) {
                                 Image(systemName: "chevron.left")
                                     .foregroundStyle(.gray800)
-                                    .font(.system(size: 16))
+                                    .font(.system(size: 14))
                             }
-                            .padding(.trailing, 20)
+                            .padding(.trailing, 29)
                             Button(action: {
                                 self.isSearchSelected.toggle()
                             }) {
@@ -280,8 +281,8 @@ struct MainPDFView: View {
                                 ForEach(mode, id: \.self) { item in
                                     Text(item)
                                         .reazyFont(selectedMode == item ? .button4 : .button5)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 11)
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 5)
                                         .background(
                                             ZStack {
                                                 if selectedMode == item {

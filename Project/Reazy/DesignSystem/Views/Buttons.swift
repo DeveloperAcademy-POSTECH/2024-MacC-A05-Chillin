@@ -14,18 +14,18 @@ enum WriteButton: String, CaseIterable {
   case eraser
   case translate
   
-  var icon: String {
+  var icon: Image {
     switch self {
     case .comment:
-      "text.bubble"
+      return Image(systemName: "text.bubble")
     case .highlight:
-      "highlighter"
+      return Image("Highlight")
     case .pencil:
-      "pencil.tip.crop.circle"
+      return Image("Pencil")
     case .eraser:
-      "eraser"
+      return Image(systemName: "eraser")
     case .translate:
-      "globe"
+      return Image(systemName: "globe")
     }
   }
 }
@@ -39,13 +39,13 @@ enum HighlightColors: String, CaseIterable {
   var color: Color {
     switch self {
     case .yellow:
-      return Color(hex: "FEF166")
+      return .highlight1
     case .pink:
-      return Color(hex: "F799D1")
+      return .highlight2
     case .green:
-      return Color(hex: "7DF066")
+      return .highlight3
     case .blue:
-      return Color(hex: "8FDEF9")
+      return .highlight4
     }
   }
 }
@@ -97,7 +97,7 @@ struct WriteViewButton: View {
         .frame(width: 26, height: 26)
         .foregroundStyle(button == buttonOwner ? .primary1 : .clear)
         .overlay(
-          Image(systemName: buttonOwner.icon)
+          buttonOwner.icon
             .resizable()
             .scaledToFit()
             .foregroundStyle(foregroundColor)
