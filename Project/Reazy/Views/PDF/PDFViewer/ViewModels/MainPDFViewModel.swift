@@ -33,6 +33,9 @@ final class MainPDFViewModel: ObservableObject {
     @Published var bubbleViewVisible: Bool = false
     @Published var bubbleViewPosition: CGRect = .zero
     
+    // 하이라이트 색상
+    @Published var selectedHighlightColor: HighlightColors = .yellow
+    
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
     
@@ -42,7 +45,7 @@ final class MainPDFViewModel: ObservableObject {
     public var thumnailImages: [UIImage] = []
     
     // for drawing
-    public var pdfDrawer = PDFDrawer() // PDFDrawer
+    public var pdfDrawer = PDFDrawer()                          // PDFDrawer
 }
 
 
@@ -197,6 +200,7 @@ extension MainPDFViewModel {
             self.toolMode == .translate && self.bubbleViewVisible && !self.selectedText.isEmpty
         }
     }
+    
 
     // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
     public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
@@ -208,6 +212,31 @@ extension MainPDFViewModel {
             self.bubbleViewPosition = bubblePosition
         } else {
             bubbleViewVisible = false
+        }
+    }
+}
+
+extension MainPDFViewModel {
+    // 하이라이트 기능
+    func highlightText(in pdfView: PDFView, with color: HighlightColors) {
+        // toolMode가 highlight일때 동작
+        guard toolMode == .highlight else { return }
+        
+        // PDFView 안에서 스크롤 영역 파악
+        guard let currentSelection = pdfView.currentSelection else { return }
+        
+        // 선택된 텍스트를 줄 단위로 나눔
+        let selections = currentSelection.selectionsByLine()
+        
+        guard let page = selections.first?.pages.first else { return }
+        
+        let highlightColor = color.uiColor
+        
+        selections.forEach { selection in
+            let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
+            highlight.endLineStyle = .none
+            highlight.color = highlightColor
+            page.addAnnotation(highlight)
         }
     }
 }

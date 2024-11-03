@@ -452,6 +452,7 @@ struct MainPDFView: View {
                 // MARK: - 펜 색상 변경 action 입력
                 /// 펜 색상을 변경할 경우, 변경된 색상을 입력하는 로직은 여기에 추가
                 selectedColor = color
+                mainPDFViewModel.selectedHighlightColor = color
             }
             .padding(.trailing, color == .blue ? .zero : 18)
         }
