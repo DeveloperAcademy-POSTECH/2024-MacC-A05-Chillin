@@ -10,6 +10,6 @@ import Foundation
 
 extension NetworkManager {
     static func fetchPDFLayoutData() throws -> PDFInfo {
-        
+        throw NetworkManagerError.invalidURL
     }
 }
