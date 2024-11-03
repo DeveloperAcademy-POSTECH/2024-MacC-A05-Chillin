@@ -31,47 +31,51 @@ enum WriteButton: String, CaseIterable {
 }
 
 enum HighlightColors: String, CaseIterable {
-  case yellow
-  case pink
-  case green
-  case blue
-  
-  var color: Color {
-    switch self {
-    case .yellow:
-      return .highlight1
-    case .pink:
-      return .highlight2
-    case .green:
-      return .highlight3
-    case .blue:
-      return .highlight4
+    case yellow
+    case pink
+    case green
+    case blue
+    
+    var color: Color {
+        switch self {
+        case .yellow:
+            return Color(hex: "FEF166")
+        case .pink:
+            return Color(hex: "F799D1")
+        case .green:
+            return Color(hex: "7DF066")
+        case .blue:
+            return Color(hex: "8FDEF9")
+        }
     }
-  }
+    
+    var uiColor: UIColor {
+        return UIColor(self.color)
+    }
 }
 
 struct ColorButton: View {
-  @Binding var button: HighlightColors
-  
-  let buttonOwner: HighlightColors
-  let action: () -> Void
-  
-  var body: some View {
-    Button(action: {
-      action()
-    }) {
-      Circle()
-        .frame(width: 18, height: 18)
-        .foregroundStyle(buttonOwner.color)
-        .overlay(
-          Image(systemName: "checkmark.circle")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 18, height: 18)
-            .foregroundStyle(buttonOwner == button ? .gray700 : .clear)
-        )
+    @Binding var button: HighlightColors
+    
+    let buttonOwner: HighlightColors
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            Circle()
+                .frame(width: 18, height: 18)
+                .foregroundStyle(buttonOwner.color)
+                .overlay(
+                    Image(systemName: "checkmark.circle")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(buttonOwner == button ? .gray700 : .clear)
+                )
+        }
     }
-  }
 }
 
 struct WriteViewButton: View {
