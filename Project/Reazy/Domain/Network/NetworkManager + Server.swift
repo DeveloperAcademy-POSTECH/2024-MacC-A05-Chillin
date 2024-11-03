@@ -13,8 +13,9 @@ extension NetworkManager {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String else {
             throw NetworkManagerError.invalidInfo
         }
+        print(urlString)
         
-        guard let url = URL(string: urlString) else {
+        guard let url = URL(string: "https://" + urlString) else {
             throw NetworkManagerError.invalidURL
         }
         
@@ -43,6 +44,7 @@ extension NetworkManager {
         
         if let response = response as? HTTPURLResponse,
            !(200..<300 ~= response.statusCode) {
+            print(response.statusCode)
             throw NetworkManagerError.badRequest
         }
         
