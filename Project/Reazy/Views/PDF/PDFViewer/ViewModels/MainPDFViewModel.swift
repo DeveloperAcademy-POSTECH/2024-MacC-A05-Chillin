@@ -234,7 +234,12 @@ extension MainPDFViewModel {
         let highlightColor = color.uiColor
         
         selections.forEach { selection in
-            let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
+            var bounds = selection.bounds(for: page)
+            let originBoundsHeight = bounds.size.height
+            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
+            bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+            
+            let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
             highlight.color = highlightColor
             page.addAnnotation(highlight)
