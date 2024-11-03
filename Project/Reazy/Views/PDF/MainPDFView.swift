@@ -22,7 +22,7 @@ struct MainPDFView: View {
     var mode = ["원문 모드", "집중 모드"]
     @Namespace private var animationNamespace
     
-    @State private var selectedIndex: Int = 1
+    @State private var selectedIndex: Int = 0
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isPaperViewFirst = true

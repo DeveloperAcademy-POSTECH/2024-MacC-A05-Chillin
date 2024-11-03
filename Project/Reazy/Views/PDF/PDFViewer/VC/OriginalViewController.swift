@@ -12,7 +12,8 @@ import Combine
 /**
  원문 모드 ViewController
  */
-final class OriginalViewController: UIViewController {
+final class OriginalViewController:
+    UIViewController {
     
     let viewModel: MainPDFViewModel
     
@@ -28,7 +29,6 @@ final class OriginalViewController: UIViewController {
         // for drawing
         view.displayDirection = .vertical
         view.usePageViewController(false)
-        view.pageBreakMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return view
     }()
     
