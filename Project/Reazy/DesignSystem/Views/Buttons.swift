@@ -20,8 +20,10 @@ enum WriteButton: String, CaseIterable {
       return Image(systemName: "text.bubble")
     case .highlight:
       return Image("Highlight")
+            .renderingMode(.template)
     case .pencil:
       return Image("Pencil")
+            .renderingMode(.template)
     case .eraser:
       return Image(systemName: "eraser")
     case .translate:
