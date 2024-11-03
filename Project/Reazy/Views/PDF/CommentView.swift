@@ -13,13 +13,18 @@ struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
     @State var text: String = ""
     
+    //var comment: Comment
+    //var selectedCommentId: UUID
+    
     let selection: PDFSelection
     
     var body: some View {
         VStack {
             VStack{
                 if pdfViewModel.isCommentTapped == true {
-                    Text("코멘트뷰어")
+                    if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.selectedCommentID }) {
+                        Text(comment.text)
+                    }
                 } else {
                     TextField(
                         LocalizedStringKey("AddComment"), text: $text,

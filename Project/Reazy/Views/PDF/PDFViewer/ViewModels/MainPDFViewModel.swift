@@ -39,6 +39,7 @@ final class MainPDFViewModel: ObservableObject {
     // Comment
     @Published var pdfContent: PDFContent?
     @Published var isCommentTapped: Bool = false
+    @Published var selectedCommentID: UUID = .init()
     @Published var commentTappedPosition: CGPoint = .zero
     
     @Published var isCommentMode: Bool = false
