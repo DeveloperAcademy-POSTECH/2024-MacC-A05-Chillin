@@ -17,6 +17,8 @@ final class ConcentrateViewController: UIViewController {
     
     var isPageDestinationWorking: Bool = false
     
+    private var isHandlingPageChange = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -103,29 +105,37 @@ extension ConcentrateViewController {
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .sink { [weak self] _ in
-                if let flag = self?.isPageDestinationWorking, flag { return }
+                guard let self = self else { return }
                 
-                // SplitView에서 발생하는 비동기 작업으로 인한 지연 실행 및 예외 처리 추가
-                if let currentPage = self?.pdfView.currentPage,
-                   let currentPageNum = self?.viewModel.focusDocument?.index(for: currentPage),
-                   currentPageNum < self?.viewModel.focusAnnotations.count ?? 0 {
+                // FloatingSplitView로 인해 위치 변경 시 이벤트 중복 방지
+                if self.isHandlingPageChange { return }
+                
+                if self.isPageDestinationWorking { return }
+                
+                self.isHandlingPageChange = true // 이벤트 처리 시작
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    defer { self.isHandlingPageChange = false } // 처리 후 플래그 초기화
                     
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        let pageNum = self?.viewModel.focusAnnotations[currentPageNum]
+                    if let currentPage = self.pdfView.currentPage,
+                       let currentPageNum = self.viewModel.focusDocument?.index(for: currentPage),
+                       currentPageNum < self.viewModel.focusAnnotations.count {
+                        
+                        let pageNum = self.viewModel.focusAnnotations[currentPageNum]
                         
                         defer {
                             DispatchQueue.main.async {
-                                self?.viewModel.changedPageNumber = pageNum?.page ?? 0
+                                self.viewModel.changedPageNumber = pageNum.page
                             }
                         }
                         
                         DispatchQueue.main.async {
-                            self?.viewModel.changedPageNumber = pageNum?.page ?? 0
+                            self.viewModel.changedPageNumber = pageNum.page
                         }
+                        
+                    } else {
+                        print("Warning: currentPageNum is out of focusAnnotations range")
                     }
-                    
-                } else {
-                    print("Warning: currentPageNum is out of focusAnnotations range")
                 }
             }
             .store(in: &self.cancellables)
