@@ -1,0 +1,12 @@
+//
+//  Server.xcconfig
+//  Reazy
+//
+//  Created by 문인범 on 11/3/24.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+
+API_URL = https://asia-northeast3-plexiform-shine-440603-i0.cloudfunctions.net/reazy_layout
