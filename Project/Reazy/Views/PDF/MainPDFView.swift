@@ -229,7 +229,7 @@ struct MainPDFView: View {
                         Text("A review of the global climate change impacts, adaptation, and sustainable mitigation measures")
                             .reazyFont(.h3)
                             .foregroundStyle(.gray800)
-                            .frame(width: 342)
+                            .frame(width: isVertical ? 383 : 567)
                             .lineLimit(1)
                     },
                     leftView: {
@@ -254,28 +254,7 @@ struct MainPDFView: View {
                         }
                     },
                     rightView: {
-                        HStack(spacing: 0) {
-                            Button(action: {
-                                // TODO: - 뒤로 가기 버튼 활성화 필요
-                            }, label: {
-                                Image(systemName: "arrow.uturn.left")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(Color(hex: "BABCCF"))
-                                    .frame(height: 19)
-                            })
-                            .padding(.trailing, 18)
-                            Button(action: {
-                                // TODO: - 앞으로 가기 버튼 활성화 필요
-                            }, label: {
-                                Image(systemName: "arrow.uturn.right")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(Color(hex: "BABCCF"))
-                                    .frame(height: 19)
-                            })
-                            .padding(.trailing, 24)
-                            
+                        HStack(spacing: 0) {                            
                             // Custom segmented picker
                             HStack(spacing: 0) {
                                 ForEach(mode, id: \.self) { item in
@@ -347,7 +326,7 @@ struct MainPDFView: View {
             if isPaperViewFirst {
                 mainView(for: selectedMode)
                     .onAppear {
-                        if let selectedButton = selectedButton {
+                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
                             updateToolMode(for: selectedButton)
                         }
                     }
@@ -380,7 +359,7 @@ struct MainPDFView: View {
             if !isPaperViewFirst {
                 mainView(for: selectedMode)
                     .onAppear {
-                        if let selectedButton = selectedButton {
+                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
                             updateToolMode(for: selectedButton)
                         }
                     }
@@ -393,7 +372,7 @@ struct MainPDFView: View {
             if isPaperViewFirst {
                 mainView(for: selectedMode)
                     .onAppear {
-                        if let selectedButton = selectedButton {
+                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
                             updateToolMode(for: selectedButton)
                         }
                     }
@@ -426,7 +405,7 @@ struct MainPDFView: View {
             if !isPaperViewFirst {
                 mainView(for: selectedMode)
                     .onAppear {
-                        if let selectedButton = selectedButton {
+                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
                             updateToolMode(for: selectedButton)
                         }
                     }

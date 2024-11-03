@@ -19,8 +19,7 @@ struct FigureView: View {
     var body: some View {
         VStack(spacing: 0) {
             if mainPDFViewModel.figureAnnotations.isEmpty {
-                Text("Fig와 Table이 있으면 여기에 표시됩니다.")
-                    .frame(width: 108)
+                Text("Fig와 Table이 있으면,\n여기에 표시됩니다")
                     .reazyFont(.body3)
                     .foregroundStyle(.gray600)
             } else {
