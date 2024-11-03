@@ -10,13 +10,13 @@ import SwiftUI
 struct PaperInfoView: View {
   
   let image: Image
+  let title: String
   let author: String
   let year: String
   let pages: Int
   let publisher: String
   
   @State private var isStarSelected: Bool = false
-  @State private var isFolderSelected: Bool = false
   
   let onNavigate: () -> Void
   
@@ -24,8 +24,16 @@ struct PaperInfoView: View {
     VStack(spacing: 0) {
       image
         .resizable()
+        .frame(height: 380)
         .scaledToFit()
         .padding(.horizontal, 30)
+      
+      Text(title)
+        .reazyFont(.text1)
+        .foregroundStyle(.gray900)
+        .padding(.horizontal, 30)
+        .padding(.top, 13)
+        .lineLimit(2)
       
       HStack(spacing: 0) {
         actionButton()
@@ -43,7 +51,7 @@ struct PaperInfoView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 17)
-                .foregroundStyle(.gray600)
+                .foregroundStyle(isStarSelected ? .primary1 : .gray600)
             )
         }
         .padding(.trailing, 6)
@@ -65,13 +73,13 @@ struct PaperInfoView: View {
         .padding(.trailing, 6)
         
         Button(action: {
-          isFolderSelected.toggle()
+          
         }) {
           RoundedRectangle(cornerRadius: 14)
             .frame(width: 40, height: 40)
             .foregroundStyle(.gray400)
             .overlay(
-              Image(systemName: isFolderSelected ? "folder.fill" : "folder.badge.plus")
+              Image(systemName: "ellipsis.circle")
                 .resizable()
                 .scaledToFit()
                 .frame(height: 17)
@@ -80,80 +88,91 @@ struct PaperInfoView: View {
         }
       }
       .padding(.horizontal, 30)
-      .padding(.top, 18)
+      .padding(.top, 20)
       
       VStack(spacing: 0) {
-        Divider()
-          .padding(.bottom, 6)
+        Rectangle()
+          .frame(height: 1)
+          .padding(.bottom, 10)
           .foregroundStyle(.primary3)
+        
         HStack(spacing: 0) {
           Text("정보")
             .reazyFont(.button1)
+            .foregroundStyle(.black)
           
           Spacer()
         }
-        .padding(.bottom, 6)
+        .padding(.bottom, 15)
         
         VStack(spacing: 0) {
           HStack(spacing: 0) {
             Text("저자")
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
             
             Spacer()
             
             // TODO: - 저자 데이터 입력 필요
             Text(author)
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
           }
-          Divider()
-            .padding(.vertical, 9)
+          Rectangle()
+            .frame(height: 1)
+            .padding(.top, 1)
+            .padding(.bottom, 10)
             .foregroundStyle(.primary3)
           HStack(spacing: 0) {
             Text("출판연도")
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
             
             Spacer()
             
             // TODO: - 출판연도 데이터 입력 필요
             Text(year)
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
           }
-          Divider()
-            .padding(.vertical, 9)
+          Rectangle()
+            .frame(height: 1)
+            .padding(.top, 1)
+            .padding(.bottom, 10)
             .foregroundStyle(.primary3)
           HStack(spacing: 0) {
             Text("페이지")
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
             
             Spacer()
             
             // TODO: - 페이지 수 데이터 입력 필요
             Text("\(pages)")
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
           }
-          Divider()
-            .padding(.vertical, 9)
+          Rectangle()
+            .frame(height: 1)
+            .padding(.top, 1)
+            .padding(.bottom, 10)
             .foregroundStyle(.primary3)
           HStack(spacing: 0) {
             Text("학술지")
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
             
             Spacer()
             
             // TODO: - 학술지 데이터 입력 필요
             Text(publisher)
-              .reazyFont(.text1)
+              .reazyFont(.button5)
               .foregroundStyle(.gray600)
           }
-          Divider()
-            .padding(.vertical, 9)
+          Rectangle()
+            .frame(height: 1)
+            .padding(.top, 1)
+            .padding(.bottom, 10)
             .foregroundStyle(.primary3)
         }
       }
@@ -162,7 +181,7 @@ struct PaperInfoView: View {
       
       Spacer()
     }
-    .padding(.top, 37)
+    .padding(.top, 36)
   }
   
   
@@ -202,6 +221,7 @@ struct PaperInfoView: View {
 #Preview {
   PaperInfoView(
     image: Image("image"),
+    title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
     author: "Smith, John",
     year: "2010",
     pages: 43,

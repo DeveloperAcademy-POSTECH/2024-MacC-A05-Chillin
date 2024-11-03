@@ -22,8 +22,8 @@ struct TableView: View {
             VStack(alignment: .leading) {
                 if tableViewModel.tableItems.isEmpty {
                     Text("개요가 있으면,\n여기에 표시됩니다")
-                        .reazyFont(.h3)
-                        .foregroundStyle(Color.gray600)
+                        .reazyFont(.body3)
+                        .foregroundStyle(.gray600)
                         .padding(.top, 302)
                 } else {
                     ForEach(tableViewModel.tableItems) { item in

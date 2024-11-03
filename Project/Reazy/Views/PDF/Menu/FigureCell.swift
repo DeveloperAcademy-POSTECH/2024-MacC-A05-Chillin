@@ -87,7 +87,8 @@ struct FigureCell: View {
             .padding(.bottom, 10)
             
             Text(mainPDFViewModel.figureAnnotations[index].head)
-                .reazyFont(.text2)
+                .reazyFont(.body3)
+                .foregroundStyle(.gray800)
         }
     }
 }
