@@ -64,7 +64,7 @@ struct PaperListView: View {
             Spacer()
           }
           .padding(.leading, 28)
-          .padding(.vertical, 20)
+          .padding(.vertical, 17)
           
           Divider()
           
