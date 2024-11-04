@@ -136,10 +136,14 @@ class FloatingViewModel: ObservableObject {
     selectedFigureIndex = index
   }
   
-  func getSplitDocumentDetails() -> (documentID: String, document: PDFDocument, head: String)? {
+    func getSplitDocumentDetails() -> SplitDocumentDetails? {
     guard splitMode, let selectedID = selectedFigureCellID else { return nil }
     if let selectedFigure = droppedFigures.first(where: { $0.documentID == selectedID }) {
-      return (documentID: selectedFigure.documentID, document: selectedFigure.document, head: selectedFigure.head)
+        return SplitDocumentDetails(
+            documentID: selectedFigure.documentID,
+            document: selectedFigure.document,
+            head: selectedFigure.head
+        )
     }
     return nil
   }
