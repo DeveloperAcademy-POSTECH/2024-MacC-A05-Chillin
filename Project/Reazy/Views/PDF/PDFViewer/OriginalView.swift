@@ -39,12 +39,13 @@ struct OriginalView: View {
                 if viewModel.isCommentVisible == true {
                     CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
                         .position(viewModel.isCommentTapped ? viewModel.commentTappedPosition : viewModel.commentPosition)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    
                 }
         }
         //.keyboardHeight($keyboardHeight)
         //.offset(y: -keyboardHeight / 1.7)
-        .animation(.smooth(duration: 0.5))
+        //.animation(.smooth(duration: 0.5))
+        //.transition(.move(edge: .bottom).combined(with: .opacity))
         .onChange(of: viewModel.selectedText) { _, newValue in
             viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
         }

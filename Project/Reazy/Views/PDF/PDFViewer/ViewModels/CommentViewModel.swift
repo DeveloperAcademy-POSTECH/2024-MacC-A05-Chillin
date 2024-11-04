@@ -12,16 +12,10 @@ import SwiftUI
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     
-//    var pdfContent: PDFContent
-//    
-//    init(pdfContent: PDFContent) {
-//        self.pdfContent = .init(pdfView: PDFView())
-//    }
-    
     // 코멘트 추가
     func addComment(pdfView: PDFView, text: String, selection: PDFSelection) {
         
-//        let pdfView = pdfContent.pdfView
+        //        let pdfView = pdfContent.pdfView
         /// 코멘트 배열에 저장
         let newComment = Comment(pdfView: pdfView, selection: selection, text: text)
         comments.append(newComment)
@@ -31,8 +25,9 @@ class CommentViewModel: ObservableObject {
     }
     
     // 코멘트 삭제
-    func deleteComment(comment: Comment) {
+    func deleteComment(selection: PDFSelection, comment: Comment) {
         comments.removeAll(where: { $0.id == comment.id })
+        removeAnnotations(comment: comment)
     }
     
     // 코멘트 수정
@@ -41,14 +36,15 @@ class CommentViewModel: ObservableObject {
     }
 }
 
+// PDFannotation 관련
 extension CommentViewModel {
     
+    /// 버튼 추가
     private func addCommentIcon(selection: PDFSelection, newComment: Comment) {
         
         guard let page = selection.pages.first else { return }
         let bounds = selection.bounds(for: page)
         
-        /// PDFAnnotation 버튼 생성
         let commentIconPosition = CGRect(x: bounds.midX, y: bounds.maxY + 10, width: 20, height: 20)
         let commentIcon = PDFAnnotation(bounds: commentIconPosition, forType: .widget, withProperties: nil)
         commentIcon.widgetFieldType = .button
@@ -61,6 +57,7 @@ extension CommentViewModel {
         page.addAnnotation(commentIcon)
     }
     
+    /// 밑줄 그리기
     private func drawUnderline(selection: PDFSelection, newComment: Comment) {
         for page in selection.pages {
             let bounds = selection.bounds(for: page)
@@ -74,4 +71,14 @@ extension CommentViewModel {
         }
     }
     
+    private func removeAnnotations(comment: Comment) {
+        for page in comment.selection.pages {
+            for annotation in page.annotations {
+                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String,
+                   annotationID == comment.id.uuidString {
+                    page.removeAnnotation(annotation)
+                }
+            }
+        }
+    }
 }
