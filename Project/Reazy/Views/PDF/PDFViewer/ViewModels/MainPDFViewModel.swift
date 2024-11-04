@@ -29,6 +29,8 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
+    @Published var isPaperViewFirst: Bool = true
+    
     // BubbleView의 상태와 위치
     @Published var bubbleViewVisible: Bool = false
     @Published var bubbleViewPosition: CGRect = .zero
