@@ -13,9 +13,9 @@ struct NetworkUnitTest {
 
     @Test func testNetwork() async throws {
         let pdfURL = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
-        let _ = try await NetworkManager.fetchPDFLayoutData(pdfURL: pdfURL)
+        let data = try await NetworkManager.fetchPDFLayoutData(pdfURL: pdfURL)
         
-        
+        #expect(data.div.count > 0)
     }
 
 }
