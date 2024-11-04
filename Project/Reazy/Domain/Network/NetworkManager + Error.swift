@@ -15,5 +15,8 @@ class NetworkManager {
 
 // MARK: - 네트워크 에러
 enum NetworkManagerError: Error {
+    case invalidInfo
     case invalidURL
+    case invalidPDF
+    case badRequest
 }
