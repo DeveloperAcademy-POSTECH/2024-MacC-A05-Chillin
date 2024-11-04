@@ -281,10 +281,6 @@ struct MainPDFView: View {
                                         .onTapGesture {
                                             withAnimation(.spring()) {
                                                 selectedMode = item
-                                                if item == "원문 모드" && !isOriginalModeFirstSelected {
-                                                    selectedIndex = 0
-                                                    isOriginalModeFirstSelected = true
-                                                }
                                             }
                                         }
                                         .padding(.horizontal, 2)
@@ -320,6 +316,12 @@ struct MainPDFView: View {
         if mode == "원문 모드" {
             OriginalView()
                 .environmentObject(mainPDFViewModel)
+                .onAppear {
+                    if !isOriginalModeFirstSelected {
+                        selectedIndex = 0
+                        isOriginalModeFirstSelected = true
+                    }
+                }
         } else if mode == "집중 모드" {
             ConcentrateView()
                 .environmentObject(mainPDFViewModel)
