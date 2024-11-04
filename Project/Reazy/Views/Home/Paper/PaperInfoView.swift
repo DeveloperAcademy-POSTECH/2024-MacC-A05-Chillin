@@ -36,10 +36,6 @@ struct PaperInfoView: View {
                 .lineLimit(2)
             
             HStack(spacing: 0) {
-                actionButton()
-                
-                Spacer()
-                
                 Button(action: {
                     isStarSelected.toggle()
                 }) {
@@ -86,6 +82,10 @@ struct PaperInfoView: View {
                                 .foregroundStyle(.gray600)
                         )
                 }
+                
+                Spacer()
+                
+                actionButton()
             }
             .padding(.horizontal, 30)
             .padding(.top, 16)
