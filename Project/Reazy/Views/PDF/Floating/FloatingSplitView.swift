@@ -9,9 +9,9 @@ import SwiftUI
 import PDFKit
 
 struct SplitDocumentDetails {
-    var documentID: String
-    var document: PDFDocument
-    var head: String
+    let documentID: String
+    let document: PDFDocument
+    let head: String
 }
 
 struct FloatingSplitView: View {
