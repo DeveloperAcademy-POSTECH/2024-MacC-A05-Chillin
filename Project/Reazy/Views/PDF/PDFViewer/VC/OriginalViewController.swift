@@ -161,7 +161,7 @@ extension OriginalViewController {
                     DispatchQueue.main.async {
                         self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
                     }
-                default:
+                case .translate:
                     guard let selection = self.mainPDFView.currentSelection else {
                         // 선택된 텍스트가 없을 때 특정 액션
                         self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
@@ -191,6 +191,8 @@ extension OriginalViewController {
                         self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
                         self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
                     }
+                default:
+                    return
                 }
             }
             .store(in: &self.cancellable)

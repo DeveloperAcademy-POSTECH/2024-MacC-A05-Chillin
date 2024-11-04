@@ -11,6 +11,7 @@ import PDFKit
 // MARK: - 무니꺼 : 원문 모드 뷰
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
+    @EnvironmentObject private var floatingViewModel: FloatingViewModel
     
     var body: some View {
         ZStack {
@@ -26,7 +27,7 @@ struct OriginalView: View {
                 if #available(iOS 18.0, *) {
                     if viewModel.isBubbleViewVisible {
                         BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
-
+                            .environmentObject(floatingViewModel)
                     }
                 } else {
                     BubbleViewOlderVer()

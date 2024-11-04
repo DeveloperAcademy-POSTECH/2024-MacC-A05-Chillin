@@ -204,7 +204,6 @@ extension MainPDFViewModel {
 
     // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
     public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
-        print(selectedText)
         
         // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
         if !selectedText.isEmpty {
