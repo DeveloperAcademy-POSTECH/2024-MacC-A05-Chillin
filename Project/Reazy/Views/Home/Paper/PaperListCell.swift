@@ -22,7 +22,8 @@ struct PaperListCell: View {
       if isSelected && !isEditing {
         RoundedRectangle(cornerRadius: 14)
           .fill(.primary2)
-          .padding(.vertical, 2)
+          .padding(.vertical, 3)
+          .padding(.horizontal, 8)
       }
       
       HStack(spacing: 0) {
@@ -64,8 +65,8 @@ struct PaperListCell: View {
         Spacer()
       }
       .background(.clear)
-      .padding(.horizontal, 10)
-      .padding(.vertical, 10)
+      .padding(.horizontal, 22)
+      .padding(.vertical, 15)
       .contentShape(Rectangle())
       .onTapGesture {
         if isEditing {
