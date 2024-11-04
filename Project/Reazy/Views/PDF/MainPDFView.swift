@@ -26,6 +26,8 @@ struct MainPDFView: View {
     @Namespace private var animationNamespace
     
     @State private var selectedIndex: Int = 0
+    @State private var isReadModeFirstSelected: Bool = false
+    
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isPaperViewFirst = true
@@ -278,11 +280,6 @@ struct MainPDFView: View {
                                         .onTapGesture {
                                             withAnimation(.spring()) {
                                                 selectedMode = item
-                                                if item == "원문 모드" {
-                                                    selectedIndex = 0
-                                                } else if item == "집중 모드" {
-                                                    selectedIndex = 1
-                                                }
                                             }
                                         }
                                         .padding(.horizontal, 2)
@@ -321,6 +318,13 @@ struct MainPDFView: View {
         } else if mode == "집중 모드" {
             ConcentrateView()
                 .environmentObject(mainPDFViewModel)
+                .onAppear {
+                    if !isReadModeFirstSelected {
+                        selectedIndex = 1
+                        isFigSelected = true
+                        isReadModeFirstSelected = true
+                    }
+                }
         }
     }
     

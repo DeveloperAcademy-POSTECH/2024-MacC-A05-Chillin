@@ -130,17 +130,6 @@ struct HomeView: View {
               Button(action: {
                 
               }, label: {
-                Image(systemName: "folder.badge.plus")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 19)
-                  .foregroundStyle(.gray100)
-              })
-              .padding(.trailing, 28)
-              
-              Button(action: {
-                
-              }, label: {
                 Image(systemName: "square.and.arrow.up")
                   .resizable()
                   .scaledToFit()
