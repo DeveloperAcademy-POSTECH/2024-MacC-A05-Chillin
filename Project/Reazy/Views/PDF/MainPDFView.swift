@@ -8,6 +8,9 @@
 import SwiftUI
 import PDFKit
 
+enum LayoutOrientation {
+    case vertical, horizontal
+}
 
 struct MainPDFView: View {
     
@@ -169,9 +172,9 @@ struct MainPDFView: View {
                             if selectedMode == "원문 모드" || selectedMode == "집중 모드" {
                                 ZStack {
                                     if isVertical {
-                                        verticalLayout
+                                        splitLayout(for: .vertical)
                                     } else {
-                                        horizontalLayout
+                                        splitLayout(for: .horizontal)
                                     }
                                 }
                             }
@@ -254,7 +257,7 @@ struct MainPDFView: View {
                         }
                     },
                     rightView: {
-                        HStack(spacing: 0) {                            
+                        HStack(spacing: 0) {
                             // Custom segmented picker
                             HStack(spacing: 0) {
                                 ForEach(mode, id: \.self) { item in
@@ -321,95 +324,73 @@ struct MainPDFView: View {
         }
     }
     
-    var verticalLayout: some View {
-        VStack(spacing: 0) {
-            if isPaperViewFirst {
-                mainView(for: selectedMode)
-                    .onAppear {
-                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
-                            updateToolMode(for: selectedButton)
-                        }
-                    }
-            }
-            
-            if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundStyle(isPaperViewFirst ? .gray300 : .clear)
-                
-                FloatingSplitView(
-                    documentID: splitDetails.documentID,
-                    document: splitDetails.document,
-                    head: splitDetails.head,
-                    isFigSelected: isFigSelected,
-                    onSelect: {
-                        withAnimation {
-                            isPaperViewFirst.toggle()
-                        }
-                    }
-                )
-                .environmentObject(mainPDFViewModel)
-                .environmentObject(floatingViewModel)
-                
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundStyle(isPaperViewFirst ? .clear : .gray300)
-            }
-            
-            if !isPaperViewFirst {
-                mainView(for: selectedMode)
-                    .onAppear {
-                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
-                            updateToolMode(for: selectedButton)
-                        }
-                    }
+    private func splitLayout(for orientation: LayoutOrientation) -> some View {
+        Group {
+            if orientation == .vertical {
+                VStack(spacing: 0) {
+                    layoutContent(for: orientation)
+                }
+            } else {
+                HStack(spacing: 0) {
+                    layoutContent(for: orientation)
+                }
             }
         }
     }
     
-    var horizontalLayout: some View {
-        HStack(spacing: 0) {
-            if isPaperViewFirst {
-                mainView(for: selectedMode)
-                    .onAppear {
-                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
-                            updateToolMode(for: selectedButton)
-                        }
+    @ViewBuilder
+    private func layoutContent(for orientation: LayoutOrientation) -> some View {
+        if floatingViewModel.splitMode && !isPaperViewFirst,
+           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+            FloatingSplitView(
+                documentID: splitDetails.documentID,
+                document: splitDetails.document,
+                head: splitDetails.head,
+                isFigSelected: isFigSelected,
+                onSelect: {
+                    withAnimation {
+                        isPaperViewFirst.toggle()
                     }
-            }
+                }
+            )
+            .environmentObject(mainPDFViewModel)
+            .environmentObject(floatingViewModel)
             
-            if floatingViewModel.splitMode, let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                Rectangle()
-                    .frame(width: 1)
-                    .foregroundStyle(isPaperViewFirst ? .gray300 : .clear)
-                
-                FloatingSplitView(
-                    documentID: splitDetails.documentID,
-                    document: splitDetails.document,
-                    head: splitDetails.head,
-                    isFigSelected: isFigSelected,
-                    onSelect: {
-                        withAnimation {
-                            isPaperViewFirst.toggle()
-                        }
-                    }
-                )
-                .environmentObject(mainPDFViewModel)
-                .environmentObject(floatingViewModel)
-                
-                Rectangle()
-                    .frame(width: 1)
-                    .foregroundStyle(isPaperViewFirst ? .clear : .gray300)
-            }
+            divider(for: orientation)
+        }
+        
+        mainView(for: selectedMode)
+        
+        if floatingViewModel.splitMode && isPaperViewFirst,
+           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+            divider(for: orientation)
             
-            if !isPaperViewFirst {
-                mainView(for: selectedMode)
-                    .onAppear {
-                        if selectedMode == "원문 모드", let selectedButton = selectedButton {
-                            updateToolMode(for: selectedButton)
-                        }
+            FloatingSplitView(
+                documentID: splitDetails.documentID,
+                document: splitDetails.document,
+                head: splitDetails.head,
+                isFigSelected: isFigSelected,
+                onSelect: {
+                    withAnimation {
+                        isPaperViewFirst.toggle()
                     }
-            }
+                }
+            )
+            .environmentObject(mainPDFViewModel)
+            .environmentObject(floatingViewModel)
+        }
+    }
+    
+    @ViewBuilder
+    private func divider(for orientation: LayoutOrientation) -> some View {
+        if orientation == .vertical {
+            Rectangle()
+                .frame(height: 1)
+                .foregroundStyle(.gray300)
+        } else {
+            Rectangle()
+                .frame(width: 1)
+                .foregroundStyle(.gray300)
         }
     }
     
@@ -442,23 +423,7 @@ struct MainPDFView: View {
             .padding(.leading, 24)
             .padding(.trailing, 17)
     }
-    
-    private func updateToolMode(for button: WriteButton) {
-        switch button {
-        case .translate:
-            mainPDFViewModel.toolMode = .translate
-        case .pencil:
-            mainPDFViewModel.toolMode = .pencil
-        case .eraser:
-            mainPDFViewModel.toolMode = .eraser
-        case .highlight:
-            mainPDFViewModel.toolMode = .highlight
-        case .comment:
-            mainPDFViewModel.toolMode = .comment
-        }
-    }
 }
-
 
 private struct OverlaySearchView: View {
     @Binding var isSearchSelected: Bool
