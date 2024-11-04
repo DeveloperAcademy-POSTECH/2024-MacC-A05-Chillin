@@ -27,7 +27,6 @@ struct MainPDFView: View {
     
     @State private var selectedIndex: Int = 0
     @State private var isReadModeFirstSelected: Bool = false
-    @State private var isOriginalModeFirstSelected: Bool = false
     
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
@@ -316,12 +315,6 @@ struct MainPDFView: View {
         if mode == "원문 모드" {
             OriginalView()
                 .environmentObject(mainPDFViewModel)
-                .onAppear {
-                    if !isOriginalModeFirstSelected {
-                        selectedIndex = 0
-                        isOriginalModeFirstSelected = true
-                    }
-                }
         } else if mode == "집중 모드" {
             ConcentrateView()
                 .environmentObject(mainPDFViewModel)
