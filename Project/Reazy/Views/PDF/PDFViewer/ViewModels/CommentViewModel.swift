@@ -20,7 +20,7 @@ class CommentViewModel: ObservableObject {
         let newComment = Comment(pdfView: pdfView, selection: selection, text: text)
         comments.append(newComment)
         
-        addCommentIcon(selection: selection, newComment: newComment)
+        addCommentIcon(pdfView: pdfView, selection: selection, newComment: newComment)
         drawUnderline(selection: selection, newComment: newComment)
     }
     
@@ -40,34 +40,74 @@ class CommentViewModel: ObservableObject {
 extension CommentViewModel {
     
     /// 버튼 추가
-    private func addCommentIcon(selection: PDFSelection, newComment: Comment) {
+    private func addCommentIcon(pdfView: PDFView, selection: PDFSelection, newComment: Comment) {
         
-        guard let page = selection.pages.first else { return }
-        let bounds = selection.bounds(for: page)
+        /// selection을 line 별로 받아와 배열에 저장
+        let lineSelection = selection.selectionsByLine()
+        if let firstLineSelection = lineSelection.first {
+            
+            /// 배열 중 첫 번째 selection만 가져오기
+            guard let page = firstLineSelection.pages.first else { return }
+            let bounds = firstLineSelection.bounds(for: page)
+            let convertedBounds = bounds.origin
+            
+            if let line = page.selectionForLine(at: convertedBounds) {
+                let lineBounds = line.bounds(for: page)
+                
+                let pdfMidX = page.bounds(for: pdfView.displayBox).midX
+                
+                ///PDF 문서의 colum 구분
+                let isLeft = lineBounds.maxX < pdfMidX
+                let isRight = lineBounds.minX > pdfMidX
+                let isAcross = !isLeft && !isRight
+                
+                var iconPosition: CGRect = .zero
+                
+                ///colum에 따른 commentIcon 좌표 값 설정
+                if isLeft {
+                    iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.maxY , width: 20, height: 10)
+                } else if isRight || isAcross {
+                    iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.maxY, width: 20, height: 10)
+                }
+                
+                let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
+                commentIcon.widgetFieldType = .button
+                commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
+                commentIcon.border?.lineWidth = .zero
+                commentIcon.widgetControlType = .pushButtonControl
+                
+                /// 버튼에 코멘트 정보 참조
+                commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
+                page.addAnnotation(commentIcon)
+            }
+        }
         
-        let commentIconPosition = CGRect(x: bounds.midX, y: bounds.maxY + 10, width: 20, height: 20)
-        let commentIcon = PDFAnnotation(bounds: commentIconPosition, forType: .widget, withProperties: nil)
-        commentIcon.widgetFieldType = .button
-        commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
-        commentIcon.border?.lineWidth = .zero
-        commentIcon.widgetControlType = .pushButtonControl
-        
-        /// 버튼에 코멘트 정보 참조
-        commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
-        page.addAnnotation(commentIcon)
+//        if let selectionLine = page.selectionForLine(at: convertedBounds) {
+//            let lineBounds = selectionLine.bounds(for: page)
+//            
+//            let pdfMidX = page.bounds(for: pdfView.displayBox).midX
+//            
+//            
+//        }
     }
     
     /// 밑줄 그리기
     private func drawUnderline(selection: PDFSelection, newComment: Comment) {
-        for page in selection.pages {
-            let bounds = selection.bounds(for: page)
-            
-            let underline = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
-            underline.color = .gray600
-            underline.border?.lineWidth = 1.2
-            
-            underline.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
-            page.addAnnotation(underline)
+        let selections = selection.selectionsByLine()
+        
+        for lineSelection in selections {
+            for page in lineSelection.pages {
+                let bounds = lineSelection.bounds(for: page)
+                
+                let underline = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
+                underline.color = .gray600
+                underline.border = PDFBorder()
+                underline.border?.lineWidth = 1.2
+                underline.border?.style = .solid
+                
+                underline.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
+                page.addAnnotation(underline)
+            }
         }
     }
     

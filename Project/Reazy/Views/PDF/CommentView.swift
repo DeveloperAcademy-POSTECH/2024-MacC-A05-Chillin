@@ -30,7 +30,7 @@ struct CommentView: View {
                             Divider()
                                 .frame(width: 2, height: 14)
                                 .background(.point2)
-                                .padding(.trailing, 8)
+                                .padding(.trailing, 6)
                             
                             Text(comment.selection.string ?? "none")
                                 .lineLimit(1)
@@ -55,7 +55,7 @@ struct CommentView: View {
                         }
                     }
                     .padding(.leading, 16)
-                    .padding(.top, 18)
+                    .padding(.top, 21)
                     .padding(.bottom, 9)
                     .foregroundStyle(.point2)
                 }
@@ -70,7 +70,7 @@ struct CommentView: View {
                         .foregroundStyle(.point2)
                         .frame(height: commentHeight, alignment: .topLeading)
                         .padding(.horizontal, 18)
-                        .onChange(of: text) { _ in
+                        .onChange(of: text) {
                             // 텍스트가 변경될 때마다 높이 업데이트
                             self.updateCommentHeight()
                         }
