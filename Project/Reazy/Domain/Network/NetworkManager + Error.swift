@@ -15,8 +15,9 @@ class NetworkManager {
 
 // MARK: - 네트워크 에러
 enum NetworkManagerError: Error {
-    case invalidInfo
-    case invalidURL
-    case invalidPDF
-    case badRequest
+    case invalidInfo    // info.plist 오류
+    case invalidURL     // url 생성 오류
+    case invalidPDF     // pdf 없음 오류
+    case badRequest     // 200~299 번대가 아닐 시
+    case corruptedPDF   // 500번일 때(PDF OCR 미적용)
 }
