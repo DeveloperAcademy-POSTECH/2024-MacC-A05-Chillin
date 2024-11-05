@@ -13,7 +13,7 @@ import Foundation
 extension NetworkManager {
     
     /// Sample 데이터 불러오기
-    static func getSamplePDFData() throws -> PDFInfo {
+    static func getSamplePDFData() throws -> PDFLayout {
         guard let samplePDFUrl = Bundle.main.url(forResource: "engPD5Output", withExtension: "json") else {
             throw NetworkManagerError.invalidURL
         }
@@ -21,7 +21,7 @@ extension NetworkManager {
         do {
             let data = try Data(contentsOf: samplePDFUrl)
             
-            let decodedResult = try JSONDecoder().decode(PDFInfo.self, from: data)
+            let decodedResult = try JSONDecoder().decode(PDFLayout.self, from: data)
             
             return decodedResult
         } catch {
@@ -30,7 +30,7 @@ extension NetworkManager {
     }
     
     /// Sample 텍스트 좌표 필터링 메소드
-    static func filterSampleData(input: PDFInfo, pageWidth: CGFloat, pageHeight: CGFloat) -> [FocusAnnotation] {
+    static func filterSampleData(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FocusAnnotation] {
         
         var result = [FocusAnnotation]()
         
@@ -120,7 +120,7 @@ extension NetworkManager {
     }
     
     /// Sample 이미지 좌표 필터링 메소드
-    static func filterSampleFigure(input: PDFInfo, pageWidth: CGFloat, pageHeight: CGFloat) -> [FigureAnnotation] {
+    static func filterSampleFigure(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FigureAnnotation] {
         
         var result = [FigureAnnotation]()
         

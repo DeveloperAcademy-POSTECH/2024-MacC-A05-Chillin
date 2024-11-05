@@ -11,7 +11,8 @@ import Foundation
  pdf 분석 관련 메소드
  */
 extension NetworkManager {
-    // 서버에 pdf 데이터 전송
+    
+    /// 서버에 pdf 데이터 전송
     static func fetchPDFExtraction<T: Codable>(process: ServiceName, pdfURL: URL) async throws -> T {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String else {
             throw NetworkManagerError.invalidInfo
@@ -49,10 +50,18 @@ extension NetworkManager {
         
         let (data, response) = try await URLSession.shared.upload(for: request, from: body)
         
-        if let response = response as? HTTPURLResponse,
-           !(200..<300 ~= response.statusCode) {
-            print("request error!, statusCode\(response.statusCode)")
-            throw NetworkManagerError.badRequest
+        if let response = response as? HTTPURLResponse {
+            // 500 error, PDF OCR 적용이 안되어있음
+            if (500 ..< 600 ~= response.statusCode) {
+                print("PDF extract error!, statusCode: \(response.statusCode)")
+                throw NetworkManagerError.corruptedPDF
+            }
+            
+            // 기타 요청 에러
+            else if !(200 ..< 300 ~= response.statusCode) {
+                print("request error!, statusCode: \(response.statusCode)")
+                throw NetworkManagerError.badRequest
+            }
         }
         
         let decoder = JSONDecoder()
