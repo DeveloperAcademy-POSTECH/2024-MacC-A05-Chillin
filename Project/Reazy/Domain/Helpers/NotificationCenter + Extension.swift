@@ -13,6 +13,5 @@ import Foundation
  */
 extension Notification.Name {
     static let didSelectThumbnail = Notification.Name("didSelectThumbnail")
-    static let PDFViewSelectionChanged = Notification.Name("PDFViewSelectionChanged")
     static let isSearchViewHidden = Notification.Name("isSearchViewHidden")
 }
