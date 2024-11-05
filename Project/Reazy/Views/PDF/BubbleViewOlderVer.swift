@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct BubbleViewOlderVer: View {
+
     var body: some View {
         // 18.0 미만 버전에서 보여줄 화면
-        ZStack (alignment: .center) {
+        ZStack(alignment: .center) {
             Image(systemName: "triangle.fill")
                 .resizable()
                 .foregroundStyle(.primary3)
@@ -29,7 +30,8 @@ struct BubbleViewOlderVer: View {
                 .foregroundStyle(.gray200)
                 .frame(width: 28, height: 20) // 크기 지정
                 .offset(y: -77/2)
-            VStack(alignment: .center){
+            
+            VStack(alignment: .center) {
                 Text("해당 번역 기능은 iPadOS 18.0 이상에서만 사용 가능합니다.\niPadOS 18.0 미만 버전에서는 소프트웨어 업데이트가 필요합니다.")
                     .font(.system(size: 14, weight: .regular))
                     .foregroundColor(.point2)
@@ -39,8 +41,7 @@ struct BubbleViewOlderVer: View {
             .padding(.vertical, 14)
             .padding(.horizontal, 18)
         }
-        .offset(x: 116, y: 16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    } // 화면 중간 상단에 고정
+        .offset(x: 116, y: 16) 
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // 화면 중간 상단에 고정
+    }
 }
-

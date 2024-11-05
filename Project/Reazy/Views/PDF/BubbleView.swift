@@ -3,11 +3,12 @@ import Translation
 
 @available(iOS 18.0, *)
 struct BubbleView: View {
-    
+    @EnvironmentObject var viewModel: MainPDFViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     @Binding var selectedText: String
     @Binding var bubblePosition: CGRect
+    @Binding var isPaperViewFirst: Bool
     
     @State private var targetText = "" // 번역 결과 텍스트
     @State private var configuration: TranslationSession.Configuration?
@@ -123,12 +124,12 @@ struct BubbleView: View {
                         }
                     }
                 }
-                .position(updatedBubblePosition)
                 .onAppear {
                     bubblePositionForScreen(bubblePosition, in: geometry.size)
                     textWidth = bubblePosition.width * 1.5 // 글자 수 적을 때 너비 여유롭게
                     triggerTranslation()
                 }
+                .position(updatedBubblePosition)
                 .onChange(of: selectedText) {
                     isTranslationComplete = false // 번역 완료 되었을 때 뷰 다시 그리게 false 처리
                     bubblePositionForScreen(bubblePosition, in: geometry.size)
@@ -168,11 +169,18 @@ struct BubbleView: View {
     
     // BubbleView 위치 조정하는 함수
     private func bubblePositionForScreen(_ rect: CGRect, in screenSize: CGSize) {
-        
-        if rect.width > (screenSize.width / 2) || floatingViewModel.splitMode { // 선택 영역이 차지하는 범위가 1/2 이상이면
+        if  floatingViewModel.splitMode { // 스플릿 뷰 켜져 있으면 항상 아래에 붙게
             // 말풍선이 선택 영역 아래에 붙음
             bubbleDirection = .bottom
-            updatedBubblePosition = CGPoint(x: rect.midX, y: rect.maxY) // 아래로 이동
+            if isPaperViewFirst {
+                updatedBubblePosition = CGPoint(x: rect.midX, y: rect.maxY + rect.height/3)
+            } else { // 스플릿 뷰에서 논문이 오른쪽에 붙으면 스크린의 반만큼 왼쪽으로 이동시킴
+                updatedBubblePosition = CGPoint(x: rect.midX - (screenSize.width), y: rect.maxY + rect.height/3)
+            }
+        } else if rect.width > (screenSize.width / 2) { // 선택 영역이 차지하는 범위가 1/2 이상이면
+            // 말풍선이 선택 영역 아래에 붙음
+            bubbleDirection = .bottom
+            updatedBubblePosition = CGPoint(x: rect.midX, y: rect.maxY)
         } else if rect.maxX > (screenSize.width / 2) && rect.minX > (screenSize.width / 3) {
             // 말풍선이 선택 영역 왼쪽에 붙음
             bubbleDirection = .left
@@ -184,7 +192,7 @@ struct BubbleView: View {
         } else {
             // 말풍선이 선택 영역 아래에 붙음
             bubbleDirection = .bottom
-            updatedBubblePosition = CGPoint(x: rect.midX, y: rect.maxY) // 아래로 이동
+            updatedBubblePosition = CGPoint(x: rect.midX, y: rect.maxY + rect.height/3)
         }
         return
     }
