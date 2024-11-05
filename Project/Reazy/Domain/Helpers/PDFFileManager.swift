@@ -36,6 +36,8 @@ extension PDFFileManager {
         
         let tempDoc = PDFDocument(url: url)
         
+        let pageCount = tempDoc?.pageCount
+        
         //TODO: 데이터 저장 메소드 추가 필요
         if let firstPage = tempDoc?.page(at: 0) {
             let width = firstPage.bounds(for: .mediaBox).width
@@ -49,7 +51,7 @@ extension PDFFileManager {
                 datetime: result.date?.date ?? "알 수 없음",
                 author: names,
                 year: result.date?.date ?? "알 수 없음",
-                pages: 1,
+                pages: pageCount ?? 0,
                 publisher: "알 수 없음",
                 thumbnail: thumbnailData!)
             )
@@ -59,7 +61,7 @@ extension PDFFileManager {
                 datetime: result.date?.date ?? "알 수 없음",
                 author: names,
                 year: result.date?.date ?? "알 수 없음",
-                pages: 1,
+                pages: pageCount ?? 0,
                 publisher: "알 수 없음",
                 thumbnail: .init())
             )
