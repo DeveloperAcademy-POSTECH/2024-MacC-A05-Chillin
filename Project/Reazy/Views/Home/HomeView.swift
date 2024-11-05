@@ -85,6 +85,12 @@ struct HomeView: View {
             .navigationDestination(for: Int.self) { index in
                 MainPDFView(navigationPath: $navigationPath)
             }
+            .overlay {
+                if pdfFileManager.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                }
+            }
         }
         .statusBarHidden()
     }
