@@ -32,7 +32,7 @@ extension PDFFileManager {
         
         let result: PDFInfo = try await NetworkManager.fetchPDFExtraction(process: .processHeaderDocument, pdfURL: url)
         
-        let names = result.names?.reduce("") { $0 + $1 } ?? "알 수 없음"
+        let names = result.names?.reduce("") { $0 + $1 + "," } ?? "알 수 없음"
         
         let tempDoc = PDFDocument(url: url)
         
