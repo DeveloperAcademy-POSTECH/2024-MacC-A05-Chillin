@@ -315,6 +315,7 @@ struct MainPDFView: View {
         if mode == "원문 모드" {
             OriginalView()
                 .environmentObject(mainPDFViewModel)
+                .environmentObject(floatingViewModel)
         } else if mode == "집중 모드" {
             ConcentrateView()
                 .environmentObject(mainPDFViewModel)
