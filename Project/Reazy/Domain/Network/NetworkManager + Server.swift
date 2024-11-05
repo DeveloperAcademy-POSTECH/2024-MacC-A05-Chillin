@@ -12,7 +12,7 @@ import Foundation
  */
 extension NetworkManager {
     // 서버에 pdf 데이터 전송
-    static func fetchPDFLayoutData(pdfURL: URL) async throws -> PDFInfo {
+    static func fetchPDFExtraction<T: Codable>(process: ServiceName, pdfURL: URL) async throws -> T {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String else {
             throw NetworkManagerError.invalidInfo
         }
@@ -34,6 +34,7 @@ extension NetworkManager {
         // Header 설정
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.setValue(process.rawValue, forHTTPHeaderField: "serviceName")
         
         // Body 설정
         // multipart/form-data 사용
@@ -55,8 +56,14 @@ extension NetworkManager {
         }
         
         let decoder = JSONDecoder()
-        let decodedData = try decoder.decode(PDFInfo.self, from: data)
+        let decodedData = try decoder.decode(T.self, from: data)
         
         return decodedData
+    }
+    
+    /// 네트워크 요청 헤더
+    enum ServiceName: String {
+        case processHeaderDocument
+        case processFulltextDocument
     }
 }
