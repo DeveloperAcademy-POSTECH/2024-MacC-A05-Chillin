@@ -8,6 +8,9 @@
 import SwiftUI
 
 
+/**
+ Navigation 관리하는 클래스
+ */
 final class NavigationCoordinator: CoordinatorProtocol {
     @Published public var path: NavigationPath = .init()
     @Published var sheet: Sheet?
@@ -44,21 +47,28 @@ final class NavigationCoordinator: CoordinatorProtocol {
     @ViewBuilder
     func build(_ screen: Screen) -> some View {
         switch screen {
+        case .home:
+            HomeView()
         case .mainPDF(let url):
-            MainPDFView(/*mainPDFViewModel: .init(url: url), */navigationPath: .constant(.init()))
+            MainPDFView(mainPDFViewModel: .init(url: url))
+        }
+    }
+    
+    @ViewBuilder
+    func build(_ sheet: Sheet) -> some View {
+        switch sheet {
+        case .none:
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    func build(_ fullScreenCover: FullScreenCover) -> some View {
+        switch fullScreenCover {
+        case .none:
+            EmptyView()
         }
     }
     
 }
-
-
-
-
-
-
-
-
-
-
-
 

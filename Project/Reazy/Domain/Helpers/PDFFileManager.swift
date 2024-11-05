@@ -53,7 +53,8 @@ extension PDFFileManager {
                 year: result.date?.date ?? "알 수 없음",
                 pages: pageCount ?? 0,
                 publisher: "알 수 없음",
-                thumbnail: thumbnailData!)
+                thumbnail: thumbnailData!,
+                url: url.absoluteString)
             )
         } else {
             paperInfos.append(.init(
@@ -63,7 +64,8 @@ extension PDFFileManager {
                 year: result.date?.date ?? "알 수 없음",
                 pages: pageCount ?? 0,
                 publisher: "알 수 없음",
-                thumbnail: .init())
+                thumbnail: .init(),
+                url: url.absoluteString)
             )
         }
         
@@ -76,6 +78,7 @@ extension PDFFileManager {
 extension PDFFileManager {
     @MainActor
     public func uploadSampleData() {
+        let sampleUrl = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
         self.paperInfos.append(PaperInfo(
             title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
             datetime: "2024. 10. 20. 오후 08:56",
@@ -83,7 +86,8 @@ extension PDFFileManager {
             year: "2010",
             pages: 43,
             publisher: "NATURE",
-            thumbnail: .init()
+            thumbnail: .init(),
+            url: sampleUrl.absoluteString
         ))
     }
 }

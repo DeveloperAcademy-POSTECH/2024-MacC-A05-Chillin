@@ -8,6 +8,9 @@
 import SwiftUI
 
 
+/**
+ NavigationCoordinator 패턴 프로토콜
+ */
 protocol CoordinatorProtocol: ObservableObject {
     var path: NavigationPath { get set }
     var sheet: Sheet? { get set }
