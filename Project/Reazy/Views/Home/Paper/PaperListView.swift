@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PaperListView: View {
+    @EnvironmentObject var pdfFileManager: PDFFileManager
     
     @Binding var navigationPath: NavigationPath
     
@@ -21,14 +22,6 @@ struct PaperListView: View {
     @State private var isFavoritesSelected: Bool = false
     
     // MARK: - Core Data 모델 생성 시 수정 필요 : 예시 데이터
-    @State var papers: [PaperInfo] = [PaperInfo(
-        title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
-        datetime: "2024. 10. 20. 오후 08:56",
-        author: "Smith, John",
-        year: "2010",
-        pages: 43,
-        publisher: "NATURE"
-    )]
     
     
     var body: some View {
@@ -71,10 +64,10 @@ struct PaperListView: View {
                     // MARK: - CoreData
                     ScrollView {
                         VStack(spacing: 0) {
-                            ForEach(0..<papers.count, id: \.self) { index in
+                            ForEach(0..<pdfFileManager.paperInfos.count, id: \.self) { index in
                                 PaperListCell(
-                                    title: papers[index].title,
-                                    date: papers[index].dateTime,
+                                    title: pdfFileManager.paperInfos[index].title,
+                                    date: pdfFileManager.paperInfos[index].dateTime,
                                     isSelected: selectedPaper == index,
                                     isEditing: isEditing,
                                     isEditingSelected: selectedItems.contains(index),
@@ -82,7 +75,8 @@ struct PaperListView: View {
                                         if !isEditing {
                                             if selectedPaper == index {
                                                 navigationPath.append(selectedPaper)
-                                            } else {
+                                            }
+                                            else {
                                                 selectedPaper = index
                                             }
                                         }
@@ -95,8 +89,7 @@ struct PaperListView: View {
                                                 selectedItems.insert(index)
                                             }
                                         }
-                                    }
-                                )
+                                    })
                                 
                                 Rectangle()
                                     .frame(height: 1)
@@ -116,19 +109,21 @@ struct PaperListView: View {
                     
                     VStack(spacing: 0) {
                         // MARK: - 썸네일 이미지 수정 필요
-                        PaperInfoView(
-                            image: Image("test_thumbnail"),
-                            title: papers[selectedPaper].title,
-                            author: papers[selectedPaper].author,
-                            year: papers[selectedPaper].year,
-                            pages: papers[selectedPaper].pages,
-                            publisher: papers[selectedPaper].publisher,
-                            onNavigate: {
-                                if !isEditing {
-                                    navigationPath.append(selectedPaper)
+                        if !pdfFileManager.paperInfos.isEmpty {
+                            PaperInfoView(
+                                image: pdfFileManager.paperInfos[selectedPaper].thumbnail,
+                                title: pdfFileManager.paperInfos[selectedPaper].title,
+                                author: pdfFileManager.paperInfos[selectedPaper].author,
+                                year: pdfFileManager.paperInfos[selectedPaper].year,
+                                pages: pdfFileManager.paperInfos[selectedPaper].pages,
+                                publisher: pdfFileManager.paperInfos[selectedPaper].publisher,
+                                onNavigate: {
+                                    if !isEditing {
+                                        navigationPath.append(selectedPaper)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                     .animation(.easeInOut, value: isEditing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -150,17 +145,13 @@ struct PaperListView: View {
     }
 }
 
+
 #Preview {
-    PaperListView(
-        navigationPath: .constant(NavigationPath()),
-        isEditing: .constant(false),
-        isSearching: .constant(false),
-        papers: [PaperInfo(
-            title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
-            datetime: "2024. 10. 20. 오후 08:56",
-            author: "Smith, John",
-            year: "2010",
-            pages: 43,
-            publisher: "NATURE")]
-    )
+    let manager = PDFFileManager()
+    
+    PaperListView(navigationPath: .constant(.init()), isEditing: .constant(false), isSearching: .constant(false))
+        .environmentObject(manager)
+        .onAppear {
+            manager.uploadSampleData()
+        }
 }
