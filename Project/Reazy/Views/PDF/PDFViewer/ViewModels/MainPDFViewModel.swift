@@ -5,7 +5,6 @@
 //  Created by 문인범 on 10/17/24.
 //
 
-import Foundation
 import PDFKit
 import SwiftUI
 
@@ -13,11 +12,10 @@ import SwiftUI
 /**
  PDFView 전체 관할 View model
  */
-
-
 final class MainPDFViewModel: ObservableObject {
     
     @Published var selectedDestination: PDFDestination?
+    @Published var searchSelection: PDFSelection?
     @Published var changedPageNumber: Int = 0
     @Published var selectedText: String = "" {
         didSet {
@@ -30,12 +28,18 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
-    @Published var isTranslateMode: Bool = false
+    @Published var toolMode: ToolMode = .none {
+        didSet {
+            updateDrawingTool()
+        }
+    }
     
     // BubbleView의 상태와 위치
     @Published var bubbleViewVisible: Bool = false
     @Published var bubbleViewPosition: CGRect = .zero
     
+    // 하이라이트 색상
+    @Published var selectedHighlightColor: HighlightColors = .yellow
     // Comment
     @Published var pdfContent: PDFContent?
     @Published var isCommentTapped: Bool = false {
@@ -68,6 +72,9 @@ final class MainPDFViewModel: ObservableObject {
     public var figureAnnotations: [FigureAnnotation] = []       // figure 리스트
     
     public var thumnailImages: [UIImage] = []
+    
+    // for drawing
+    public var pdfDrawer = PDFDrawer()                          // PDFDrawer
 }
 
 
@@ -225,13 +232,13 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     public var isBubbleViewVisible: Bool {
         get {
-            self.isTranslateMode && self.bubbleViewVisible && !self.selectedText.isEmpty
+            self.toolMode == .translate && self.bubbleViewVisible && !self.selectedText.isEmpty
         }
     }
     
+
     // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
     public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
-        print(selectedText)
         
         // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
         if !selectedText.isEmpty {
@@ -243,6 +250,49 @@ extension MainPDFViewModel {
     }
 }
 
+extension MainPDFViewModel {
+    // 하이라이트 기능
+    func highlightText(in pdfView: PDFView, with color: HighlightColors) {
+        // toolMode가 highlight일때 동작
+        guard toolMode == .highlight else { return }
+        
+        // PDFView 안에서 스크롤 영역 파악
+        guard let currentSelection = pdfView.currentSelection else { return }
+        
+        // 선택된 텍스트를 줄 단위로 나눔
+        let selections = currentSelection.selectionsByLine()
+        
+        guard let page = selections.first?.pages.first else { return }
+        
+        let highlightColor = color.uiColor
+        
+        selections.forEach { selection in
+            let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
+            highlight.endLineStyle = .none
+            highlight.color = highlightColor
+            page.addAnnotation(highlight)
+        }
+    }
+}
+
+enum ToolMode {
+    case none
+    case translate
+    case pencil
+    case eraser
+    case highlight
+    case comment
+}
+
+extension MainPDFViewModel {
+    private func updateDrawingTool() {
+        switch toolMode {
+        case .pencil:
+            pdfDrawer.drawingTool = .pencil
+        case .eraser:
+            pdfDrawer.drawingTool = .eraser
+        default:
+            pdfDrawer.drawingTool = .none
 // 코멘트 관련
 extension MainPDFViewModel {
     

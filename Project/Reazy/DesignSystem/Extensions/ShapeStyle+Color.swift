@@ -16,16 +16,26 @@ extension ShapeStyle where Self == Color {
   static var point1: Color { Color(hex: "05043E") }
   static var point2: Color { Color(hex: "26235D") }
   static var point3: Color { Color(hex: "D2CFFF") }
+  static var point4: Color { Color(hex: "727BC7") }
   
   static var gray900: Color { Color(hex: "3C3D4D") }
   static var gray800: Color { Color(hex: "4B4C5C") }
   static var gray700: Color { Color(hex: "636577") }
   static var gray600: Color { Color(hex: "9092A9") }
+  static var gray550: Color { Color(hex: "BABCCF") }
   static var gray500: Color { Color(hex: "D2D4E5") }
   static var gray400: Color { Color(hex: "DDDFEC") }
   static var gray300: Color { Color(hex: "EFEFF8") }
   static var gray200: Color { Color(hex: "F7F7FB") }
   static var gray100: Color { Color(hex: "FFFFFF") }
+  
+  static var highlight1: Color { Color(hex: "FEF166") }
+  static var highlight2: Color { Color(hex: "F799D1") }
+  static var highlight3: Color { Color(hex: "7DF066") }
+  static var highlight4: Color { Color(hex: "8FDEF9") }
+  static var comment: Color { Color(hex: "ECEDFF") }
+  
+  static var list: Color { Color(hex: "FDFDFF") }
 }
 
 extension UIColor {
@@ -37,16 +47,26 @@ extension UIColor {
     static var point1: UIColor { UIColor(hex: "05043E") }
     static var point2: UIColor { UIColor(hex: "26235D") }
     static var point3: UIColor { UIColor(hex: "D2CFFF") }
+    static var point4: UIColor { UIColor(hex: "727BC7") }
     
     static var gray900: UIColor { UIColor(hex: "3C3D4D") }
     static var gray800: UIColor { UIColor(hex: "4B4C5C") }
     static var gray700: UIColor { UIColor(hex: "636577") }
     static var gray600: UIColor { UIColor(hex: "9092A9") }
+    static var gray550: UIColor { UIColor(hex: "BABCCF") }
     static var gray500: UIColor { UIColor(hex: "D2D4E5") }
     static var gray400: UIColor { UIColor(hex: "DDDFEC") }
     static var gray300: UIColor { UIColor(hex: "EFEFF8") }
     static var gray200: UIColor { UIColor(hex: "F7F7FB") }
     static var gray100: UIColor { UIColor(hex: "FFFFFF") }
+  
+    static var highlight1: UIColor { UIColor(hex: "FEF166") }
+    static var highlight2: UIColor { UIColor(hex: "F799D1") }
+    static var highlight3: UIColor { UIColor(hex: "7DF066") }
+    static var highlight4: UIColor { UIColor(hex: "8FDEF9") }
+    static var comment: UIColor { UIColor(hex: "ECEDFF") }
+  
+    static var list: UIColor { UIColor(hex: "FDFDFF") }
 }
 
 extension Color {

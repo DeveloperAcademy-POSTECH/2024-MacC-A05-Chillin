@@ -36,8 +36,15 @@ final class OriginalViewController: UIViewController {
         view.backgroundColor = .gray200
         view.autoScales = false
         view.pageShadowsEnabled = false
+        
+        // for drawing
+        view.displayDirection = .vertical
+        view.usePageViewController(false)
         return view
     }()
+    
+    // for drawing
+    var shouldUpdatePDFScrollPosition = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +57,24 @@ final class OriginalViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleAnnotationTap(_:)))
         tapGesture.delegate = self
         mainPDFView.addGestureRecognizer(tapGesture)
+        
+        // 기본 설정: 제스처 추가
+        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+        viewModel.pdfDrawer.pdfView = self.mainPDFView
+        viewModel.pdfDrawer.drawingTool = .none
+
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
+        gesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(gesture)
+
+        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
+        viewModel.$toolMode
+            .sink { [weak self] mode in
+                self?.updateGestureRecognizer(for: mode)
+            }
+            .store(in: &cancellable)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -64,6 +89,29 @@ final class OriginalViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc
+    func postScreenTouch() {
+        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
+    }
+
+    private func updateGestureRecognizer(for mode: ToolMode) {
+        // 현재 설정된 제스처 인식기를 제거
+        if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
+            for recognizer in gestureRecognizers {
+                self.mainPDFView.removeGestureRecognizer(recognizer)
+            }
+        }
+
+        // toolMode에 따라 제스처 인식기를 추가
+        if mode == .pencil || mode == .eraser {
+            let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+            self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+            pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+            viewModel.pdfDrawer.pdfView = self.mainPDFView
+            viewModel.pdfDrawer.drawingTool = .none
+        }
     }
     
     // 제스처
@@ -138,8 +186,15 @@ extension OriginalViewController {
     private func setBinding() {
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
-                guard let page = destination?.page else { return }
+                guard let destination = destination else { return }
+                guard let page = destination.page else { return }
                 self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
+        
+        self.viewModel.$searchSelection
+            .sink { [weak self] selection in
+                self?.mainPDFView.setCurrentSelection(selection, animate: true)
             }
             .store(in: &self.cancellable)
         
@@ -157,83 +212,51 @@ extension OriginalViewController {
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                guard let selection = self.mainPDFView.currentSelection else {
-                    // 선택된 텍스트가 없을 때 특정 액션
-                    self.viewModel.selectedText = "" // 선택된 텍스트 초기화
-                    self.viewModel.bubbleViewVisible = false // 말풍선 뷰 숨김
+                
+                switch self.viewModel.toolMode {
+                case .highlight:
+                    DispatchQueue.main.async {
+                        self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+                    }
+                case .translate:
+                    guard let selection = self.mainPDFView.currentSelection else {
+                        // 선택된 텍스트가 없을 때 특정 액션
+                        self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
+                        self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
+                        return
+                    }
+                    
+                    guard let page = selection.pages.first else {
+                        return
+                    }
+                    
+                    // PDFSelection의 bounds 추출(CGRect)
+                    let bound = selection.bounds(for: page)
+                    
+                    // 선택된 텍스트 가져오기
+                    let selectedText = selection.string ?? ""
+                    
+                    // PDFPage의 좌표를 PDFView의 좌표로 변환
+                    let pagePosition = self.mainPDFView.convert(bound, from: page)
+                    
+                    // PDFView의 좌표를 Screen의 좌표로 변환
+                    let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+                    
+                    DispatchQueue.main.async {
+                        // ViewModel에 선택된 텍스트와 위치 업데이트
+                        self.viewModel.selectedText = selectedText
+                        self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
+                        self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
+                    }
+                default:
                     return
                 }
-                
-                self.selectionWorkItem?.cancel()
-                
-                let workItem = DispatchWorkItem { [weak self] in
-                    guard let self = self else { return }
-                    if let page = selection.pages.first {
-                        
-                        // PDFSelection의 bounds 추출(CGRect)
-                        let bound = selection.bounds(for: page)
-                        let convertedBounds = self.mainPDFView.convert(bound, from: page)
-                        
-                        //comment position 설정
-                        let commentPosition = CGPoint(
-                            x: convertedBounds.midX,
-                            y: convertedBounds.maxY + 50
-                        )
-                        
-                        // 선택된 텍스트 가져오기
-                        let selectedText = selection.string ?? ""
-                        
-                        // PDFPage의 좌표를 PDFView의 좌표로 변환
-                        let pagePosition = self.mainPDFView.convert(bound, from: page)
-                        
-                        // PDFView의 좌표를 Screen의 좌표로 변환
-                        let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                        
-                        DispatchQueue.main.async {
-                            // ViewModel에 선택된 텍스트와 위치 업데이트
-                            self.viewModel.selectedText = selectedText
-                            self.viewModel.bubbleViewPosition = screenPosition // 위치 업데이트
-                            self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
-                            
-                            self.viewModel.selection = selection
-                            self.viewModel.commentPosition = commentPosition
-                        }
-                    }
-                }
-                
-                // 텍스트 선택 후 딜레이
-                self.selectionWorkItem = workItem
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
-            }
-            .store(in: &self.cancellable)
-        
-        // 저장하면 currentSelection 해제
-        self.viewModel.$isCommentSaved
-            .sink { [weak self] isCommentSaved in
-                if isCommentSaved {
-                    self?.cleanTextSelection()
-                }
             }
             .store(in: &self.cancellable)
     }
 }
 
-// MARK: - 탭 제스처 관련
-extension OriginalViewController: UIGestureRecognizerDelegate {
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        let location = touch.location(in: mainPDFView)
-        
-        // 버튼 annotation이 있는 위치인지 확인
-        if let page = mainPDFView.page(for: location, nearest: true),
-           let annotation = page.annotation(at: mainPDFView.convert(location, to: page)),
-           annotation.widgetFieldType == .button {
-            return true
-        }
-        return false
-    }
-}
 
-//#Preview {
-//    OriginalViewController(viewModel: .init(), commentViewModel: .init(mainPDFViewModel: .init()))
-//}
+#Preview {
+    OriginalViewController(viewModel: .init())
+}

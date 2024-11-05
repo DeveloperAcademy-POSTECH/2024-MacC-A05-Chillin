@@ -16,7 +16,7 @@ struct FloatingViewsContainer: View {
       let droppedFigure = floatingViewModel.droppedFigures[index]
       let isTopmost = (floatingViewModel.topmostIndex == index)
       
-      if droppedFigure.isSelected {
+      if droppedFigure.isSelected && !droppedFigure.isInSplitMode {
         FloatingView(
           documentID: droppedFigure.documentID,
           document: droppedFigure.document,

@@ -14,64 +14,70 @@ enum WriteButton: String, CaseIterable {
   case eraser
   case translate
   
-  var icon: String {
+  var icon: Image {
     switch self {
     case .comment:
-      "text.bubble"
+      return Image(systemName: "text.bubble")
     case .highlight:
-      "highlighter"
+      return Image("Highlight")
+            .renderingMode(.template)
     case .pencil:
-      "scribble"
+      return Image("Pencil")
+            .renderingMode(.template)
     case .eraser:
-      "eraser"
+      return Image(systemName: "eraser")
     case .translate:
-      "character.square"
+      return Image(systemName: "globe")
     }
   }
 }
 
 enum HighlightColors: String, CaseIterable {
-  case yellow
-  case pink
-  case green
-  case blue
-  
-  var color: Color {
-    switch self {
-    case .yellow:
-      return Color(hex: "FEF166")
-    case .pink:
-      return Color(hex: "F799D1")
-    case .green:
-      return Color(hex: "7DF066")
-    case .blue:
-      return Color(hex: "8FDEF9")
+    case yellow
+    case pink
+    case green
+    case blue
+    
+    var color: Color {
+        switch self {
+        case .yellow:
+              return .highlight1
+        case .pink:
+              return .highlight2
+        case .green:
+              return .highlight3
+        case .blue:
+              return .highlight4
+        }
     }
-  }
+    
+    var uiColor: UIColor {
+        return UIColor(self.color)
+    }
 }
 
 struct ColorButton: View {
-  @Binding var button: HighlightColors
-  
-  let buttonOwner: HighlightColors
-  let action: () -> Void
-  
-  var body: some View {
-    Button(action: {
-      action()
-    }) {
-      Circle()
-        .frame(width: 18, height: 18)
-        .foregroundStyle(buttonOwner.color)
-        .overlay(
-          Image(systemName: "checkmark.circle")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 18, height: 18)
-            .foregroundStyle(buttonOwner == button ? .gray700 : .clear)
-        )
+    @Binding var button: HighlightColors
+    
+    let buttonOwner: HighlightColors
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            Circle()
+                .frame(width: 18, height: 18)
+                .foregroundStyle(buttonOwner.color)
+                .overlay(
+                    Image(systemName: "checkmark.circle")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(buttonOwner == button ? .gray700 : .clear)
+                )
+        }
     }
-  }
 }
 
 struct WriteViewButton: View {
@@ -97,7 +103,7 @@ struct WriteViewButton: View {
         .frame(width: 26, height: 26)
         .foregroundStyle(button == buttonOwner ? .primary1 : .clear)
         .overlay(
-          Image(systemName: buttonOwner.icon)
+          buttonOwner.icon
             .resizable()
             .scaledToFit()
             .foregroundStyle(foregroundColor)

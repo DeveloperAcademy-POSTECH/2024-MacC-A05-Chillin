@@ -22,7 +22,13 @@ public enum ReazyFontType {
   
   case text1
   case text2
-  case text3 // 임의 추가
+  case text3
+  case text4
+  case text5
+  
+  case body1
+  case body2
+  case body3
   
   static let pretendardBoldFont: String = "Pretendard-Bold"
   static let pretendardMediumFont: String = "Pretendard-Medium"
@@ -32,22 +38,23 @@ public enum ReazyFontType {
   
   var fontSize: CGFloat {
     switch self {
-    case .button4, .button5, .text2: return 12
-    case .text1: return 13
-    case .h3, .h4, .button2, .button3: return 14
+    case .text4: return 10
+    case .button4, .button5, .text2, .text5, .body3: return 12
+    case .h3, .h4, .button2, .button3, .body1, .body2: return 14
     case .h2, .text3: return 15
-    case .button1: return 16
+    case .text1, .button1: return 16
     case .h1: return 24
     }
   }
   
   var lineHeight: CGFloat {
     switch self {
-    case .button4, .button5: return 0
+    case .text4: return 12
+    case .button4, .button5, .text5: return 14
     case .text2: return 16
     case .h3, .button3: return 17
-    case .h4, .text1: return 18
-    case .h2, .button2, .text3: return 20
+    case .h4, .body3: return 18
+    case .h2, .button2, .text1, .text3, .body1, .body2: return 20
     case .button1: return 23
     case .h1: return 34
     }
@@ -56,8 +63,8 @@ public enum ReazyFontType {
   var fontWeight: String {
     switch self {
     case .h1, .button1, .button2: return ReazyFontType.pretendardSemiboldFont
-    case .h2, .h3, .button5, .text1: return ReazyFontType.pretendardMediumFont
-    case .h4, .button3, .text2: return ReazyFontType.pretendardRegularFont
+    case .h2, .h3, .button5, .text1, .body1, .body3: return ReazyFontType.pretendardMediumFont
+    case .h4, .button3, .text2, .text4, .text5, .body2: return ReazyFontType.pretendardRegularFont
     case .button4, .text3: return ReazyFontType.pretendardBoldFont
     }
   }
