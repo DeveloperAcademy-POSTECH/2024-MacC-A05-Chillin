@@ -12,8 +12,7 @@ import Combine
 /**
  원문 모드 ViewController
  */
-final class OriginalViewController:
-    UIViewController {
+final class OriginalViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
     
@@ -40,25 +39,8 @@ final class OriginalViewController:
         
         self.setUI()
         self.setData()
+        self.setGestures()
         self.setBinding()
-        
-        // 기본 설정: 제스처 추가
-        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
-        viewModel.pdfDrawer.pdfView = self.mainPDFView
-        viewModel.pdfDrawer.drawingTool = .none
-
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
-        gesture.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(gesture)
-
-        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-        viewModel.$toolMode
-            .sink { [weak self] mode in
-                self?.updateGestureRecognizer(for: mode)
-            }
-            .store(in: &cancellable)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -125,6 +107,19 @@ extension OriginalViewController {
         self.viewModel.fetchThumbnailImage()
     }
     
+    private func setGestures() {
+        // 기본 설정: 제스처 추가
+        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+        viewModel.pdfDrawer.pdfView = self.mainPDFView
+        viewModel.pdfDrawer.drawingTool = .none
+
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
+        gesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(gesture)
+    }
+    
     /// 데이터 Binding
     private func setBinding() {
         self.viewModel.$selectedDestination
@@ -140,6 +135,13 @@ extension OriginalViewController {
                 self?.mainPDFView.setCurrentSelection(selection, animate: true)
             }
             .store(in: &self.cancellable)
+        
+        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
+        self.viewModel.$toolMode
+            .sink { [weak self] mode in
+                self?.updateGestureRecognizer(for: mode)
+            }
+            .store(in: &cancellable)
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .sink { [weak self] _ in
