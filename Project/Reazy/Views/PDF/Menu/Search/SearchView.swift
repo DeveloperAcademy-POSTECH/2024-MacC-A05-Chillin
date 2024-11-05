@@ -22,6 +22,8 @@ struct SearchView: View {
     @State private var isTapGesture: Bool = false
     @State private var isSearchViewHidden: Bool = false
     
+    @FocusState private var focus: Bool
+    
     let publisher = NotificationCenter.default.publisher(for: .isSearchViewHidden)
     
     var body: some View {
@@ -30,12 +32,19 @@ struct SearchView: View {
                 SearchBoxView()
                 
                 VStack {
-                    SearchTextFieldView(viewModel: viewModel, isSearchViewHidden: $isSearchViewHidden)
+                    SearchTextFieldView(
+                        viewModel: viewModel,
+                        isSearchViewHidden: $isSearchViewHidden,
+                        focus: $focus)
                         .padding(.bottom, isSearchViewHidden ? 21 : 0)
                     
                     if !self.isSearchViewHidden {
                         if !viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
-                            SearchTopView(viewModel: viewModel, isTapGesture: $isTapGesture, selectedIndex: $selectedIndex)
+                            SearchTopView(
+                                viewModel: viewModel,
+                                isTapGesture: $isTapGesture,
+                                selectedIndex: $selectedIndex,
+                                focus: $focus)
                         }
                         
                         
@@ -53,7 +62,11 @@ struct SearchView: View {
                         }
                         
                         if !viewModel.searchResults.isEmpty {
-                            SearchListView(viewModel: viewModel, isTapGesture: $isTapGesture, selectedIndex: $selectedIndex)
+                            SearchListView(
+                                viewModel: viewModel,
+                                isTapGesture: $isTapGesture,
+                                selectedIndex: $selectedIndex,
+                                focus: $focus)
                         } else {
                             Spacer()
                         }
@@ -97,9 +110,9 @@ struct SearchView: View {
 private struct SearchTextFieldView: View {
     @ObservedObject var viewModel: SearchViewModel
     
-    @FocusState private var focus: Bool
-    
     @Binding var isSearchViewHidden: Bool
+    
+    var focus: FocusState<Bool>.Binding
     
     var body: some View {
         ZStack {
@@ -123,9 +136,9 @@ private struct SearchTextFieldView: View {
                     .padding(.trailing, 10)
                     .foregroundStyle(.gray800)
                     .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
-                    .focused($focus)
+                    .focused(focus)
                     .onAppear {
-                        focus.toggle()
+                        focus.wrappedValue = true
                     }
                     
             }
@@ -144,6 +157,8 @@ private struct SearchTopView: View {
     
     @Binding var isTapGesture: Bool
     @Binding var selectedIndex: Int?
+    
+    var focus: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
@@ -180,6 +195,7 @@ private struct SearchTopView: View {
     
     private func nextResult() {
         self.isTapGesture = false
+        self.focus.wrappedValue = false
         if self.selectedIndex == nil { return }
         
         let count = self.viewModel.searchResults.count
@@ -194,6 +210,7 @@ private struct SearchTopView: View {
     
     private func previousResult() {
         self.isTapGesture = false
+        self.focus.wrappedValue = false
         if self.selectedIndex == nil { return }
         
         if self.selectedIndex! == 0 {
@@ -216,6 +233,8 @@ private struct SearchListView: View {
     @Binding var isTapGesture: Bool
     @Binding var selectedIndex: Int?
     
+    var focus: FocusState<Bool>.Binding
+    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -226,6 +245,7 @@ private struct SearchListView: View {
                                 .onTapGesture {
                                     self.isTapGesture = true
                                     self.selectedIndex = index
+                                    focus.wrappedValue = false
                                 }
                                 .background {
                                     RoundedRectangle(cornerRadius: 8)
