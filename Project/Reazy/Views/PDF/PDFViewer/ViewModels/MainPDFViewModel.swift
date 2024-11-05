@@ -293,6 +293,11 @@ extension MainPDFViewModel {
             pdfDrawer.drawingTool = .eraser
         default:
             pdfDrawer.drawingTool = .none
+        }
+    }
+}
+            
+            
 // 코멘트 관련
 extension MainPDFViewModel {
     

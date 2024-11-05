@@ -130,6 +130,7 @@ struct MainPDFView: View {
                                             selectedButton = btn
                                         }
                                         
+                                        switch selectedButton {
                                         case .translate:
                                             NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                             mainPDFViewModel.toolMode = .translate
@@ -162,7 +163,6 @@ struct MainPDFView: View {
                                 Spacer()
                             }
                             .background(.clear)
-                                        switch selectedButton {
                         }
                     }
                     
