@@ -8,8 +8,6 @@
 import Foundation
 import PDFKit
 
-// 각종 그리기 도구와 관련된 부분, 지우개와 펜슬 둘 다 여기서 처리
-
 enum DrawingTool: Int {
     case none = 0
     case eraser = 1
@@ -17,22 +15,16 @@ enum DrawingTool: Int {
     
     var width: CGFloat {
         switch self {
-        case .eraser:
-            return 5
-        case .pencil:
-            return 1
-        default:
-            return 0
+        case .eraser: return 5
+        case .pencil: return 1
+        default: return 0
         }
     }
     
-    // 투명도
     var alpha: CGFloat {
         switch self {
-        case .none:
-            return 0
-        default:
-            return 1
+        case .none: return 0
+        default: return 1
         }
     }
 }
@@ -40,55 +32,43 @@ enum DrawingTool: Int {
 class PDFDrawer {
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
-    private var currentAnnotation : DrawingAnnotation?
+    private var currentAnnotation: DrawingAnnotation?
     private var currentPage: PDFPage?
-    var color = UIColor.init(hex: "#5F5CAB") // 펜 색상
+    var color = UIColor(hex: "#5F5CAB")
     var drawingTool = DrawingTool.none
     private var eraserLayer: CAShapeLayer? = nil
-    
     private var drawingDataArray: [Drawing] = []
-    
-    // 드로잉 데이터를 배열에 추가하고 주석을 페이지에 추가하는 함수
+
     private func saveAndAddAnnotation(_ path: UIBezierPath, on page: PDFPage) {
         let finalAnnotation = createFinalAnnotation(path: path, page: page)
         page.addAnnotation(finalAnnotation)
-        
-        // 드로잉 데이터를 배열에 추가
+
         if let pageIndex = pdfView.document?.index(for: page) {
             let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
             drawingDataArray.append(drawingData)
         }
     }
-    
-    
 }
 
-
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
-    // 펜 처음 터치 했을 때 작동되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
         
         let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
         
-        // 페이지 경계 내에서만 드로잉 시작
         if pageBounds.contains(location) {
             let convertedPoint = pdfView.convert(location, to: currentPage!)
             path = UIBezierPath()
             path?.move(to: convertedPoint)
         }
-        
     }
     
-    // 펜을 떼지 않고 움직이는 동안 작동되는 함수 - 조금이라도 움직일 때마다 호출
     func gestureRecognizerMoved(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
-        
         let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
-        
-        // 페이지 경계를 벗어났다면 현재 경로를 완료하고 종료
+
         if !pageBounds.contains(location) {
             completeCurrentPath(on: page)
             return
@@ -101,7 +81,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         }
         
         if path == nil {
-            // 새로운 path 시작
             path = UIBezierPath()
             path?.move(to: convertedPoint)
         } else {
@@ -111,12 +90,11 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     }
     
     private func completeCurrentPath(on page: PDFPage) {
-        if let path = path {
-            let finalAnnotation = createFinalAnnotation(path: path, page: page)
-            page.addAnnotation(finalAnnotation)
-            self.path = nil
-            currentAnnotation = nil
-        }
+        guard let path = path else { return }
+        let finalAnnotation = createFinalAnnotation(path: path, page: page)
+        page.addAnnotation(finalAnnotation)
+        self.path = nil
+        currentAnnotation = nil
     }
     
     private func updateEraserLayer(at location: CGPoint) {
@@ -132,27 +110,21 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         eraserLayer?.path = eraserCirclePath.cgPath
     }
     
-    
     func gestureRecognizerEnded(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
-        
-        // 지우개
+
         if drawingTool == .eraser {
             removeAnnotationAtPoint(point: location, page: page)
-            
-            // 지우개 모양 제거
             eraserLayer?.removeFromSuperlayer()
             eraserLayer = nil
             return
         }
-        
-        // 드로잉
+
         guard let _ = currentAnnotation else { return }
         
         path?.addLine(to: convertedPoint)
         path?.move(to: convertedPoint)
-        
         page.removeAnnotation(currentAnnotation!)
         let _ = createFinalAnnotation(path: path!, page: page)
         currentAnnotation = nil
@@ -161,7 +133,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     private func createAnnotation(path: UIBezierPath, page: PDFPage) -> DrawingAnnotation {
         let border = PDFBorder()
         border.lineWidth = drawingTool.width
-        
+
         let annotation = DrawingAnnotation(bounds: page.bounds(for: pdfView.displayBox), forType: .ink, withProperties: nil)
         annotation.color = color.withAlphaComponent(drawingTool.alpha)
         annotation.border = border
@@ -196,12 +168,11 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         annotation.border = border
         annotation.add(signingPathCentered)
         page.addAnnotation(annotation)
-        
-        // 완료된 그리기를 drawingDataArray에 추가
+
         if let pageIndex = pdfView.document?.index(for: page) {
             let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
             drawingDataArray.append(drawingData)
-            print(drawingDataArray.count)
+            print("array count after append: \(drawingDataArray.count)")
         }
         
         return annotation
@@ -211,7 +182,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         let convertedPoint = pdfView.convert(point, to: page)
         let hitTestRect = CGRect(x: convertedPoint.x - 3, y: convertedPoint.y - 3, width: 6, height: 6)
 
-        // 해당 위치의 주석을 찾음
         let annotations = page.annotations.filter { annotation in
             annotation.bounds.intersects(hitTestRect)
         }
@@ -220,39 +190,21 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             for annotation in annotations {
                 let annotationBounds = annotation.bounds
                 
-                // 관련된 모든 드로잉의 인덱스를 찾기
                 let indicesToRemove = drawingDataArray.indices.filter { index in
                     let drawing = drawingDataArray[index]
-                    let intersects = drawing.pageIndex == pageIndex && drawing.path.bounds.intersects(annotationBounds)
-                    
-                    // 디버깅 로그
-                    if intersects {
-                        print("Drawing at index \(index) matches with annotation. Drawing bounds: \(drawing.path.bounds), Annotation bounds: \(annotationBounds)")
-                    } else {
-                        print("Drawing at index \(index) does NOT match with annotation. Drawing bounds: \(drawing.path.bounds), Annotation bounds: \(annotationBounds)")
-                    }
-                    
-                    return intersects
+                    return drawing.pageIndex == pageIndex && drawing.path.bounds.intersects(annotationBounds)
                 }
 
-                // 찾은 인덱스를 사용하여 드로잉을 제거
-                for index in indicesToRemove.reversed() { // 배열에서 삭제할 때는 뒤에서부터 삭제
+                for index in indicesToRemove.reversed() {
                     drawingDataArray.remove(at: index)
-                    print("Removed drawing at index: \(index), total drawings now: \(drawingDataArray.count)")
+                    print("array count after remove: \(drawingDataArray.count)")
                 }
 
-                // 주석 삭제
                 page.removeAnnotation(annotation)
             }
         }
     }
 
-
-
-
-
-
-    
     private func forceRedraw(annotation: PDFAnnotation, onPage: PDFPage) {
         onPage.removeAnnotation(annotation)
         onPage.addAnnotation(annotation)
@@ -264,10 +216,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         guard let document = pdfView.document else { return }
         
         for drawing in drawingDataArray {
-            // 각 드로잉의 pageIndex를 사용하여 해당 페이지를 가져옵니다.
             guard let page = document.page(at: drawing.pageIndex) else { continue }
-            
-            // 드로잉 데이터에 맞는 주석 생성 및 페이지에 추가
             let annotation = createFinalAnnotation(path: drawing.path, page: page)
             annotation.color = drawing.color
             page.addAnnotation(annotation)
@@ -275,5 +224,4 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         
         pdfView.setNeedsDisplay()
     }
-    
 }
