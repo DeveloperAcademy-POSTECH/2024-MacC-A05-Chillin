@@ -48,6 +48,8 @@ final class MainPDFViewModel: ObservableObject {
     
     // for drawing
     public var pdfDrawer = PDFDrawer()                          // PDFDrawer
+    
+    var highlightedSelections: [PDFSelection] = []              // 하이라이트된 선택의 PDFSelection 저장
 }
 
 
@@ -76,7 +78,7 @@ extension MainPDFViewModel {
         let document = PDFDocument()
         
         var pageIndex = 0
-
+        
         self.focusAnnotations.forEach { annotation in
             guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
                 return
@@ -168,22 +170,22 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
     public func setFigureDocument(for index: Int) -> PDFDocument? {
-
+        
         // 인덱스가 유효한지 확인
         guard index >= 0 && index < self.figureAnnotations.count else {
             print("Invalid index")
             return nil
         }
-
+        
         let document = PDFDocument()                                    // 새 PDFDocument 생성
         let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
-
+        
         // 해당 페이지 가져오기
         guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
             print("Failed to get page")
             return nil
         }
-
+        
         figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
         
         let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
@@ -203,7 +205,7 @@ extension MainPDFViewModel {
         }
     }
     
-
+    
     // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
     public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
         
@@ -217,35 +219,40 @@ extension MainPDFViewModel {
     }
 }
 
+
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
         // toolMode가 highlight일때 동작
         guard toolMode == .highlight else { return }
-        
+
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
-        
+
         // 선택된 텍스트를 줄 단위로 나눔
         let selections = currentSelection.selectionsByLine()
-        
+
         guard let page = selections.first?.pages.first else { return }
-        
+
         let highlightColor = color.uiColor
-        
+
         selections.forEach { selection in
             var bounds = selection.bounds(for: page)
             let originBoundsHeight = bounds.size.height
             bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
             bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
-            
+
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
             highlight.color = highlightColor
+
             page.addAnnotation(highlight)
         }
+        
+        pdfView.clearSelection()
     }
 }
+
 
 enum ToolMode {
     case none
