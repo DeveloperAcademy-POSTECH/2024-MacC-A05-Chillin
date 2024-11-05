@@ -89,7 +89,12 @@ extension CommentViewModel {
         
         for lineSelection in selections {
             for page in lineSelection.pages {
-                let bounds = lineSelection.bounds(for: page)
+                var bounds = lineSelection.bounds(for: page)
+                
+                /// 밑줄 높이 조정
+                let originalBoundsHeight = bounds.size.height
+                bounds.size.height *= 0.6
+                bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2.5
                 
                 let underline = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
                 underline.color = .gray600

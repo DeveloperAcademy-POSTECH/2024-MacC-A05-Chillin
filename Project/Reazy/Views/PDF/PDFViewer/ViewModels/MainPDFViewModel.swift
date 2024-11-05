@@ -260,13 +260,17 @@ extension MainPDFViewModel {
             let selections = comment.selection.selectionsByLine()
             for lineSelection in selections {
                 for page in lineSelection.pages {
-                    let bounds = lineSelection.bounds(for: page)
+                    var bounds = lineSelection.bounds(for: page)
+                    
+                    /// 하이라이트 높이 조정
+                    let originalBoundsHeight = bounds.size.height
+                    bounds.size.height *= 0.6
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
                     
                     let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
                     highlight.color = .gray300
-                    highlight.bounds.size.height = 1
                     
-                    /// higlight인지 구별하기
+                    /// 하이라이트 주석 구별하기
                     highlight.setValue("\(comment.id) isHighlight", forAnnotationKey: .contents)
                     page.addAnnotation(highlight)
                 }
