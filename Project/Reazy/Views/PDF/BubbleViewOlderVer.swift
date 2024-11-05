@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct BubbleViewOlderVer: View {
-    @EnvironmentObject var floatingViewModel: FloatingViewModel
-    var isPaperViewFirst: Bool
 
     var body: some View {
         // 18.0 미만 버전에서 보여줄 화면
