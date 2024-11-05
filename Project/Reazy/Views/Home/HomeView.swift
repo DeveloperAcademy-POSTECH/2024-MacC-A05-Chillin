@@ -7,168 +7,222 @@
 
 import SwiftUI
 
-enum options {
-  case main
-  case search
-  case edit
+enum Options {
+    case main
+    case search
+    case edit
 }
 
 struct HomeView: View {
-  
-  @State private var navigationPath: NavigationPath = NavigationPath()
-  
-  @State var selectedMenu: options = .main
-  
-  // 검색 모드 search text
-  @State private var searchText: String = ""
-  
-  @State private var isStarSelected: Bool = false
-  @State private var isFolderSelected: Bool = false
-  
-  @State private var isEditing: Bool = false
-  @State private var selectedItems: Set<Int> = []
-  
-  @State private var isSearching: Bool = false
-  
-  var body: some View {
-    NavigationStack(path: $navigationPath) {
-      VStack(spacing: 0) {
-        ZStack {
-          Rectangle()
-            .foregroundStyle(.point1)
-          
-          HStack(spacing: 0) {
-            Image("icon")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 54, height: 50)
-              .padding(.vertical, 31)
-              .padding(.leading, 28)
-            
-            Spacer()
-            
-            switch selectedMenu {
-            case .main:
-              Button(action: {
+    
+    @State private var navigationPath: NavigationPath = NavigationPath()
+    
+    @State var selectedMenu: Options = .main
+    
+    // 검색 모드 search text
+    @State private var searchText: String = ""
+    
+    @State private var isStarSelected: Bool = false
+    @State private var isFolderSelected: Bool = false
+    
+    @State private var isEditing: Bool = false
+    @State private var selectedItems: Set<Int> = []
+    
+    @State private var isSearching: Bool = false
+    
+    var body: some View {
+        NavigationStack(path: $navigationPath) {
+            VStack(spacing: 0) {
+                ZStack {
+                    Rectangle()
+                        .foregroundStyle(.point1)
+                    
+                    HStack(spacing: 0) {
+                        Image("icon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 54, height: 50)
+                            .padding(.vertical, 31)
+                            .padding(.leading, 28)
+                        
+                        Spacer()
+                        
+                        switch selectedMenu {
+                        case .main:
+                            MainMenuView(
+                                selectedMenu: $selectedMenu,
+                                isSearching: $isSearching,
+                                isEditing: $isEditing,
+                                selectedItems: $selectedItems)
+                            
+                        case .search:
+                            SearchMenuView(
+                                selectedMenu: $selectedMenu,
+                                searchText: $searchText,
+                                isSearching: $isSearching)
+                            
+                        case .edit:
+                            EditMenuView(
+                                selectedMenu: $selectedMenu,
+                                selectedItems: $selectedItems,
+                                isEditing: $isEditing)
+                        }
+                    }
+                }
+                .frame(height: 80)
+                
+                PaperListView(
+                    navigationPath: $navigationPath,
+                    isEditing: $isEditing,
+                    isSearching: $isSearching
+                )
+            }
+            .background(Color(hex: "F7F7FB"))
+            .navigationDestination(for: Int.self) { index in
+                MainPDFView(navigationPath: $navigationPath)
+            }
+        }
+        .statusBarHidden()
+    }
+}
+
+#Preview {
+    HomeView()
+}
+
+
+/// 기본 화면 버튼 뷰
+private struct MainMenuView: View {
+    @Binding var selectedMenu: Options
+    @Binding var isSearching: Bool
+    @Binding var isEditing: Bool
+    @Binding var selectedItems: Set<Int>
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                  selectedMenu = .search
+                    selectedMenu = .search
                 }
                 isSearching.toggle()
-              }) {
+            }) {
                 Image(systemName: "magnifyingglass")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 19)
-                  .foregroundStyle(.gray100)
-              }
-              .padding(.trailing, 28)
-              
-              Button(action: {
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 19)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                  selectedMenu = .edit
+                    selectedMenu = .edit
                 }
                 isEditing.toggle()
                 selectedItems.removeAll()
-              }) {
+            }) {
                 Image(systemName: "checkmark.circle")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 19)
-                  .foregroundStyle(.gray100)
-              }
-              .padding(.trailing, 28)
-              
-              Button(action: {
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 19)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 
-              }) {
+            }) {
                 Text("가져오기")
-                  .reazyFont(.button1)
-                  .foregroundStyle(.gray100)
-              }
-              .padding(.trailing, 28)
-              
-            case .search:
-              SearchBar(text: $searchText)
+                    .reazyFont(.button1)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+        }
+    }
+}
+
+/// 검색 화면 버튼 뷰
+private struct SearchMenuView: View {
+    @Binding var selectedMenu: Options
+    @Binding var searchText: String
+    @Binding var isSearching: Bool
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            SearchBar(text: $searchText)
                 .frame(width: 400)
-              
-              Button(action: {
+            
+            Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                  selectedMenu = .main
+                    selectedMenu = .main
                 }
                 isSearching.toggle()
-              }, label: {
+            }, label: {
                 Text("취소")
-                  .reazyFont(.button1)
-                  .foregroundStyle(.gray100)
-              })
-              .padding(.trailing, 28)
-              
-            case .edit:
-              Button(action: {
+                    .reazyFont(.button1)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
+        }
+    }
+}
+
+/// 수정 화면 버튼 뷰
+private struct EditMenuView: View {
+    @State private var isStarSelected: Bool = false
+    
+    @Binding var selectedMenu: Options
+    @Binding var selectedItems: Set<Int>
+    @Binding var isEditing: Bool
+    
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: {
                 // MARK: - 북마크 로직 확인 필요
                 isStarSelected.toggle()
-              }, label : {
+            }, label : {
                 Image(systemName: isStarSelected ? "star.fill" : "star")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 19)
-                  .foregroundStyle(.gray100)
-              })
-              .padding(.trailing, 28)
-              
-              Button(action: {
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 19)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 
-              }, label: {
+            }, label: {
                 Image(systemName: "trash")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 19)
-                  .foregroundStyle(.gray100)
-              })
-              .padding(.trailing, 28)
-              
-              Button(action: {
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 19)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 
-              }, label: {
+            }, label: {
                 Image(systemName: "square.and.arrow.up")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 19)
-                  .foregroundStyle(.gray100)
-              })
-              .padding(.trailing, 28)
-              
-              Button(action: {
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 19)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 selectedMenu = .main
                 isEditing = false
                 selectedItems.removeAll()
                 isStarSelected = false
-              }, label: {
+            }, label: {
                 Text("취소")
-                  .reazyFont(.button1)
-                  .foregroundStyle(.gray100)
-              })
-              .padding(.trailing, 28)
-            }
-          }
+                    .reazyFont(.button1)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
         }
-        .frame(height: 80)
-        
-        PaperListView(
-          navigationPath: $navigationPath,
-          isEditing: $isEditing,
-          isSearching: $isSearching
-        )
-      }
-      .background(Color(hex: "F7F7FB"))
-      .navigationDestination(for: Int.self) { index in
-        MainPDFView(navigationPath: $navigationPath)
-      }
     }
-    .statusBarHidden()
-  }
-}
-
-#Preview {
-  HomeView()
 }
