@@ -45,7 +45,7 @@ final class NavigationCoordinator: CoordinatorProtocol {
     func build(_ screen: Screen) -> some View {
         switch screen {
         case .mainPDF(let url):
-            MainPDFView(navigationPath: .constant(.init()))
+            MainPDFView(/*mainPDFViewModel: .init(url: url), */navigationPath: .constant(.init()))
         }
     }
     
