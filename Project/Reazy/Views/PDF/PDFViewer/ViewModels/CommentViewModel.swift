@@ -58,7 +58,7 @@ extension CommentViewModel {
                 
                 ///PDF 문서의 colum 구분
                 let isLeft = lineBounds.maxX < pdfMidX
-                let isRight = lineBounds.minX > pdfMidX
+                let isRight = lineBounds.minX >= pdfMidX
                 let isAcross = !isLeft && !isRight
                 
                 var iconPosition: CGRect = .zero
@@ -81,14 +81,6 @@ extension CommentViewModel {
                 page.addAnnotation(commentIcon)
             }
         }
-        
-//        if let selectionLine = page.selectionForLine(at: convertedBounds) {
-//            let lineBounds = selectionLine.bounds(for: page)
-//            
-//            let pdfMidX = page.bounds(for: pdfView.displayBox).midX
-//            
-//            
-//        }
     }
     
     /// 밑줄 그리기

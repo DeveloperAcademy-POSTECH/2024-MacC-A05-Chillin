@@ -39,7 +39,6 @@ struct OriginalView: View {
                 if viewModel.isCommentVisible == true {
                     CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
                         .position(viewModel.isCommentTapped ? viewModel.commentTappedPosition : viewModel.commentPosition)
-                    
                 }
         }
         //.keyboardHeight($keyboardHeight)

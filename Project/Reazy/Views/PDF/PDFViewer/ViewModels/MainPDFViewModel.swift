@@ -38,9 +38,23 @@ final class MainPDFViewModel: ObservableObject {
     
     // Comment
     @Published var pdfContent: PDFContent?
-    @Published var isCommentTapped: Bool = false
+    @Published var isCommentTapped: Bool = false {
+        didSet{
+            if !isCommentTapped, let comment = tappedComment {
+                // isCommentTapped가 false일 때 하이라이트 제거
+                setHighlight(comment: comment, isTapped: false)
+            }
+        }
+    }
     @Published var selectedCommentID: UUID = .init()
     @Published var commentTappedPosition: CGPoint = .zero
+    @Published var tappedComment: Comment? {
+        didSet {
+            if let comment = tappedComment {
+                setHighlight(comment: comment, isTapped: true)
+            }
+        }
+    }
     
     @Published var isCommentMode: Bool = false
     @Published var selection: PDFSelection?
@@ -65,10 +79,10 @@ extension MainPDFViewModel {
     
     public func setupPDFContent(with mainPDFView: PDFView) {
         DispatchQueue.main.async {
-                self.pdfContent = PDFContent(pdfView: mainPDFView)
-            }
+            self.pdfContent = PDFContent(pdfView: mainPDFView)
         }
-    
+    }
+
     public func fetchFocusAnnotations() {
         guard let page = self.document?.page(at: 0) else {
             return
@@ -180,22 +194,22 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
     public func setFigureDocument(for index: Int) -> PDFDocument? {
-
+        
         // 인덱스가 유효한지 확인
         guard index >= 0 && index < self.figureAnnotations.count else {
             print("Invalid index")
             return nil
         }
-
+        
         let document = PDFDocument()                                    // 새 PDFDocument 생성
         let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
-
+        
         // 해당 페이지 가져오기
         guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
             print("Failed to get page")
             return nil
         }
-
+        
         figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
         
         let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
@@ -214,7 +228,7 @@ extension MainPDFViewModel {
             self.isTranslateMode && self.bubbleViewVisible && !self.selectedText.isEmpty
         }
     }
-
+    
     // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
     public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
         print(selectedText)
@@ -229,14 +243,44 @@ extension MainPDFViewModel {
     }
 }
 
+// 코멘트 관련
 extension MainPDFViewModel {
-
+    
     public var isCommentVisible: Bool {
         return (self.isCommentMode && !self.selectedText.isEmpty) || self.isCommentTapped
     }
     
-    func updateCommentPosition(at position: CGPoint) {
+    public func updateCommentPosition(at position: CGPoint) {
         self.commentPosition = position
-        //self.isCommentMode = !selectedText.isEmpty
+    }
+    /// 하이라이트
+    public func setHighlight(comment: Comment, isTapped: Bool) {
+        
+        if isTapped == true {
+            let selections = comment.selection.selectionsByLine()
+            for lineSelection in selections {
+                for page in lineSelection.pages {
+                    let bounds = lineSelection.bounds(for: page)
+                    
+                    let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
+                    highlight.color = .gray300
+                    highlight.bounds.size.height = 1
+                    
+                    /// higlight인지 구별하기
+                    highlight.setValue("\(comment.id) isHighlight", forAnnotationKey: .contents)
+                    page.addAnnotation(highlight)
+                }
+            }
+        } else {
+            for page in comment.selection.pages {
+                for annotation in page.annotations {
+                    /// 하이라이트 주석만 제거
+                    if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
+                       annotationValue == "\(comment.id) isHighlight" {
+                        page.removeAnnotation(annotation)
+                    }
+                }
+            }
+        }
     }
 }

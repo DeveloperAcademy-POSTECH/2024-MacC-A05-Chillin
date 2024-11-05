@@ -83,8 +83,17 @@ final class OriginalViewController: UIViewController {
                 
                 print(tappedComment)
                 viewModel.isCommentTapped.toggle()
+                
+                if viewModel.isCommentTapped {
+                    viewModel.tappedComment = tappedComment
+                } else {
+                    viewModel.tappedComment = nil
+                }
                 viewModel.commentTappedPosition = tappedComment.position
                 viewModel.selectedCommentID = tappedComment.id
+                //viewModel.tappedComment = tappedComment
+                
+                //commentViewModel.setHighlight(comment: tappedComment, isTapped: viewModel.isCommentTapped)
                 
             } else {
                 print("No match comment annotation")
