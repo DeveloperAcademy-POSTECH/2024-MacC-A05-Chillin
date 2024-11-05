@@ -250,9 +250,7 @@ extension OriginalViewController {
                     }
                 case .comment:
                     guard let selection = self.mainPDFView.currentSelection else {
-                        // 선택된 텍스트가 없을 때 특정 액션
-                        self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
-                        self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
+                        self.viewModel.selectedText = ""
                         return
                     }
                     
@@ -275,18 +273,9 @@ extension OriginalViewController {
                             // 선택된 텍스트 가져오기
                             let selectedText = selection.string ?? ""
                             
-                            // PDFPage의 좌표를 PDFView의 좌표로 변환
-                            let pagePosition = self.mainPDFView.convert(bound, from: page)
-                            
-                            // PDFView의 좌표를 Screen의 좌표로 변환
-                            let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                            
                             DispatchQueue.main.async {
                                 // ViewModel에 선택된 텍스트와 위치 업데이트
                                 self.viewModel.selectedText = selectedText
-                                self.viewModel.bubbleViewPosition = screenPosition // 위치 업데이트
-                                self.viewModel.bubbleViewVisible = !selectedText.isEmpty // 텍스트가 있을 때만 보여줌
-                                
                                 self.viewModel.selection = selection
                                 self.viewModel.commentPosition = commentPosition
                             }

@@ -40,6 +40,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // 하이라이트 색상
     @Published var selectedHighlightColor: HighlightColors = .yellow
+    
     // Comment
     @Published var pdfContent: PDFContent?
     @Published var isCommentTapped: Bool = false {
@@ -60,7 +61,6 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
-    @Published var isCommentMode: Bool = false
     @Published var selection: PDFSelection?
     @Published var commentPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
@@ -302,12 +302,13 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     
     public var isCommentVisible: Bool {
-        return (self.isCommentMode && !self.selectedText.isEmpty) || self.isCommentTapped
+        return (self.toolMode == .comment && !self.selectedText.isEmpty) || self.isCommentTapped
     }
     
     public func updateCommentPosition(at position: CGPoint) {
         self.commentPosition = position
     }
+    
     /// 하이라이트
     public func setHighlight(comment: Comment, isTapped: Bool) {
         

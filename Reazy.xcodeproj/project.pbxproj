@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		2C1458982CD7D09800B35D92 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,11 +17,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 		2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkUnitTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B381A8D32CDA413500F57597 /* Exceptions for "Project" folder in "NetworkUnitTest" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Server.xcconfig,
+			);
+			target = 2C1458932CD7D09800B35D92 /* NetworkUnitTest */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2C1458952CD7D09800B35D92 /* NetworkUnitTest */ = {
@@ -35,6 +40,9 @@
 		};
 		6E08044B2CBD2B12000AFEEE /* Project */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B381A8D32CDA413500F57597 /* Exceptions for "Project" folder in "NetworkUnitTest" target */,
+			);
 			path = Project;
 			sourceTree = "<group>";
 		};
@@ -61,7 +69,6 @@
 		2C7AE8812CBCF290004098AF = {
 			isa = PBXGroup;
 			children = (
-				2C14588E2CD769FB00B35D92 /* Server.xcconfig */,
 				6E08044B2CBD2B12000AFEEE /* Project */,
 				2C1458952CD7D09800B35D92 /* NetworkUnitTest */,
 				2C7AE88B2CBCF290004098AF /* Products */,
@@ -177,7 +184,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +217,8 @@
 /* Begin XCBuildConfiguration section */
 		2C14589B2CD7D09800B35D92 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 6E08044B2CBD2B12000AFEEE /* Project */;
+			baseConfigurationReferenceRelativePath = Server.xcconfig;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -229,6 +237,8 @@
 		};
 		2C14589C2CD7D09800B35D92 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 6E08044B2CBD2B12000AFEEE /* Project */;
+			baseConfigurationReferenceRelativePath = Server.xcconfig;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -247,6 +257,8 @@
 		};
 		2C7AE8962CBCF291004098AF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 6E08044B2CBD2B12000AFEEE /* Project */;
+			baseConfigurationReferenceRelativePath = Server.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -310,6 +322,8 @@
 		};
 		2C7AE8972CBCF291004098AF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 6E08044B2CBD2B12000AFEEE /* Project */;
+			baseConfigurationReferenceRelativePath = Server.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -366,7 +380,8 @@
 		};
 		2C7AE8992CBCF291004098AF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */;
+			baseConfigurationReferenceAnchor = 6E08044B2CBD2B12000AFEEE /* Project */;
+			baseConfigurationReferenceRelativePath = Server.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -401,7 +416,8 @@
 		};
 		2C7AE89A2CBCF291004098AF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */;
+			baseConfigurationReferenceAnchor = 6E08044B2CBD2B12000AFEEE /* Project */;
+			baseConfigurationReferenceRelativePath = Server.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
