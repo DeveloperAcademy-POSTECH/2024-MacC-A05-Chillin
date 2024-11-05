@@ -106,6 +106,8 @@ private struct MainMenuView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
     
     @State private var isFileImporterPresented: Bool = false
+    @State private var errorAlert: Bool = false
+    @State private var errorStatus: ErrorStatus = .etc
     
     @Binding var selectedMenu: Options
     @Binding var isSearching: Bool
@@ -152,6 +154,25 @@ private struct MainMenuView: View {
             }
             .padding(.trailing, 28)
         }
+        .alert(isPresented: $errorAlert) {
+            // TODO: 예외 처리 수정 필요
+            switch errorStatus {
+            case .badRequest:
+                Alert(
+                    title: Text("잘못된 요청"),
+                    message: Text("잘못된 요청이 왔어요."),
+                    primaryButton: .default(Text("Ok")),
+                    secondaryButton: .cancel())
+            case .corruptedPDF:
+                Alert(
+                    title: Text("PDF OCR 안되어있음"),
+                    message: Text("OCR ㄴㄴ"),
+                    primaryButton: .default(Text("Ok")),
+                    secondaryButton: .cancel())
+            case .etc:
+                Alert(title: Text("알 수 없는 에러"))
+            }
+        }
         .fileImporter(isPresented: $isFileImporterPresented, allowedContentTypes: [.pdf], allowsMultipleSelection: false) { result in
             switch result {
             case .success(let url):
@@ -160,6 +181,19 @@ private struct MainMenuView: View {
                         try await pdfFileManager.uploadPDFFile(url: url)
                     } catch {
                         print(String(describing: error))
+                        
+                        if let error = error as? NetworkManagerError {
+                            switch error {
+                            case .badRequest:
+                                self.errorStatus = .badRequest
+                                self.errorAlert.toggle()
+                            case .corruptedPDF:
+                                self.errorStatus = .corruptedPDF
+                                self.errorAlert.toggle()
+                            default:
+                                break
+                            }
+                        }
                     }
                 }
                 
@@ -167,6 +201,12 @@ private struct MainMenuView: View {
                 print(String(describing: error))
             }
         }
+    }
+    
+    private enum ErrorStatus {
+        case badRequest
+        case corruptedPDF
+        case etc
     }
 }
 
