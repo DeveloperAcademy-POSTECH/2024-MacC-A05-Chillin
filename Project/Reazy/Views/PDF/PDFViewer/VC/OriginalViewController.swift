@@ -128,7 +128,7 @@ extension OriginalViewController {
         DispatchQueue.main.async {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
             self.viewModel.pdfDrawer.loadDrawings()
-            // TODO: - Core data load 하는 곳
+            // TODO: - Core data에서 배열 load 하는 곳
         }
     }
     
