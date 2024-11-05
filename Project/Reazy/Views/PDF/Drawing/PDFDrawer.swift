@@ -126,7 +126,10 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         path?.addLine(to: convertedPoint)
         path?.move(to: convertedPoint)
         page.removeAnnotation(currentAnnotation!)
-        let _ = createFinalAnnotation(path: path!, page: page)
+        
+        if drawingTool == .pencil {
+            let _ = createFinalAnnotation(path: path!, page: page)
+        }
         currentAnnotation = nil
     }
     
@@ -168,11 +171,13 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         annotation.border = border
         annotation.add(signingPathCentered)
         page.addAnnotation(annotation)
-
-        if let pageIndex = pdfView.document?.index(for: page) {
-            let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
-            drawingDataArray.append(drawingData)
-            print("array count after append: \(drawingDataArray.count)")
+        
+        if drawingTool == .pencil {
+            if let pageIndex = pdfView.document?.index(for: page) {
+                let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
+                drawingDataArray.append(drawingData)
+                print("array count after append: \(drawingDataArray.count)")
+            }
         }
         
         return annotation
