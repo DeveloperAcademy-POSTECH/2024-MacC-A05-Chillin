@@ -76,9 +76,9 @@ struct PaperListView: View {
                                             if selectedPaper == index {
                                                 navigationPath.append(selectedPaper)
                                             }
-                                        }
-                                        else {
-                                            selectedPaper = index
+                                            else {
+                                                selectedPaper = index
+                                            }
                                         }
                                     },
                                     onEditingSelect: {

@@ -9,12 +9,17 @@ import Foundation
 import PDFKit
 
 
+/**
+ 홈 뷰 및 pdf 업로드 관할 매니저
+ */
 final class PDFFileManager: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
-    
     @Published public var isLoading: Bool = false
     
-    
+}
+
+/// pdf 업로드 관련 메소드
+extension PDFFileManager {
     @MainActor
     public func uploadPDFFile(url: [URL]) async throws {
         self.isLoading = true
