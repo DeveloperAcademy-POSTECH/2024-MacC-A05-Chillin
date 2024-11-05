@@ -15,6 +15,8 @@ enum Options {
 
 struct HomeView: View {
     
+    @StateObject private var pdfFileManager: PDFFileManager = .init()
+    
     @State private var navigationPath: NavigationPath = NavigationPath()
     
     @State var selectedMenu: Options = .main
@@ -54,6 +56,7 @@ struct HomeView: View {
                                 isSearching: $isSearching,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems)
+                            .environmentObject(pdfFileManager)
                             
                         case .search:
                             SearchMenuView(
@@ -76,6 +79,7 @@ struct HomeView: View {
                     isEditing: $isEditing,
                     isSearching: $isSearching
                 )
+                .environmentObject(pdfFileManager)
             }
             .background(Color(hex: "F7F7FB"))
             .navigationDestination(for: Int.self) { index in
@@ -93,6 +97,10 @@ struct HomeView: View {
 
 /// 기본 화면 버튼 뷰
 private struct MainMenuView: View {
+    @EnvironmentObject var pdfFileManager: PDFFileManager
+    
+    @State private var isFileImporterPresented: Bool = false
+    
     @Binding var selectedMenu: Options
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
@@ -130,13 +138,28 @@ private struct MainMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                
+                self.isFileImporterPresented.toggle()
             }) {
                 Text("가져오기")
                     .reazyFont(.button1)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
+        }
+        .fileImporter(isPresented: $isFileImporterPresented, allowedContentTypes: [.pdf], allowsMultipleSelection: false) { result in
+            switch result {
+            case .success(let url):
+                Task.init {
+                    do {
+                        try await pdfFileManager.uploadPDFFile(url: url)
+                    } catch {
+                        print(String(describing: error))
+                    }
+                }
+                
+            case .failure(let error):
+                print(String(describing: error))
+            }
         }
     }
 }
