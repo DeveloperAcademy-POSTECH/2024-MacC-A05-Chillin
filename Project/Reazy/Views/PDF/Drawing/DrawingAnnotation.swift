@@ -10,6 +10,16 @@ import PDFKit
 
 class DrawingAnnotation: PDFAnnotation {
     public var path = UIBezierPath()
+    public var uuid: UUID // 고유 ID 추가
+    
+    init(bounds: CGRect, forType type: PDFAnnotationSubtype, withProperties properties: [String: Any]? = nil) {
+        self.uuid = UUID() // 고유 ID 생성
+        super.init(bounds: bounds, forType: type, withProperties: properties)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // 펜슬이 지나간 자리 그리기
     override func draw(with box: PDFDisplayBox, in context: CGContext) {
@@ -31,7 +41,6 @@ class DrawingAnnotation: PDFAnnotation {
 }
 
 extension PDFAnnotation {
-    // 지우개에서 사용하는 함수
     func contains(point: CGPoint) -> Bool {
         var hitPath: CGPath?
         
