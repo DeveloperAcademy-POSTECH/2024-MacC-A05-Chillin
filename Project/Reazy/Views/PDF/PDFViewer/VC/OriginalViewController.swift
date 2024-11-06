@@ -14,14 +14,6 @@ import Combine
  원문 모드 ViewController
  */
 
-class PDFContent: ObservableObject {
-    @Published var pdfView: PDFView
-    
-    init(pdfView: PDFView) {
-        self.pdfView = pdfView
-    }
-}
-
 final class OriginalViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
@@ -53,6 +45,8 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
+        
+        self.getPDFViewBounds()
         
         // 기본 설정: 제스처 추가
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
@@ -173,13 +167,20 @@ extension OriginalViewController {
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()
-        
-        self.viewModel.setupPDFContent(with: mainPDFView)
     }
     
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
         self.mainPDFView.currentSelection = nil
+    }
+    
+    private func getPDFViewBounds() {
+        guard let currentPage = self.mainPDFView.currentPage else { return }
+        let bounds = currentPage.bounds(for: self.mainPDFView.displayBox)
+        let pdfMidX = self.mainPDFView.convert(bounds, from: currentPage).midX
+        
+        // ViewModel에 bounds 전달
+        commentViewModel.pdfViewMidX = pdfMidX
     }
     
     private func setGestures() {
@@ -189,7 +190,7 @@ extension OriginalViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-
+        
         let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
         gesture.cancelsTouchesInView = false
         self.view.addGestureRecognizer(gesture)
@@ -279,6 +280,8 @@ extension OriginalViewController {
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentPosition = commentPosition
+                                self.commentViewModel.pdfConvertedBounds = convertedBounds
+                                
                             }
                         }
                     }

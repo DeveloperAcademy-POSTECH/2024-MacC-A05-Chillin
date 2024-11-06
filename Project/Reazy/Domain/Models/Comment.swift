@@ -10,13 +10,14 @@ import PDFKit
 
 class Comment {
     let id : UUID = .init()
+    let pdfID: UUID = .init()
     
-    var pdfView: PDFView
     var selection: PDFSelection
     var text: String
+    var position: CGPoint
     var selectedLine: CGRect {
         var selectedLine: CGRect = .zero
-        /// selection을 line 별로 받아와 배열에 저장
+        
         let lineSelection = selection.selectionsByLine()
         if let firstLineSelection = lineSelection.first {
             
@@ -36,20 +37,9 @@ class Comment {
         return selectedLine
     }
     
-    var position: CGPoint {
-        guard let page = selection.pages.first else { return .zero }
-        let bounds = selection.bounds(for: page)
-        let converted = pdfView.convert(bounds, from: page)
-        let commentPosition = CGPoint(
-            x: converted.midX,
-            y: converted.maxY + 70
-        )
-        return commentPosition
-    }
-    
-    init(pdfView: PDFView, selection: PDFSelection, text: String) {
-        self.pdfView = pdfView
+    init(selection: PDFSelection, text: String, position: CGPoint) {
         self.selection = selection
         self.text = text
+        self.position = position
     }
 }

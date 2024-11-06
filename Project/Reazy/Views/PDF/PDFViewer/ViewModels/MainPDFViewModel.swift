@@ -47,7 +47,6 @@ final class MainPDFViewModel: ObservableObject {
     @Published var selectedHighlightColor: HighlightColors = .yellow
     
     // Comment
-    @Published var pdfContent: PDFContent?
     @Published var isCommentTapped: Bool = false {
         didSet{
             if !isCommentTapped, let comment = tappedComment {
@@ -92,12 +91,6 @@ final class MainPDFViewModel: ObservableObject {
 extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
-    }
-    
-    public func setupPDFContent(with mainPDFView: PDFView) {
-        DispatchQueue.main.async {
-            self.pdfContent = PDFContent(pdfView: mainPDFView)
-        }
     }
 
     public func fetchFocusAnnotations() {

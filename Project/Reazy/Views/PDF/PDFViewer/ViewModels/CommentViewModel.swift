@@ -11,15 +11,18 @@ import SwiftUI
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
+    var pdfViewMidX: CGFloat = .zero
+    var pdfConvertedBounds: CGRect = .zero
     
     // 코멘트 추가
-    func addComment(pdfView: PDFView, text: String, selection: PDFSelection) {
+    func addComment(text: String, selection: PDFSelection) {
         
         /// 코멘트 배열에 저장
-        let newComment = Comment(pdfView: pdfView, selection: selection, text: text)
+        let position = setCommentPosition(selection: selection)
+        let newComment = Comment(selection: selection, text: text, position: position)
         comments.append(newComment)
         
-        addCommentIcon(pdfView: pdfView, selection: selection, newComment: newComment)
+        addCommentIcon(selection: selection, newComment: newComment)
         drawUnderline(selection: selection, newComment: newComment)
     }
     
@@ -39,43 +42,56 @@ class CommentViewModel: ObservableObject {
 //PDFannotation 관련
 extension CommentViewModel {
     
+    private func setCommentPosition(selection: PDFSelection) -> CGPoint {
+        guard let page = selection.pages.first else { return .zero }
+        let bounds = selection.bounds(for: page)
+        let commentPosition = CGPoint(
+            x: pdfConvertedBounds.midX,
+            y: pdfConvertedBounds.maxY + 70
+        )
+        return commentPosition
+    }
+    
     /// 버튼 추가
-    private func addCommentIcon(pdfView: PDFView, selection: PDFSelection, newComment: Comment) {
+    private func addCommentIcon(selection: PDFSelection, newComment: Comment) {
         
-        /// selection을 line 별로 받아와 배열에 저장
         let lineSelection = selection.selectionsByLine()
         if let firstLineSelection = lineSelection.first {
             print(firstLineSelection)
-            /// 배열 중 첫 번째 selection만 가져오기
             guard let page = firstLineSelection.pages.first else { return }
-            let lineBounds = newComment.selectedLine
-            let pdfMidX = page.bounds(for: pdfView.displayBox).midX
             
-            ///PDF 문서의 colum 구분
-            let isLeft = lineBounds.maxX < pdfMidX
-            let isRight = lineBounds.minX >= pdfMidX
-            let isAcross = !isLeft && !isRight
+            let bounds = firstLineSelection.bounds(for: page)
+            let centerX = bounds.origin.x + bounds.width / 2
+            let centerY = bounds.origin.y + bounds.height / 2
+            let centerPoint = CGPoint(x: centerX, y: centerY)
             
-            var iconPosition: CGRect = .zero
-            
-            ///colum에 따른 commentIcon 좌표 값 설정
-            if isLeft {
-                iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
-            } else if isRight || isAcross {
-                iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
+            if let line = page.selectionForLine(at: centerPoint) {
+                let lineBounds = line.bounds(for: page)
+                
+                ///PDF 문서의 colum 구분
+                let isLeft = lineBounds.maxX < pdfViewMidX
+                let isRight = lineBounds.minX >= pdfViewMidX
+                let isAcross = !isLeft && !isRight
+                
+                var iconPosition: CGRect = .zero
+                
+                ///colum에 따른 commentIcon 좌표 값 설정
+                if isLeft {
+                    iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
+                } else if isRight || isAcross {
+                    iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
+                }
+                
+                let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
+                commentIcon.widgetFieldType = .button
+                commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
+                commentIcon.border?.lineWidth = .zero
+                commentIcon.widgetControlType = .pushButtonControl
+                
+                /// 버튼에 코멘트 정보 참조
+                commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
+                page.addAnnotation(commentIcon)
             }
-            
-            let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
-            commentIcon.widgetFieldType = .button
-            commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
-            commentIcon.border?.lineWidth = .zero
-            commentIcon.widgetControlType = .pushButtonControl
-            
-            /// 버튼에 코멘트 정보 참조
-            commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
-            page.addAnnotation(commentIcon)
-            
-            
         }
     }
     
