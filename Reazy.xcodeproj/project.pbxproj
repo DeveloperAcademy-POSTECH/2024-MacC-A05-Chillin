@@ -6,9 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B381A9972CDA4D0C00F57597 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = B381A9792CDA4D0C00F57597 /* Server.xcconfig */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
+		B381A9792CDA4D0C00F57597 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -33,6 +38,7 @@
 		2C7AE8812CBCF290004098AF = {
 			isa = PBXGroup;
 			children = (
+				B381A9792CDA4D0C00F57597 /* Server.xcconfig */,
 				6E08044B2CBD2B12000AFEEE /* Project */,
 				2C7AE88B2CBCF290004098AF /* Products */,
 				6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */,
@@ -111,6 +117,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B381A9972CDA4D0C00F57597 /* Server.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
