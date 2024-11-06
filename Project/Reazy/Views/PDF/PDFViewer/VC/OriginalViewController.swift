@@ -46,7 +46,7 @@ final class OriginalViewController: UIViewController {
         self.setGestures()
         self.setBinding()
         
-        self.getPDFViewBounds()
+        self.getPdfMidX()
         
         // 기본 설정: 제스처 추가
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
@@ -174,12 +174,12 @@ extension OriginalViewController {
         self.mainPDFView.currentSelection = nil
     }
     
-    private func getPDFViewBounds() {
+    /// pdfView midX값 전달
+    private func getPdfMidX() {
         guard let currentPage = self.mainPDFView.currentPage else { return }
         let bounds = currentPage.bounds(for: self.mainPDFView.displayBox)
         let pdfMidX = self.mainPDFView.convert(bounds, from: currentPage).midX
         
-        // ViewModel에 bounds 전달
         commentViewModel.pdfViewMidX = pdfMidX
     }
     
