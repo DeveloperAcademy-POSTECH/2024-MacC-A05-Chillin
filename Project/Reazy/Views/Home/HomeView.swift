@@ -166,40 +166,46 @@ private struct MainMenuView: View {
                 Alert(title: Text("알 수 없는 에러"))
             }
         }
-        .fileImporter(isPresented: $isFileImporterPresented, allowedContentTypes: [.pdf], allowsMultipleSelection: false) { result in
-            switch result {
-            case .success(let url):
-                Task.init {
-                    do {
-                        try await pdfFileManager.uploadPDFFile(url: url)
-                    } catch {
-                        print(String(describing: error))
-                        
-                        if let error = error as? NetworkManagerError {
-                            switch error {
-                            case .badRequest:
-                                self.errorStatus = .badRequest
-                                self.errorAlert.toggle()
-                            case .corruptedPDF:
-                                self.errorStatus = .corruptedPDF
-                                self.errorAlert.toggle()
-                            default:
-                                break
-                            }
-                        }
-                    }
-                }
-                
-            case .failure(let error):
-                print(String(describing: error))
-            }
-        }
+        .fileImporter(
+            isPresented: $isFileImporterPresented,
+            allowedContentTypes: [.pdf],
+            allowsMultipleSelection: false,
+            onCompletion: importPDFToDevice)
     }
     
     private enum ErrorStatus {
         case badRequest
         case corruptedPDF
         case etc
+    }
+    
+    private func importPDFToDevice(result: Result<[Foundation.URL], any Error>) {
+        switch result {
+        case .success(let url):
+            Task.init {
+                do {
+                    try await pdfFileManager.uploadPDFFile(url: url)
+                } catch {
+                    print(String(describing: error))
+                    
+                    if let error = error as? NetworkManagerError {
+                        switch error {
+                        case .badRequest:
+                            self.errorStatus = .badRequest
+                            self.errorAlert.toggle()
+                        case .corruptedPDF:
+                            self.errorStatus = .corruptedPDF
+                            self.errorAlert.toggle()
+                        default:
+                            break
+                        }
+                    }
+                }
+            }
+            
+        case .failure(let error):
+            print(String(describing: error))
+        }
     }
 }
 

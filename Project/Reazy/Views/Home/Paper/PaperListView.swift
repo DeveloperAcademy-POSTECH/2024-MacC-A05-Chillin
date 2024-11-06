@@ -69,9 +69,7 @@ struct PaperListView: View {
                                     onSelect: {
                                         if !isEditing {
                                             if selectedPaper == index {
-                                                let urlString = pdfFileManager.paperInfos[index].url
-                                                guard let url = URL.init(string: urlString) else { return }
-                                                navigationCoordinator.push(.mainPDF(url: url))
+                                                navigateToPaper()
                                             }
                                             else {
                                                 selectedPaper = index
@@ -116,8 +114,7 @@ struct PaperListView: View {
                                 publisher: pdfFileManager.paperInfos[selectedPaper].publisher,
                                 onNavigate: {
                                     if !isEditing {
-                                        guard let url = URL(string: pdfFileManager.paperInfos[selectedPaper].url) else { return }
-                                        navigationCoordinator.push(.mainPDF(url: url))
+                                        navigateToPaper()
                                     }
                                 }
                             )
@@ -139,6 +136,23 @@ struct PaperListView: View {
             }
             .background(.gray200)
             .ignoresSafeArea()
+        }
+    }
+}
+
+
+extension PaperListView {
+    private func navigateToPaper() {
+        var isStale = false
+        let data = pdfFileManager.paperInfos[selectedPaper].url
+        
+        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
+            return
+        }
+        
+        if url.startAccessingSecurityScopedResource() {
+            navigationCoordinator.push(.mainPDF(url: url))
+            url.stopAccessingSecurityScopedResource()
         }
     }
 }

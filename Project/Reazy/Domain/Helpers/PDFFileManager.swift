@@ -40,6 +40,8 @@ extension PDFFileManager {
             
             let pageCount = tempDoc?.pageCount
             
+            let urlData = try! url.bookmarkData(options: .minimalBookmark)
+            
             //TODO: 데이터 저장 메소드 추가 필요
             if let firstPage = tempDoc?.page(at: 0) {
                 let width = firstPage.bounds(for: .mediaBox).width
@@ -47,6 +49,7 @@ extension PDFFileManager {
                 
                 let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
                 let thumbnailData = image.pngData()
+                
                 
                 paperInfos.append(.init(
                     title: result.title ?? url.lastPathComponent,
@@ -56,7 +59,7 @@ extension PDFFileManager {
                     pages: pageCount ?? 0,
                     publisher: "알 수 없음",
                     thumbnail: thumbnailData!,
-                    url: url.absoluteString)
+                    url: urlData)
                 )
             } else {
                 paperInfos.append(.init(
@@ -67,11 +70,10 @@ extension PDFFileManager {
                     pages: pageCount ?? 0,
                     publisher: "알 수 없음",
                     thumbnail: .init(),
-                    url: url.absoluteString)
+                    url: urlData)
                 )
             }
             
-
             print(result)
             url.stopAccessingSecurityScopedResource()
         } else {
@@ -94,7 +96,7 @@ extension PDFFileManager {
             pages: 43,
             publisher: "NATURE",
             thumbnail: .init(),
-            url: sampleUrl.absoluteString
+            url: try! Data(contentsOf: sampleUrl)
         ))
     }
 }
