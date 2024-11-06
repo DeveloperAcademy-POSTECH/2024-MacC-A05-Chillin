@@ -223,30 +223,40 @@ extension MainPDFViewModel {
     }
 }
 
+
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
         // toolMode가 highlight일때 동작
         guard toolMode == .highlight else { return }
-        
+
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
-        
+
         // 선택된 텍스트를 줄 단위로 나눔
         let selections = currentSelection.selectionsByLine()
-        
+
         guard let page = selections.first?.pages.first else { return }
-        
+
         let highlightColor = color.uiColor
-        
+
         selections.forEach { selection in
-            let highlight = PDFAnnotation(bounds: selection.bounds(for: page), forType: .highlight, withProperties: nil)
+            var bounds = selection.bounds(for: page)
+            let originBoundsHeight = bounds.size.height
+            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
+            bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+
+            let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
             highlight.color = highlightColor
+
             page.addAnnotation(highlight)
         }
+        
+        pdfView.clearSelection()
     }
 }
+
 
 enum ToolMode {
     case none
