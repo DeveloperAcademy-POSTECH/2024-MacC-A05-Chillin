@@ -12,9 +12,9 @@ struct PaperInfoView: View {
     let image: Data
     let title: String
     let author: String
-    let year: String
     let pages: Int
     let publisher: String
+    let dateTime: String
     
     @State private var isStarSelected: Bool = false
     
@@ -129,7 +129,7 @@ struct PaperInfoView: View {
                         Spacer()
                         
                         // TODO: - 출판연도 데이터 입력 필요
-                        Text(year)
+                        Text(dateTime)
                             .reazyFont(.button5)
                             .foregroundStyle(.gray600)
                     }
@@ -220,9 +220,9 @@ struct PaperInfoView: View {
         image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
         author: "Smith, John",
-        year: "2010",
         pages: 43,
         publisher: "NATURE",
+        dateTime: "1999-06-23",
         onNavigate: {}
     )
 }

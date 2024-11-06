@@ -38,6 +38,21 @@ class PDFDrawer {
     var drawingTool = DrawingTool.none
     private var eraserLayer: CAShapeLayer? = nil
     private var drawingDataArray: [Drawing] = []
+    private var drawingService: DrawingDataService
+    
+    init(
+        drawingService: DrawingDataService
+    ) {
+        self.drawingService = drawingService
+        // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
+        // TODO: - [펑키] 어떤 pdf에 해당하는 drawing인지 판단하기 위해 PDF ID값이 필요합니다!
+//        switch drawingService.loadDrawingData(for: pdfID) {
+//        case .success(let drawingList):
+//            drawingDataArray = drawingList
+//        case .failure(let failure):
+//            return
+//        }
+    }
     
     private func saveAndAddAnnotation(_ path: UIBezierPath, on page: PDFPage) {
         let finalAnnotation = createFinalAnnotation(path: path, page: page)
@@ -45,6 +60,8 @@ class PDFDrawer {
         
         if let pageIndex = pdfView.document?.index(for: page) {
             let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
+            // TODO: - `drawingService.saveDrawingData(for: pdfID, with: drawingData)` 코드 추가
+            /// 삭제도 삭제 로직이 들어가는 곳에 함수를 추가하면 됩니다!
             drawingDataArray.append(drawingData)
         }
     }
