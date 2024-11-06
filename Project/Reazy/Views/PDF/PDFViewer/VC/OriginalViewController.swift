@@ -230,6 +230,7 @@ extension OriginalViewController {
         
         // 현재 드래그된 텍스트 가져오는 함수
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
+            .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 switch self.viewModel.toolMode {
