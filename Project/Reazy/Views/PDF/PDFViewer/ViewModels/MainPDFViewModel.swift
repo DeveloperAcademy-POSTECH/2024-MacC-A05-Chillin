@@ -47,7 +47,7 @@ final class MainPDFViewModel: ObservableObject {
     public var thumnailImages: [UIImage] = []
     
     // for drawing
-    public var pdfDrawer = PDFDrawer()                          // PDFDrawer
+    public var pdfDrawer = PDFDrawer(drawingService: DrawingDataService())                          // PDFDrawer
     
     init(url: URL) {
         self.document = PDFDocument(url: url)

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24B83" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="DrawingData" representedClassName="DrawingData" syncable="YES">
+        <attribute name="color" optional="YES" attributeType="Binary"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="pageIndex" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="path" optional="YES" attributeType="Binary"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="drawingData" inverseEntity="PaperData"/>
+    </entity>
+    <entity name="PaperData" representedClassName="PaperData" syncable="YES">
+        <attribute name="author" optional="YES" attributeType="String"/>
+        <attribute name="date" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastModifiedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="pages" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="publisher" optional="YES" attributeType="String"/>
+        <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="url" optional="YES" attributeType="Binary"/>
+        <attribute name="year" optional="YES" attributeType="String"/>
+        <relationship name="drawingData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DrawingData" inverseName="paperData" inverseEntity="DrawingData"/>
+    </entity>
+</model>

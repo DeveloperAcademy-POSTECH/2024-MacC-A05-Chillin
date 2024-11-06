@@ -145,7 +145,7 @@ struct PaperListView: View {
 
 
 #Preview {
-    let manager = PDFFileManager()
+    let manager = PDFFileManager(paperService: PaperDataService())
     
     PaperListView(isEditing: .constant(false), isSearching: .constant(false))
         .environmentObject(manager)

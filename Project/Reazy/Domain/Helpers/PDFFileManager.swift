@@ -15,7 +15,20 @@ import PDFKit
 final class PDFFileManager: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
     @Published public var isLoading: Bool = false
+    private var paperService: PaperDataService
     
+    init(
+        paperService: PaperDataService
+    ) {
+        self.paperService = paperService
+        // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
+        switch paperService.loadPDFInfo() {
+        case .success(let paperList):
+            paperInfos = paperList
+        case .failure(_):
+            return
+        }
+    }
 }
 
 /// pdf 업로드 관련 메소드
@@ -48,6 +61,8 @@ extension PDFFileManager {
                 let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
                 let thumbnailData = image.pngData()
                 
+                // TODO: - `paperService.savePDFInfo(paperInfo)` 코드 추가
+                /// 삭제도 삭제 로직이 들어가는 곳에 함수를 추가하면 됩니다!
                 paperInfos.append(.init(
                     title: result.title ?? url.lastPathComponent,
                     datetime: result.date?.date ?? "알 수 없음",
@@ -56,7 +71,8 @@ extension PDFFileManager {
                     pages: pageCount ?? 0,
                     publisher: "알 수 없음",
                     thumbnail: thumbnailData!,
-                    url: url.absoluteString)
+                    url: url.absoluteString,
+                    isFavorite: false)
                 )
             } else {
                 paperInfos.append(.init(
@@ -67,7 +83,8 @@ extension PDFFileManager {
                     pages: pageCount ?? 0,
                     publisher: "알 수 없음",
                     thumbnail: .init(),
-                    url: url.absoluteString)
+                    url: url.absoluteString,
+                    isFavorite: false)
                 )
             }
             
@@ -94,7 +111,8 @@ extension PDFFileManager {
             pages: 43,
             publisher: "NATURE",
             thumbnail: .init(),
-            url: sampleUrl.absoluteString
+            url: sampleUrl.absoluteString,
+            isFavorite: false
         ))
     }
 }

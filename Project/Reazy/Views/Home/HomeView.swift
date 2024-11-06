@@ -16,7 +16,7 @@ enum Options {
 struct HomeView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
-    @StateObject private var pdfFileManager: PDFFileManager = .init()
+    @StateObject private var pdfFileManager: PDFFileManager = .init(paperService: PaperDataService())
     
     @State var selectedMenu: Options = .main
     
