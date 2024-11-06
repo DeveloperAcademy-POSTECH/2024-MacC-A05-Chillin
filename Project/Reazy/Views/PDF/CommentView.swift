@@ -15,9 +15,6 @@ struct CommentView: View {
     
     @State private var commentHeight: CGFloat = 20 // 초기 높이 설정
     
-    //var comment: Comment
-    //var selectedCommentId: UUID
-    
     let selection: PDFSelection
     
     var body: some View {
@@ -32,8 +29,10 @@ struct CommentView: View {
                                 .background(.point2)
                                 .padding(.trailing, 6)
                             
-                            Text(comment.selection.string ?? "none")
-                                .lineLimit(1)
+                            if let commentText = comment.selection.string {
+                                Text(commentText.replacingOccurrences(of: "\n", with: ""))
+                                    .lineLimit(1)
+                            }
                         }
                         .padding(.trailing, 16)
                         .padding(.bottom, 9)

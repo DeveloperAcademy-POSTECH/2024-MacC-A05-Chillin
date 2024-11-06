@@ -53,11 +53,6 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setBinding()
         
-        // annotation 버튼 클릭시 제스처
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleAnnotationTap(_:)))
-        tapGesture.delegate = self
-        mainPDFView.addGestureRecognizer(tapGesture)
-        
         // 기본 설정: 제스처 추가
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
         self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
@@ -68,6 +63,10 @@ final class OriginalViewController: UIViewController {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
         gesture.cancelsTouchesInView = false
         self.view.addGestureRecognizer(gesture)
+        
+        let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
+        commentTapGesture.delegate = self
+        self.view.addGestureRecognizer(commentTapGesture)
         
         // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
         viewModel.$toolMode
@@ -94,6 +93,7 @@ final class OriginalViewController: UIViewController {
     @objc
     func postScreenTouch() {
         NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
+        NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
     }
     
     private func updateGestureRecognizer(for mode: ToolMode) {
@@ -114,8 +114,9 @@ final class OriginalViewController: UIViewController {
         }
     }
     
-    // 제스처
-    @objc func handleAnnotationTap(_ sender: UITapGestureRecognizer) {
+    // 코멘트 버튼 annotation 제스처
+    @objc
+    func handleCommentTap(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: mainPDFView)
         
         guard let page = mainPDFView.page(for: location, nearest: true) else { return }
@@ -131,6 +132,7 @@ final class OriginalViewController: UIViewController {
                 
                 print(tappedComment)
                 viewModel.isCommentTapped.toggle()
+                print(viewModel.isCommentTapped)
                 
                 if viewModel.isCommentTapped {
                     viewModel.tappedComment = tappedComment
@@ -139,9 +141,7 @@ final class OriginalViewController: UIViewController {
                 }
                 viewModel.commentTappedPosition = tappedComment.position
                 viewModel.selectedCommentID = tappedComment.id
-                //viewModel.tappedComment = tappedComment
-                
-                //commentViewModel.setHighlight(comment: tappedComment, isTapped: viewModel.isCommentTapped)
+                viewModel.tappedComment = tappedComment
                 
             } else {
                 print("No match comment annotation")
@@ -212,91 +212,118 @@ extension OriginalViewController {
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                guard let selection = self.mainPDFView.currentSelection else {
+                    // 선택된 텍스트가 없을 때 특정 액션
+                    self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
+                    self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
+                    return
+                }
+                
+                self.selectionWorkItem?.cancel()
+                
+                let workItem = DispatchWorkItem { [weak self] in
+                    guard let self = self else { return }
+                    if let page = selection.pages.first {
+                        
+                        // PDFSelection의 bounds 추출(CGRect)
+                        let bound = selection.bounds(for: page)
+                        let convertedBounds = self.mainPDFView.convert(bound, from: page)
+                        
+                        //comment position 설정
+                        let commentPosition = CGPoint(
+                            x: convertedBounds.midX,
+                            y: convertedBounds.maxY + 50
+                        )
+                        
+                        // 선택된 텍스트 가져오기
+                        let selectedText = selection.string ?? ""
+                        
+                        // PDFPage의 좌표를 PDFView의 좌표로 변환
+                        let pagePosition = self.mainPDFView.convert(bound, from: page)
+                        
+                        // PDFView의 좌표를 Screen의 좌표로 변환
+                        let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+                        
+                        DispatchQueue.main.async {
+                            // ViewModel에 선택된 텍스트와 위치 업데이트
+                            self.viewModel.selectedText = selectedText
+                            self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
+                            self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
+                            
+                            self.viewModel.commentSelection = selection
+                            self.viewModel.commentPosition = commentPosition
+                        }
+                    }
+                }
+                
+                // 텍스트 선택 후 딜레이
+                self.selectionWorkItem = workItem
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
                 
                 switch self.viewModel.toolMode {
                 case .highlight:
                     DispatchQueue.main.async {
                         self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
                     }
-                case .translate:
-                    guard let selection = self.mainPDFView.currentSelection else {
-                        // 선택된 텍스트가 없을 때 특정 액션
-                        self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
-                        self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
-                        return
-                    }
-                    
-                    guard let page = selection.pages.first else {
-                        return
-                    }
-                    
-                    // PDFSelection의 bounds 추출(CGRect)
-                    let bound = selection.bounds(for: page)
-                    
-                    // 선택된 텍스트 가져오기
-                    let selectedText = selection.string ?? ""
-                    
-                    // PDFPage의 좌표를 PDFView의 좌표로 변환
-                    let pagePosition = self.mainPDFView.convert(bound, from: page)
-                    
-                    // PDFView의 좌표를 Screen의 좌표로 변환
-                    let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                    
-                    DispatchQueue.main.async {
-                        // ViewModel에 선택된 텍스트와 위치 업데이트
-                        self.viewModel.selectedText = selectedText
-                        self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
-                        self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
-                    }
-                case .comment:
-                    guard let selection = self.mainPDFView.currentSelection else {
-                        self.viewModel.selectedText = ""
-                        return
-                    }
-                    
-                    self.selectionWorkItem?.cancel()
-                    
-                    let workItem = DispatchWorkItem { [weak self] in
-                        guard let self = self else { return }
-                        if let page = selection.pages.first {
-                            
-                            // PDFSelection의 bounds 추출(CGRect)
-                            let bound = selection.bounds(for: page)
-                            let convertedBounds = self.mainPDFView.convert(bound, from: page)
-                            
-                            //comment position 설정
-                            let commentPosition = CGPoint(
-                                x: convertedBounds.midX,
-                                y: convertedBounds.maxY + 50
-                            )
-                            
-                            // 선택된 텍스트 가져오기
-                            let selectedText = selection.string ?? ""
-                            
-                            DispatchQueue.main.async {
-                                // ViewModel에 선택된 텍스트와 위치 업데이트
-                                self.viewModel.selectedText = selectedText
-                                self.viewModel.selection = selection
-                                self.viewModel.commentPosition = commentPosition
-                            }
-                        }
-                    }
-                    
-                    // 텍스트 선택 후 딜레이
-                    self.selectionWorkItem = workItem
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
-                    
-                    // 저장하면 currentSelection 해제
-                    self.viewModel.$isCommentSaved
-                        .sink { [weak self] isCommentSaved in
-                            if isCommentSaved {
-                                self?.cleanTextSelection()
-                            }
-                        }
-                        .store(in: &self.cancellable)
-                
+//                case .translate, .comment:
+//                    guard let selection = self.mainPDFView.currentSelection else {
+//                        // 선택된 텍스트가 없을 때 특정 액션
+//                        self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
+//                        self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
+//                        return
+//                    }
+//                    
+//                    self.selectionWorkItem?.cancel()
+//                    
+//                    let workItem = DispatchWorkItem { [weak self] in
+//                        guard let self = self else { return }
+//                        if let page = selection.pages.first {
+//                            
+//                            // PDFSelection의 bounds 추출(CGRect)
+//                            let bound = selection.bounds(for: page)
+//                            let convertedBounds = self.mainPDFView.convert(bound, from: page)
+//                            
+//                            //comment position 설정
+//                            let commentPosition = CGPoint(
+//                                x: convertedBounds.midX,
+//                                y: convertedBounds.maxY + 50
+//                            )
+//                            
+//                            // 선택된 텍스트 가져오기
+//                            let selectedText = selection.string ?? ""
+//                            
+//                            // PDFPage의 좌표를 PDFView의 좌표로 변환
+//                            let pagePosition = self.mainPDFView.convert(bound, from: page)
+//                            
+//                            // PDFView의 좌표를 Screen의 좌표로 변환
+//                            let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+//                            
+//                            DispatchQueue.main.async {
+//                                // ViewModel에 선택된 텍스트와 위치 업데이트
+//                                self.viewModel.selectedText = selectedText
+//                                self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
+//                                self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
+//                                
+//                                self.viewModel.commentSelection = selection
+//                                self.viewModel.commentPosition = commentPosition
+//                            }
+//                        }
+//                    }
+//                    
+//                    // 텍스트 선택 후 딜레이
+//                    self.selectionWorkItem = workItem
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
                 default:
                     return
+                }
+            }
+            .store(in: &self.cancellable)
+        
+        // 저장하면 currentSelection 해제
+        self.viewModel.$isCommentSaved
+            .sink { [weak self] isCommentSaved in
+                if isCommentSaved {
+                    self?.cleanTextSelection()
                 }
             }
             .store(in: &self.cancellable)

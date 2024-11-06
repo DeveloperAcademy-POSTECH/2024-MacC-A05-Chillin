@@ -15,15 +15,22 @@ struct OriginalView: View {
     @StateObject private var commentViewModel: CommentViewModel = .init()
     
     @State private var keyboardHeight: CGFloat = 0
+    let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
             }
+            .onReceive(publisher) { a in
+                if let _ = a.userInfo?["hitted"] as? Bool {
+                    viewModel.isCommentTapped = false
+                }
+            }
             .onTapGesture {
                 // 터치 시 말풍선 뷰를 숨기는 처리 추가
                 viewModel.updateBubbleView(selectedText: "", bubblePosition: .zero)
+                print("tapped")
                 viewModel.isCommentTapped = false
             }
             // 번역에 사용되는 말풍선뷰
@@ -34,11 +41,11 @@ struct OriginalView: View {
                             .environmentObject(floatingViewModel)
                     }
                 } else {
-                    BubbleViewOlderVer()
+                   BubbleViewOlderVer()
                 }
             }
                 if viewModel.isCommentVisible == true {
-                    CommentView(viewModel: commentViewModel, selection: viewModel.selection ?? PDFSelection())
+                    CommentView(viewModel: commentViewModel, selection: viewModel.commentSelection ?? PDFSelection())
                         .position(viewModel.isCommentTapped ? viewModel.commentTappedPosition : viewModel.commentPosition)
                 }
         }

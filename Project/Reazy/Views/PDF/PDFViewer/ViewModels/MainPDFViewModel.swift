@@ -31,6 +31,9 @@ final class MainPDFViewModel: ObservableObject {
     @Published var toolMode: ToolMode = .none {
         didSet {
             updateDrawingTool()
+            if isCommentVisible {
+                updateCommentPosition(at: commentPosition)
+            }
         }
     }
     
@@ -46,7 +49,6 @@ final class MainPDFViewModel: ObservableObject {
     @Published var isCommentTapped: Bool = false {
         didSet{
             if !isCommentTapped, let comment = tappedComment {
-                // isCommentTapped가 false일 때 하이라이트 제거
                 setHighlight(comment: comment, isTapped: false)
             }
         }
@@ -55,13 +57,13 @@ final class MainPDFViewModel: ObservableObject {
     @Published var commentTappedPosition: CGPoint = .zero
     @Published var tappedComment: Comment? {
         didSet {
-            if let comment = tappedComment {
+            if isCommentTapped, let comment = tappedComment {
                 setHighlight(comment: comment, isTapped: true)
             }
         }
     }
     
-    @Published var selection: PDFSelection?
+    @Published var commentSelection: PDFSelection?
     @Published var commentPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
     
@@ -275,30 +277,10 @@ extension MainPDFViewModel {
     }
 }
 
-enum ToolMode {
-    case none
-    case translate
-    case pencil
-    case eraser
-    case highlight
-    case comment
-}
+/**
+ 코멘트 관련
+ */
 
-extension MainPDFViewModel {
-    private func updateDrawingTool() {
-        switch toolMode {
-        case .pencil:
-            pdfDrawer.drawingTool = .pencil
-        case .eraser:
-            pdfDrawer.drawingTool = .eraser
-        default:
-            pdfDrawer.drawingTool = .none
-        }
-    }
-}
-            
-            
-// 코멘트 관련
 extension MainPDFViewModel {
     
     public var isCommentVisible: Bool {
@@ -324,7 +306,7 @@ extension MainPDFViewModel {
                     bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
                     
                     let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
-                    highlight.color = .gray300
+                    highlight.color = UIColor.comment
                     
                     /// 하이라이트 주석 구별하기
                     highlight.setValue("\(comment.id) isHighlight", forAnnotationKey: .contents)
@@ -341,6 +323,29 @@ extension MainPDFViewModel {
                     }
                 }
             }
+        }
+    }
+}
+
+
+enum ToolMode {
+    case none
+    case translate
+    case pencil
+    case eraser
+    case highlight
+    case comment
+}
+
+extension MainPDFViewModel {
+    private func updateDrawingTool() {
+        switch toolMode {
+        case .pencil:
+            pdfDrawer.drawingTool = .pencil
+        case .eraser:
+            pdfDrawer.drawingTool = .eraser
+        default:
+            pdfDrawer.drawingTool = .none
         }
     }
 }

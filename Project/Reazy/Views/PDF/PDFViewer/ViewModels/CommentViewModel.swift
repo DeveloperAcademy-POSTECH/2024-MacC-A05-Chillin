@@ -15,7 +15,6 @@ class CommentViewModel: ObservableObject {
     // 코멘트 추가
     func addComment(pdfView: PDFView, text: String, selection: PDFSelection) {
         
-        //        let pdfView = pdfContent.pdfView
         /// 코멘트 배열에 저장
         let newComment = Comment(pdfView: pdfView, selection: selection, text: text)
         comments.append(newComment)
@@ -36,7 +35,8 @@ class CommentViewModel: ObservableObject {
     }
 }
 
-// PDFannotation 관련
+
+//PDFannotation 관련
 extension CommentViewModel {
     
     /// 버튼 추가
@@ -45,15 +45,24 @@ extension CommentViewModel {
         /// selection을 line 별로 받아와 배열에 저장
         let lineSelection = selection.selectionsByLine()
         if let firstLineSelection = lineSelection.first {
-            
+            print(firstLineSelection)
             /// 배열 중 첫 번째 selection만 가져오기
             guard let page = firstLineSelection.pages.first else { return }
             let bounds = firstLineSelection.bounds(for: page)
             let convertedBounds = bounds.origin
             
-            if let line = page.selectionForLine(at: convertedBounds) {
+            let centerX = bounds.origin.x + bounds.width / 2
+            let centerY = bounds.origin.y + bounds.height / 2
+            let centerPoint = CGPoint(x: centerX, y: centerY)
+            print(page)
+            print(bounds)
+            print(convertedBounds)
+            print("centerPoint: \(centerPoint)")
+            
+            if let line = page.selectionForLine(at: centerPoint) {
                 let lineBounds = line.bounds(for: page)
-                
+                print(line)
+                print(lineBounds)
                 let pdfMidX = page.bounds(for: pdfView.displayBox).midX
                 
                 ///PDF 문서의 colum 구분
@@ -65,9 +74,9 @@ extension CommentViewModel {
                 
                 ///colum에 따른 commentIcon 좌표 값 설정
                 if isLeft {
-                    iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.maxY , width: 20, height: 10)
+                    iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
                 } else if isRight || isAcross {
-                    iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.maxY, width: 20, height: 10)
+                    iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
                 }
                 
                 let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
