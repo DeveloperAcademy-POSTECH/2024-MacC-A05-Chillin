@@ -205,6 +205,8 @@ private struct MainMenuView: View {
             
         case .failure(let error):
             print(String(describing: error))
+            self.errorStatus = .etc
+            self.errorAlert.toggle()
         }
     }
 }

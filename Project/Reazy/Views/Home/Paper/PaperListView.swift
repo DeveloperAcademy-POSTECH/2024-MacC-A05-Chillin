@@ -147,7 +147,17 @@ extension PaperListView {
         let data = pdfFileManager.paperInfos[selectedPaper].url
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
+            print("bookmartdata to url failed")
             return
+        }
+        
+        if isStale {
+            print("Bookmark(\(url.lastPathComponent)) is stale")
+            guard let updatedBookmark = try? url.bookmarkData(options: .minimalBookmark) else {
+                print("Unable to create bookmark")
+                return
+            }
+            // TODO: URL 데이터 업데이트 필요
         }
         
         if url.startAccessingSecurityScopedResource() {
