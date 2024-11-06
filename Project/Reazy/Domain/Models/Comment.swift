@@ -14,7 +14,27 @@ class Comment {
     var pdfView: PDFView
     var selection: PDFSelection
     var text: String
-    var isPresent: Bool
+    var selectedLine: CGRect {
+        var selectedLine: CGRect = .zero
+        /// selection을 line 별로 받아와 배열에 저장
+        let lineSelection = selection.selectionsByLine()
+        if let firstLineSelection = lineSelection.first {
+            
+            /// 배열 중 첫 번째 selection만 가져오기
+            guard let page = firstLineSelection.pages.first else { return .zero }
+            let bounds = firstLineSelection.bounds(for: page)
+            
+            let centerX = bounds.origin.x + bounds.width / 2
+            let centerY = bounds.origin.y + bounds.height / 2
+            let centerPoint = CGPoint(x: centerX, y: centerY)
+            
+            if let line = page.selectionForLine(at: centerPoint) {
+                let lineBounds = line.bounds(for: page)
+                selectedLine = lineBounds
+            }
+        }
+        return selectedLine
+    }
     
     var position: CGPoint {
         guard let page = selection.pages.first else { return .zero }
@@ -31,6 +51,5 @@ class Comment {
         self.pdfView = pdfView
         self.selection = selection
         self.text = text
-        self.isPresent = false
     }
 }

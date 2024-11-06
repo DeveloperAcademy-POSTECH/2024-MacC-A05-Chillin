@@ -13,7 +13,7 @@ struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
     @State var text: String = ""
     
-    @State private var commentHeight: CGFloat = 20 // 초기 높이 설정
+    @State private var commentHeight: CGFloat = 20
     
     let selection: PDFSelection
     

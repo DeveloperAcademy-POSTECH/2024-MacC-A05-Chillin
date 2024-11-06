@@ -48,47 +48,34 @@ extension CommentViewModel {
             print(firstLineSelection)
             /// 배열 중 첫 번째 selection만 가져오기
             guard let page = firstLineSelection.pages.first else { return }
-            let bounds = firstLineSelection.bounds(for: page)
-            let convertedBounds = bounds.origin
+            let lineBounds = newComment.selectedLine
+            let pdfMidX = page.bounds(for: pdfView.displayBox).midX
             
-            let centerX = bounds.origin.x + bounds.width / 2
-            let centerY = bounds.origin.y + bounds.height / 2
-            let centerPoint = CGPoint(x: centerX, y: centerY)
-            print(page)
-            print(bounds)
-            print(convertedBounds)
-            print("centerPoint: \(centerPoint)")
+            ///PDF 문서의 colum 구분
+            let isLeft = lineBounds.maxX < pdfMidX
+            let isRight = lineBounds.minX >= pdfMidX
+            let isAcross = !isLeft && !isRight
             
-            if let line = page.selectionForLine(at: centerPoint) {
-                let lineBounds = line.bounds(for: page)
-                print(line)
-                print(lineBounds)
-                let pdfMidX = page.bounds(for: pdfView.displayBox).midX
-                
-                ///PDF 문서의 colum 구분
-                let isLeft = lineBounds.maxX < pdfMidX
-                let isRight = lineBounds.minX >= pdfMidX
-                let isAcross = !isLeft && !isRight
-                
-                var iconPosition: CGRect = .zero
-                
-                ///colum에 따른 commentIcon 좌표 값 설정
-                if isLeft {
-                    iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
-                } else if isRight || isAcross {
-                    iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
-                }
-                
-                let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
-                commentIcon.widgetFieldType = .button
-                commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
-                commentIcon.border?.lineWidth = .zero
-                commentIcon.widgetControlType = .pushButtonControl
-                
-                /// 버튼에 코멘트 정보 참조
-                commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
-                page.addAnnotation(commentIcon)
+            var iconPosition: CGRect = .zero
+            
+            ///colum에 따른 commentIcon 좌표 값 설정
+            if isLeft {
+                iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
+            } else if isRight || isAcross {
+                iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
             }
+            
+            let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
+            commentIcon.widgetFieldType = .button
+            commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
+            commentIcon.border?.lineWidth = .zero
+            commentIcon.widgetControlType = .pushButtonControl
+            
+            /// 버튼에 코멘트 정보 참조
+            commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
+            page.addAnnotation(commentIcon)
+            
+            
         }
     }
     
