@@ -37,12 +37,11 @@ struct OriginalView: View {
             if viewModel.toolMode == .translate {
                 if #available(iOS 18.0, *) {
                     if viewModel.isBubbleViewVisible {
-                        BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition)
+                        BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition, isPaperViewFirst: $viewModel.isPaperViewFirst)
                             .environmentObject(floatingViewModel)
+                            .environmentObject(viewModel)
                     }
-                } else {
-                   BubbleViewOlderVer()
-                }
+                } 
             }
                 if viewModel.isCommentVisible == true {
                     CommentView(viewModel: commentViewModel, selection: viewModel.commentSelection ?? PDFSelection())

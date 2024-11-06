@@ -9,11 +9,27 @@ import SwiftUI
 
 @main
 struct AppView: App {
+    // AppDelegate
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+    // Navigation 컨트롤
+    @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
     
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            NavigationStack(path: $navigationCoordinator.path) {
+                navigationCoordinator.build(.home)
+                    .navigationDestination(for: Screen.self) { screen in
+                        navigationCoordinator.build(screen)
+                    }
+                    .sheet(item: $navigationCoordinator.sheet) { sheet in
+                        navigationCoordinator.build(sheet)
+                    }
+                    .fullScreenCover(item: $navigationCoordinator.fullScreenCover) { fullScreenCover in
+                        navigationCoordinator.build(fullScreenCover)
+                    }
+            }
+            .environmentObject(navigationCoordinator)
         }
     }
 }

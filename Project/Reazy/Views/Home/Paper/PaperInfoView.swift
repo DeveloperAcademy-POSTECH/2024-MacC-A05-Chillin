@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PaperInfoView: View {
     
-    let image: Image
+    let image: Data
     let title: String
     let author: String
     let year: String
@@ -22,7 +22,7 @@ struct PaperInfoView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            image
+            Image(uiImage: .init(data: image) ?? .init(resource: .testThumbnail))
                 .resizable()
                 .scaledToFit()
                 .frame(height: 370)
@@ -217,7 +217,7 @@ struct PaperInfoView: View {
 
 #Preview {
     PaperInfoView(
-        image: Image("image"),
+        image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
         author: "Smith, John",
         year: "2010",

@@ -14,7 +14,9 @@ enum LayoutOrientation {
 
 struct MainPDFView: View {
     
-    @StateObject private var mainPDFViewModel: MainPDFViewModel = .init()
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    
+    @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     
     @State private var selectedButton: WriteButton? = nil
@@ -30,10 +32,9 @@ struct MainPDFView: View {
     
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
-    @State private var isPaperViewFirst = true
     @State private var isVertical = false
     
-    @Binding var navigationPath: NavigationPath
+//    @Binding var navigationPath: NavigationPath
     
     var body: some View {
         GeometryReader { geometry in
@@ -240,9 +241,7 @@ struct MainPDFView: View {
                     leftView: {
                         HStack(spacing: 0) {
                             Button(action: {
-                                if !navigationPath.isEmpty {
-                                    navigationPath.removeLast()
-                                }
+                                navigationCoordinator.pop()
                             }) {
                                 Image(systemName: "chevron.left")
                                     .foregroundStyle(.gray800)
@@ -313,9 +312,17 @@ struct MainPDFView: View {
     @ViewBuilder
     private func mainView(for mode: String) -> some View {
         if mode == "원문 모드" {
-            OriginalView()
-                .environmentObject(mainPDFViewModel)
-                .environmentObject(floatingViewModel)
+            ZStack {
+                OriginalView()
+                    .environmentObject(mainPDFViewModel)
+                    .environmentObject(floatingViewModel)
+                // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
+                if #unavailable(iOS 18.0) {
+                    if mainPDFViewModel.toolMode == .translate {
+                        BubbleViewOlderVer()
+                    }
+                }
+            }
         } else if mode == "집중 모드" {
             ConcentrateView()
                 .environmentObject(mainPDFViewModel)
@@ -345,7 +352,7 @@ struct MainPDFView: View {
     
     @ViewBuilder
     private func layoutContent(for orientation: LayoutOrientation) -> some View {
-        if floatingViewModel.splitMode && !isPaperViewFirst,
+        if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
             FloatingSplitView(
                 documentID: splitDetails.documentID,
@@ -354,7 +361,7 @@ struct MainPDFView: View {
                 isFigSelected: isFigSelected,
                 onSelect: {
                     withAnimation {
-                        isPaperViewFirst.toggle()
+                        mainPDFViewModel.isPaperViewFirst.toggle()
                     }
                 }
             )
@@ -366,7 +373,7 @@ struct MainPDFView: View {
         
         mainView(for: selectedMode)
         
-        if floatingViewModel.splitMode && isPaperViewFirst,
+        if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
             divider(for: orientation)
             
@@ -377,7 +384,7 @@ struct MainPDFView: View {
                 isFigSelected: isFigSelected,
                 onSelect: {
                     withAnimation {
-                        isPaperViewFirst.toggle()
+                        mainPDFViewModel.isPaperViewFirst.toggle()
                     }
                 }
             )
