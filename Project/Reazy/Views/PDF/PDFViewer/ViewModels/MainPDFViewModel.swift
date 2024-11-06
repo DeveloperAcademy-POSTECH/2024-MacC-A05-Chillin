@@ -48,6 +48,12 @@ final class MainPDFViewModel: ObservableObject {
     
     // for drawing
     public var pdfDrawer = PDFDrawer()                          // PDFDrawer
+    
+    init(url: URL) {
+        self.document = PDFDocument(url: url)
+    }
+    
+    init() {}
 }
 
 

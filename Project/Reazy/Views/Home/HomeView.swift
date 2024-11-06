@@ -14,10 +14,9 @@ enum Options {
 }
 
 struct HomeView: View {
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
     @StateObject private var pdfFileManager: PDFFileManager = .init()
-    
-    @State private var navigationPath: NavigationPath = NavigationPath()
     
     @State var selectedMenu: Options = .main
     
@@ -33,63 +32,57 @@ struct HomeView: View {
     @State private var isSearching: Bool = false
     
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            VStack(spacing: 0) {
-                ZStack {
-                    Rectangle()
-                        .foregroundStyle(.point1)
+        VStack(spacing: 0) {
+            ZStack {
+                Rectangle()
+                    .foregroundStyle(.point1)
+                
+                HStack(spacing: 0) {
+                    Image("icon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 54, height: 50)
+                        .padding(.vertical, 31)
+                        .padding(.leading, 28)
                     
-                    HStack(spacing: 0) {
-                        Image("icon")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 54, height: 50)
-                            .padding(.vertical, 31)
-                            .padding(.leading, 28)
+                    Spacer()
+                    
+                    switch selectedMenu {
+                    case .main:
+                        MainMenuView(
+                            selectedMenu: $selectedMenu,
+                            isSearching: $isSearching,
+                            isEditing: $isEditing,
+                            selectedItems: $selectedItems)
+                        .environmentObject(pdfFileManager)
                         
-                        Spacer()
+                    case .search:
+                        SearchMenuView(
+                            selectedMenu: $selectedMenu,
+                            searchText: $searchText,
+                            isSearching: $isSearching)
                         
-                        switch selectedMenu {
-                        case .main:
-                            MainMenuView(
-                                selectedMenu: $selectedMenu,
-                                isSearching: $isSearching,
-                                isEditing: $isEditing,
-                                selectedItems: $selectedItems)
-                            .environmentObject(pdfFileManager)
-                            
-                        case .search:
-                            SearchMenuView(
-                                selectedMenu: $selectedMenu,
-                                searchText: $searchText,
-                                isSearching: $isSearching)
-                            
-                        case .edit:
-                            EditMenuView(
-                                selectedMenu: $selectedMenu,
-                                selectedItems: $selectedItems,
-                                isEditing: $isEditing)
-                        }
+                    case .edit:
+                        EditMenuView(
+                            selectedMenu: $selectedMenu,
+                            selectedItems: $selectedItems,
+                            isEditing: $isEditing)
                     }
                 }
-                .frame(height: 80)
-                
-                PaperListView(
-                    navigationPath: $navigationPath,
-                    isEditing: $isEditing,
-                    isSearching: $isSearching
-                )
-                .environmentObject(pdfFileManager)
             }
-            .background(Color(hex: "F7F7FB"))
-            .navigationDestination(for: Int.self) { index in
-                MainPDFView(navigationPath: $navigationPath)
-            }
-            .overlay {
-                if pdfFileManager.isLoading {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                }
+            .frame(height: 80)
+            
+            PaperListView(
+                isEditing: $isEditing,
+                isSearching: $isSearching
+            )
+            .environmentObject(pdfFileManager)
+        }
+        .background(Color(hex: "F7F7FB"))
+        .overlay {
+            if pdfFileManager.isLoading {
+                ProgressView()
+                    .progressViewStyle(.circular)
             }
         }
         .statusBarHidden()

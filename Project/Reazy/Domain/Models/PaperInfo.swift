@@ -16,8 +16,9 @@ struct PaperInfo {
     let pages: Int
     let publisher: String
     let thumbnail: Data
+    let url: String
     
-    init(title: String, datetime: String, author: String, year: String, pages: Int, publisher: String, thumbnail: Data) {
+    init(title: String, datetime: String, author: String, year: String, pages: Int, publisher: String, thumbnail: Data, url: String) {
         self.title = title
         self.dateTime = datetime
         self.author = author
@@ -25,5 +26,6 @@ struct PaperInfo {
         self.pages = pages
         self.publisher = publisher
         self.thumbnail = thumbnail
+        self.url = url
     }
 }

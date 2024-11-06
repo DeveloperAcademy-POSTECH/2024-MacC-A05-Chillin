@@ -9,19 +9,14 @@ import SwiftUI
 
 struct PaperListView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
-    
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
     @State private var selectedPaper: Int = 0
-    
-    @Binding var isEditing: Bool
     @State var selectedItems: Set<Int> = []
-    
-    @Binding var isSearching: Bool
-    
     @State private var isFavoritesSelected: Bool = false
-    
-    // MARK: - Core Data 모델 생성 시 수정 필요 : 예시 데이터
+
+    @Binding var isEditing: Bool
+    @Binding var isSearching: Bool
     
     
     var body: some View {
@@ -74,7 +69,9 @@ struct PaperListView: View {
                                     onSelect: {
                                         if !isEditing {
                                             if selectedPaper == index {
-                                                navigationPath.append(selectedPaper)
+                                                let urlString = pdfFileManager.paperInfos[index].url
+                                                guard let url = URL.init(string: urlString) else { return }
+                                                navigationCoordinator.push(.mainPDF(url: url))
                                             }
                                             else {
                                                 selectedPaper = index
@@ -119,7 +116,8 @@ struct PaperListView: View {
                                 publisher: pdfFileManager.paperInfos[selectedPaper].publisher,
                                 onNavigate: {
                                     if !isEditing {
-                                        navigationPath.append(selectedPaper)
+                                        guard let url = URL(string: pdfFileManager.paperInfos[selectedPaper].url) else { return }
+                                        navigationCoordinator.push(.mainPDF(url: url))
                                     }
                                 }
                             )
@@ -149,7 +147,7 @@ struct PaperListView: View {
 #Preview {
     let manager = PDFFileManager()
     
-    PaperListView(navigationPath: .constant(.init()), isEditing: .constant(false), isSearching: .constant(false))
+    PaperListView(isEditing: .constant(false), isSearching: .constant(false))
         .environmentObject(manager)
         .onAppear {
             manager.uploadSampleData()

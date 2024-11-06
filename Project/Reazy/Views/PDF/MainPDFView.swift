@@ -14,7 +14,9 @@ enum LayoutOrientation {
 
 struct MainPDFView: View {
     
-    @StateObject private var mainPDFViewModel: MainPDFViewModel = .init()
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    
+    @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     
     @State private var selectedButton: WriteButton? = nil
@@ -32,7 +34,7 @@ struct MainPDFView: View {
     @State private var isSearchSelected: Bool = false
     @State private var isVertical = false
     
-    @Binding var navigationPath: NavigationPath
+//    @Binding var navigationPath: NavigationPath
     
     var body: some View {
         GeometryReader { geometry in
@@ -239,9 +241,7 @@ struct MainPDFView: View {
                     leftView: {
                         HStack(spacing: 0) {
                             Button(action: {
-                                if !navigationPath.isEmpty {
-                                    navigationPath.removeLast()
-                                }
+                                navigationCoordinator.pop()
                             }) {
                                 Image(systemName: "chevron.left")
                                     .foregroundStyle(.gray800)
