@@ -109,9 +109,9 @@ struct PaperListView: View {
                                 image: pdfFileManager.paperInfos[selectedPaper].thumbnail,
                                 title: pdfFileManager.paperInfos[selectedPaper].title,
                                 author: pdfFileManager.paperInfos[selectedPaper].author,
-                                year: pdfFileManager.paperInfos[selectedPaper].year,
                                 pages: pdfFileManager.paperInfos[selectedPaper].pages,
                                 publisher: pdfFileManager.paperInfos[selectedPaper].publisher,
+                                dateTime: pdfFileManager.paperInfos[selectedPaper].dateTime,
                                 onNavigate: {
                                     if !isEditing {
                                         navigateToPaper()
@@ -153,7 +153,7 @@ extension PaperListView {
         
         if isStale {
             print("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let updatedBookmark = try? url.bookmarkData(options: .minimalBookmark) else {
+            guard let _ = try? url.bookmarkData(options: .minimalBookmark) else {
                 print("Unable to create bookmark")
                 return
             }

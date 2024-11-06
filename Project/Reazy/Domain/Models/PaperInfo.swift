@@ -13,11 +13,10 @@ struct PaperInfo {
     var title: String
     var dateTime: String
     var author: String
-    var year: String
     let pages: Int
     let publisher: String
     let thumbnail: Data
-    let url: String
+    let url: Data
     let lastModifiedDate: Date
     var isFavorite: Bool
     
@@ -26,11 +25,10 @@ struct PaperInfo {
         title: String,
         datetime: String,
         author: String,
-        year: String,
         pages: Int,
         publisher: String,
         thumbnail: Data,
-        url: String,
+        url: Data,
         lastModifiedDate: Date = .init(),
         isFavorite: Bool = false
     ) {
@@ -38,7 +36,6 @@ struct PaperInfo {
         self.title = title
         self.dateTime = datetime
         self.author = author
-        self.year = year
         self.pages = pages
         self.publisher = publisher
         self.thumbnail = thumbnail

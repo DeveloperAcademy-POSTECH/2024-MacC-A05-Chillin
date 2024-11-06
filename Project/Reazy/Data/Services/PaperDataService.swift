@@ -30,26 +30,25 @@ class PaperDataService: PaperDataServiceProtocol {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let pdfDataList = fetchedDataList.map { paperData -> PaperInfo in
                 // TODO: - URL 타입 수정
-                let urlString: String = {
-                    if let urlData = paperData.url,
-                       let url = String(data: urlData, encoding: .utf8),
-                       let validUrl = URL(string: url) {
-                        return validUrl.absoluteString
-                    }
-                    return "--"
-                }()
+//                let urlString: String = {
+//                    if let urlData = paperData.url,
+//                       let url = String(data: urlData, encoding: .utf8),
+//                       let validUrl = URL(string: url) {
+//                        return validUrl.absoluteString
+//                    }
+//                    return "--"
+//                }()
                 
                 return PaperInfo(
-                    id: paperData.id ?? UUID(),
-                    title: paperData.title ?? "--",
+                    id: paperData.id,
+                    title: paperData.title,
                     datetime: paperData.dateTime ?? "--",
                     author: paperData.author ?? "--",
-                    year: paperData.year ?? "--",
                     pages: Int(paperData.pages),
                     publisher: paperData.publisher ?? "--",
-                    thumbnail: paperData.thumbnail ?? Data(),
-                    url: urlString,
-                    lastModifiedDate: paperData.lastModifiedDate ?? Date(),
+                    thumbnail: paperData.thumbnail,
+                    url: paperData.url,
+                    lastModifiedDate: paperData.lastModifiedDate,
                     isFavorite: paperData.isFavorite
                 )
             }
@@ -68,19 +67,12 @@ class PaperDataService: PaperDataServiceProtocol {
         newPaperData.title = info.title
         newPaperData.dateTime = info.dateTime
         newPaperData.author = info.author
-        newPaperData.year = info.year
+        newPaperData.url = info.url
         newPaperData.pages = Int32(info.pages)
         newPaperData.publisher = info.publisher
         newPaperData.thumbnail = info.thumbnail
         newPaperData.lastModifiedDate = info.lastModifiedDate
         newPaperData.isFavorite = info.isFavorite
-        
-        // TODO: - URL 타입 수정
-        if let urlData = info.url.data(using: .utf8) {
-            newPaperData.url = urlData
-        } else {
-            newPaperData.url = nil
-        }
         
         do {
             try dataContext.save()
@@ -103,7 +95,7 @@ class PaperDataService: PaperDataServiceProtocol {
                 dataToEdit.title = info.title
                 dataToEdit.dateTime = info.dateTime
                 dataToEdit.author = info.author
-                dataToEdit.year = info.year
+                dataToEdit.url = info.url
                 dataToEdit.pages = Int32(info.pages)
                 dataToEdit.publisher = info.publisher
                 dataToEdit.isFavorite = info.isFavorite
