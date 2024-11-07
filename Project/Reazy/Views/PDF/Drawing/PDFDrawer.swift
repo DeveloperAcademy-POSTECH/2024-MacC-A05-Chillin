@@ -30,7 +30,7 @@ enum DrawingTool: Int {
 }
 
 class PDFDrawer {
-    private var pdfID: UUID
+    private let pdfID: UUID
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
