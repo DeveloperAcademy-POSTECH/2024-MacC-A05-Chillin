@@ -46,7 +46,6 @@ final class OriginalViewController: UIViewController {
         self.setGestures()
         self.setBinding()
         
-        self.getPdfMidX()
         
         // 기본 설정: 제스처 추가
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
@@ -131,10 +130,11 @@ final class OriginalViewController: UIViewController {
                 
                 if viewModel.isCommentTapped {
                     viewModel.tappedComment = tappedComment
+                    commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
                 } else {
                     viewModel.tappedComment = nil
                 }
-                viewModel.selectedCommentID = tappedComment.id
+                
                 
             } else {
                 print("No match comment annotation")
@@ -165,20 +165,14 @@ extension OriginalViewController {
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()
+        
+        // pdfView midX 가져오기
+        self.commentViewModel.getPdfMidX(pdfView: mainPDFView)
     }
     
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
         self.mainPDFView.currentSelection = nil
-    }
-    
-    /// pdfView midX값 전달
-    private func getPdfMidX() {
-        guard let currentPage = self.mainPDFView.currentPage else { return }
-        let bounds = currentPage.bounds(for: self.mainPDFView.displayBox)
-        let pdfMidX = self.mainPDFView.convert(bounds, from: currentPage).midX
-        
-        commentViewModel.pdfViewMidX = pdfMidX
     }
     
     private func setGestures() {
@@ -279,7 +273,6 @@ extension OriginalViewController {
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
                                 self.commentViewModel.pdfConvertedBounds = convertedBounds
-                                
                             }
                         }
                     }

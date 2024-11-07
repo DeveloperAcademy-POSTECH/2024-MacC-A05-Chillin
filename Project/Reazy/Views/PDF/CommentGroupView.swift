@@ -13,16 +13,16 @@ struct CommentGroupView: View {
     @StateObject var viewModel: CommentViewModel
     @State var text: String = ""
     
-    let selection: PDFSelection
+    let changedSelection: PDFSelection
     
     var body: some View {
         VStack {
             if pdfViewModel.isCommentTapped == true {
-                if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.selectedCommentID }) {
-                    CommentInputView(viewModel: viewModel, comment: comment)
+                if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
+                    CommentView(viewModel: viewModel, comment: comment)
                 }
             } else {
-                CommentView(viewModel: viewModel, selection: selection)
+                CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
             }
         }
         .background(Color.gray100)
@@ -42,7 +42,7 @@ struct CommentGroupView: View {
 
 //  CommentGrouopView 분리
 /// input
-struct CommentInputView: View {
+struct CommentView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     
@@ -87,14 +87,14 @@ struct CommentInputView: View {
     }
 }
 ///output
-struct CommentView: View {
+struct CommentInputView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     
     @State var text: String = ""
     @State private var commentHeight: CGFloat = 20
     
-    let selection: PDFSelection
+    let changedSelection: PDFSelection
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -119,7 +119,7 @@ struct CommentView: View {
                     if !text.isEmpty {
                         pdfViewModel.isCommentSaved = true
                         viewModel.addComment(text: text,
-                            selection: selection
+                            fixSelection: changedSelection
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
                         dump(viewModel.comments)

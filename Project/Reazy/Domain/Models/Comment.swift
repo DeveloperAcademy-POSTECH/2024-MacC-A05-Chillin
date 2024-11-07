@@ -44,6 +44,11 @@ class CommentGroup {
     private func saveCommentsArr(comment: Comment) {
         comments.append(comment)
     }
+    
+    init(comments: [Comment], position: CGPoint) {
+        self.comments = comments
+        self.position = position
+    }
 }
 
 

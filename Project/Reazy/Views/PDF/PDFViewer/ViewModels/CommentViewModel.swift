@@ -10,23 +10,24 @@ import PDFKit
 import SwiftUI
 
 class CommentViewModel: ObservableObject {
-    @Published var commentGroup: CommentGroup?
+    @Published var commentGroup: [CommentGroup] = []
     @Published var comments: [Comment] = []
     
-    var pdfViewMidX: CGFloat = .zero
-    var pdfConvertedBounds: CGRect = .zero
+    //pdfView 관련
+    @Published var pdfViewMidX: CGFloat = .zero
+    @Published var pdfConvertedBounds: CGRect = .zero
+    
     var commentPosition: CGPoint = .zero
     
     // 코멘트 추가
-    func addComment(text: String, selection: PDFSelection) {
+    func addComment(text: String, fixSelection: PDFSelection) {
         
         /// 코멘트 배열에 저장
-        let position: () = setCommentPosition(selection: selection)
-        let newComment = Comment(selection: selection, text: text)
+        let newComment = Comment(selection: fixSelection, text: text)
         comments.append(newComment)
         
-        addCommentIcon(selection: selection, newComment: newComment)
-        drawUnderline(selection: selection, newComment: newComment)
+        addCommentIcon(selection: fixSelection, newComment: newComment)
+        drawUnderline(selection: fixSelection, newComment: newComment)
     }
     
     // 코멘트 삭제
@@ -44,12 +45,26 @@ class CommentViewModel: ObservableObject {
 //MARK: - 초기세팅
 extension CommentViewModel {
     
-    func setCommentPosition(selection: PDFSelection) {
-        let position = CGPoint(
-            x: pdfConvertedBounds.midX,
-            y: pdfConvertedBounds.maxY + 70
-        )
-        commentPosition = position
+    func setCommentPosition(selection: PDFSelection, pdfView: PDFView) {
+        if let page = selection.pages.first {
+            let bound = selection.bounds(for: page)
+            let convertedBounds = pdfView.convert(bound, from: page)
+            
+            //position 설정
+            let position = CGPoint(
+                x: convertedBounds.midX,
+                y: convertedBounds.maxY + 70
+            )
+            self.commentPosition = position
+        }
+    }
+    
+    func getPdfMidX(pdfView: PDFView) {
+        guard let currentPage = pdfView.currentPage else { return }
+        let bounds = currentPage.bounds(for: pdfView.displayBox)
+        let pdfMidX = pdfView.convert(bounds, from: currentPage).midX
+        
+        self.pdfViewMidX = pdfMidX
     }
 }
 

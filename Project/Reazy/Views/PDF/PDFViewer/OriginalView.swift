@@ -44,7 +44,7 @@ struct OriginalView: View {
                 } 
             }
                 if viewModel.isCommentVisible == true {
-                    CommentGroupView(viewModel: commentViewModel, selection: viewModel.commentSelection ?? PDFSelection())
+                    CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
                         .position(viewModel.isCommentTapped ? commentViewModel.commentPosition : viewModel.commentInputPosition)
                 }
         }

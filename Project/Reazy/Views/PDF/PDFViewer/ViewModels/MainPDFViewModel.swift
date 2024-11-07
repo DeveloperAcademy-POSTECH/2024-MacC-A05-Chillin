@@ -54,7 +54,6 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
-    @Published var selectedCommentID: UUID = .init()
     @Published var commentTappedPosition: CGPoint = .zero
     @Published var tappedComment: Comment? {
         didSet {
