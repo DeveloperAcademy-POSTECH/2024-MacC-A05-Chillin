@@ -18,11 +18,11 @@ class CommentViewModel: ObservableObject {
     
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
-//    var pdfID: UUID
+    var pdfID: UUID
     
-//    init(pdfID: UUID) {
-//        self.pdfID = pdfID
-//    }
+    init(pdfID: UUID) {
+        self.pdfID = pdfID
+    }
     
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {

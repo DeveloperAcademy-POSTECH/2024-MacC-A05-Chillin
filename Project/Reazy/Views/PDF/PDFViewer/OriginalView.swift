@@ -12,7 +12,7 @@ import PDFKit
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
-    @StateObject private var commentViewModel: CommentViewModel = .init()
+    @StateObject var commentViewModel: CommentViewModel
     
     @State private var keyboardHeight: CGFloat = 0
     let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
@@ -50,8 +50,9 @@ struct OriginalView: View {
         }
         //.keyboardHeight($keyboardHeight)
         //.offset(y: -keyboardHeight / 1.7)
-        //.animation(.smooth(duration: 0.5))
-        //.transition(.move(edge: .bottom).combined(with: .opacity))
+        .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
+        .animation(.smooth(duration: 0.1), value: viewModel.isCommentTapped)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
         .onChange(of: viewModel.selectedText) { _, newValue in
             viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
         }

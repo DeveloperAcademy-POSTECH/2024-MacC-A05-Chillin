@@ -312,7 +312,8 @@ struct MainPDFView: View {
     private func mainView(for mode: String) -> some View {
         if mode == "원문 모드" {
             ZStack {
-                OriginalView()
+                let commentViewModel = CommentViewModel(pdfID: mainPDFViewModel.paperInfo.id)
+                OriginalView(commentViewModel: commentViewModel)
                     .environmentObject(mainPDFViewModel)
                     .environmentObject(floatingViewModel)
                 // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
