@@ -47,7 +47,8 @@ final class MainPDFViewModel: ObservableObject {
     public var thumnailImages: [UIImage] = []
     
     // for drawing
-    public var pdfDrawer = PDFDrawer(drawingService: DrawingDataService())                          // PDFDrawer
+    public var pdfDrawer = PDFDrawer(drawingService: DrawingDataService(), pdfID: pdfID)
+    // TODO: - [브리] 여기서 pdfID 같이 넘겨주면 됨 !
     
     public var paperInfo: PaperInfo
     

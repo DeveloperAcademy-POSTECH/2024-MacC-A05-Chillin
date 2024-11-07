@@ -30,6 +30,8 @@ enum DrawingTool: Int {
 }
 
 class PDFDrawer {
+    private var pdfID: UUID
+    
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
@@ -41,9 +43,11 @@ class PDFDrawer {
     private var drawingService: DrawingDataService
     
     init(
-        drawingService: DrawingDataService
+        drawingService: DrawingDataService,
+        pdfID = pdfID
     ) {
         self.drawingService = drawingService
+        self.pdfID = pdfID
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
         // TODO: - [펑키] 어떤 pdf에 해당하는 drawing인지 판단하기 위해 PDF ID값이 필요합니다!
 //        switch drawingService.loadDrawingData(for: pdfID) {
