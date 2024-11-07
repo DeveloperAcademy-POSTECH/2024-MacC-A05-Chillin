@@ -30,6 +30,8 @@ enum DrawingTool: Int {
 }
 
 class PDFDrawer {
+    private let pdfID: UUID
+    
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
@@ -41,11 +43,12 @@ class PDFDrawer {
     private var drawingService: DrawingDataService
     
     init(
-        drawingService: DrawingDataService
+        drawingService: DrawingDataService,
+        pdfID: UUID
     ) {
         self.drawingService = drawingService
+        self.pdfID = pdfID
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
-        // TODO: - [펑키] 어떤 pdf에 해당하는 drawing인지 판단하기 위해 PDF ID값이 필요합니다!
 //        switch drawingService.loadDrawingData(for: pdfID) {
 //        case .success(let drawingList):
 //            drawingDataArray = drawingList
@@ -213,7 +216,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             if let pageIndex = pdfView.document?.index(for: page) {
                 let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
                 drawingDataArray.append(drawingData)
-                print("array count after append: \(drawingDataArray.count)")
             }
         }
         
@@ -241,7 +243,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 // 뒤쪽 인덱스 주석부터 제거
                 for index in indicesToRemove.reversed() {
                     drawingDataArray.remove(at: index)
-                    print("array count after remove: \(drawingDataArray.count)")
                 }
                 
                 page.removeAnnotation(annotation)
