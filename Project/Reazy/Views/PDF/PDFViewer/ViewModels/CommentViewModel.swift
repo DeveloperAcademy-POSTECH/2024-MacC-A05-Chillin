@@ -31,8 +31,14 @@ class CommentViewModel: ObservableObject {
         let selectedLine = getSelectedLine(selection: selection)
         let newComment = Comment(ButtonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
         comments.append(newComment)
-        addCommentIcon(selection: selection, newComment: newComment)
         drawUnderline(selection: selection, newComment: newComment)
+        
+        findCommentGroup(comment: newComment)
+        dump(commentGroup)
+        
+        if commentGroup.count == 1 {
+            addCommentIcon(selection: selection, newComment: newComment)
+        }
     }
     
     // 코멘트 삭제
@@ -93,8 +99,8 @@ extension CommentViewModel {
         return selectedLine
     }
     
-    func findCommentGroup(tappedComment: Comment) {
-        let group = comments.filter { $0.ButtonID == tappedComment.ButtonID }
+    func findCommentGroup(comment: Comment) {
+        let group = comments.filter { $0.ButtonID == comment.ButtonID }
         self.commentGroup = group
     }
 }
@@ -153,15 +159,15 @@ extension CommentViewModel {
             }
             
             let tintedImage = self._image?.withTintColor(UIColor.point4, renderingMode: .alwaysTemplate)
-                    
-                    // PDF 페이지에 이미지 그리기
-                    if let drawingBox = self.page?.bounds(for: box),
-                       let cgTintedImage = tintedImage?.cgImage {
-                        context.draw(cgTintedImage, in: self.bounds.applying(CGAffineTransform(
-                            translationX: (drawingBox.origin.x) * -1.0,
-                            y: (drawingBox.origin.y) * -1.0
-                        )))
-                    }
+            
+            // PDF 페이지에 이미지 그리기
+            if let drawingBox = self.page?.bounds(for: box),
+               let cgTintedImage = tintedImage?.cgImage {
+                context.draw(cgTintedImage, in: self.bounds.applying(CGAffineTransform(
+                    translationX: (drawingBox.origin.x) * -1.0,
+                    y: (drawingBox.origin.y) * -1.0
+                )))
+            }
         }
     }
     

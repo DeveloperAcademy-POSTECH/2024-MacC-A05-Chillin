@@ -107,7 +107,7 @@ final class OriginalViewController: UIViewController {
                 if viewModel.isCommentTapped {
                     viewModel.tappedComment = tappedComment
                     commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
-                    commentViewModel.findCommentGroup(tappedComment: tappedComment)
+                    commentViewModel.findCommentGroup(comment: tappedComment)
                 } else {
                     viewModel.tappedComment = nil
                 }
