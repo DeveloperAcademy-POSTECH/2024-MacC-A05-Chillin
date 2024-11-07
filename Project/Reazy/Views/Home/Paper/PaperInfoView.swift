@@ -20,6 +20,7 @@ struct PaperInfoView: View {
     var isFavorite: Bool
     
     @State var isStarSelected: Bool
+    @State private var text: String = ""
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
@@ -103,70 +104,43 @@ struct PaperInfoView: View {
                     .foregroundStyle(.primary3)
                 
                 HStack(spacing: 0) {
-                    Text("정보")
+                    Text("메모")
                         .reazyFont(.button1)
                         .foregroundStyle(.black)
                     
                     Spacer()
+                    
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
                 .padding(.bottom, 13)
                 
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        Text("저자")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                        
+                
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundStyle(.gray200)
+                    
+                    
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(lineWidth: 1)
+                        .foregroundStyle(.gray550)
+                    
+                    VStack {
+                        TextField("메모를 입력해주세요.", text: $text, axis: .vertical)
+                            .lineLimit(5)
+                            .reazyFont(.body2)
+                            .foregroundStyle(.gray700)
+                            
                         Spacer()
-                        
-                        // TODO: - 저자 데이터 입력 필요
-                        Text(author)
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
                     }
-                    
-                    divider()
-                    
-                    HStack(spacing: 0) {
-                        Text("출판연도")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
                         
-                        Spacer()
-                        
-                        Text(dateTime)
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                    }
-                    
-                    divider()
-                    
-                    HStack(spacing: 0) {
-                        Text("페이지")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                        
-                        Spacer()
-                        
-                        Text("\(pages)")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                    }
-                    
-                    divider()
-                    
-                    HStack(spacing: 0) {
-                        Text("학술지")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                        
-                        Spacer()
-                        
-                        Text(publisher)
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                    }
                 }
+                .frame(maxHeight: 120)
             }
             .padding(.top, 24)
             .padding(.horizontal, 30)
@@ -174,6 +148,10 @@ struct PaperInfoView: View {
             Spacer()
         }
         .padding(.top, 36)
+        .background(alignment: .bottom) {
+            LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
+                .frame(height: 185)
+        }
     }
     
     @ViewBuilder
