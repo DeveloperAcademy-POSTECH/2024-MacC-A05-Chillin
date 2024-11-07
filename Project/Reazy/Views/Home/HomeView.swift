@@ -95,7 +95,10 @@ struct HomeView: View {
 
             
             if isEditingTitle {
-                RenamePaperTitleView(paperInfo: pdfFileManager.paperInfos.first!)
+                RenamePaperTitleView(
+                    isEditingTitle: $isEditingTitle,
+                    paperInfo: pdfFileManager.paperInfos.first { $0.id == selectedPaperID! }!)
+                    .environmentObject(pdfFileManager)
             }
             
         }
@@ -318,7 +321,11 @@ private struct EditMenuView: View {
 
 /// 논문 타이틀 수정 뷰
 private struct RenamePaperTitleView: View {
+    @EnvironmentObject private var pdfFileManager: PDFFileManager
+    
     @State private var text: String = ""
+    
+    @Binding var isEditingTitle: Bool
     
     let paperInfo: PaperInfo
     
@@ -326,9 +333,8 @@ private struct RenamePaperTitleView: View {
         ZStack {
             VStack {
                 HStack {
-                    // TODO: 종료 버튼
                     Button {
-                        
+                        isEditingTitle.toggle()
                     } label: {
                         Image(systemName: "xmark")
                             .resizable()
@@ -340,9 +346,9 @@ private struct RenamePaperTitleView: View {
                     
                     Spacer()
                     
-                    // TODO: 완료 버튼
                     Button("완료") {
-                        
+                        pdfFileManager.updateTitle(at: paperInfo.id, title: text)
+                        isEditingTitle.toggle()
                     }
                     .reazyFont(.button1)
                     .foregroundStyle(.gray100)

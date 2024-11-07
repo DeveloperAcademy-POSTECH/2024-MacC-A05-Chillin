@@ -115,6 +115,13 @@ extension PDFFileManager {
         paperInfos.removeAll { ids.contains($0.id) }
     }
     
+    public func updateTitle(at id: UUID, title: String) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].title = title
+            _ = paperService.editPDFInfo(paperInfos[index])
+        }
+    }
+    
     public func updateFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite
