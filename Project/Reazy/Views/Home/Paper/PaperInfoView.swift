@@ -22,6 +22,8 @@ struct PaperInfoView: View {
     @State var isStarSelected: Bool
     @State private var text: String = ""
     
+    @Binding var isEditingTitle: Bool
+    
     let onNavigate: () -> Void
     let onDelete: () -> Void
     
@@ -76,7 +78,7 @@ struct PaperInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    
+                    isEditingTitle.toggle()
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -208,6 +210,7 @@ struct PaperInfoView: View {
         dateTime: "1999-06-23",
         isFavorite: false,
         isStarSelected: false,
+        isEditingTitle: .constant(false),
         onNavigate: {},
         onDelete: {}
     )

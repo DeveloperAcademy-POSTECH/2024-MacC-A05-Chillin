@@ -18,6 +18,7 @@ struct PaperListView: View {
     
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
+    @Binding var isEditingTitle: Bool
     
     @State private var timerCancellable: Cancellable?
     
@@ -131,6 +132,7 @@ struct PaperListView: View {
                                 dateTime: filteredPaperInfos[selectedPaperIndex].dateTime,
                                 isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
                                 isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
+                                isEditingTitle: $isEditingTitle,
                                 onNavigate: {
                                     if !isEditing {
                                         navigateToPaper()
@@ -254,7 +256,8 @@ extension PaperListView {
         selectedPaperID: .constant(nil),
         selectedItems: .constant([]),
         isEditing: .constant(false),
-        isSearching: .constant(false)
+        isSearching: .constant(false),
+        isEditingTitle: .constant(false)
     )
     .environmentObject(manager)
     .onAppear {

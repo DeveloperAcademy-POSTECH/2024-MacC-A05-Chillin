@@ -31,57 +31,73 @@ struct HomeView: View {
     @State private var selectedItems: Set<Int> = []
     
     @State private var isSearching: Bool = false
+    @State private var isEditingTitle: Bool = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                Rectangle()
-                    .foregroundStyle(.point1)
-                
-                HStack(spacing: 0) {
-                    Image("icon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 54, height: 50)
-                        .padding(.vertical, 31)
-                        .padding(.leading, 28)
+        ZStack {
+            VStack(spacing: 0) {
+                ZStack {
+                    Rectangle()
+                        .foregroundStyle(.point1)
                     
-                    Spacer()
-                    
-                    switch selectedMenu {
-                    case .main:
-                        MainMenuView(
-                            selectedMenu: $selectedMenu,
-                            isSearching: $isSearching,
-                            isEditing: $isEditing,
-                            selectedItems: $selectedItems,
-                            selectedPaperID: $selectedPaperID)
-                        .environmentObject(pdfFileManager)
+                    HStack(spacing: 0) {
+                        Image("icon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 54, height: 50)
+                            .padding(.vertical, 31)
+                            .padding(.leading, 28)
                         
-                    case .search:
-                        SearchMenuView(
-                            selectedMenu: $selectedMenu,
-                            searchText: $searchText,
-                            isSearching: $isSearching)
+                        Spacer()
                         
-                    case .edit:
-                        EditMenuView(
-                            selectedMenu: $selectedMenu,
-                            selectedItems: $selectedItems,
-                            isEditing: $isEditing)
-                        .environmentObject(pdfFileManager)
+                        switch selectedMenu {
+                        case .main:
+                            MainMenuView(
+                                selectedMenu: $selectedMenu,
+                                isSearching: $isSearching,
+                                isEditing: $isEditing,
+                                selectedItems: $selectedItems,
+                                selectedPaperID: $selectedPaperID)
+                            .environmentObject(pdfFileManager)
+                            
+                        case .search:
+                            SearchMenuView(
+                                selectedMenu: $selectedMenu,
+                                searchText: $searchText,
+                                isSearching: $isSearching)
+                            
+                        case .edit:
+                            EditMenuView(
+                                selectedMenu: $selectedMenu,
+                                selectedItems: $selectedItems,
+                                isEditing: $isEditing)
+                            .environmentObject(pdfFileManager)
+                        }
                     }
                 }
+                .frame(height: 80)
+                
+                PaperListView(
+                    selectedPaperID: $selectedPaperID,
+                    selectedItems: $selectedItems,
+                    isEditing: $isEditing,
+                    isSearching: $isSearching,
+                    isEditingTitle: $isEditingTitle
+                )
+                .environmentObject(pdfFileManager)
             }
-            .frame(height: 80)
+            .blur(radius: isEditingTitle ? 20 : 0)
             
-            PaperListView(
-                selectedPaperID: $selectedPaperID,
-                selectedItems: $selectedItems,
-                isEditing: $isEditing,
-                isSearching: $isSearching
-            )
-            .environmentObject(pdfFileManager)
+            
+            Color.black
+                .opacity( isEditingTitle ? 0.5 : 0)
+                .ignoresSafeArea(edges: .bottom)
+
+            
+            if isEditingTitle {
+                RenamePaperTitleView(paperInfo: pdfFileManager.paperInfos.first!)
+            }
+            
         }
         .background(Color(hex: "F7F7FB"))
         .overlay {
@@ -296,6 +312,79 @@ private struct EditMenuView: View {
                     .foregroundStyle(.gray100)
             })
             .padding(.trailing, 28)
+        }
+    }
+}
+
+/// 논문 타이틀 수정 뷰
+private struct RenamePaperTitleView: View {
+    @State private var text: String = ""
+    
+    let paperInfo: PaperInfo
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                HStack {
+                    // TODO: 종료 버튼
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 17)
+                    }
+                    .foregroundStyle(.gray100)
+                    .padding(28)
+                    
+                    Spacer()
+                    
+                    // TODO: 완료 버튼
+                    Button("완료") {
+                        
+                    }
+                    .reazyFont(.button1)
+                    .foregroundStyle(.gray100)
+                    .padding(28)
+                }
+                
+                Spacer()
+            }
+            HStack(spacing: 54) {
+                Image(uiImage: .init(data: paperInfo.thumbnail)!)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 196)
+                
+                VStack(spacing: 16) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 52)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 52)
+                    }
+                    .frame(width: 400, height: 52)
+                    .overlay {
+                        TextField("제목을 입력해주세요.", text: $text)
+                            .padding(.horizontal, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    
+                    Text("논문 제목을 입력해 주세요")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.comment)
+                }
+            }
+        }
+        .onAppear {
+            UITextField.appearance().clearButtonMode = .whileEditing
+            self.text = paperInfo.title
         }
     }
 }
