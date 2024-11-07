@@ -67,12 +67,14 @@ struct HomeView: View {
                             selectedMenu: $selectedMenu,
                             selectedItems: $selectedItems,
                             isEditing: $isEditing)
+                        .environmentObject(pdfFileManager)
                     }
                 }
             }
             .frame(height: 80)
             
             PaperListView(
+                selectedItems: $selectedItems,
                 isEditing: $isEditing,
                 isSearching: $isSearching
             )
@@ -239,6 +241,7 @@ private struct SearchMenuView: View {
 
 /// 수정 화면 버튼 뷰
 private struct EditMenuView: View {
+    @EnvironmentObject var pdfFileManager: PDFFileManager
     @State private var isStarSelected: Bool = false
     
     @Binding var selectedMenu: Options
@@ -248,9 +251,14 @@ private struct EditMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
+            let selectedIDs: [UUID] = selectedItems.compactMap { index in
+                guard index < pdfFileManager.paperInfos.count else { return nil }
+                return pdfFileManager.paperInfos[index].id
+            }
+            
             Button(action: {
-                // MARK: - 북마크 로직 확인 필요
                 isStarSelected.toggle()
+                pdfFileManager.updateFavorites(at: selectedIDs)
             }, label : {
                 Image(systemName: isStarSelected ? "star.fill" : "star")
                     .resizable()
@@ -261,7 +269,7 @@ private struct EditMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                
+                pdfFileManager.deletePDFFiles(at: selectedIDs)
             }, label: {
                 Image(systemName: "trash")
                     .resizable()
@@ -269,18 +277,7 @@ private struct EditMenuView: View {
                     .frame(height: 19)
                     .foregroundStyle(.gray100)
             })
-            .padding(.trailing, 28)
-            
-            Button(action: {
-                
-            }, label: {
-                Image(systemName: "square.and.arrow.up")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
-                    .foregroundStyle(.gray100)
-            })
-            .padding(.trailing, 28)
+            .padding(.trailing, 28)        
             
             Button(action: {
                 selectedMenu = .main

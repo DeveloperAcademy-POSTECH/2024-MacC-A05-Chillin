@@ -8,17 +8,21 @@
 import SwiftUI
 
 struct PaperInfoView: View {
+    @EnvironmentObject var pdfFileManager: PDFFileManager
     
+    let id: UUID
     let image: Data
     let title: String
     let author: String
     let pages: Int
     let publisher: String
     let dateTime: String
+    var isFavorite: Bool
     
-    @State private var isStarSelected: Bool = false
+    @State var isStarSelected: Bool
     
     let onNavigate: () -> Void
+    let onDelete: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -38,22 +42,24 @@ struct PaperInfoView: View {
             HStack(spacing: 0) {
                 Button(action: {
                     isStarSelected.toggle()
+                    pdfFileManager.updateFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: isStarSelected ? "star.fill" : "star")
+                            Image(systemName: isFavorite ? "star.fill" : "star")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 17)
-                                .foregroundStyle(isStarSelected ? .primary1 : .gray600)
+                                .foregroundStyle(isFavorite ? .primary1 : .gray600)
                         )
                 }
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    
+                    pdfFileManager.deletePDFFile(at: id)
+                    onDelete()
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -128,7 +134,6 @@ struct PaperInfoView: View {
                         
                         Spacer()
                         
-                        // TODO: - 출판연도 데이터 입력 필요
                         Text(dateTime)
                             .reazyFont(.button5)
                             .foregroundStyle(.gray600)
@@ -143,7 +148,6 @@ struct PaperInfoView: View {
                         
                         Spacer()
                         
-                        // TODO: - 페이지 수 데이터 입력 필요
                         Text("\(pages)")
                             .reazyFont(.button5)
                             .foregroundStyle(.gray600)
@@ -158,7 +162,6 @@ struct PaperInfoView: View {
                         
                         Spacer()
                         
-                        // TODO: - 학술지 데이터 입력 필요
                         Text(publisher)
                             .reazyFont(.button5)
                             .foregroundStyle(.gray600)
@@ -186,6 +189,7 @@ struct PaperInfoView: View {
     private func actionButton() -> some View {
         Button(action: {
             onNavigate()
+            pdfFileManager.updateLastModifiedDate(at: id, lastModifiedDate: Date())
         }) {
             HStack(spacing: 0) {
                 Text("읽기 ")
@@ -217,12 +221,16 @@ struct PaperInfoView: View {
 
 #Preview {
     PaperInfoView(
+        id: .init(),
         image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
         author: "Smith, John",
         pages: 43,
         publisher: "NATURE",
         dateTime: "1999-06-23",
-        onNavigate: {}
+        isFavorite: false,
+        isStarSelected: false,
+        onNavigate: {},
+        onDelete: {}
     )
 }

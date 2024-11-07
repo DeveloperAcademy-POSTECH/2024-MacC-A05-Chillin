@@ -7,6 +7,7 @@
 
 import Foundation
 import PDFKit
+import SwiftUICore
 
 
 /**
@@ -24,7 +25,7 @@ final class PDFFileManager: ObservableObject {
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
         switch paperService.loadPDFInfo() {
         case .success(let paperList):
-            paperInfos = paperList
+            paperInfos = paperList.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         case .failure(_):
             return
         }
@@ -69,27 +70,67 @@ extension PDFFileManager {
             let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
             let thumbnailData = image.pngData()
             
-            // TODO: - `paperService.savePDFInfo(paperInfo)` 코드 추가
-            /// 삭제도 삭제 로직이 들어가는 곳에 함수를 추가하면 됩니다!
-            paperInfos.append(.init(
+            let paperInfo = PaperInfo(
                 title: result.title ?? url.lastPathComponent,
                 datetime: result.date?.date ?? "알 수 없음",
                 author: names,
                 pages: pageCount ?? 0,
                 publisher: "알 수 없음",
                 thumbnail: thumbnailData!,
-                url: urlData)
+                url: urlData
             )
+            
+            _ = paperService.savePDFInfo(paperInfo)
+            paperInfos.append(paperInfo)
+            
         } else {
-            paperInfos.append(.init(
+            let paperInfo = PaperInfo(
                 title: result.title ?? url.lastPathComponent,
                 datetime: result.date?.date ?? "알 수 없음",
                 author: names,
                 pages: pageCount ?? 0,
                 publisher: "알 수 없음",
                 thumbnail: .init(),
-                url: urlData)
+                url: urlData
             )
+            
+            _ = paperService.savePDFInfo(paperInfo)
+            paperInfos.append(paperInfo)
+        }
+    }
+    
+    public func deletePDFFile(at id: UUID) {
+        _ = paperService.deletePDFInfo(id: id)
+        paperInfos.removeAll(where: { $0.id == id })
+    }
+    
+    public func deletePDFFiles(at ids: [UUID]) {
+        ids.forEach { id in
+            _ = paperService.deletePDFInfo(id: id)
+        }
+        paperInfos.removeAll { ids.contains($0.id) }
+    }
+    
+    public func updateFavorite(at id: UUID, isFavorite: Bool) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].isFavorite = isFavorite
+            _ = paperService.editPDFInfo(paperInfos[index])
+        }
+    }
+    
+    public func updateFavorites(at ids: [UUID]) {
+        ids.forEach { id in
+            if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+                paperInfos[index].isFavorite = true
+                _ = paperService.editPDFInfo(paperInfos[index])
+            }
+        }
+    }
+    
+    public func updateLastModifiedDate(at id: UUID, lastModifiedDate: Date) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].lastModifiedDate = lastModifiedDate
+            _ = paperService.editPDFInfo(paperInfos[index])
         }
     }
 }

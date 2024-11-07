@@ -17,7 +17,7 @@ struct PaperInfo {
     let publisher: String
     let thumbnail: Data
     let url: Data
-    let lastModifiedDate: Date
+    var lastModifiedDate: Date
     var isFavorite: Bool
     
     init(

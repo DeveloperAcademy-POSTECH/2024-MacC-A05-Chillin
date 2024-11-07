@@ -1,5 +1,5 @@
 //
-//  DrawingDataServiceProtocol.swift
+//  DrawingDataInterface.swift
 //  Reazy
 //
 //  Created by 유지수 on 11/6/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol DrawingDataServiceProtocol {
+protocol DrawingDataInterface {
     /// 필기 기록을 불러옵니다
     func loadDrawingData(for pdfID: UUID) -> Result<[Drawing], Error>
     /// 필기 기록을 저장합니다

@@ -53,6 +53,7 @@ struct FigureView: View {
                 }
             }
         }
+        .background(.gray100)
         // 원문보기 페이지 변경시 자동 스크롤
         .onChange(of: mainPDFViewModel.changedPageNumber) { _, newValue in
             updateScrollIndex(for: newValue)

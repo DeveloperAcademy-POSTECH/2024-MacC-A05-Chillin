@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 import UIKit
 
-class DrawingDataService: DrawingDataServiceProtocol {
+class DrawingDataService: DrawingDataInterface {
     private let container: NSPersistentContainer
     
     init() {
