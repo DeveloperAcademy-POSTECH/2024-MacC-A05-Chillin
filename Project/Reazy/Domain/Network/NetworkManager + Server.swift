@@ -53,7 +53,10 @@ extension NetworkManager {
         if let response = response as? HTTPURLResponse {
             // 500 error, PDF OCR 적용이 안되어있음
             if (500 ..< 600 ~= response.statusCode) {
+                let decoder = JSONDecoder()
+                let errorResult = try! decoder.decode(ErrorDescription.self, from: data)
                 print("PDF extract error!, statusCode: \(response.statusCode)")
+                print(errorResult.error)
                 throw NetworkManagerError.corruptedPDF
             }
             
@@ -74,5 +77,10 @@ extension NetworkManager {
     enum ServiceName: String {
         case processHeaderDocument
         case processFulltextDocument
+    }
+    
+    /// 에러 메시지 모델
+    private struct ErrorDescription: Decodable {
+        let error: String
     }
 }

@@ -159,7 +159,9 @@ extension OriginalViewController {
         self.mainPDFView.document = self.viewModel.document
         
         // 집중모드 데이터 패치
-        self.viewModel.fetchFocusAnnotations()
+        Task.init {
+            await self.viewModel.fetchFocusAnnotations()
+        }
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()

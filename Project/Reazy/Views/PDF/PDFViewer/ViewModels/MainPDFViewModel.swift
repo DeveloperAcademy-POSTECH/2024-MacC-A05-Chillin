@@ -76,11 +76,19 @@ final class MainPDFViewModel: ObservableObject {
     // for drawing
     public var pdfDrawer = PDFDrawer(drawingService: DrawingDataService())                          // PDFDrawer
     
-    init(url: URL) {
-        self.document = PDFDocument(url: url)
-    }
+    public var paperInfo: PaperInfo
     
-    init() {}
+    init(paperInfo: PaperInfo) {
+        self.paperInfo = paperInfo
+        
+        var isStale = false
+        
+        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
+        url.startAccessingSecurityScopedResource() {
+            self.document = PDFDocument(url: url)
+            url.stopAccessingSecurityScopedResource()
+        }
+    }
 }
 
 
@@ -89,18 +97,37 @@ extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
-
-    public func fetchFocusAnnotations() {
+    
+    // TODO: 네트워크 연결 확인 필요, 진행도 알려줘야함, 진행 후 데이터 저장 필요
+    public func fetchFocusAnnotations() async {
         guard let page = self.document?.page(at: 0) else {
             return
         }
-        let input = try! NetworkManager.getSamplePDFData()
         
         let width = page.bounds(for: .mediaBox).width
         let height = page.bounds(for: .mediaBox).height
         
-        self.focusAnnotations = NetworkManager.filterSampleData(input: input, pageWidth: width, pageHeight: height)
-        self.figureAnnotations = NetworkManager.filterSampleFigure(input: input, pageWidth: width, pageHeight: height)
+        var isStale = false
+        
+        guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
+              url.startAccessingSecurityScopedResource() else {
+            return
+        }
+        
+        defer {
+            url.stopAccessingSecurityScopedResource()
+        }
+        
+        do {
+            let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
+            
+            self.focusAnnotations = NetworkManager.filterData(input: input, pageWidth: width, pageHeight: height)
+            self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+            
+            print("end network connect")
+        } catch {
+            print(String(describing: error))
+        }
     }
     
     // 텍스트 PDF 붙이는 함수
@@ -124,6 +151,23 @@ extension MainPDFViewModel {
         }
         
         self.focusDocument = document
+    }
+}
+
+/// Sample 메소드
+extension MainPDFViewModel {
+    
+    public func fetchSampleFocusAnnotations() {
+        guard let page = self.document?.page(at: 0) else {
+            return
+        }
+        let input = try! NetworkManager.getSamplePDFData()
+        
+        let width = page.bounds(for: .mediaBox).width
+        let height = page.bounds(for: .mediaBox).height
+        
+        self.focusAnnotations = NetworkManager.filterData(input: input, pageWidth: width, pageHeight: height)
+        self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
     }
 }
 
