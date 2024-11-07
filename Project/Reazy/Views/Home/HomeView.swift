@@ -19,6 +19,7 @@ struct HomeView: View {
     @StateObject private var pdfFileManager: PDFFileManager = .init(paperService: PaperDataService())
     
     @State var selectedMenu: Options = .main
+    @State var selectedPaperID: UUID?
     
     // 검색 모드 search text
     @State private var searchText: String = ""
@@ -53,7 +54,8 @@ struct HomeView: View {
                             selectedMenu: $selectedMenu,
                             isSearching: $isSearching,
                             isEditing: $isEditing,
-                            selectedItems: $selectedItems)
+                            selectedItems: $selectedItems,
+                            selectedPaperID: $selectedPaperID)
                         .environmentObject(pdfFileManager)
                         
                     case .search:
@@ -74,6 +76,7 @@ struct HomeView: View {
             .frame(height: 80)
             
             PaperListView(
+                selectedPaperID: $selectedPaperID,
                 selectedItems: $selectedItems,
                 isEditing: $isEditing,
                 isSearching: $isSearching
@@ -108,6 +111,7 @@ private struct MainMenuView: View {
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
     @Binding var selectedItems: Set<Int>
+    @Binding var selectedPaperID: UUID?
     
     var body: some View {
         HStack(spacing: 0) {
@@ -186,7 +190,9 @@ private struct MainMenuView: View {
         case .success(let url):
             Task.init {
                 do {
-                    try await pdfFileManager.uploadPDFFile(url: url)
+                    if let newPaperID = try await pdfFileManager.uploadPDFFile(url: url) {
+                        selectedPaperID = newPaperID
+                    }
                 } catch {
                     print(String(describing: error))
                     

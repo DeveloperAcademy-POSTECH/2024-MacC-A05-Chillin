@@ -12,7 +12,7 @@ struct PaperListView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
-    @State private var selectedPaperID: UUID?
+    @Binding var selectedPaperID: UUID?
     @Binding var selectedItems: Set<Int>
     @State private var isFavoritesSelected: Bool = false
     
@@ -63,8 +63,8 @@ struct PaperListView: View {
                         VStack(spacing: 0) {
                             let filteredPaperInfos =
                             isFavoritesSelected ?
-                            pdfFileManager.paperInfos.filter { $0.isFavorite }
-                            : pdfFileManager.paperInfos
+                            pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                            : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
                             
                             
                             ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
@@ -116,8 +116,8 @@ struct PaperListView: View {
                     VStack(spacing: 0) {
                         var filteredPaperInfos =
                         isFavoritesSelected
-                        ? pdfFileManager.paperInfos.filter { $0.isFavorite }
-                        : pdfFileManager.paperInfos
+                        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
                         
                         if !filteredPaperInfos.isEmpty,
                            let selectedPaperIndex = filteredPaperInfos.firstIndex(where: { $0.id == selectedPaperID }) {
@@ -139,8 +139,8 @@ struct PaperListView: View {
                                 onDelete: {
                                     filteredPaperInfos =
                                     isFavoritesSelected
-                                    ? pdfFileManager.paperInfos.filter { $0.isFavorite }
-                                    : pdfFileManager.paperInfos
+                                    ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                                    : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
                                     
                                     if filteredPaperInfos.isEmpty {
                                         selectedPaperID = nil
@@ -180,12 +180,6 @@ struct PaperListView: View {
 
 
 extension PaperListView {
-    private func updateFavoriteStatus(for id: UUID, isFavorite: Bool) {
-        if let index = pdfFileManager.paperInfos.firstIndex(where: { $0.id == id }) {
-            pdfFileManager.paperInfos[index].isFavorite = isFavorite
-        }
-    }
-    
     private func navigateToPaper() {
         guard let selectedPaperID = selectedPaperID,
               let selectedPaper = pdfFileManager.paperInfos.first(where: { $0.id == selectedPaperID }) else {
@@ -218,12 +212,14 @@ extension PaperListView {
     private func initializeSelectedPaperID() {
         let filteredPaperInfos =
         isFavoritesSelected
-        ? pdfFileManager.paperInfos.filter { $0.isFavorite }
-        : pdfFileManager.paperInfos
+        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         
         if selectedPaperID == nil, let firstPaper = filteredPaperInfos.first {
             selectedPaperID = firstPaper.id
         }
+        
+        pdfFileManager.paperInfos = filteredPaperInfos
     }
 }
 
@@ -256,9 +252,11 @@ extension PaperListView {
 #Preview {
     let manager = PDFFileManager(paperService: PaperDataService())
     
-    PaperListView(selectedItems: .constant([]),
-                  isEditing: .constant(false),
-                  isSearching: .constant(false)
+    PaperListView(
+        selectedPaperID: .constant(nil),
+        selectedItems: .constant([]),
+        isEditing: .constant(false),
+        isSearching: .constant(false)
     )
     .environmentObject(manager)
     .onAppear {

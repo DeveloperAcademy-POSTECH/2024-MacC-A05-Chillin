@@ -35,10 +35,10 @@ final class PDFFileManager: ObservableObject {
 /// pdf 업로드 관련 메소드
 extension PDFFileManager {
     @MainActor
-    public func uploadPDFFile(url: [URL]) async throws {
+    public func uploadPDFFile(url: [URL]) async throws -> UUID? {
         self.isLoading = true
         
-        guard let url = url.first else { return }
+        guard let url = url.first else { return UUID() }
         
         guard url.startAccessingSecurityScopedResource() else {
             throw PDFUploadError.failedToAccessingSecurityScope
@@ -83,6 +83,8 @@ extension PDFFileManager {
             _ = paperService.savePDFInfo(paperInfo)
             paperInfos.append(paperInfo)
             
+            return paperInfo.id
+            
         } else {
             let paperInfo = PaperInfo(
                 title: result.title ?? url.lastPathComponent,
@@ -96,6 +98,8 @@ extension PDFFileManager {
             
             _ = paperService.savePDFInfo(paperInfo)
             paperInfos.append(paperInfo)
+            
+            return paperInfo.id
         }
     }
     
