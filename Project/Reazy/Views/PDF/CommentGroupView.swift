@@ -89,6 +89,7 @@ struct CommentInputView: View {
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
                         dump(viewModel.comments)
+                        dump(viewModel.commentGroup)
                     }
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")

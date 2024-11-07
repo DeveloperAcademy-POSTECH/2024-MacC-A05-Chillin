@@ -37,17 +37,11 @@ struct Comment {
 }
 
 class CommentGroup {
-    private let ButtonID: String = "ButtonID"
-    private var comments: [Comment] = []
-    private var position: CGPoint = .zero
+    let ButtonID: String = "ButtonID"
+    var comments: [Comment] = []
     
-    private func saveCommentsArr(comment: Comment) {
-        comments.append(comment)
-    }
-    
-    init(comments: [Comment], position: CGPoint) {
+    init(comments: [Comment]) {
         self.comments = comments
-        self.position = position
     }
 }
 

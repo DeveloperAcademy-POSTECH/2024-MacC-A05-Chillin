@@ -13,18 +13,25 @@ class CommentViewModel: ObservableObject {
     @Published var commentGroup: [CommentGroup] = []
     @Published var comments: [Comment] = []
     
-    //pdfView 관련
-    @Published var pdfViewMidX: CGFloat = .zero
+    // pdfView 관련
+    var pdfViewMidX: CGFloat = .zero
     @Published var pdfConvertedBounds: CGRect = .zero
     
-    var commentPosition: CGPoint = .zero
+    var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     
     // 코멘트 추가
     func addComment(text: String, fixSelection: PDFSelection) {
         
-        /// 코멘트 배열에 저장
         let newComment = Comment(selection: fixSelection, text: text)
         comments.append(newComment)
+        //commentGroup.append(CommentGroup(comments: comments))
+        
+        if let existingGroup = findCommentGroup(for: newComment.selectedLine) {
+            existingGroup.comments.append(newComment)
+        } else {
+            let newGroup = CommentGroup(comments: [newComment])
+            commentGroup.append(newGroup)
+        }
         
         addCommentIcon(selection: fixSelection, newComment: newComment)
         drawUnderline(selection: fixSelection, newComment: newComment)
@@ -66,6 +73,17 @@ extension CommentViewModel {
         
         self.pdfViewMidX = pdfMidX
     }
+    
+    private func findCommentGroup(for selectedLine: CGRect) -> CommentGroup? {
+        for group in commentGroup {
+            if let firstComment = group.comments.first,
+               firstComment.selectedLine == selectedLine {
+                return group
+            }
+        }
+        return nil
+    }
+    
 }
 
 //MARK: - PDF Anootation관련
