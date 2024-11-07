@@ -144,6 +144,11 @@ extension PDFFileManager {
             _ = paperService.editPDFInfo(paperInfos[index])
         }
     }
+    
+    // TODO: 메모 업데이트 메소드
+    public func updateMemo() {
+        
+    }
 }
 
 

@@ -10,6 +10,7 @@ import SwiftUI
 struct PaperInfoView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
     
+    // TODO: memo 추가 필요
     let id: UUID
     let image: Data
     let title: String
@@ -20,12 +21,18 @@ struct PaperInfoView: View {
     var isFavorite: Bool
     
     @State var isStarSelected: Bool
-    @State private var text: String = ""
+    
+    // TODO: 임시 메모 텍스트, 및 있는지 모델 반영 필요
+    @State private var memoText: String = ""
+    @State var isMemo: Bool = false
+    
+    @State private var timer: Timer?
     
     @Binding var isEditingTitle: Bool
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
+    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -115,36 +122,45 @@ struct PaperInfoView: View {
                     Spacer()
                     
                     Button {
-                        
+                        if isMemo {
+                            
+                        } else {
+                            isMemo.toggle()
+                        }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Image(systemName: isMemo ? "ellipsis.circle" : "plus")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 17)
+                            .foregroundStyle(.gray600)
                     }
                 }
                 .padding(.bottom, 13)
                 
-                
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundStyle(.gray200)
-                    
-                    
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(lineWidth: 1)
-                        .foregroundStyle(.gray550)
-                    
-                    VStack {
-                        TextField("메모를 입력해주세요.", text: $text, axis: .vertical)
-                            .lineLimit(5)
-                            .reazyFont(.body2)
-                            .foregroundStyle(.gray700)
-                            
-                        Spacer()
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 12)
+                if isMemo {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundStyle(.gray200)
                         
+                        
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray550)
+                        
+                        VStack {
+                            TextField("메모를 입력해주세요.", text: $memoText, axis: .vertical)
+                                .lineLimit(5)
+                                .reazyFont(.body2)
+                                .foregroundStyle(.gray700)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        
+                    }
+                    .frame(maxHeight: 120)
                 }
-                .frame(maxHeight: 120)
             }
             .padding(.top, 24)
             .padding(.horizontal, 30)
@@ -155,6 +171,20 @@ struct PaperInfoView: View {
         .background(alignment: .bottom) {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
+        }
+        .onChange(of: memoText) { _, newValue in
+            if let timer = self.timer {
+                timer.invalidate()
+            }
+            
+            self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+                // TODO: PDF 메모 업데이트 메소드 구현
+                self.pdfFileManager.updateMemo()
+            }
+        }
+        .onAppear {
+            // TODO: 메모 있을 시 연동
+//            self.memoText = self.paperInfo.memo
         }
     }
     
