@@ -44,8 +44,8 @@ struct OriginalView: View {
                 } 
             }
                 if viewModel.isCommentVisible == true {
-                    CommentView(viewModel: commentViewModel, selection: viewModel.commentSelection ?? PDFSelection())
-                        .position(viewModel.isCommentTapped ? viewModel.commentTappedPosition : viewModel.commentPosition)
+                    CommentGroupView(viewModel: commentViewModel, selection: viewModel.commentSelection ?? PDFSelection())
+                        .position(viewModel.isCommentTapped ? commentViewModel.commentPosition : viewModel.commentInputPosition)
                 }
         }
         //.keyboardHeight($keyboardHeight)

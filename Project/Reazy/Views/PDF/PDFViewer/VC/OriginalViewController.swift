@@ -134,9 +134,7 @@ final class OriginalViewController: UIViewController {
                 } else {
                     viewModel.tappedComment = nil
                 }
-                viewModel.commentTappedPosition = tappedComment.position
                 viewModel.selectedCommentID = tappedComment.id
-                viewModel.tappedComment = tappedComment
                 
             } else {
                 print("No match comment annotation")
@@ -279,7 +277,7 @@ extension OriginalViewController {
                                 self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
                                 
                                 self.viewModel.commentSelection = selection
-                                self.viewModel.commentPosition = commentPosition
+                                self.viewModel.commentInputPosition = commentPosition
                                 self.commentViewModel.pdfConvertedBounds = convertedBounds
                                 
                             }

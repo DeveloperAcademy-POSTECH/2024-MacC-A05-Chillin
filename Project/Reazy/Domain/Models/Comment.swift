@@ -8,13 +8,11 @@
 import Foundation
 import PDFKit
 
-class Comment {
+struct Comment {
     let id : UUID = .init()
-    let pdfID: UUID = .init()
     
     var selection: PDFSelection
     var text: String
-    var position: CGPoint
     var selectedLine: CGRect {
         var selectedLine: CGRect = .zero
         
@@ -36,10 +34,16 @@ class Comment {
         }
         return selectedLine
     }
+}
+
+class CommentGroup {
+    private let ButtonID: String = "ButtonID"
+    private var comments: [Comment] = []
+    private var position: CGPoint = .zero
     
-    init(selection: PDFSelection, text: String, position: CGPoint) {
-        self.selection = selection
-        self.text = text
-        self.position = position
+    private func saveCommentsArr(comment: Comment) {
+        comments.append(comment)
     }
 }
+
+

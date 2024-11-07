@@ -23,7 +23,7 @@ final class MainPDFViewModel: ObservableObject {
             updateBubbleView(selectedText: selectedText, bubblePosition: bubbleViewPosition)
             
             if isCommentVisible {
-                updateCommentPosition(at: commentPosition)
+                updateCommentPosition(at: commentInputPosition)
             }
         }
     }
@@ -32,7 +32,7 @@ final class MainPDFViewModel: ObservableObject {
         didSet {
             updateDrawingTool()
             if isCommentVisible {
-                updateCommentPosition(at: commentPosition)
+                updateCommentPosition(at: commentInputPosition)
             }
         }
     }
@@ -65,7 +65,7 @@ final class MainPDFViewModel: ObservableObject {
     }
     
     @Published var commentSelection: PDFSelection?
-    @Published var commentPosition: CGPoint = .zero
+    @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
     
     public var document: PDFDocument?
@@ -298,7 +298,7 @@ extension MainPDFViewModel {
     }
     
     public func updateCommentPosition(at position: CGPoint) {
-        self.commentPosition = position
+        self.commentInputPosition = position
     }
     
     /// 하이라이트
