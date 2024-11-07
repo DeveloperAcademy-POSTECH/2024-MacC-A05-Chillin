@@ -119,9 +119,8 @@ final class OriginalViewController: UIViewController {
         if let tappedAnnotation = page.annotation(at: pageLocation) {
             print("found annotation")
             
-            if let commentIDString = tappedAnnotation.contents,
-               let commentID = UUID(uuidString: commentIDString),
-               let tappedComment = commentViewModel.comments.first(where: { $0.id == commentID }) {
+            if let buttonID = tappedAnnotation.contents,
+               let tappedComment = commentViewModel.comments.first(where: { $0.ButtonID == buttonID }) {
                 
                 print(tappedComment)
                 viewModel.isCommentTapped.toggle()
@@ -130,6 +129,7 @@ final class OriginalViewController: UIViewController {
                 if viewModel.isCommentTapped {
                     viewModel.tappedComment = tappedComment
                     commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
+                    commentViewModel.findCommentGroup(tappedComment: tappedComment)
                 } else {
                     viewModel.tappedComment = nil
                 }

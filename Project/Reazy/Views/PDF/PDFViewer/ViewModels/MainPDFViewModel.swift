@@ -316,7 +316,7 @@ extension MainPDFViewModel {
                     highlight.color = UIColor.comment
                     
                     /// 하이라이트 주석 구별하기
-                    highlight.setValue("\(comment.id) isHighlight", forAnnotationKey: .contents)
+                    highlight.setValue("\(comment.ButtonID) isHighlight", forAnnotationKey: .contents)
                     page.addAnnotation(highlight)
                 }
             }
@@ -325,7 +325,7 @@ extension MainPDFViewModel {
                 for annotation in page.annotations {
                     /// 하이라이트 주석만 제거
                     if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
-                       annotationValue == "\(comment.id) isHighlight" {
+                       annotationValue == "\(comment.ButtonID) isHighlight" {
                         page.removeAnnotation(annotation)
                     }
                 }

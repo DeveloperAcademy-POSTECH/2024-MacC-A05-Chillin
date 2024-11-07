@@ -19,7 +19,7 @@ struct CommentGroupView: View {
         VStack {
             if pdfViewModel.isCommentTapped == true {
                 if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
-                    CommentView(viewModel: viewModel, comment: comment)
+                    CommentView(viewModel: viewModel, commentGroup: viewModel.commentGroup, comment: comment)
                 }
             } else {
                 CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
@@ -38,12 +38,15 @@ struct CommentGroupView: View {
 // 저장된 코멘트
 struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
+    var commentGroup: [Comment]
     
     var comment: Comment
     
     var body: some View {
         VStack(alignment: .leading) {
-            CommentCell(viewModel: viewModel, comment: comment)
+            ForEach(commentGroup) { comment in
+                CommentCell(viewModel: viewModel, comment: comment)
+            }
         }
         .padding(.leading, 16)
         .padding(.top, 21)
@@ -85,11 +88,11 @@ struct CommentInputView: View {
                     if !text.isEmpty {
                         pdfViewModel.isCommentSaved = true
                         viewModel.addComment(text: text,
-                                             fixSelection: changedSelection
+                                             selection: changedSelection
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
                         dump(viewModel.comments)
-                        dump(viewModel.commentGroup)
+                        //dump(viewModel.commentGroup)
                     }
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")

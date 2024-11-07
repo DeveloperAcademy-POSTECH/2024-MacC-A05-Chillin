@@ -10,7 +10,6 @@ import PDFKit
 import SwiftUI
 
 class CommentViewModel: ObservableObject {
-    @Published var commentGroup: [CommentGroup] = []
     @Published var comments: [Comment] = []
     
     // pdfView 관련
@@ -18,23 +17,16 @@ class CommentViewModel: ObservableObject {
     @Published var pdfConvertedBounds: CGRect = .zero
     
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
+    var commentGroup: [Comment] = []
     
     // 코멘트 추가
-    func addComment(text: String, fixSelection: PDFSelection) {
+    func addComment(text: String, selection: PDFSelection) {
         
-        let newComment = Comment(selection: fixSelection, text: text)
+        let selectedLine = getSelectedLine(selection: selection)
+        let newComment = Comment(ButtonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
         comments.append(newComment)
-        //commentGroup.append(CommentGroup(comments: comments))
-        
-        if let existingGroup = findCommentGroup(for: newComment.selectedLine) {
-            existingGroup.comments.append(newComment)
-        } else {
-            let newGroup = CommentGroup(comments: [newComment])
-            commentGroup.append(newGroup)
-        }
-        
-        addCommentIcon(selection: fixSelection, newComment: newComment)
-        drawUnderline(selection: fixSelection, newComment: newComment)
+        addCommentIcon(selection: selection, newComment: newComment)
+        drawUnderline(selection: selection, newComment: newComment)
     }
     
     // 코멘트 삭제
@@ -74,16 +66,31 @@ extension CommentViewModel {
         self.pdfViewMidX = pdfMidX
     }
     
-    private func findCommentGroup(for selectedLine: CGRect) -> CommentGroup? {
-        for group in commentGroup {
-            if let firstComment = group.comments.first,
-               firstComment.selectedLine == selectedLine {
-                return group
+    private func getSelectedLine(selection: PDFSelection) -> CGRect{
+        var selectedLine: CGRect = .zero
+        let lineSelection = selection.selectionsByLine()
+        if let firstLineSelection = lineSelection.first {
+            
+            /// 배열 중 첫 번째 selection만 가져오기
+            guard let page = firstLineSelection.pages.first else { return .zero}
+            let bounds = firstLineSelection.bounds(for: page)
+            
+            let centerX = bounds.origin.x + bounds.width / 2
+            let centerY = bounds.origin.y + bounds.height / 2
+            let centerPoint = CGPoint(x: centerX, y: centerY)
+            
+            if let line = page.selectionForLine(at: centerPoint) {
+                let lineBounds = line.bounds(for: page)
+                selectedLine = lineBounds
             }
         }
-        return nil
+        return selectedLine
     }
     
+    func findCommentGroup(tappedComment: Comment) {
+        let group = comments.filter { $0.ButtonID == tappedComment.ButtonID }
+        self.commentGroup = group
+    }
 }
 
 //MARK: - PDF Anootation관련
@@ -116,7 +123,7 @@ extension CommentViewModel {
         commentIcon.widgetControlType = .pushButtonControl
         
         /// 버튼에 코멘트 정보 참조
-        commentIcon.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
+        commentIcon.setValue(newComment.ButtonID, forAnnotationKey: .contents)
         page.addAnnotation(commentIcon)
     }
     
@@ -139,7 +146,7 @@ extension CommentViewModel {
                 underline.border?.lineWidth = 1.2
                 underline.border?.style = .solid
                 
-                underline.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
+                underline.setValue(newComment.ButtonID, forAnnotationKey: .contents)
                 page.addAnnotation(underline)
             }
         }
