@@ -62,7 +62,7 @@ class DrawingDataService: DrawingDataInterface {
     func saveDrawingData(for pdfID: UUID, with drawing: Drawing) -> Result<VoidResponse, Error> {
         let dataContext = container.viewContext
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@", pdfID as CVarArg)
+        fetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
         
         do {
             if let paperData = try dataContext.fetch(fetchRequest).first {
