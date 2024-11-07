@@ -12,12 +12,17 @@ import SwiftUI
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     
-    // pdfView 관련
-    var pdfViewMidX: CGFloat = .zero
+    // pdf 관련
     @Published var pdfConvertedBounds: CGRect = .zero
+    var pdfViewMidX: CGFloat = .zero
     
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
+//    var pdfID: UUID
+    
+//    init(pdfID: UUID) {
+//        self.pdfID = pdfID
+//    }
     
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {
@@ -146,7 +151,7 @@ extension CommentViewModel {
                 underline.border?.lineWidth = 1.2
                 underline.border?.style = .solid
                 
-                underline.setValue(newComment.ButtonID, forAnnotationKey: .contents)
+                underline.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
                 page.addAnnotation(underline)
             }
         }
