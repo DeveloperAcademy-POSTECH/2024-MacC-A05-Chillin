@@ -18,7 +18,7 @@ import Foundation
 
 enum Screen: Identifiable, Hashable {
     case home
-    case mainPDF(url: URL)
+    case mainPDF(paperInfo: PaperInfo)
     
     var id: Self { self }
 }
@@ -37,7 +37,28 @@ enum FullScreenCover: Identifiable, Hashable {
 }
 
 
-/// Become Hashable and ==
+
+
+// MARK: - 열거형 프로토콜 충족
+extension Screen {
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .home:
+            hasher.combine("home")
+        case .mainPDF:
+            hasher.combine("mainPDF")
+        }
+    }
+    
+    static func == (lhs: Screen, rhs: Screen) -> Bool {
+        switch (lhs, rhs) {
+        default:
+            return true
+        }
+    }
+}
+
+
 extension FullScreenCover {
     func hash(into hasher: inout Hasher) {
         switch self {

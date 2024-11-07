@@ -161,7 +161,7 @@ extension PaperListView {
         }
         
         if url.startAccessingSecurityScopedResource() {
-            navigationCoordinator.push(.mainPDF(url: url))
+            navigationCoordinator.push(.mainPDF(paperInfo: pdfFileManager.paperInfos[selectedPaper]))
             url.stopAccessingSecurityScopedResource()
         }
     }

@@ -29,12 +29,10 @@ struct PDFLayout: Codable {
     
     struct Figure: Codable {
         let id: String
-        let head: String
-        let label: String
-        let figDesc: String
+        let head: String?
+        let label: String?
+        let figDesc: String?
         let coords: [String]
         let graphicCoord: [String]?
     }
 }
-
-

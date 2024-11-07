@@ -49,8 +49,8 @@ final class NavigationCoordinator: CoordinatorProtocol {
         switch screen {
         case .home:
             HomeView()
-        case .mainPDF(let url):
-            MainPDFView(mainPDFViewModel: .init(url: url))
+        case .mainPDF(let paperInfo):
+            MainPDFView(mainPDFViewModel: .init(paperInfo: paperInfo))
         }
     }
     

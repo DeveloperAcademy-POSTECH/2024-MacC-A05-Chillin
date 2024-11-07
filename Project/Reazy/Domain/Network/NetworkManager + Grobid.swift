@@ -30,7 +30,7 @@ extension NetworkManager {
     }
     
     /// Sample 텍스트 좌표 필터링 메소드
-    static func filterSampleData(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FocusAnnotation] {
+    static func filterData(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FocusAnnotation] {
         
         var result = [FocusAnnotation]()
         
@@ -120,7 +120,7 @@ extension NetworkManager {
     }
     
     /// Sample 이미지 좌표 필터링 메소드
-    static func filterSampleFigure(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FigureAnnotation] {
+    static func filterFigure(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FigureAnnotation] {
         
         var result = [FigureAnnotation]()
         
@@ -156,7 +156,7 @@ extension NetworkManager {
                 
                 if tempX0 > pageWidth / 2.0 && !isNext {
                     currentPage = page
-                    let figure = FigureAnnotation(page: currentPage, head: head, position: .init(
+                    let figure = FigureAnnotation(page: currentPage, head: head ?? "", position: .init(
                         x: x0,
                         y: pageHeight - y1,
                         width: x1 - x0,
@@ -173,7 +173,7 @@ extension NetworkManager {
                     continue
                     
                 } else if currentPage != page {
-                    let figure = FigureAnnotation(page: currentPage, head: head, position: .init(
+                    let figure = FigureAnnotation(page: currentPage, head: head ?? "", position: .init(
                         x: x0,
                         y: pageHeight - y1,
                         width: x1 - x0,
@@ -199,7 +199,7 @@ extension NetworkManager {
                 
             }
                         
-            let figure = FigureAnnotation(page: currentPage, head: head, position: .init(
+            let figure = FigureAnnotation(page: currentPage, head: head ?? "", position: .init(
                 x: x0,
                 y: pageHeight - y1,
                 width: x1 - x0,
