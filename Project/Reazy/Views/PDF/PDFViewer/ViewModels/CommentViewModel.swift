@@ -18,7 +18,7 @@ class CommentViewModel: ObservableObject {
     
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
-    var pdfID: UUID
+    let pdfID: UUID
     
     init(pdfID: UUID) {
         self.pdfID = pdfID

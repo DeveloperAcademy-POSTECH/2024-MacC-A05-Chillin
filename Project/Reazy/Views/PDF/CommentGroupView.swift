@@ -36,7 +36,7 @@ struct CommentGroupView: View {
 // MARK: - CommentGrouopView 분리
 
 // 저장된 코멘트
-struct CommentView: View {
+private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
     var commentGroup: [Comment]
     
@@ -56,7 +56,7 @@ struct CommentView: View {
 }
 
 // 코멘트 입력 창
-struct CommentInputView: View {
+private struct CommentInputView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     

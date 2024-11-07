@@ -45,28 +45,6 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
-        
-        // 기본 설정: 제스처 추가
-        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
-        viewModel.pdfDrawer.pdfView = self.mainPDFView
-        viewModel.pdfDrawer.drawingTool = .none
-        
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
-        gesture.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(gesture)
-        
-        let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
-        commentTapGesture.delegate = self
-        self.view.addGestureRecognizer(commentTapGesture)
-        
-        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-        viewModel.$toolMode
-            .sink { [weak self] mode in
-                self?.updateGestureRecognizer(for: mode)
-            }
-            .store(in: &cancellable)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -192,10 +170,21 @@ extension OriginalViewController {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
         gesture.cancelsTouchesInView = false
         self.view.addGestureRecognizer(gesture)
+        
+        let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
+        commentTapGesture.delegate = self
+        self.view.addGestureRecognizer(commentTapGesture)
     }
     
     /// 데이터 Binding
     private func setBinding() {
+        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
+        viewModel.$toolMode
+            .sink { [weak self] mode in
+                self?.updateGestureRecognizer(for: mode)
+            }
+            .store(in: &cancellable)
+        
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
                 guard let destination = destination else { return }
