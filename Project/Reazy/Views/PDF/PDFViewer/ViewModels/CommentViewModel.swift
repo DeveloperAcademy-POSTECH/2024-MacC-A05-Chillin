@@ -8,6 +8,7 @@
 import Foundation
 import PDFKit
 import SwiftUI
+import UIKit
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
@@ -116,21 +117,54 @@ extension CommentViewModel {
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
+            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
         } else if isRight || isAcross {
-            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
+            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
         }
         
-        let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
+        let commentIcon = ImageAnnotation(imageBounds: iconPosition,
+                                          image: UIImage(systemName: "text.bubble")?.withTintColor(UIColor.point4, renderingMode: .alwaysTemplate))
         commentIcon.widgetFieldType = .button
-        commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
-        commentIcon.border?.lineWidth = .zero
-        commentIcon.widgetControlType = .pushButtonControl
+        commentIcon.color = .point4
         
         /// 버튼에 코멘트 정보 참조
         commentIcon.setValue(newComment.ButtonID, forAnnotationKey: .contents)
         page.addAnnotation(commentIcon)
     }
+    
+    public class ImageAnnotation: PDFAnnotation {
+        
+        private var _image: UIImage?
+        
+        // 초기화 시 이미지와 바운드 값을 받음
+        public init(imageBounds: CGRect, image: UIImage?) {
+            self._image = image
+            super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
+        }
+        
+        required public init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        // 이미지를 그릴 때 사용하는 메서드
+        override public func draw(with box: PDFDisplayBox, in context: CGContext) {
+            guard let cgImage = self._image?.cgImage else {
+                return
+            }
+            
+            let tintedImage = self._image?.withTintColor(UIColor.point4, renderingMode: .alwaysTemplate)
+                    
+                    // PDF 페이지에 이미지 그리기
+                    if let drawingBox = self.page?.bounds(for: box),
+                       let cgTintedImage = tintedImage?.cgImage {
+                        context.draw(cgTintedImage, in: self.bounds.applying(CGAffineTransform(
+                            translationX: (drawingBox.origin.x) * -1.0,
+                            y: (drawingBox.origin.y) * -1.0
+                        )))
+                    }
+        }
+    }
+    
     
     /// 밑줄 그리기
     private func drawUnderline(selection: PDFSelection, newComment: Comment) {
