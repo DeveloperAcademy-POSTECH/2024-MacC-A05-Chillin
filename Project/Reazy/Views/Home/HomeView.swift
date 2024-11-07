@@ -79,7 +79,8 @@ struct HomeView: View {
                 selectedPaperID: $selectedPaperID,
                 selectedItems: $selectedItems,
                 isEditing: $isEditing,
-                isSearching: $isSearching
+                isSearching: $isSearching,
+                searchText: $searchText
             )
             .environmentObject(pdfFileManager)
         }
@@ -235,6 +236,7 @@ private struct SearchMenuView: View {
                     selectedMenu = .main
                 }
                 isSearching.toggle()
+                searchText = ""
             }, label: {
                 Text("취소")
                     .reazyFont(.button1)

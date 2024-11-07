@@ -230,8 +230,7 @@ struct MainPDFView: View {
                 }
                 .customNavigationBar(
                     centerView: {
-                        // MARK: - 모델 생성 시 수정 필요
-                        Text("A review of the global climate change impacts, adaptation, and sustainable mitigation measures")
+                        Text(mainPDFViewModel.paperInfo.title)
                             .reazyFont(.h3)
                             .foregroundStyle(.gray800)
                             .frame(width: isVertical ? 383 : 567)

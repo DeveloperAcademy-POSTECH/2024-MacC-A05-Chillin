@@ -41,6 +41,20 @@ struct PaperInfoView: View {
             
             HStack(spacing: 0) {
                 Button(action: {
+                    
+                }) {
+                    RoundedRectangle(cornerRadius: 14)
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.gray400)
+                        .overlay(
+                            Image(systemName: "ellipsis")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.gray600)
+                        )
+                }
+                .padding(.trailing, 6)
+                
+                Button(action: {
                     isStarSelected.toggle()
                     pdfFileManager.updateFavorite(at: id, isFavorite: isStarSelected)
                 }) {
@@ -49,9 +63,7 @@ struct PaperInfoView: View {
                         .foregroundStyle(.gray400)
                         .overlay(
                             Image(systemName: isFavorite ? "star.fill" : "star")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 17)
+                                .font(.system(size: 14))
                                 .foregroundStyle(isFavorite ? .primary1 : .gray600)
                         )
                 }
@@ -66,25 +78,7 @@ struct PaperInfoView: View {
                         .foregroundStyle(.gray400)
                         .overlay(
                             Image(systemName: "trash")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 17)
-                                .foregroundStyle(.gray600)
-                        )
-                }
-                .padding(.trailing, 6)
-                
-                Button(action: {
-                    
-                }) {
-                    RoundedRectangle(cornerRadius: 14)
-                        .frame(width: 40, height: 40)
-                        .foregroundStyle(.gray400)
-                        .overlay(
-                            Image(systemName: "ellipsis.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 17)
+                                .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )
                 }
