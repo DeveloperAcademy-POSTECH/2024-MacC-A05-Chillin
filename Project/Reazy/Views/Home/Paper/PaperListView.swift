@@ -204,7 +204,7 @@ extension PaperListView {
         }
         
         if url.startAccessingSecurityScopedResource() {
-            navigationCoordinator.push(.mainPDF(paperInfo: pdfFileManager.paperInfos[selectedPaper]))
+            navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
             url.stopAccessingSecurityScopedResource()
         }
     }
@@ -226,24 +226,22 @@ extension PaperListView {
 extension PaperListView {
     private func timeAgoString(from date: Date) -> String {
         let calendar = Calendar.current
-        let now = Date()
-        let components = calendar.dateComponents([.day, .hour, .minute, .second], from: date, to: now)
         
-        if let day = components.day, day > 0 {
-            // 하루 이상 지난 경우 날짜 포맷으로 반환
+        if calendar.isDateInToday(date) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "오늘 HH:mm"
+            return dateFormatter.string(from: date)
+        } else if calendar.isDateInYesterday(date) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "어제 HH:mm"
+            return dateFormatter.string(from: date)
+        } else {
+            // 이틀 전 이상의 날짜 포맷으로 반환
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy. MM. dd. a h:mm"
             dateFormatter.amSymbol = "오전"
             dateFormatter.pmSymbol = "오후"
             return dateFormatter.string(from: date)
-        } else if let hour = components.hour, hour > 0 {
-            return "\(hour)시간 전"
-        } else if let minute = components.minute, minute > 0 {
-            return "\(minute)분 전"
-        } else if let second = components.second, second > 0 {
-            return "\(second)초 전"
-        } else {
-            return "방금 전"
         }
     }
 }

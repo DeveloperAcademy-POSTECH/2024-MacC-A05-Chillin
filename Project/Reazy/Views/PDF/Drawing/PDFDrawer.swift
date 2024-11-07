@@ -49,22 +49,21 @@ class PDFDrawer {
         self.drawingService = drawingService
         self.pdfID = pdfID
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
-//        switch drawingService.loadDrawingData(for: pdfID) {
-//        case .success(let drawingList):
-//            drawingDataArray = drawingList
-//        case .failure(let failure):
-//            return
-//        }
+        switch drawingService.loadDrawingData(for: pdfID) {
+        case .success(let drawingList):
+            drawingDataArray = drawingList
+        case .failure(_):
+            return
+        }
     }
     
-    private func saveAndAddAnnotation(_ path: UIBezierPath, on page: PDFPage) {
+    private func saveAndAddnnotation(_ path: UIBezierPath, on page: PDFPage) {
         let finalAnnotation = createFinalAnnotation(path: path, page: page)
         page.addAnnotation(finalAnnotation)
         
         if let pageIndex = pdfView.document?.index(for: page) {
             let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
-            // TODO: - `drawingService.saveDrawingData(for: pdfID, with: drawingData)` 코드 추가
-            /// 삭제도 삭제 로직이 들어가는 곳에 함수를 추가하면 됩니다!
+            _ = drawingService.saveDrawingData(for: pdfID, with: drawingData)
             drawingDataArray.append(drawingData)
         }
     }
@@ -215,6 +214,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         if drawingTool == .pencil {
             if let pageIndex = pdfView.document?.index(for: page) {
                 let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
+                _ = drawingService.saveDrawingData(for: pdfID, with: drawingData)
                 drawingDataArray.append(drawingData)
             }
         }
@@ -242,6 +242,10 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 
                 // 뒤쪽 인덱스 주석부터 제거
                 for index in indicesToRemove.reversed() {
+                    let drawing = drawingDataArray[index]
+                    let id = drawing.id
+                    
+                    _ = drawingService.deleteDrawingData(for: pdfID, id: id)
                     drawingDataArray.remove(at: index)
                 }
                 
