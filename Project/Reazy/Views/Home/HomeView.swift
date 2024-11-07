@@ -110,6 +110,7 @@ struct HomeView: View {
             }
         }
         .statusBarHidden()
+        .animation(.easeInOut, value: isEditingTitle)
     }
 }
 

@@ -43,6 +43,24 @@ struct PaperInfoView: View {
                 .lineLimit(2)
             
             HStack(spacing: 0) {
+                Menu {
+                    Button("제목 수정", systemImage: "pencil") {
+                        isEditingTitle.toggle()
+                    }
+                } label: {
+                    RoundedRectangle(cornerRadius: 14)
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.gray400)
+                        .overlay(
+                            Image(systemName: "ellipsis")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 19)
+                                .foregroundStyle(.gray600)
+                        )
+                }
+                .padding(.trailing, 6)
+                
                 Button(action: {
                     isStarSelected.toggle()
                     pdfFileManager.updateFavorite(at: id, isFavorite: isStarSelected)
@@ -69,22 +87,6 @@ struct PaperInfoView: View {
                         .foregroundStyle(.gray400)
                         .overlay(
                             Image(systemName: "trash")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 17)
-                                .foregroundStyle(.gray600)
-                        )
-                }
-                .padding(.trailing, 6)
-                
-                Button(action: {
-                    isEditingTitle.toggle()
-                }) {
-                    RoundedRectangle(cornerRadius: 14)
-                        .frame(width: 40, height: 40)
-                        .foregroundStyle(.gray400)
-                        .overlay(
-                            Image(systemName: "ellipsis.circle")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 17)
