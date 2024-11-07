@@ -19,6 +19,7 @@ struct HomeView: View {
     @StateObject private var pdfFileManager: PDFFileManager = .init(paperService: PaperDataService())
     
     @State var selectedMenu: Options = .main
+    @State var selectedPaperID: UUID?
     
     // 검색 모드 search text
     @State private var searchText: String = ""
@@ -53,7 +54,8 @@ struct HomeView: View {
                             selectedMenu: $selectedMenu,
                             isSearching: $isSearching,
                             isEditing: $isEditing,
-                            selectedItems: $selectedItems)
+                            selectedItems: $selectedItems,
+                            selectedPaperID: $selectedPaperID)
                         .environmentObject(pdfFileManager)
                         
                     case .search:
@@ -67,12 +69,15 @@ struct HomeView: View {
                             selectedMenu: $selectedMenu,
                             selectedItems: $selectedItems,
                             isEditing: $isEditing)
+                        .environmentObject(pdfFileManager)
                     }
                 }
             }
             .frame(height: 80)
             
             PaperListView(
+                selectedPaperID: $selectedPaperID,
+                selectedItems: $selectedItems,
                 isEditing: $isEditing,
                 isSearching: $isSearching
             )
@@ -106,6 +111,7 @@ private struct MainMenuView: View {
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
     @Binding var selectedItems: Set<Int>
+    @Binding var selectedPaperID: UUID?
     
     var body: some View {
         HStack(spacing: 0) {
@@ -184,7 +190,9 @@ private struct MainMenuView: View {
         case .success(let url):
             Task.init {
                 do {
-                    try await pdfFileManager.uploadPDFFile(url: url)
+                    if let newPaperID = try await pdfFileManager.uploadPDFFile(url: url) {
+                        selectedPaperID = newPaperID
+                    }
                 } catch {
                     print(String(describing: error))
                     
@@ -239,6 +247,7 @@ private struct SearchMenuView: View {
 
 /// 수정 화면 버튼 뷰
 private struct EditMenuView: View {
+    @EnvironmentObject var pdfFileManager: PDFFileManager
     @State private var isStarSelected: Bool = false
     
     @Binding var selectedMenu: Options
@@ -248,9 +257,14 @@ private struct EditMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
+            let selectedIDs: [UUID] = selectedItems.compactMap { index in
+                guard index < pdfFileManager.paperInfos.count else { return nil }
+                return pdfFileManager.paperInfos[index].id
+            }
+            
             Button(action: {
-                // MARK: - 북마크 로직 확인 필요
                 isStarSelected.toggle()
+                pdfFileManager.updateFavorites(at: selectedIDs)
             }, label : {
                 Image(systemName: isStarSelected ? "star.fill" : "star")
                     .resizable()
@@ -261,7 +275,7 @@ private struct EditMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                
+                pdfFileManager.deletePDFFiles(at: selectedIDs)
             }, label: {
                 Image(systemName: "trash")
                     .resizable()
@@ -269,18 +283,7 @@ private struct EditMenuView: View {
                     .frame(height: 19)
                     .foregroundStyle(.gray100)
             })
-            .padding(.trailing, 28)
-            
-            Button(action: {
-                
-            }, label: {
-                Image(systemName: "square.and.arrow.up")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
-                    .foregroundStyle(.gray100)
-            })
-            .padding(.trailing, 28)
+            .padding(.trailing, 28)        
             
             Button(action: {
                 selectedMenu = .main

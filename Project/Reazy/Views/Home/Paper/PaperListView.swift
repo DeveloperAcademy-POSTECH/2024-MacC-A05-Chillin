@@ -6,18 +6,20 @@
 //
 
 import SwiftUI
+import Combine
 
 struct PaperListView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
-    @State private var selectedPaper: Int = 0
-    @State var selectedItems: Set<Int> = []
+    @Binding var selectedPaperID: UUID?
+    @Binding var selectedItems: Set<Int>
     @State private var isFavoritesSelected: Bool = false
-
+    
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
     
+    @State private var timerCancellable: Cancellable?
     
     var body: some View {
         // 화면 비율에 따라서 리스트 크기 설정 (반응형 UI)
@@ -59,20 +61,27 @@ struct PaperListView: View {
                     // MARK: - CoreData
                     ScrollView {
                         VStack(spacing: 0) {
-                            ForEach(0..<pdfFileManager.paperInfos.count, id: \.self) { index in
+                            let filteredPaperInfos =
+                            isFavoritesSelected ?
+                            pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                            : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                            
+                            
+                            ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
                                 PaperListCell(
-                                    title: pdfFileManager.paperInfos[index].title,
-                                    date: pdfFileManager.paperInfos[index].dateTime,
-                                    isSelected: selectedPaper == index,
+                                    title: filteredPaperInfos[index].title,
+                                    date: timeAgoString(from: filteredPaperInfos[index].lastModifiedDate),
+                                    isSelected: selectedPaperID == filteredPaperInfos[index].id,
                                     isEditing: isEditing,
                                     isEditingSelected: selectedItems.contains(index),
                                     onSelect: {
                                         if !isEditing {
-                                            if selectedPaper == index {
+                                            if selectedPaperID == filteredPaperInfos[index].id {
                                                 navigateToPaper()
+                                                pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
                                             }
                                             else {
-                                                selectedPaper = index
+                                                selectedPaperID = filteredPaperInfos[index].id
                                             }
                                         }
                                     },
@@ -84,7 +93,9 @@ struct PaperListView: View {
                                                 selectedItems.insert(index)
                                             }
                                         }
-                                    })
+                                    }
+                                )
+                                .environmentObject(pdfFileManager)
                                 
                                 Rectangle()
                                     .frame(height: 1)
@@ -103,21 +114,42 @@ struct PaperListView: View {
                         .foregroundStyle(.primary3)
                     
                     VStack(spacing: 0) {
-                        // MARK: - 썸네일 이미지 수정 필요
-                        if !pdfFileManager.paperInfos.isEmpty {
+                        var filteredPaperInfos =
+                        isFavoritesSelected
+                        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                        
+                        if !filteredPaperInfos.isEmpty,
+                           let selectedPaperIndex = filteredPaperInfos.firstIndex(where: { $0.id == selectedPaperID }) {
                             PaperInfoView(
-                                image: pdfFileManager.paperInfos[selectedPaper].thumbnail,
-                                title: pdfFileManager.paperInfos[selectedPaper].title,
-                                author: pdfFileManager.paperInfos[selectedPaper].author,
-                                pages: pdfFileManager.paperInfos[selectedPaper].pages,
-                                publisher: pdfFileManager.paperInfos[selectedPaper].publisher,
-                                dateTime: pdfFileManager.paperInfos[selectedPaper].dateTime,
+                                id: filteredPaperInfos[selectedPaperIndex].id,
+                                image: filteredPaperInfos[selectedPaperIndex].thumbnail,
+                                title: filteredPaperInfos[selectedPaperIndex].title,
+                                author: filteredPaperInfos[selectedPaperIndex].author,
+                                pages: filteredPaperInfos[selectedPaperIndex].pages,
+                                publisher: filteredPaperInfos[selectedPaperIndex].publisher,
+                                dateTime: filteredPaperInfos[selectedPaperIndex].dateTime,
+                                isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
+                                isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
                                 onNavigate: {
                                     if !isEditing {
                                         navigateToPaper()
                                     }
+                                },
+                                onDelete: {
+                                    filteredPaperInfos =
+                                    isFavoritesSelected
+                                    ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                                    : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                                    
+                                    if filteredPaperInfos.isEmpty {
+                                        selectedPaperID = nil
+                                    } else {
+                                        selectedPaperID = filteredPaperInfos.first?.id
+                                    }
                                 }
                             )
+                            .environmentObject(pdfFileManager)
                         }
                     }
                     .animation(.easeInOut, value: isEditing)
@@ -134,6 +166,12 @@ struct PaperListView: View {
                     )
                 }
             }
+            .onAppear {
+                initializeSelectedPaperID()
+            }
+            .onChange(of: selectedPaperID) {
+                initializeSelectedPaperID()
+            }
             .background(.gray200)
             .ignoresSafeArea()
         }
@@ -143,8 +181,13 @@ struct PaperListView: View {
 
 extension PaperListView {
     private func navigateToPaper() {
+        guard let selectedPaperID = selectedPaperID,
+              let selectedPaper = pdfFileManager.paperInfos.first(where: { $0.id == selectedPaperID }) else {
+            return
+        }
+        
         var isStale = false
-        let data = pdfFileManager.paperInfos[selectedPaper].url
+        let data = selectedPaper.url
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
             print("bookmartdata to url failed")
@@ -165,15 +208,58 @@ extension PaperListView {
             url.stopAccessingSecurityScopedResource()
         }
     }
+    
+    private func initializeSelectedPaperID() {
+        let filteredPaperInfos =
+        isFavoritesSelected
+        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        
+        if selectedPaperID == nil, let firstPaper = filteredPaperInfos.first {
+            selectedPaperID = firstPaper.id
+        }
+        
+        pdfFileManager.paperInfos = filteredPaperInfos
+    }
+}
+
+extension PaperListView {
+    private func timeAgoString(from date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.day, .hour, .minute, .second], from: date, to: now)
+        
+        if let day = components.day, day > 0 {
+            // 하루 이상 지난 경우 날짜 포맷으로 반환
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy. MM. dd. a h:mm"
+            dateFormatter.amSymbol = "오전"
+            dateFormatter.pmSymbol = "오후"
+            return dateFormatter.string(from: date)
+        } else if let hour = components.hour, hour > 0 {
+            return "\(hour)시간 전"
+        } else if let minute = components.minute, minute > 0 {
+            return "\(minute)분 전"
+        } else if let second = components.second, second > 0 {
+            return "\(second)초 전"
+        } else {
+            return "방금 전"
+        }
+    }
 }
 
 
 #Preview {
     let manager = PDFFileManager(paperService: PaperDataService())
     
-    PaperListView(isEditing: .constant(false), isSearching: .constant(false))
-        .environmentObject(manager)
-        .onAppear {
-            manager.uploadSampleData()
-        }
+    PaperListView(
+        selectedPaperID: .constant(nil),
+        selectedItems: .constant([]),
+        isEditing: .constant(false),
+        isSearching: .constant(false)
+    )
+    .environmentObject(manager)
+    .onAppear {
+        manager.uploadSampleData()
+    }
 }

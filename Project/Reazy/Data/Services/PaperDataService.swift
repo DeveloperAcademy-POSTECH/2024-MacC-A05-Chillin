@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 import UIKit
 
-class PaperDataService: PaperDataServiceProtocol {
+class PaperDataService: PaperDataInterface {
     private let container: NSPersistentContainer
     
     init() {
@@ -30,14 +30,6 @@ class PaperDataService: PaperDataServiceProtocol {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let pdfDataList = fetchedDataList.map { paperData -> PaperInfo in
                 // TODO: - URL 타입 수정
-//                let urlString: String = {
-//                    if let urlData = paperData.url,
-//                       let url = String(data: urlData, encoding: .utf8),
-//                       let validUrl = URL(string: url) {
-//                        return validUrl.absoluteString
-//                    }
-//                    return "--"
-//                }()
                 
                 return PaperInfo(
                     id: paperData.id,
@@ -98,6 +90,7 @@ class PaperDataService: PaperDataServiceProtocol {
                 dataToEdit.url = info.url
                 dataToEdit.pages = Int32(info.pages)
                 dataToEdit.publisher = info.publisher
+                dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
                 
                 try dataContext.save()
