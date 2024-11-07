@@ -31,54 +31,19 @@ struct CommentGroupView: View {
         .border(.primary2, width: 1)
         .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
-//    private func updateCommentHeight() {
-//        // 텍스트에 맞게 높이 조정
-//        let lineCount = text.components(separatedBy: "\n").count
-//        if lineCount < 4 && 1 < lineCount {
-//            commentHeight = CGFloat(20 + lineCount * 20) // 한 줄당 높이 추가
-//        }
-//    }
 }
 
-//  CommentGrouopView 분리
-/// input
+// MARK: - CommentGrouopView 분리
+
+// 저장된 코멘트
 struct CommentView: View {
-    @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     
     var comment: Comment
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack(alignment: .center){
-                Divider()
-                    .frame(width: 2, height: 14)
-                    .background(.point2)
-                    .padding(.trailing, 6)
-                
-                if let commentText = comment.selection.string {
-                    Text(commentText.replacingOccurrences(of: "\n", with: ""))
-                        .lineLimit(1)
-                }
-            }
-            .padding(.trailing, 16)
-            .padding(.bottom, 9)
-            
-            Text(comment.text)
-            
-            HStack{
-                Spacer()
-                
-                Button(action: {
-                    viewModel.deleteComment(selection: comment.selection, comment: comment)
-                    pdfViewModel.isCommentTapped = false
-                }, label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundStyle(Color(hex: "BABCCF"))
-                        .font(.system(size: 20))
-                })
-                .padding(.trailing, 9)
-            }
+            CommentCell(viewModel: viewModel, comment: comment)
         }
         .padding(.leading, 16)
         .padding(.top, 21)
@@ -86,7 +51,8 @@ struct CommentView: View {
         .foregroundStyle(.point2)
     }
 }
-///output
+
+// 코멘트 입력 창
 struct CommentInputView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
@@ -100,16 +66,16 @@ struct CommentInputView: View {
         VStack(alignment: .leading) {
             TextEditor(text: $text)
                 .overlay(alignment: .topLeading) {
-                                Text("코멘트 추가")
+                    Text("코멘트 추가")
                         .foregroundStyle(text.isEmpty ? .primary4 : .clear)
-                            }
+                }
                 .reazyFont(.h3)
                 .foregroundStyle(.point2)
                 .frame(height: commentHeight, alignment: .topLeading)
                 .padding(.horizontal, 18)
                 .onChange(of: text) {
                     // 텍스트가 변경될 때마다 높이 업데이트
-                    //self.updateCommentHeight()
+                    self.updateCommentHeight()
                 }
             
             HStack{
@@ -119,7 +85,7 @@ struct CommentInputView: View {
                     if !text.isEmpty {
                         pdfViewModel.isCommentSaved = true
                         viewModel.addComment(text: text,
-                            fixSelection: changedSelection
+                                             fixSelection: changedSelection
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
                         dump(viewModel.comments)
@@ -135,5 +101,13 @@ struct CommentInputView: View {
         }
         .padding(.top, 16)
         .padding(.bottom, 9)
+    }
+    
+    private func updateCommentHeight() {
+        // 텍스트에 맞게 높이 조정
+        let lineCount = text.components(separatedBy: "\n").count
+        if lineCount < 4 && 1 < lineCount {
+            commentHeight = CGFloat(20 + lineCount * 20) // 한 줄당 높이 추가
+        }
     }
 }

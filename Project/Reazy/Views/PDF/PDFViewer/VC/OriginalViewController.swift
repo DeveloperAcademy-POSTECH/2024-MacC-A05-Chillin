@@ -46,7 +46,6 @@ final class OriginalViewController: UIViewController {
         self.setGestures()
         self.setBinding()
         
-        
         // 기본 설정: 제스처 추가
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
         self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
@@ -134,7 +133,6 @@ final class OriginalViewController: UIViewController {
                 } else {
                     viewModel.tappedComment = nil
                 }
-                
                 
             } else {
                 print("No match comment annotation")

@@ -54,7 +54,6 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
-    @Published var commentTappedPosition: CGPoint = .zero
     @Published var tappedComment: Comment? {
         didSet {
             if isCommentTapped, let comment = tappedComment {
@@ -62,7 +61,6 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
-    
     @Published var commentSelection: PDFSelection?
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
