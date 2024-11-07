@@ -216,7 +216,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             if let pageIndex = pdfView.document?.index(for: page) {
                 let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
                 drawingDataArray.append(drawingData)
-                print("array count after append: \(drawingDataArray.count)")
             }
         }
         
@@ -244,7 +243,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 // 뒤쪽 인덱스 주석부터 제거
                 for index in indicesToRemove.reversed() {
                     drawingDataArray.remove(at: index)
-                    print("array count after remove: \(drawingDataArray.count)")
                 }
                 
                 page.removeAnnotation(annotation)
