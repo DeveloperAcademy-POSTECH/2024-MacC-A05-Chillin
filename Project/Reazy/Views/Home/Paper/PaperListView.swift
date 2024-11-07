@@ -18,8 +18,22 @@ struct PaperListView: View {
     
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
+    @Binding var searchText: String
+    
+    @State private var keyboardHeight: CGFloat = 0
     
     @State private var timerCancellable: Cancellable?
+    
+    var filteredPaperInfos: [PaperInfo] {
+        var infos = isFavoritesSelected
+        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        
+        if !searchText.isEmpty {
+            infos = infos.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        }
+        return infos
+    }
     
     var body: some View {
         // 화면 비율에 따라서 리스트 크기 설정 (반응형 UI)
@@ -58,48 +72,54 @@ struct PaperListView: View {
                     
                     Divider()
                     
-                    // MARK: - CoreData
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            let filteredPaperInfos =
-                            isFavoritesSelected ?
-                            pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                            : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                            
-                            
-                            ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
-                                PaperListCell(
-                                    title: filteredPaperInfos[index].title,
-                                    date: timeAgoString(from: filteredPaperInfos[index].lastModifiedDate),
-                                    isSelected: selectedPaperID == filteredPaperInfos[index].id,
-                                    isEditing: isEditing,
-                                    isEditingSelected: selectedItems.contains(index),
-                                    onSelect: {
-                                        if !isEditing {
-                                            if selectedPaperID == filteredPaperInfos[index].id {
-                                                navigateToPaper()
-                                                pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
+                    if isSearching && filteredPaperInfos.isEmpty {
+                        Spacer()
+                        
+                        Text("\"\(searchText)\"와\n일치하는 결과가 없어요")
+                            .reazyFont(.h5)
+                            .foregroundStyle(.gray600)
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom, keyboardHeight)
+                        
+                        Spacer()
+                    } else {
+                        // MARK: - CoreData
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
+                                    PaperListCell(
+                                        title: filteredPaperInfos[index].title,
+                                        date: timeAgoString(from: filteredPaperInfos[index].lastModifiedDate),
+                                        isSelected: selectedPaperID == filteredPaperInfos[index].id,
+                                        isEditing: isEditing,
+                                        isEditingSelected: selectedItems.contains(index),
+                                        onSelect: {
+                                            if !isEditing {
+                                                if selectedPaperID == filteredPaperInfos[index].id {
+                                                    navigateToPaper()
+                                                    pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
+                                                }
+                                                else {
+                                                    selectedPaperID = filteredPaperInfos[index].id
+                                                }
                                             }
-                                            else {
-                                                selectedPaperID = filteredPaperInfos[index].id
+                                        },
+                                        onEditingSelect: {
+                                            if isEditing {
+                                                if selectedItems.contains(index) {
+                                                    selectedItems.remove(index)
+                                                } else {
+                                                    selectedItems.insert(index)
+                                                }
                                             }
                                         }
-                                    },
-                                    onEditingSelect: {
-                                        if isEditing {
-                                            if selectedItems.contains(index) {
-                                                selectedItems.remove(index)
-                                            } else {
-                                                selectedItems.insert(index)
-                                            }
-                                        }
-                                    }
-                                )
-                                .environmentObject(pdfFileManager)
-                                
-                                Rectangle()
-                                    .frame(height: 1)
-                                    .foregroundStyle(.primary3)
+                                    )
+                                    .environmentObject(pdfFileManager)
+                                    
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundStyle(.primary3)
+                                }
                             }
                         }
                     }
@@ -114,11 +134,6 @@ struct PaperListView: View {
                         .foregroundStyle(.primary3)
                     
                     VStack(spacing: 0) {
-                        var filteredPaperInfos =
-                        isFavoritesSelected
-                        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                        
                         if !filteredPaperInfos.isEmpty,
                            let selectedPaperIndex = filteredPaperInfos.firstIndex(where: { $0.id == selectedPaperID }) {
                             PaperInfoView(
@@ -137,11 +152,6 @@ struct PaperListView: View {
                                     }
                                 },
                                 onDelete: {
-                                    filteredPaperInfos =
-                                    isFavoritesSelected
-                                    ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                                    : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-                                    
                                     if filteredPaperInfos.isEmpty {
                                         selectedPaperID = nil
                                     } else {
@@ -168,6 +178,25 @@ struct PaperListView: View {
             }
             .onAppear {
                 initializeSelectedPaperID()
+                
+                // 키보드 높이에 맞게 검색 Text 위치 조정
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation {
+                            self.keyboardHeight = keyboardFrame.height
+                        }
+                    }
+                }
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                    withAnimation {
+                        self.keyboardHeight = 0
+                    }
+                }
+            }
+            .onDisappear {
+                // Notification 제거
+                NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+                NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
             }
             .onChange(of: selectedPaperID) {
                 initializeSelectedPaperID()
@@ -254,7 +283,8 @@ extension PaperListView {
         selectedPaperID: .constant(nil),
         selectedItems: .constant([]),
         isEditing: .constant(false),
-        isSearching: .constant(false)
+        isSearching: .constant(false),
+        searchText: .constant("")
     )
     .environmentObject(manager)
     .onAppear {
