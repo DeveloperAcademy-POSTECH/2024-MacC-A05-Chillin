@@ -13,19 +13,27 @@ import SwiftUI
  PDFView 전체 관할 View model
  */
 final class MainPDFViewModel: ObservableObject {
+    
     @Published var selectedDestination: PDFDestination?
     @Published var searchSelection: PDFSelection?
     @Published var changedPageNumber: Int = 0
     @Published var selectedText: String = "" {
         didSet {
-            // 선택된 텍스트가 변경될 때 추가 작업
+            /// 선택된 텍스트가 변경될 때 추가 작업
             updateBubbleView(selectedText: selectedText, bubblePosition: bubbleViewPosition)
+            
+            if isCommentVisible {
+                updateCommentPosition(at: commentInputPosition)
+            }
         }
     }
     
     @Published var toolMode: ToolMode = .none {
         didSet {
             updateDrawingTool()
+            if isCommentVisible {
+                updateCommentPosition(at: commentInputPosition)
+            }
         }
     }
     
@@ -37,6 +45,25 @@ final class MainPDFViewModel: ObservableObject {
     
     // 하이라이트 색상
     @Published var selectedHighlightColor: HighlightColors = .yellow
+    
+    // Comment
+    @Published var isCommentTapped: Bool = false {
+        didSet{
+            if !isCommentTapped, let comment = tappedComment {
+                setHighlight(comment: comment, isTapped: false)
+            }
+        }
+    }
+    @Published var tappedComment: Comment? {
+        didSet {
+            if isCommentTapped, let comment = tappedComment {
+                setHighlight(comment: comment, isTapped: true)
+            }
+        }
+    }
+    @Published var commentSelection: PDFSelection?
+    @Published var commentInputPosition: CGPoint = .zero
+    @Published var isCommentSaved: Bool = false
     
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
@@ -222,22 +249,22 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
     public func setFigureDocument(for index: Int) -> PDFDocument? {
-
+        
         // 인덱스가 유효한지 확인
         guard index >= 0 && index < self.figureAnnotations.count else {
             print("Invalid index")
             return nil
         }
-
+        
         let document = PDFDocument()                                    // 새 PDFDocument 생성
         let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
-
+        
         // 해당 페이지 가져오기
         guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
             print("Failed to get page")
             return nil
         }
-
+        
         figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
         
         let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
@@ -302,6 +329,56 @@ extension MainPDFViewModel {
         }
         
         pdfView.clearSelection()
+    }
+}
+
+/**
+ 코멘트 관련
+ */
+
+extension MainPDFViewModel {
+    
+    public var isCommentVisible: Bool {
+        return (self.toolMode == .comment && !self.selectedText.isEmpty) || self.isCommentTapped
+    }
+    
+    public func updateCommentPosition(at position: CGPoint) {
+        self.commentInputPosition = position
+    }
+    
+    /// 하이라이트
+    public func setHighlight(comment: Comment, isTapped: Bool) {
+        
+        if isTapped == true {
+            let selections = comment.selection.selectionsByLine()
+            for lineSelection in selections {
+                for page in lineSelection.pages {
+                    var bounds = lineSelection.bounds(for: page)
+                    
+                    /// 하이라이트 높이 조정
+                    let originalBoundsHeight = bounds.size.height
+                    bounds.size.height *= 0.6
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
+                    
+                    let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
+                    highlight.color = UIColor.comment
+                    
+                    /// 하이라이트 주석 구별하기
+                    highlight.setValue("\(comment.ButtonID) isHighlight", forAnnotationKey: .contents)
+                    page.addAnnotation(highlight)
+                }
+            }
+        } else {
+            for page in comment.selection.pages {
+                for annotation in page.annotations {
+                    /// 하이라이트 주석만 제거
+                    if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
+                       annotationValue == "\(comment.ButtonID) isHighlight" {
+                        page.removeAnnotation(annotation)
+                    }
+                }
+            }
+        }
     }
 }
 
