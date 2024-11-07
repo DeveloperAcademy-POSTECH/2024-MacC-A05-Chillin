@@ -161,9 +161,12 @@ extension CommentViewModel {
         for page in comment.selection.pages {
             for annotation in page.annotations {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String{
-                    if commentGroup.isEmpty, annotationID == comment.ButtonID {
-                        page.removeAnnotation(annotation)
-                    } else if !commentGroup.isEmpty, annotationID == comment.id.uuidString {
+                    
+                    if commentGroup.count == 1 {
+                        if annotationID == comment.ButtonID || annotationID == comment.id.uuidString {
+                            page.removeAnnotation(annotation)
+                        }
+                    } else if commentGroup.count > 1, annotationID == comment.id.uuidString {
                         page.removeAnnotation(annotation)
                     }
                 }
