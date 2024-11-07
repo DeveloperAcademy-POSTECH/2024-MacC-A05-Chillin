@@ -69,9 +69,7 @@ struct PaperListView: View {
                                     onSelect: {
                                         if !isEditing {
                                             if selectedPaper == index {
-                                                let urlString = pdfFileManager.paperInfos[index].url
-                                                guard let url = URL.init(string: urlString) else { return }
-                                                navigationCoordinator.push(.mainPDF(url: url))
+                                                navigateToPaper()
                                             }
                                             else {
                                                 selectedPaper = index
@@ -111,13 +109,12 @@ struct PaperListView: View {
                                 image: pdfFileManager.paperInfos[selectedPaper].thumbnail,
                                 title: pdfFileManager.paperInfos[selectedPaper].title,
                                 author: pdfFileManager.paperInfos[selectedPaper].author,
-                                year: pdfFileManager.paperInfos[selectedPaper].year,
                                 pages: pdfFileManager.paperInfos[selectedPaper].pages,
                                 publisher: pdfFileManager.paperInfos[selectedPaper].publisher,
+                                dateTime: pdfFileManager.paperInfos[selectedPaper].dateTime,
                                 onNavigate: {
                                     if !isEditing {
-                                        guard let url = URL(string: pdfFileManager.paperInfos[selectedPaper].url) else { return }
-                                        navigationCoordinator.push(.mainPDF(url: url))
+                                        navigateToPaper()
                                     }
                                 }
                             )
@@ -144,8 +141,35 @@ struct PaperListView: View {
 }
 
 
+extension PaperListView {
+    private func navigateToPaper() {
+        var isStale = false
+        let data = pdfFileManager.paperInfos[selectedPaper].url
+        
+        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
+            print("bookmartdata to url failed")
+            return
+        }
+        
+        if isStale {
+            print("Bookmark(\(url.lastPathComponent)) is stale")
+            guard let _ = try? url.bookmarkData(options: .minimalBookmark) else {
+                print("Unable to create bookmark")
+                return
+            }
+            // TODO: URL 데이터 업데이트 필요
+        }
+        
+        if url.startAccessingSecurityScopedResource() {
+            navigationCoordinator.push(.mainPDF(url: url))
+            url.stopAccessingSecurityScopedResource()
+        }
+    }
+}
+
+
 #Preview {
-    let manager = PDFFileManager()
+    let manager = PDFFileManager(paperService: PaperDataService())
     
     PaperListView(isEditing: .constant(false), isSearching: .constant(false))
         .environmentObject(manager)

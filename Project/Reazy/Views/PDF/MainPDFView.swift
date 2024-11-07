@@ -34,7 +34,6 @@ struct MainPDFView: View {
     @State private var isSearchSelected: Bool = false
     @State private var isVertical = false
     
-//    @Binding var navigationPath: NavigationPath
     
     var body: some View {
         GeometryReader { geometry in
