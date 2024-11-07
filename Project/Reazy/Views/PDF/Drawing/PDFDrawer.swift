@@ -57,7 +57,7 @@ class PDFDrawer {
         }
     }
     
-    private func saveAndAddAnnotation(_ path: UIBezierPath, on page: PDFPage) {
+    private func saveAndAddnnotation(_ path: UIBezierPath, on page: PDFPage) {
         let finalAnnotation = createFinalAnnotation(path: path, page: page)
         page.addAnnotation(finalAnnotation)
         
