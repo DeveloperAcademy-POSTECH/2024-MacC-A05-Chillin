@@ -15,8 +15,7 @@ import Network
  */
 final class MainPDFViewModel: ObservableObject {
     
-    @Published public var isLoading: Bool = false
-    @Published public var isNetworkConnected = false
+    @Published public var figureStatus: FigureView.FigureStatus = .networkDisconnection
     
     @Published var selectedDestination: PDFDestination?
     @Published var searchSelection: PDFSelection?
@@ -109,57 +108,59 @@ extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
-    
+    /// 초기 figure 업데이트 메소드
     public func downloadFigureAnnotation() async {
         NWPathMonitor.startMonitoring { isConnected in
             if !isConnected {
                 DispatchQueue.main.async {
-                    self.isNetworkConnected = false
+                    self.figureStatus = .networkDisconnection
                 }
                 return
             }
             
             DispatchQueue.main.async {
-                self.isNetworkConnected = true
+                self.figureStatus = .loading
             }
-        }
-        
-        DispatchQueue.main.async {
-            self.isLoading = true
-        }
-        
-        defer {
-            DispatchQueue.main.async {
-                self.isLoading = false
+            
+            guard let page = self.document?.page(at: 0) else {
+                DispatchQueue.main.async {
+                    self.figureStatus = .empty
+                }
+                return
             }
-        }
-        
-        guard let page = self.document?.page(at: 0) else {
-            return
-        }
-        
-        let width = page.bounds(for: .mediaBox).width
-        let height = page.bounds(for: .mediaBox).height
-        
-        var isStale = false
-        
-        guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
-              url.startAccessingSecurityScopedResource() else {
-            return
-        }
-        
-        defer {
-            url.stopAccessingSecurityScopedResource()
-        }
-        
-        do {
-            let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
             
-            self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+            let width = page.bounds(for: .mediaBox).width
+            let height = page.bounds(for: .mediaBox).height
             
-            print("end network connect")
-        } catch {
-            print(String(describing: error))
+            var isStale = false
+            
+            guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
+                  url.startAccessingSecurityScopedResource() else {
+                print("123123")
+                return
+            }
+            
+            defer {
+                url.stopAccessingSecurityScopedResource()
+            }
+            
+            Task.init {
+                do {
+                    let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
+                    
+                    self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+                    
+                    print("end network connect")
+                    DispatchQueue.main.async {
+                        self.figureStatus = .complete
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.figureStatus = .empty
+                    }
+                    print(String(describing: error))
+                }
+            }
         }
     }
     

@@ -21,11 +21,36 @@ struct FigureView: View {
             Color.list
             VStack(spacing: 0) {
                 // TODO: 처음 들어오는지 여부 판단 필요
-                if !mainPDFViewModel.isNetworkConnected {
-                    Text("Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다.")
-                        .reazyFont(.body3)
-                        .foregroundStyle(.gray600)
-                } else if mainPDFViewModel.isLoading {
+                
+                switch mainPDFViewModel.figureStatus {
+                case .networkDisconnection:
+                    VStack(spacing: 12) {
+                        Text("Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다.")
+                            .reazyFont(.body3)
+                            .foregroundStyle(.gray600)
+                        
+                        Button {
+                            Task.init {
+                                await mainPDFViewModel.fetchAnnotations()
+                            }
+                        } label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .foregroundStyle(.gray200)
+                                    .frame(width: 72, height: 28)
+                                
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(lineWidth: 1)
+                                    .foregroundStyle(.gray500)
+                                    .frame(width: 72, height: 28)
+                                
+                                Text("다시 시도")
+                                    .reazyFont(.body3)
+                                    .foregroundStyle(.gray600)
+                            }
+                        }
+                    }
+                case .loading:
                     ProgressView()
                         .progressViewStyle(.circular)
                         .padding(.bottom, 16)
@@ -33,13 +58,12 @@ struct FigureView: View {
                     Text("Figure와 Table을 불러오는 중입니다")
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
-                    
-                } else if mainPDFViewModel.figureAnnotations.isEmpty {
+                case .empty:
                     Text("Fig와 Table이 있으면,\n여기에 표시됩니다")
+                        .multilineTextAlignment(.center)
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
-                        .background(.gray100)
-                } else {
+                case .complete:
                     Text("피규어를 꺼내서 창에 띄울 수 있어요")
                         .reazyFont(.text2)
                         .foregroundStyle(.gray600)
@@ -98,5 +122,12 @@ struct FigureView: View {
                 }
             }
         }
+    }
+    
+    enum FigureStatus {
+        case networkDisconnection
+        case loading
+        case empty
+        case complete
     }
 }
