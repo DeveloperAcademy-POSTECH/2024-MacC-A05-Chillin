@@ -35,7 +35,7 @@ final class PDFFileManager: ObservableObject {
 /// pdf 업로드 관련 메소드
 extension PDFFileManager {
     @MainActor
-    public func uploadPDFFile(url: [URL]) async throws -> UUID? {
+    public func uploadPDFFile(url: [URL]) throws -> UUID? {
         self.isLoading = true
         
         guard let url = url.first else { return UUID() }
@@ -48,11 +48,6 @@ extension PDFFileManager {
             self.isLoading = false
             url.stopAccessingSecurityScopedResource()
         }
-        
-        
-        let result: PDFInfo = try await NetworkManager.fetchPDFExtraction(process: .processHeaderDocument, pdfURL: url)
-        
-        let names = result.names?.reduce("") { $0 + $1 + "," } ?? "알 수 없음"
         
         let tempDoc = PDFDocument(url: url)
         
@@ -71,9 +66,9 @@ extension PDFFileManager {
             let thumbnailData = image.pngData()
             
             let paperInfo = PaperInfo(
-                title: result.title ?? url.lastPathComponent,
-                datetime: result.date?.date ?? "알 수 없음",
-                author: names,
+                title: url.lastPathComponent,
+                datetime: "",
+                author: "",
                 pages: pageCount ?? 0,
                 publisher: "알 수 없음",
                 thumbnail: thumbnailData!,
@@ -87,12 +82,12 @@ extension PDFFileManager {
             
         } else {
             let paperInfo = PaperInfo(
-                title: result.title ?? url.lastPathComponent,
-                datetime: result.date?.date ?? "알 수 없음",
-                author: names,
+                title: url.lastPathComponent,
+                datetime: "",
+                author: "",
                 pages: pageCount ?? 0,
                 publisher: "알 수 없음",
-                thumbnail: .init(),
+                thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: urlData
             )
             

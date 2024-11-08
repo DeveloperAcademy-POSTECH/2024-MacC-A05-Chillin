@@ -32,6 +32,7 @@ struct HomeView: View {
     
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
+    @State private var isEditingMemo: Bool = false
     
     var body: some View {
         ZStack {
@@ -83,21 +84,23 @@ struct HomeView: View {
                     isEditing: $isEditing,
                     isSearching: $isSearching,
                     isEditingTitle: $isEditingTitle,
+                    isEditingMemo: $isEditingMemo,
                     searchText: $searchText
                 )
                 .environmentObject(pdfFileManager)
             }
-            .blur(radius: isEditingTitle ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo ? 20 : 0)
             
             
             Color.black
-                .opacity( isEditingTitle ? 0.5 : 0)
+                .opacity( isEditingTitle || isEditingMemo ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
             
-            if isEditingTitle {
+            if isEditingTitle || isEditingMemo {
                 RenamePaperTitleView(
                     isEditingTitle: $isEditingTitle,
+                    isEditingMemo: $isEditingMemo,
                     paperInfo: pdfFileManager.paperInfos.first { $0.id == selectedPaperID! }!)
                     .environmentObject(pdfFileManager)
             }
@@ -111,6 +114,7 @@ struct HomeView: View {
         }
         .statusBarHidden()
         .animation(.easeInOut, value: isEditingTitle)
+        .animation(.easeInOut, value: isEditingMemo)
     }
 }
 
@@ -176,20 +180,19 @@ private struct MainMenuView: View {
         .alert(isPresented: $errorAlert) {
             // TODO: 예외 처리 수정 필요
             switch errorStatus {
-            case .badRequest:
+            case .accessError:
                 Alert(
-                    title: Text("잘못된 요청"),
-                    message: Text("잘못된 요청이 왔어요."),
-                    primaryButton: .default(Text("Ok")),
-                    secondaryButton: .cancel())
-            case .corruptedPDF:
+                    title: Text("파일 접근이 불가능합니다."),
+                    message: Text("다른 파일을 선택해주세요"),
+                    dismissButton: .default(Text("Ok")))
+            case .invalidURL:
                 Alert(
-                    title: Text("PDF OCR 안되어있음"),
-                    message: Text("OCR ㄴㄴ"),
-                    primaryButton: .default(Text("Ok")),
-                    secondaryButton: .cancel())
+                    title: Text("잘못된 파일 경로"),
+                    message: Text("파일이 올바른 경로에 있는지 확인해주세요"),
+                    dismissButton: .default(Text("Ok")))
+                
             case .etc:
-                Alert(title: Text("알 수 없는 에러"))
+                Alert(title: Text("알 수 없는 에러가 발생했습니다."))
             }
         }
         .fileImporter(
@@ -200,37 +203,32 @@ private struct MainMenuView: View {
     }
     
     private enum ErrorStatus {
-        case badRequest
-        case corruptedPDF
+        case accessError
+        case invalidURL
         case etc
     }
     
     private func importPDFToDevice(result: Result<[Foundation.URL], any Error>) {
         switch result {
         case .success(let url):
-            Task.init {
-                do {
-                    if let newPaperID = try await pdfFileManager.uploadPDFFile(url: url) {
-                        selectedPaperID = newPaperID
-                    }
-                } catch {
-                    print(String(describing: error))
-                    
-                    if let error = error as? NetworkManagerError {
-                        switch error {
-                        case .badRequest:
-                            self.errorStatus = .badRequest
-                            self.errorAlert.toggle()
-                        case .corruptedPDF:
-                            self.errorStatus = .corruptedPDF
-                            self.errorAlert.toggle()
-                        default:
-                            break
-                        }
+            do {
+                if let newPaperID = try pdfFileManager.uploadPDFFile(url: url) {
+                    selectedPaperID = newPaperID
+                }
+            } catch {
+                print(String(describing: error))
+                
+                if let error = error as? PDFUploadError {
+                    switch error {
+                    case .failedToAccessingSecurityScope:
+                        self.errorStatus = .accessError
+                        self.errorAlert.toggle()
+                    case .invalidURL:
+                        self.errorStatus = .invalidURL
+                        self.errorAlert.toggle()
                     }
                 }
             }
-            
         case .failure(let error):
             print(String(describing: error))
             self.errorStatus = .etc
@@ -329,6 +327,8 @@ private struct RenamePaperTitleView: View {
     
     @Binding var isEditingTitle: Bool
     
+    @Binding var isEditingMemo: Bool
+    
     let paperInfo: PaperInfo
     
     var body: some View {
@@ -336,7 +336,11 @@ private struct RenamePaperTitleView: View {
             VStack {
                 HStack {
                     Button {
-                        isEditingTitle.toggle()
+                        if isEditingTitle {
+                            isEditingTitle.toggle()
+                        } else {
+                            isEditingMemo = false
+                        }
                     } label: {
                         Image(systemName: "xmark")
                             .resizable()
@@ -349,8 +353,12 @@ private struct RenamePaperTitleView: View {
                     Spacer()
                     
                     Button("완료") {
-                        pdfFileManager.updateTitle(at: paperInfo.id, title: text)
-                        isEditingTitle.toggle()
+                        if isEditingTitle {
+                            pdfFileManager.updateTitle(at: paperInfo.id, title: text)
+                            isEditingTitle = false
+                        } else {
+                            isEditingMemo = false
+                        }
                     }
                     .reazyFont(.button1)
                     .foregroundStyle(.gray100)
@@ -369,30 +377,47 @@ private struct RenamePaperTitleView: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 12)
                             .foregroundStyle(.gray100)
-                            .frame(width: 400, height: 52)
+                            .frame(width: 400, height: isEditingTitle ? 52 : 180)
                         
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(lineWidth: 1)
                             .foregroundStyle(.gray400)
-                            .frame(width: 400, height: 52)
+                            .frame(width: 400, height: isEditingTitle ? 52 : 180)
                     }
-                    .frame(width: 400, height: 52)
-                    .overlay {
-                        TextField("제목을 입력해주세요.", text: $text)
+                    .frame(width: 400, height: isEditingTitle ? 52 : 180)
+                    .overlay(alignment: isEditingTitle ? .center : .topLeading) {
+                        TextField( isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: .vertical)
+                            .lineLimit( isEditingTitle ? 1 : 6)
                             .padding(.horizontal, 16)
+                            .padding(.vertical, isEditingTitle ? 0 : 16)
                             .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
                             .foregroundStyle(.gray800)
                     }
+                    .overlay(alignment: isEditingTitle ? .trailing : .bottomTrailing) {
+                        if !self.text.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                                .padding(.bottom, isEditingTitle ? 0 : 15)
+                                .padding(.trailing, isEditingTitle ? 10 : 15)
+                                .onTapGesture {
+                                    text = ""
+                                }
+                        }
+                    }
                     
-                    Text("논문 제목을 입력해 주세요")
+                    Text(isEditingTitle ? "논문 제목을 입력해 주세요" : "논문에 대한 메모를 남겨주세요")
                         .reazyFont(.button1)
                         .foregroundStyle(.comment)
                 }
             }
         }
         .onAppear {
-            UITextField.appearance().clearButtonMode = .whileEditing
-            self.text = paperInfo.title
+            if isEditingTitle {
+                self.text = paperInfo.title
+            } else {
+                // TODO: 메모 입력
+            }
         }
     }
 }

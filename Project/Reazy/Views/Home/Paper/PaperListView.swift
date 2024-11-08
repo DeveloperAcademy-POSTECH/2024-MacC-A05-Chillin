@@ -19,6 +19,7 @@ struct PaperListView: View {
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
     @Binding var isEditingTitle: Bool
+    @Binding var isEditingMemo: Bool
     @Binding var searchText: String
     
     @State private var keyboardHeight: CGFloat = 0
@@ -148,6 +149,7 @@ struct PaperListView: View {
                                 isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
                                 isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
                                 isEditingTitle: $isEditingTitle,
+                                isEditingMemo: $isEditingMemo,
                                 onNavigate: {
                                     if !isEditing {
                                         navigateToPaper()
@@ -287,6 +289,7 @@ extension PaperListView {
         isEditing: .constant(false),
         isSearching: .constant(false),
         isEditingTitle: .constant(false),
+        isEditingMemo: .constant(false),
         searchText: .constant("")
     )
     .environmentObject(manager)
