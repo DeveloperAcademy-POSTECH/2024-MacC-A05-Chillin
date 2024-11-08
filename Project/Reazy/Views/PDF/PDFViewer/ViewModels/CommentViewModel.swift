@@ -17,6 +17,7 @@ class CommentViewModel: ObservableObject {
     @Published var pdfConvertedBounds: CGRect = .zero
     var pdfCoordinates: CGRect = .zero
     
+    @Published var isTappedDelete: Bool = false
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
     let pdfID: UUID
@@ -47,10 +48,10 @@ class CommentViewModel: ObservableObject {
         removeAnnotations(comment: comment)
     }
     
-    // 코멘트 수정
-    //    func editComment(comment: Comment, text: String) {
-    //        comment.text = text
-    //    }
+    // TODO : 수정 액션 추가해야 함
+        func editComment(comment: Comment, text: String) {
+            
+        }
 }
 
 //MARK: - 초기세팅

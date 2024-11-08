@@ -16,20 +16,22 @@ struct CommentGroupView: View {
     let changedSelection: PDFSelection
     
     var body: some View {
-        VStack {
-            if pdfViewModel.isCommentTapped == true {
-                if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
-                    CommentView(viewModel: viewModel, commentGroup: viewModel.commentGroup, comment: comment)
+        ZStack {
+            VStack {
+                if pdfViewModel.isCommentTapped {
+                    if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
+                        CommentView(viewModel: viewModel, commentGroup: viewModel.commentGroup, comment: comment)
+                    }
+                } else {
+                    CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
                 }
-            } else {
-                CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
             }
+            .background(Color.gray100)
+            .cornerRadius(12)
+            .frame(width: 357)
+            .border(.primary2, width: 1)
+            .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
         }
-        .background(Color.gray100)
-        .cornerRadius(12)
-        .frame(width: 357)
-        .border(.primary2, width: 1)
-        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
 }
 
@@ -39,10 +41,10 @@ struct CommentGroupView: View {
 private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
     var commentGroup: [Comment]
-    
     var comment: Comment
     
     var body: some View {
+        
         VStack(alignment: .leading, spacing: 0) {
             ForEach(commentGroup.indices, id: \.self) { index in
                 CommentCell(viewModel: viewModel, comment: commentGroup[index])
@@ -58,6 +60,7 @@ private struct CommentView: View {
         }
         .frame(minWidth: 357, minHeight: 78)
         .foregroundStyle(.point2)
+        
     }
 }
 
@@ -103,5 +106,49 @@ private struct CommentInputView: View {
         }
         .padding(.top, 16)
         .padding(.bottom, 9)
+    }
+}
+
+// 수정,삭제 뷰
+
+private struct CommentMenuView: View {
+    var body: some View {
+        HStack{
+            Menu {
+                Button(action: {
+                    //수정 액션
+                }, label: {
+                    HStack{
+                        Image(systemName: "pencil.line")
+                            .font(.system(size: 12))
+                            .padding(.trailing, 6)
+                        Text("수정")
+                            .reazyFont(.body3)
+                    }
+                })
+                .foregroundStyle(.gray600)
+                
+                Button(action: {
+                    //수정 액션
+                }, label: {
+                    HStack{
+                        Image(systemName: "trash")
+                            .font(.system(size: 12))
+                            .padding(.trailing, 6)
+                        Text("삭제")
+                            .reazyFont(.body3)
+                    }
+                }).foregroundStyle(.gray600)
+            } label: {
+                
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+        }
+        .background(.gray100)
+        .border(.primary2, width: 1)
+        .frame(minWidth: 130)
+        .cornerRadius(8)
+        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
 }
