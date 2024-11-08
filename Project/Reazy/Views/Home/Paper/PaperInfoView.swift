@@ -60,9 +60,7 @@ struct PaperInfoView: View {
                         .foregroundStyle(.gray400)
                         .overlay(
                             Image(systemName: "ellipsis")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 19)
+                                .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )
                 }
@@ -77,9 +75,7 @@ struct PaperInfoView: View {
                         .foregroundStyle(.gray400)
                         .overlay(
                             Image(systemName: isFavorite ? "star.fill" : "star")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 17)
+                                .font(.system(size: 14))
                                 .foregroundStyle(isFavorite ? .primary1 : .gray600)
                         )
                 }
@@ -94,9 +90,7 @@ struct PaperInfoView: View {
                         .foregroundStyle(.gray400)
                         .overlay(
                             Image(systemName: "trash")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 17)
+                                .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )
                 }

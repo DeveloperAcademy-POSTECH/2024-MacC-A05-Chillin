@@ -100,7 +100,6 @@ struct HomeView: View {
                     paperInfo: pdfFileManager.paperInfos.first { $0.id == selectedPaperID! }!)
                     .environmentObject(pdfFileManager)
             }
-            
         }
         .background(Color(hex: "F7F7FB"))
         .overlay {
@@ -255,6 +254,7 @@ private struct SearchMenuView: View {
                     selectedMenu = .main
                 }
                 isSearching.toggle()
+                searchText = ""
             }, label: {
                 Text("취소")
                     .reazyFont(.button1)

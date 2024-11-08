@@ -75,7 +75,6 @@ final class MainPDFViewModel: ObservableObject {
     
     // for drawing
     public var pdfDrawer: PDFDrawer
-    // TODO: - [브리] 여기서 pdfID 같이 넘겨주면 됨 !
     
     public var paperInfo: PaperInfo
     
