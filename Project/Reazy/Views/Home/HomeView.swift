@@ -413,11 +413,11 @@ private struct RenamePaperTitleView: View {
             }
         }
         .onAppear {
-//            if isEditingTitle {
-//                self.text = paperInfo.title
-//            } else {
-//                // TODO: 메모 입력
-//            }
+            if isEditingTitle {
+                self.text = paperInfo.title
+            } else {
+                // TODO: 메모 입력
+            }
         }
     }
 }
