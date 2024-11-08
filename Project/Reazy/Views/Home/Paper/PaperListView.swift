@@ -277,7 +277,7 @@ extension PaperListView {
 
 
 #Preview {
-    let manager = PDFFileManager(paperService: PaperDataService())
+    let manager = PDFFileManager(paperService: PaperDataService.shared)
     
     PaperListView(
         selectedPaperID: .constant(nil),

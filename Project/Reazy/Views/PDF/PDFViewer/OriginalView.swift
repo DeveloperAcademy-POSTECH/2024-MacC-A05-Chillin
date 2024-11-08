@@ -12,7 +12,7 @@ import PDFKit
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
-    @StateObject var commentViewModel: CommentViewModel
+    @EnvironmentObject var commentViewModel: CommentViewModel
     
     @State private var keyboardHeight: CGFloat = 0
     let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
