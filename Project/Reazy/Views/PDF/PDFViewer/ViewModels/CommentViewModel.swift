@@ -15,7 +15,7 @@ class CommentViewModel: ObservableObject {
     
     // pdf 관련
     @Published var pdfConvertedBounds: CGRect = .zero
-    var pdfViewMidX: CGFloat = .zero
+    var pdfCoordinates: CGRect = .zero
     
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
@@ -70,12 +70,12 @@ extension CommentViewModel {
         }
     }
     
-    func getPdfMidX(pdfView: PDFView) {
+    func getPDFCoordinates(pdfView: PDFView) {
         guard let currentPage = pdfView.currentPage else { return }
         let bounds = currentPage.bounds(for: pdfView.displayBox)
-        let pdfMidX = pdfView.convert(bounds, from: currentPage).midX
+        let pdfCoordinates = pdfView.convert(bounds, from: currentPage)
         
-        self.pdfViewMidX = pdfMidX
+        self.pdfCoordinates = pdfCoordinates
     }
     
     private func getSelectedLine(selection: PDFSelection) -> CGRect{
@@ -115,8 +115,8 @@ extension CommentViewModel {
         let lineBounds = newComment.selectedLine
         
         ///PDF 문서의 colum 구분
-        let isLeft = lineBounds.maxX < pdfViewMidX
-        let isRight = lineBounds.minX >= pdfViewMidX
+        let isLeft = lineBounds.maxX < pdfCoordinates.midX
+        let isRight = lineBounds.minX >= pdfCoordinates.midX
         let isAcross = !isLeft && !isRight
         
         var iconPosition: CGRect = .zero
@@ -128,8 +128,10 @@ extension CommentViewModel {
             iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
         }
         
-        let commentIcon = ImageAnnotation(imageBounds: iconPosition,
-                                          image: UIImage(systemName: "text.bubble")?.withTintColor(UIColor.point4, renderingMode: .alwaysTemplate))
+        let image = UIImage(systemName: "text.bubble")
+        image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
+        let commentIcon = ImageAnnotation(imageBounds: iconPosition, image: image)
+                                          
         commentIcon.widgetFieldType = .button
         commentIcon.color = .point4
         
@@ -154,7 +156,7 @@ extension CommentViewModel {
         
         // 이미지를 그릴 때 사용하는 메서드
         override public func draw(with box: PDFDisplayBox, in context: CGContext) {
-            guard let cgImage = self._image?.cgImage else {
+            guard (self._image?.cgImage) != nil else {
                 return
             }
             
