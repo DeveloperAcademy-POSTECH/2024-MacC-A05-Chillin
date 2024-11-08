@@ -23,9 +23,7 @@ struct OriginalView: View {
             ZStack {
                 VStack(spacing: 0) {
                     OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
-                    //                    .offset(y: -keyboardResponder.keyboardHeight / 2)
                 }
-                //            .padding(.bottom, keyboardResponder.keyboardHeight)
                 .onReceive(publisher) { a in
                     if let _ = a.userInfo?["hitted"] as? Bool {
                         viewModel.isCommentTapped = false
@@ -60,7 +58,8 @@ struct OriginalView: View {
             .transition(.move(edge: .bottom).combined(with: .opacity))
             .onChange(of: viewModel.selectedText) { _, newValue in
                 viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
-            }.offset(y: commentViewModel.pdfCoordinates.midY > viewModel.commentInputPosition.y
+            }
+            .offset(y: commentViewModel.pdfCoordinates.midY > viewModel.commentInputPosition.y
                      ? -keyboardResponder.keyboardHeight / 10
                      : -keyboardResponder.keyboardHeight / 1.2 )
             .animation(.smooth(duration: 0.5), value: keyboardResponder.keyboardHeight)

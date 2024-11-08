@@ -17,18 +17,24 @@ struct CommentCell: View {
         HStack(alignment: .center){
             Divider()
                 .frame(width: 2, height: 14)
-                .background(.point2)
-                .padding(.trailing, 6)
+                .background(.point4)
+                //.padding(.trailing, 6)
             
             if let commentText = comment.selection.string {
                 Text(commentText.replacingOccurrences(of: "\n", with: ""))
+                    .reazyFont(.body3)
+                    .foregroundStyle(.point4)
                     .lineLimit(1)
             }
         }
+        .padding(.bottom, 8)
         .padding(.trailing, 16)
-        .padding(.bottom, 9)
+        .padding(.top, 18)
         
         Text(comment.text)
+            .reazyFont(.body1)
+            .foregroundStyle(.point2)
+            .padding(.trailing, 16)
         
         HStack{
             Spacer()
@@ -38,11 +44,12 @@ struct CommentCell: View {
                 pdfViewModel.isCommentTapped = false
             }, label: {
                 Image(systemName: "ellipsis.circle")
-                    .foregroundStyle(Color(hex: "BABCCF"))
+                    .foregroundStyle(.gray500)
                     .font(.system(size: 20))
             })
-            .padding(.trailing, 9)
         }
+        .padding(.trailing, 9)
+        .padding(.bottom, 9)
         
     }
     
