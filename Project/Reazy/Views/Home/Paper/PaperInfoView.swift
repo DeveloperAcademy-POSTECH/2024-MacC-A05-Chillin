@@ -28,6 +28,8 @@ struct PaperInfoView: View {
     
     @State private var timer: Timer?
     
+    @State private var isDeleteConfirm: Bool = false
+    
     @Binding var isEditingTitle: Bool
     
     let onNavigate: () -> Void
@@ -82,8 +84,7 @@ struct PaperInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    pdfFileManager.deletePDFFile(at: id)
-                    onDelete()
+                    self.isDeleteConfirm.toggle()
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -179,6 +180,16 @@ struct PaperInfoView: View {
         .onAppear {
             // TODO: 메모 있을 시 연동
 //            self.memoText = self.paperInfo.memo
+        }
+        .alert(isPresented: $isDeleteConfirm) {
+            Alert(
+                title: Text("정말 삭제하시겠습니까?"),
+                message: Text("삭제된 파일은 복구할 수 없습니다."),
+                primaryButton: .destructive(Text("삭제")) {
+                    pdfFileManager.deletePDFFile(at: id)
+                    onDelete()
+                },
+                secondaryButton: .default(Text("취소")))
         }
     }
     
