@@ -98,7 +98,7 @@ final class OriginalViewController: UIViewController {
             print("found annotation")
             
             if let buttonID = tappedAnnotation.contents,
-               let tappedComment = commentViewModel.comments.first(where: { $0.ButtonID == buttonID }) {
+               let tappedComment = commentViewModel.comments.first(where: { $0.buttonID == buttonID }) {
                 
                 print(tappedComment)
                 viewModel.isCommentTapped.toggle()

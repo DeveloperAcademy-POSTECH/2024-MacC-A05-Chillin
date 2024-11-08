@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24B83" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="CommentData" representedClassName="CommentData" syncable="YES">
+        <attribute name="buttonID" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="length" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="pageIndex" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="selectedLine" optional="YES" attributeType="Binary"/>
+        <attribute name="startIndex" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="commentData" inverseEntity="PaperData"/>
+    </entity>
     <entity name="DrawingData" representedClassName="DrawingData" syncable="YES">
         <attribute name="color" optional="YES" attributeType="Binary"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -19,6 +29,7 @@
         <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="url" optional="YES" attributeType="Binary"/>
+        <relationship name="commentData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentData" inverseName="paperData" inverseEntity="CommentData"/>
         <relationship name="drawingData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DrawingData" inverseName="paperData" inverseEntity="DrawingData"/>
     </entity>
 </model>

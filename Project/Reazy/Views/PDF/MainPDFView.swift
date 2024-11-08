@@ -16,8 +16,10 @@ struct MainPDFView: View {
     
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
+    
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
+    @StateObject public var commentViewModel: CommentViewModel
     
     @State private var selectedButton: WriteButton? = nil
     @State private var selectedColor: HighlightColors = .yellow
@@ -33,7 +35,6 @@ struct MainPDFView: View {
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isVertical = false
-    
     
     var body: some View {
         GeometryReader { geometry in
@@ -311,9 +312,10 @@ struct MainPDFView: View {
     private func mainView(for mode: String) -> some View {
         if mode == "원문 모드" {
             ZStack {
-                OriginalView(commentViewModel: .init(pdfID: mainPDFViewModel.paperInfo.id))
+                OriginalView()
                     .environmentObject(mainPDFViewModel)
                     .environmentObject(floatingViewModel)
+                    .environmentObject(commentViewModel)
                 // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
                 if #unavailable(iOS 18.0) {
                     if mainPDFViewModel.toolMode == .translate {

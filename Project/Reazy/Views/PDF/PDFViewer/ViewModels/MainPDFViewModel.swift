@@ -89,7 +89,7 @@ final class MainPDFViewModel: ObservableObject {
             url.stopAccessingSecurityScopedResource()
         }
         
-        self.pdfDrawer = .init(drawingService: DrawingDataService(), pdfID: paperInfo.id)
+        self.pdfDrawer = .init(drawingService: DrawingDataService.shared, pdfID: paperInfo.id)
         
     }
 }
@@ -363,7 +363,7 @@ extension MainPDFViewModel {
                     highlight.color = UIColor.comment
                     
                     /// 하이라이트 주석 구별하기
-                    highlight.setValue("\(comment.ButtonID) isHighlight", forAnnotationKey: .contents)
+                    highlight.setValue("\(comment.buttonID) isHighlight", forAnnotationKey: .contents)
                     page.addAnnotation(highlight)
                 }
             }
@@ -372,7 +372,7 @@ extension MainPDFViewModel {
                 for annotation in page.annotations {
                     /// 하이라이트 주석만 제거
                     if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
-                       annotationValue == "\(comment.ButtonID) isHighlight" {
+                       annotationValue == "\(comment.buttonID) isHighlight" {
                         page.removeAnnotation(annotation)
                     }
                 }
