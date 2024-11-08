@@ -82,7 +82,8 @@ struct HomeView: View {
                     selectedItems: $selectedItems,
                     isEditing: $isEditing,
                     isSearching: $isSearching,
-                    isEditingTitle: $isEditingTitle
+                    isEditingTitle: $isEditingTitle,
+                    searchText: $searchText
                 )
                 .environmentObject(pdfFileManager)
             }
