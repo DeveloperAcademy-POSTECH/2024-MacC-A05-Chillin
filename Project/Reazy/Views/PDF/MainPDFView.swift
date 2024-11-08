@@ -24,11 +24,6 @@ struct MainPDFView: View {
     @State private var selectedButton: WriteButton? = nil
     @State private var selectedColor: HighlightColors = .yellow
     
-    // 모드 구분
-    @State private var selectedMode = "원문 모드"
-    var mode = ["원문 모드", "집중 모드"]
-    @Namespace private var animationNamespace
-    
     @State private var selectedIndex: Int = 0
     @State private var isReadModeFirstSelected: Bool = false
     
@@ -104,7 +99,6 @@ struct MainPDFView: View {
                         .padding(.horizontal, 22)
                         .background(.primary3)
                         
-                        if selectedMode == "원문 모드" {
                             HStack(spacing: 0) {
                                 Spacer()
                                 
@@ -164,7 +158,7 @@ struct MainPDFView: View {
                                 Spacer()
                             }
                             .background(.clear)
-                        }
+                        
                     }
                     
                     Divider()
@@ -172,14 +166,12 @@ struct MainPDFView: View {
                     
                     GeometryReader { geometry in
                         ZStack {
-                            if selectedMode == "원문 모드" || selectedMode == "집중 모드" {
                                 ZStack {
                                     if isVertical {
                                         splitLayout(for: .vertical)
                                     } else {
                                         splitLayout(for: .horizontal)
                                     }
-                                }
                             }
                             
                             HStack(spacing: 0){
@@ -222,10 +214,6 @@ struct MainPDFView: View {
                                 }
                             }
                         }
-                        .onChange(of: selectedMode) {
-                            // 원문 <-> 집중 바뀔 때마다 버튼 5개 상태 초기화
-                            selectedButton = nil
-                        }
                         .ignoresSafeArea()
                     }
                 }
@@ -257,36 +245,7 @@ struct MainPDFView: View {
                         }
                     },
                     rightView: {
-                        HStack(spacing: 0) {
-                            // Custom segmented picker
-                            HStack(spacing: 0) {
-                                ForEach(mode, id: \.self) { item in
-                                    Text(item)
-                                        .reazyFont(selectedMode == item ? .button4 : .button5)
-                                        .padding(.horizontal, 14)
-                                        .padding(.vertical, 5)
-                                        .background(
-                                            ZStack {
-                                                if selectedMode == item {
-                                                    RoundedRectangle(cornerRadius: 7)
-                                                        .fill(.gray100)
-                                                        .matchedGeometryEffect(id: "underline", in: animationNamespace)
-                                                }
-                                            }
-                                        )
-                                        .foregroundColor(selectedMode == item ? .gray900 : .gray600)
-                                        .onTapGesture {
-                                            withAnimation(.spring()) {
-                                                selectedMode = item
-                                            }
-                                        }
-                                        .padding(.horizontal, 2)
-                                        .padding(.vertical, 2)
-                                }
-                            }
-                            .background(.gray500)
-                            .cornerRadius(9)
-                        }
+                        EmptyView()
                     }
                 )
                 .overlay {
@@ -305,34 +264,6 @@ struct MainPDFView: View {
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
-        }
-    }
-    
-    @ViewBuilder
-    private func mainView(for mode: String) -> some View {
-        if mode == "원문 모드" {
-            ZStack {
-                OriginalView()
-                    .environmentObject(mainPDFViewModel)
-                    .environmentObject(floatingViewModel)
-                    .environmentObject(commentViewModel)
-                // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
-                if #unavailable(iOS 18.0) {
-                    if mainPDFViewModel.toolMode == .translate {
-                        BubbleViewOlderVer()
-                    }
-                }
-            }
-        } else if mode == "집중 모드" {
-            ConcentrateView()
-                .environmentObject(mainPDFViewModel)
-                .onAppear {
-                    if !isReadModeFirstSelected {
-                        selectedIndex = 1
-                        isFigSelected = true
-                        isReadModeFirstSelected = true
-                    }
-                }
         }
     }
     
@@ -371,7 +302,18 @@ struct MainPDFView: View {
             divider(for: orientation)
         }
         
-        mainView(for: selectedMode)
+        ZStack {
+            OriginalView()
+                .environmentObject(mainPDFViewModel)
+                .environmentObject(floatingViewModel)
+                .environmentObject(commentViewModel)
+            // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
+            if #unavailable(iOS 18.0) {
+                if mainPDFViewModel.toolMode == .translate {
+                    BubbleViewOlderVer()
+                }
+            }
+        }
         
         if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
