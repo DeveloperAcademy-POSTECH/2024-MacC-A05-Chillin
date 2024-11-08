@@ -264,6 +264,7 @@ struct MainPDFView: View {
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
+            .statusBarHidden()
         }
     }
     
