@@ -29,6 +29,7 @@ struct PaperInfoView: View {
     @State private var timer: Timer?
     
     @Binding var isEditingTitle: Bool
+    @Binding var isEditingMemo: Bool
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
@@ -52,7 +53,7 @@ struct PaperInfoView: View {
             HStack(spacing: 0) {
                 Menu {
                     Button("제목 수정", systemImage: "pencil") {
-                        isEditingTitle.toggle()
+                        self.isEditingTitle = true
                     }
                 } label: {
                     RoundedRectangle(cornerRadius: 14)
@@ -115,24 +116,40 @@ struct PaperInfoView: View {
                     
                     Spacer()
                     
-                    Button {
-                        if isMemo {
+                    if isMemo {
+                        Menu {
+                            Button("수정", systemImage: "pencil") {
+                                self.isEditingMemo = true
+                            }
                             
-                        } else {
-                            isMemo.toggle()
+                            Button("삭제", systemImage: "trash") {
+                                // TODO: 메모 삭제 기능 구현
+                            }
+                            
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17)
+                                .foregroundStyle(.gray600)
                         }
-                    } label: {
-                        Image(systemName: isMemo ? "ellipsis.circle" : "plus")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 17)
-                            .foregroundStyle(.gray600)
+                    } else {
+                        Button {
+                            isMemo.toggle()
+                        } label: {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17)
+                                .foregroundStyle(.gray600)
+                        }
                     }
+                    
                 }
                 .padding(.bottom, 13)
                 
                 if isMemo {
-                    ZStack {
+                    ZStack(alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 10)
                             .foregroundStyle(.gray200)
                         
@@ -142,10 +159,12 @@ struct PaperInfoView: View {
                             .foregroundStyle(.gray550)
                         
                         VStack {
-                            TextField("메모를 입력해주세요.", text: $memoText, axis: .vertical)
-                                .lineLimit(5)
+                            // TODO: 메모 데이터 연결 필요
+                            Text("이 편지는 영국에서 시작되어....")
+                                .lineLimit(4)
                                 .reazyFont(.body2)
                                 .foregroundStyle(.gray700)
+                                .multilineTextAlignment(.leading)
                             
                             Spacer()
                         }
@@ -237,6 +256,7 @@ struct PaperInfoView: View {
         isFavorite: false,
         isStarSelected: false,
         isEditingTitle: .constant(false),
+        isEditingMemo: .constant(false),
         onNavigate: {},
         onDelete: {}
     )
