@@ -7,12 +7,16 @@
 
 import PDFKit
 import SwiftUI
+import Network
 
 
 /**
  PDFView 전체 관할 View model
  */
 final class MainPDFViewModel: ObservableObject {
+    
+    @Published public var isLoading: Bool = false
+    @Published public var isNetworkConnected = false
     
     @Published var selectedDestination: PDFDestination?
     @Published var searchSelection: PDFSelection?
@@ -83,6 +87,7 @@ final class MainPDFViewModel: ObservableObject {
         
         var isStale = false
         
+        // TODO: 경로 바뀔 시 모델에 Update 필요
         if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
         url.startAccessingSecurityScopedResource() {
             self.document = PDFDocument(url: url)
@@ -91,6 +96,10 @@ final class MainPDFViewModel: ObservableObject {
         
         self.pdfDrawer = .init(drawingService: DrawingDataService(), pdfID: paperInfo.id)
         
+    }
+    
+    deinit {
+        print(#function)
     }
 }
 
@@ -101,8 +110,30 @@ extension MainPDFViewModel {
         self.document = PDFDocument(url: url)
     }
     
-    // TODO: 네트워크 연결 확인 필요, 진행도 알려줘야함, 진행 후 데이터 저장 필요
-    public func fetchFocusAnnotations() async {
+    public func downloadFigureAnnotation() async {
+        NWPathMonitor.startMonitoring { isConnected in
+            if !isConnected {
+                DispatchQueue.main.async {
+                    self.isNetworkConnected = false
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.isNetworkConnected = true
+            }
+        }
+        
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
+        
+        defer {
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
+        }
+        
         guard let page = self.document?.page(at: 0) else {
             return
         }
@@ -124,13 +155,24 @@ extension MainPDFViewModel {
         do {
             let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
             
-            self.focusAnnotations = NetworkManager.filterData(input: input, pageWidth: width, pageHeight: height)
             self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
             
             print("end network connect")
         } catch {
             print(String(describing: error))
         }
+    }
+    
+    // TODO: 네트워크 연결 확인 필요, 진행도 알려줘야함, 진행 후 데이터 저장 필요
+    public func fetchAnnotations() async {
+        // 처음 들어오는지 여부 판단
+        // 처음 들어오면 다운로드 진행
+//        if !paperInfo.figure.isEmpty {
+//
+//        } else
+        
+        await downloadFigureAnnotation()
+        
     }
     
     // 텍스트 PDF 붙이는 함수
@@ -169,7 +211,6 @@ extension MainPDFViewModel {
         let width = page.bounds(for: .mediaBox).width
         let height = page.bounds(for: .mediaBox).height
         
-        self.focusAnnotations = NetworkManager.filterData(input: input, pageWidth: width, pageHeight: height)
         self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
     }
 }

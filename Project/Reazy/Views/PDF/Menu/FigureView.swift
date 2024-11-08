@@ -17,35 +17,53 @@ struct FigureView: View {
     let onSelect: (String, PDFDocument, String) -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            if mainPDFViewModel.figureAnnotations.isEmpty {
-                Text("Fig와 Table이 있으면,\n여기에 표시됩니다")
-                    .reazyFont(.body3)
-                    .foregroundStyle(.gray600)
-            } else {
-                Text("피규어를 꺼내서 창에 띄울 수 있어요")
-                    .reazyFont(.text2)
-                    .foregroundStyle(.gray600)
-                    .padding(.vertical, 24)
-                
-                
-                // ScrollViewReader로 자동 스크롤 구현
-                ScrollViewReader { proxy in
-                    List {
-                        ForEach(0..<mainPDFViewModel.figureAnnotations.count, id: \.self) { index in
-                            FigureCell(index: index, onSelect: onSelect)
-                                .padding(.bottom, 21)
-                                .listRowSeparator(.hidden)
+        ZStack {
+            Color.list
+            VStack(spacing: 0) {
+                // TODO: 처음 들어오는지 여부 판단 필요
+                if !mainPDFViewModel.isNetworkConnected {
+                    Text("Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다.")
+                        .reazyFont(.body3)
+                        .foregroundStyle(.gray600)
+                } else if mainPDFViewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .padding(.bottom, 16)
+                    
+                    Text("Figure와 Table을 불러오는 중입니다")
+                        .reazyFont(.body3)
+                        .foregroundStyle(.gray600)
+                    
+                } else if mainPDFViewModel.figureAnnotations.isEmpty {
+                    Text("Fig와 Table이 있으면,\n여기에 표시됩니다")
+                        .reazyFont(.body3)
+                        .foregroundStyle(.gray600)
+                        .background(.gray100)
+                } else {
+                    Text("피규어를 꺼내서 창에 띄울 수 있어요")
+                        .reazyFont(.text2)
+                        .foregroundStyle(.gray600)
+                        .padding(.vertical, 24)
+                    
+                    
+                    // ScrollViewReader로 자동 스크롤 구현
+                    ScrollViewReader { proxy in
+                        List {
+                            ForEach(0..<mainPDFViewModel.figureAnnotations.count, id: \.self) { index in
+                                FigureCell(index: index, onSelect: onSelect)
+                                    .padding(.bottom, 21)
+                                    .listRowSeparator(.hidden)
+                            }
                         }
-                    }
-                    .padding(.horizontal, 10)
-                    .listStyle(.plain)
-                    .onChange(of: scrollToIndex) { _, newValue in
-                        if let index = newValue {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                withAnimation {
-                                    // 자동 스크롤
-                                    proxy.scrollTo(index, anchor: .top)
+                        .padding(.horizontal, 10)
+                        .listStyle(.plain)
+                        .onChange(of: scrollToIndex) { _, newValue in
+                            if let index = newValue {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    withAnimation {
+                                        // 자동 스크롤
+                                        proxy.scrollTo(index, anchor: .top)
+                                    }
                                 }
                             }
                         }
@@ -53,7 +71,6 @@ struct FigureView: View {
                 }
             }
         }
-        .background(.gray100)
         // 원문보기 페이지 변경시 자동 스크롤
         .onChange(of: mainPDFViewModel.changedPageNumber) { _, newValue in
             updateScrollIndex(for: newValue)
