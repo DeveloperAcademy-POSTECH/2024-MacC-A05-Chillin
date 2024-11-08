@@ -176,20 +176,19 @@ private struct MainMenuView: View {
         .alert(isPresented: $errorAlert) {
             // TODO: 예외 처리 수정 필요
             switch errorStatus {
-            case .badRequest:
+            case .accessError:
                 Alert(
-                    title: Text("잘못된 요청"),
-                    message: Text("잘못된 요청이 왔어요."),
-                    primaryButton: .default(Text("Ok")),
-                    secondaryButton: .cancel())
-            case .corruptedPDF:
+                    title: Text("파일 접근이 불가능합니다."),
+                    message: Text("다른 파일을 선택해주세요"),
+                    dismissButton: .default(Text("Ok")))
+            case .invalidURL:
                 Alert(
-                    title: Text("PDF OCR 안되어있음"),
-                    message: Text("OCR ㄴㄴ"),
-                    primaryButton: .default(Text("Ok")),
-                    secondaryButton: .cancel())
+                    title: Text("잘못된 파일 경로"),
+                    message: Text("파일이 올바른 경로에 있는지 확인해주세요"),
+                    dismissButton: .default(Text("Ok")))
+                
             case .etc:
-                Alert(title: Text("알 수 없는 에러"))
+                Alert(title: Text("알 수 없는 에러가 발생했습니다."))
             }
         }
         .fileImporter(
@@ -200,37 +199,32 @@ private struct MainMenuView: View {
     }
     
     private enum ErrorStatus {
-        case badRequest
-        case corruptedPDF
+        case accessError
+        case invalidURL
         case etc
     }
     
     private func importPDFToDevice(result: Result<[Foundation.URL], any Error>) {
         switch result {
         case .success(let url):
-            Task.init {
-                do {
-                    if let newPaperID = try await pdfFileManager.uploadPDFFile(url: url) {
-                        selectedPaperID = newPaperID
-                    }
-                } catch {
-                    print(String(describing: error))
-                    
-                    if let error = error as? NetworkManagerError {
-                        switch error {
-                        case .badRequest:
-                            self.errorStatus = .badRequest
-                            self.errorAlert.toggle()
-                        case .corruptedPDF:
-                            self.errorStatus = .corruptedPDF
-                            self.errorAlert.toggle()
-                        default:
-                            break
-                        }
+            do {
+                if let newPaperID = try pdfFileManager.uploadPDFFile(url: url) {
+                    selectedPaperID = newPaperID
+                }
+            } catch {
+                print(String(describing: error))
+                
+                if let error = error as? PDFUploadError {
+                    switch error {
+                    case .failedToAccessingSecurityScope:
+                        self.errorStatus = .accessError
+                        self.errorAlert.toggle()
+                    case .invalidURL:
+                        self.errorStatus = .invalidURL
+                        self.errorAlert.toggle()
                     }
                 }
             }
-            
         case .failure(let error):
             print(String(describing: error))
             self.errorStatus = .etc
