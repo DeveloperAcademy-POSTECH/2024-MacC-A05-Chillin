@@ -75,9 +75,7 @@ struct CommentCell: View {
                     .font(.system(size: 20))
             }
         }
-        .padding(.trailing, 9)
-        .padding(.bottom, 9)
-        
+        .padding([.trailing, .bottom], 9)
     }
     
 }
