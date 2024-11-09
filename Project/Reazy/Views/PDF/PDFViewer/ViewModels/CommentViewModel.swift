@@ -117,7 +117,7 @@ extension CommentViewModel {
     }
     
     func findCommentGroup(comment: Comment) {
-        let group = comments.filter { $0.ButtonID == comment.ButtonID }
+        let group = comments.filter { $0.buttonID == comment.buttonID }
         self.commentGroup = group
     }
 }
