@@ -20,7 +20,10 @@ class CommentViewModel: ObservableObject {
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들 부를 때
     public var document: PDFDocument?
+    
+    //Comment Model
     var pages: [Int] = []
+    
     
     public var paperInfo: PaperInfo
     
@@ -141,6 +144,11 @@ extension CommentViewModel {
         }
         self.pages = pages
     }
+    
+    func convertToPDFPage(pageIndex: [Int], document: PDFDocument) -> [PDFPage] {
+        let PDFPages = pageIndex.compactMap { document.page(at: $0) }
+            return PDFPages
+    }
 }
 
 //MARK: - PDF Anootation관련
@@ -149,33 +157,35 @@ extension CommentViewModel {
     /// 버튼 추가
     private func addCommentIcon(selection: PDFSelection, newComment: Comment) {
         
-        guard let page = selection.pages.first else { return }
-        let lineBounds = newComment.selectedLine
-        
-        ///PDF 문서의 colum 구분
-        let isLeft = lineBounds.maxX < pdfCoordinates.midX
-        let isRight = lineBounds.minX >= pdfCoordinates.midX
-        let isAcross = !isLeft && !isRight
-        
-        var iconPosition: CGRect = .zero
-        
-        ///colum에 따른 commentIcon 좌표 값 설정
-        if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
-        } else if isRight || isAcross {
-            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
+            let lineBounds = newComment.selectedLine
+            
+            ///PDF 문서의 colum 구분
+            let isLeft = lineBounds.maxX < pdfCoordinates.midX
+            let isRight = lineBounds.minX >= pdfCoordinates.midX
+            let isAcross = !isLeft && !isRight
+            
+            var iconPosition: CGRect = .zero
+            
+            ///colum에 따른 commentIcon 좌표 값 설정
+            if isLeft {
+                iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
+            } else if isRight || isAcross {
+                iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
+            }
+            
+            let image = UIImage(systemName: "text.bubble")
+            image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
+            let commentIcon = ImageAnnotation(imageBounds: iconPosition, image: image)
+            
+            commentIcon.widgetFieldType = .button
+            commentIcon.color = .point4
+            
+            /// 버튼에 코멘트 정보 참조
+            commentIcon.setValue(newComment.buttonID, forAnnotationKey: .contents)
+            page.addAnnotation(commentIcon)
         }
-        
-        let image = UIImage(systemName: "text.bubble")
-        image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
-        let commentIcon = ImageAnnotation(imageBounds: iconPosition, image: image)
-        
-        commentIcon.widgetFieldType = .button
-        commentIcon.color = .point4
-        
-        /// 버튼에 코멘트 정보 참조
-        commentIcon.setValue(newComment.buttonID, forAnnotationKey: .contents)
-        page.addAnnotation(commentIcon)
     }
     
     public class ImageAnnotation: PDFAnnotation {
