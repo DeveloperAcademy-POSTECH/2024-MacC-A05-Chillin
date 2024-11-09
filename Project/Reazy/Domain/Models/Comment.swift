@@ -9,8 +9,8 @@ import Foundation
 import PDFKit
 
 struct Comment: Identifiable {
-    let id : UUID = .init()
-    let ButtonID: String
+    let id : UUID
+    let buttonID: String
     var selection: PDFSelection
     var text: String
     var selectedLine: CGRect

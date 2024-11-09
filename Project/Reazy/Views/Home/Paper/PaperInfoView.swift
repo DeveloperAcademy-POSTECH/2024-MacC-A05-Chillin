@@ -10,6 +10,7 @@ import SwiftUI
 struct PaperInfoView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
     
+    // TODO: memo 추가 필요
     let id: UUID
     let image: Data
     let title: String
@@ -21,8 +22,18 @@ struct PaperInfoView: View {
     
     @State var isStarSelected: Bool
     
+    // TODO: 임시 메모 텍스트, 및 있는지 모델 반영 필요
+    @State private var memoText: String = ""
+    @State var isMemo: Bool = false
+    
+    @State private var timer: Timer?
+    
+    @Binding var isEditingTitle: Bool
+    @Binding var isEditingMemo: Bool
+    
     let onNavigate: () -> Void
     let onDelete: () -> Void
+    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -40,9 +51,11 @@ struct PaperInfoView: View {
                 .lineLimit(2)
             
             HStack(spacing: 0) {
-                Button(action: {
-                    
-                }) {
+                Menu {
+                    Button("제목 수정", systemImage: "pencil") {
+                        self.isEditingTitle = true
+                    }
+                } label: {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
@@ -97,69 +110,69 @@ struct PaperInfoView: View {
                     .foregroundStyle(.primary3)
                 
                 HStack(spacing: 0) {
-                    Text("정보")
+                    Text("메모")
                         .reazyFont(.button1)
                         .foregroundStyle(.black)
                     
                     Spacer()
+                    
+                    if isMemo {
+                        Menu {
+                            Button("수정", systemImage: "pencil") {
+                                self.isEditingMemo = true
+                            }
+                            
+                            Button("삭제", systemImage: "trash") {
+                                // TODO: 메모 삭제 기능 구현
+                            }
+                            
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17)
+                                .foregroundStyle(.gray600)
+                        }
+                    } else {
+                        Button {
+                            isMemo.toggle()
+                        } label: {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17)
+                                .foregroundStyle(.gray600)
+                        }
+                    }
+                    
                 }
                 .padding(.bottom, 13)
                 
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        Text("저자")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
+                if isMemo {
+                    ZStack(alignment: .topLeading) {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundStyle(.gray200)
                         
-                        Spacer()
                         
-                        // TODO: - 저자 데이터 입력 필요
-                        Text(author)
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray550)
+                        
+                        VStack {
+                            // TODO: 메모 데이터 연결 필요
+                            Text("이 편지는 영국에서 시작되어....")
+                                .lineLimit(4)
+                                .reazyFont(.body2)
+                                .foregroundStyle(.gray700)
+                                .multilineTextAlignment(.leading)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        
                     }
-                    
-                    divider()
-                    
-                    HStack(spacing: 0) {
-                        Text("출판연도")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                        
-                        Spacer()
-                        
-                        Text(dateTime)
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                    }
-                    
-                    divider()
-                    
-                    HStack(spacing: 0) {
-                        Text("페이지")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                        
-                        Spacer()
-                        
-                        Text("\(pages)")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                    }
-                    
-                    divider()
-                    
-                    HStack(spacing: 0) {
-                        Text("학술지")
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                        
-                        Spacer()
-                        
-                        Text(publisher)
-                            .reazyFont(.button5)
-                            .foregroundStyle(.gray600)
-                    }
+                    .frame(maxHeight: 120)
                 }
             }
             .padding(.top, 24)
@@ -168,6 +181,24 @@ struct PaperInfoView: View {
             Spacer()
         }
         .padding(.top, 36)
+        .background(alignment: .bottom) {
+            LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
+                .frame(height: 185)
+        }
+        .onChange(of: memoText) { _, newValue in
+            if let timer = self.timer {
+                timer.invalidate()
+            }
+            
+            self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+                // TODO: PDF 메모 업데이트 메소드 구현
+                self.pdfFileManager.updateMemo()
+            }
+        }
+        .onAppear {
+            // TODO: 메모 있을 시 연동
+//            self.memoText = self.paperInfo.memo
+        }
     }
     
     @ViewBuilder
@@ -224,6 +255,8 @@ struct PaperInfoView: View {
         dateTime: "1999-06-23",
         isFavorite: false,
         isStarSelected: false,
+        isEditingTitle: .constant(false),
+        isEditingMemo: .constant(false),
         onNavigate: {},
         onDelete: {}
     )

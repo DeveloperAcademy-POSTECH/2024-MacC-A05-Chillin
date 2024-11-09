@@ -7,12 +7,15 @@
 
 import PDFKit
 import SwiftUI
+import Network
 
 
 /**
  PDFView 전체 관할 View model
  */
 final class MainPDFViewModel: ObservableObject {
+    
+    @Published public var figureStatus: FigureView.FigureStatus = .networkDisconnection
     
     @Published var selectedDestination: PDFDestination?
     @Published var searchSelection: PDFSelection?
@@ -83,14 +86,19 @@ final class MainPDFViewModel: ObservableObject {
         
         var isStale = false
         
+        // TODO: 경로 바뀔 시 모델에 Update 필요
         if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
         url.startAccessingSecurityScopedResource() {
             self.document = PDFDocument(url: url)
             url.stopAccessingSecurityScopedResource()
         }
         
-        self.pdfDrawer = .init(drawingService: DrawingDataService(), pdfID: paperInfo.id)
+        self.pdfDrawer = .init(drawingService: DrawingDataService.shared, pdfID: paperInfo.id)
         
+    }
+    
+    deinit {
+        print(#function)
     }
 }
 
@@ -100,37 +108,72 @@ extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
+    /// 초기 figure 업데이트 메소드
+    public func downloadFigureAnnotation() async {
+        NWPathMonitor.startMonitoring { isConnected in
+            if !isConnected {
+                DispatchQueue.main.async {
+                    self.figureStatus = .networkDisconnection
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.figureStatus = .loading
+            }
+            
+            guard let page = self.document?.page(at: 0) else {
+                DispatchQueue.main.async {
+                    self.figureStatus = .empty
+                }
+                return
+            }
+            
+            let width = page.bounds(for: .mediaBox).width
+            let height = page.bounds(for: .mediaBox).height
+            
+            var isStale = false
+            
+            guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
+                  url.startAccessingSecurityScopedResource() else {
+                print("123123")
+                return
+            }
+            
+            defer {
+                url.stopAccessingSecurityScopedResource()
+            }
+            
+            Task.init {
+                do {
+                    let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
+                    
+                    self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+                    
+                    print("end network connect")
+                    DispatchQueue.main.async {
+                        self.figureStatus = .complete
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.figureStatus = .empty
+                    }
+                    print(String(describing: error))
+                }
+            }
+        }
+    }
     
     // TODO: 네트워크 연결 확인 필요, 진행도 알려줘야함, 진행 후 데이터 저장 필요
-    public func fetchFocusAnnotations() async {
-        guard let page = self.document?.page(at: 0) else {
-            return
-        }
+    public func fetchAnnotations() async {
+        // 처음 들어오는지 여부 판단
+        // 처음 들어오면 다운로드 진행
+//        if !paperInfo.figure.isEmpty {
+//
+//        } else
         
-        let width = page.bounds(for: .mediaBox).width
-        let height = page.bounds(for: .mediaBox).height
+        await downloadFigureAnnotation()
         
-        var isStale = false
-        
-        guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
-              url.startAccessingSecurityScopedResource() else {
-            return
-        }
-        
-        defer {
-            url.stopAccessingSecurityScopedResource()
-        }
-        
-        do {
-            let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
-            
-            self.focusAnnotations = NetworkManager.filterData(input: input, pageWidth: width, pageHeight: height)
-            self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
-            
-            print("end network connect")
-        } catch {
-            print(String(describing: error))
-        }
     }
     
     // 텍스트 PDF 붙이는 함수
@@ -169,7 +212,6 @@ extension MainPDFViewModel {
         let width = page.bounds(for: .mediaBox).width
         let height = page.bounds(for: .mediaBox).height
         
-        self.focusAnnotations = NetworkManager.filterData(input: input, pageWidth: width, pageHeight: height)
         self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
     }
 }
@@ -363,7 +405,7 @@ extension MainPDFViewModel {
                     highlight.color = UIColor.comment
                     
                     /// 하이라이트 주석 구별하기
-                    highlight.setValue("\(comment.ButtonID) isHighlight", forAnnotationKey: .contents)
+                    highlight.setValue("\(comment.buttonID) isHighlight", forAnnotationKey: .contents)
                     page.addAnnotation(highlight)
                 }
             }
@@ -372,7 +414,7 @@ extension MainPDFViewModel {
                 for annotation in page.annotations {
                     /// 하이라이트 주석만 제거
                     if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
-                       annotationValue == "\(comment.ButtonID) isHighlight" {
+                       annotationValue == "\(comment.buttonID) isHighlight" {
                         page.removeAnnotation(annotation)
                     }
                 }
