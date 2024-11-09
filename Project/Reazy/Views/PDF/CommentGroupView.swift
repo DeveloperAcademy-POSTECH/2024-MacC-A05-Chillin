@@ -16,20 +16,22 @@ struct CommentGroupView: View {
     let changedSelection: PDFSelection
     
     var body: some View {
-        VStack {
-            if pdfViewModel.isCommentTapped == true {
-                if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
-                    CommentView(viewModel: viewModel, commentGroup: viewModel.commentGroup, comment: comment)
+        ZStack {
+            VStack {
+                if pdfViewModel.isCommentTapped {
+                    if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
+                        CommentView(viewModel: viewModel, commentGroup: viewModel.commentGroup, comment: comment)
+                    }
+                } else {
+                    CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
                 }
-            } else {
-                CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
             }
+            .background(Color.gray100)
+            .cornerRadius(12)
+            .frame(width: 357)
+            .border(.primary2, width: 1)
+            .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
         }
-        .background(Color.gray100)
-        .cornerRadius(12)
-        .frame(width: 357)
-        .border(.primary2, width: 1)
-        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
 }
 
@@ -39,19 +41,26 @@ struct CommentGroupView: View {
 private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
     var commentGroup: [Comment]
-    
     var comment: Comment
     
     var body: some View {
-        VStack(alignment: .leading) {
-            ForEach(commentGroup) { comment in
-                CommentCell(viewModel: viewModel, comment: comment)
+        
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(commentGroup.indices, id: \.self) { index in
+                CommentCell(viewModel: viewModel, comment: commentGroup[index])
+                    .padding(.leading, 16)
+                
+                if index < commentGroup.count - 1 {
+                    Divider()
+                        .frame(height: 1)
+                        .foregroundStyle(.primary2)
+                        .padding(0)
+                }
             }
         }
-        .padding(.leading, 16)
-        .padding(.top, 21)
-        .padding(.bottom, 9)
+        .frame(minWidth: 357, minHeight: 78)
         .foregroundStyle(.point2)
+        
     }
 }
 
@@ -64,22 +73,15 @@ private struct CommentInputView: View {
     @State private var commentHeight: CGFloat = 20
     
     let changedSelection: PDFSelection
+    let placeHolder: Text = .init("코멘트 추가")
     
     var body: some View {
-        VStack(alignment: .leading) {
-            TextEditor(text: $text)
-                .overlay(alignment: .topLeading) {
-                    Text("코멘트 추가")
-                        .foregroundStyle(text.isEmpty ? .primary4 : .clear)
-                }
-                .reazyFont(.h3)
+        LazyVStack(alignment: .leading) {
+            TextField("\(placeHolder.foregroundStyle(Color.primary4))", text: $text, axis:.vertical)
+                .lineLimit(5)
+                .reazyFont(.body1)
                 .foregroundStyle(.point2)
-                .frame(height: commentHeight, alignment: .topLeading)
                 .padding(.horizontal, 18)
-                .onChange(of: text) {
-                    // 텍스트가 변경될 때마다 높이 업데이트
-                    self.updateCommentHeight()
-                }
             
             HStack{
                 Spacer()
@@ -92,11 +94,10 @@ private struct CommentInputView: View {
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
                         dump(viewModel.comments)
-                        //dump(viewModel.commentGroup)
                     }
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
-                        .foregroundStyle(text.isEmpty ? .primary4 : .point2)
+                        .foregroundStyle(text.isEmpty ? .primary4 : .primary1)
                         .font(.system(size: 20))
                 })
                 .padding(.trailing, 9)
@@ -106,12 +107,48 @@ private struct CommentInputView: View {
         .padding(.top, 16)
         .padding(.bottom, 9)
     }
-    
-    private func updateCommentHeight() {
-        // 텍스트에 맞게 높이 조정
-        let lineCount = text.components(separatedBy: "\n").count
-        if lineCount < 4 && 1 < lineCount {
-            commentHeight = CGFloat(20 + lineCount * 20) // 한 줄당 높이 추가
+}
+
+// 수정,삭제 뷰
+
+private struct CommentMenuView: View {
+    var body: some View {
+        HStack{
+            Menu {
+                Button(action: {
+                    //수정 액션
+                }, label: {
+                    HStack{
+                        Image(systemName: "pencil.line")
+                            .font(.system(size: 12))
+                            .padding(.trailing, 6)
+                        Text("수정")
+                            .reazyFont(.body3)
+                    }
+                })
+                .foregroundStyle(.gray600)
+                
+                Button(action: {
+                    //수정 액션
+                }, label: {
+                    HStack{
+                        Image(systemName: "trash")
+                            .font(.system(size: 12))
+                            .padding(.trailing, 6)
+                        Text("삭제")
+                            .reazyFont(.body3)
+                    }
+                }).foregroundStyle(.gray600)
+            } label: {
+                
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
         }
+        .background(.gray100)
+        .border(.primary2, width: 1)
+        .frame(minWidth: 130)
+        .cornerRadius(8)
+        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
 }

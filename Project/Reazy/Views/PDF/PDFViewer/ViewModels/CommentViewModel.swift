@@ -8,6 +8,7 @@
 import Foundation
 import PDFKit
 import SwiftUI
+import UIKit
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
@@ -15,8 +16,9 @@ class CommentViewModel: ObservableObject {
     
     // pdf 관련
     @Published var pdfConvertedBounds: CGRect = .zero
-    var pdfViewMidX: CGFloat = .zero
+    var pdfCoordinates: CGRect = .zero
     
+    @Published var isTappedDelete: Bool = false
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
     
@@ -45,8 +47,14 @@ class CommentViewModel: ObservableObject {
         let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
         _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         comments.append(newComment)
-        addCommentIcon(selection: selection, newComment: newComment)
         drawUnderline(selection: selection, newComment: newComment)
+        
+        findCommentGroup(comment: newComment)
+        dump(commentGroup)
+        
+        if commentGroup.count == 1 {
+            addCommentIcon(selection: selection, newComment: newComment)
+        }
     }
     
     // 코멘트 삭제
@@ -56,10 +64,10 @@ class CommentViewModel: ObservableObject {
         removeAnnotations(comment: comment)
     }
     
-    // 코멘트 수정
-    //    func editComment(comment: Comment, text: String) {
-    //        comment.text = text
-    //    }
+    // TODO : 수정 액션 추가해야 함
+        func editComment(comment: Comment, text: String) {
+            
+        }
 }
 
 //MARK: - 초기세팅
@@ -79,12 +87,12 @@ extension CommentViewModel {
         }
     }
     
-    func getPdfMidX(pdfView: PDFView) {
+    func getPDFCoordinates(pdfView: PDFView) {
         guard let currentPage = pdfView.currentPage else { return }
         let bounds = currentPage.bounds(for: pdfView.displayBox)
-        let pdfMidX = pdfView.convert(bounds, from: currentPage).midX
+        let pdfCoordinates = pdfView.convert(bounds, from: currentPage)
         
-        self.pdfViewMidX = pdfMidX
+        self.pdfCoordinates = pdfCoordinates
     }
     
     private func getSelectedLine(selection: PDFSelection) -> CGRect{
@@ -108,8 +116,8 @@ extension CommentViewModel {
         return selectedLine
     }
     
-    func findCommentGroup(tappedComment: Comment) {
-        let group = comments.filter { $0.buttonID == tappedComment.buttonID }
+    func findCommentGroup(comment: Comment) {
+        let group = comments.filter { $0.buttonID == comment.buttonID }
         self.commentGroup = group
     }
 }
@@ -124,29 +132,64 @@ extension CommentViewModel {
         let lineBounds = newComment.selectedLine
         
         ///PDF 문서의 colum 구분
-        let isLeft = lineBounds.maxX < pdfViewMidX
-        let isRight = lineBounds.minX >= pdfViewMidX
+        let isLeft = lineBounds.maxX < pdfCoordinates.midX
+        let isRight = lineBounds.minX >= pdfCoordinates.midX
         let isAcross = !isLeft && !isRight
         
         var iconPosition: CGRect = .zero
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 20, height: 10)
+            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
         } else if isRight || isAcross {
-            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 20, height: 10)
+            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
         }
         
-        let commentIcon = PDFAnnotation(bounds: iconPosition, forType: .widget, withProperties: nil)
+        let image = UIImage(systemName: "text.bubble")
+        image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
+        let commentIcon = ImageAnnotation(imageBounds: iconPosition, image: image)
+                                          
         commentIcon.widgetFieldType = .button
-        commentIcon.backgroundColor =  UIColor(hex: "#727BC7")
-        commentIcon.border?.lineWidth = .zero
-        commentIcon.widgetControlType = .pushButtonControl
+        commentIcon.color = .point4
         
         /// 버튼에 코멘트 정보 참조
         commentIcon.setValue(newComment.buttonID, forAnnotationKey: .contents)
         page.addAnnotation(commentIcon)
     }
+    
+    public class ImageAnnotation: PDFAnnotation {
+        
+        private var _image: UIImage?
+        
+        // 초기화 시 이미지와 바운드 값을 받음
+        public init(imageBounds: CGRect, image: UIImage?) {
+            self._image = image
+            super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
+        }
+        
+        required public init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        // 이미지를 그릴 때 사용하는 메서드
+        override public func draw(with box: PDFDisplayBox, in context: CGContext) {
+            guard (self._image?.cgImage) != nil else {
+                return
+            }
+            
+            let tintedImage = self._image?.withTintColor(UIColor.point4, renderingMode: .alwaysTemplate)
+            
+            // PDF 페이지에 이미지 그리기
+            if let drawingBox = self.page?.bounds(for: box),
+               let cgTintedImage = tintedImage?.cgImage {
+                context.draw(cgTintedImage, in: self.bounds.applying(CGAffineTransform(
+                    translationX: (drawingBox.origin.x) * -1.0,
+                    y: (drawingBox.origin.y) * -1.0
+                )))
+            }
+        }
+    }
+    
     
     /// 밑줄 그리기
     private func drawUnderline(selection: PDFSelection, newComment: Comment) {

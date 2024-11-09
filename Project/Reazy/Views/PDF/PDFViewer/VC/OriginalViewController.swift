@@ -88,7 +88,7 @@ extension OriginalViewController {
         self.viewModel.fetchThumbnailImage()
         
         // pdfView midX 가져오기
-        self.commentViewModel.getPdfMidX(pdfView: mainPDFView)
+        self.commentViewModel.getPDFCoordinates(pdfView: mainPDFView)
         // PDF 문서 로드 완료 후 드로잉 데이터 패치
         DispatchQueue.main.async {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
@@ -296,7 +296,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
                 if viewModel.isCommentTapped {
                     viewModel.tappedComment = tappedComment
                     commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
-                    commentViewModel.findCommentGroup(tappedComment: tappedComment)
+                    commentViewModel.findCommentGroup(comment: tappedComment)
                 } else {
                     viewModel.tappedComment = nil
                 }
