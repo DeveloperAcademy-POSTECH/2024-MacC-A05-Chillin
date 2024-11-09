@@ -15,6 +15,7 @@ enum LayoutOrientation {
 struct MainPDFView: View {
     
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var pdfFileManager: PDFFileManager
     
     
     @StateObject public var mainPDFViewModel: MainPDFViewModel
@@ -30,6 +31,8 @@ struct MainPDFView: View {
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isVertical = false
+    @State private var isModifyTitlePresented: Bool = false
+    @State private var titleText: String = ""
     
     var body: some View {
         GeometryReader { geometry in
@@ -219,11 +222,71 @@ struct MainPDFView: View {
                 }
                 .customNavigationBar(
                     centerView: {
-                        Text(mainPDFViewModel.paperInfo.title)
-                            .reazyFont(.h3)
-                            .foregroundStyle(.gray800)
-                            .frame(width: isVertical ? 383 : 567)
-                            .lineLimit(1)
+                        HStack(spacing: 5) {
+                            Text(mainPDFViewModel.paperInfo.title)
+                                .reazyFont(.h3)
+                                .foregroundStyle(.gray800)
+                                .lineLimit(1)
+                            
+                            Button {
+                                self.isModifyTitlePresented.toggle()
+                            } label: {
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.gray800)
+                            }
+                            .popover(isPresented: $isModifyTitlePresented) {
+                                ZStack {
+                                    Color.gray200
+                                        .scaleEffect(1.5)
+                                    
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(.gray100)
+                                            .frame(width: 400, height: 52)
+                                        
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(lineWidth: 1)
+                                            .foregroundStyle(.gray400)
+                                            .frame(width: 400, height: 52)
+                                        
+                                        HStack(spacing: 0) {
+                                            TextField("제목을 입력하세요", text: $titleText)
+                                                .reazyFont(.body2)
+                                                .foregroundStyle(.gray900)
+                                                .padding(EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 0))
+                                            
+                                            Button {
+                                                self.titleText.removeAll()
+                                            } label: {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .font(.system(size: 14))
+                                                    .foregroundStyle(.gray600)
+                                            }
+                                            .padding(.trailing, 8)
+                                            
+                                        }
+                                        .frame(width: 400, height: 52)
+                                        
+                                    }
+                                    .padding(.vertical, 15)
+                                    .padding(.horizontal, 15)
+                                }
+                                .onAppear {
+                                    self.titleText = mainPDFViewModel.paperInfo.title
+                                }
+                                .onDisappear {
+                                    if !self.titleText.isEmpty {
+                                        let id = self.mainPDFViewModel.paperInfo.id
+                                        self.pdfFileManager.updateTitle(at: id, title: self.titleText)
+                                        self.mainPDFViewModel.paperInfo.title = self.titleText
+                                    }
+                                }
+                            }
+                            
+                        }
+                        .frame(width: isVertical ? 383 : 567)
+
                     },
                     leftView: {
                         HStack(spacing: 0) {
@@ -264,6 +327,7 @@ struct MainPDFView: View {
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
+            .statusBarHidden()
         }
     }
     
@@ -379,6 +443,8 @@ struct MainPDFView: View {
     }
 }
 
+
+/// 검색 뷰
 private struct OverlaySearchView: View {
     @Binding var isSearchSelected: Bool
     
@@ -395,3 +461,4 @@ private struct OverlaySearchView: View {
         }
     }
 }
+

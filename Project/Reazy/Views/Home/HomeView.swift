@@ -15,8 +15,7 @@ enum Options {
 
 struct HomeView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    
-    @StateObject private var pdfFileManager: PDFFileManager = .init(paperService: PaperDataService.shared)
+    @EnvironmentObject private var pdfFileManager: PDFFileManager
     
     @State var selectedMenu: Options = .main
     @State var selectedPaperID: UUID?
@@ -59,7 +58,6 @@ struct HomeView: View {
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
                                 selectedPaperID: $selectedPaperID)
-                            .environmentObject(pdfFileManager)
                             
                         case .search:
                             SearchMenuView(
@@ -72,7 +70,6 @@ struct HomeView: View {
                                 selectedMenu: $selectedMenu,
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing)
-                            .environmentObject(pdfFileManager)
                         }
                     }
                 }
@@ -87,7 +84,6 @@ struct HomeView: View {
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText
                 )
-                .environmentObject(pdfFileManager)
             }
             .blur(radius: isEditingTitle || isEditingMemo ? 20 : 0)
             
@@ -102,7 +98,6 @@ struct HomeView: View {
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
                     paperInfo: pdfFileManager.paperInfos.first { $0.id == selectedPaperID! }!)
-                    .environmentObject(pdfFileManager)
             }
         }
         .background(Color(hex: "F7F7FB"))

@@ -79,7 +79,7 @@ final class MainPDFViewModel: ObservableObject {
     // for drawing
     public var pdfDrawer: PDFDrawer
     
-    public var paperInfo: PaperInfo
+    @Published public var paperInfo: PaperInfo
     
     init(paperInfo: PaperInfo) {
         self.paperInfo = paperInfo
