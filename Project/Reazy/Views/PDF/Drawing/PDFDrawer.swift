@@ -143,9 +143,14 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             pdfView.layer.addSublayer(eraserLayer!)
         }
         
+        
+        // 지우개 겉 모양 (원)은 고정된 크기
         let eraserCirclePath = UIBezierPath(arcCenter: location, radius: 14, startAngle: 0, endAngle: .pi * 2, clockwise: true)
         eraserLayer?.path = eraserCirclePath.cgPath
     }
+
+
+
     
     // 패드에서 제스처 뗄 때 실행되는 함수
     func gestureRecognizerEnded(_ location: CGPoint) {
@@ -198,9 +203,9 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         border.lineWidth = drawingTool.width
         
         let bounds = CGRect(x: path.bounds.origin.x - 5,
-                            y: path.bounds.origin.y - 5,
-                            width: path.bounds.size.width + 10,
-                            height: path.bounds.size.height + 10)
+                              y: path.bounds.origin.y - 5,
+                              width: path.bounds.size.width + 10,
+                              height: path.bounds.size.height + 10)
         let signingPathCentered = UIBezierPath()
         signingPathCentered.cgPath = path.cgPath
         let _ = signingPathCentered.moveCenter(to: bounds.center)
@@ -225,8 +230,11 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     // 지우개로 주석 지울 때 실행되는 함수
     private func removeAnnotationAtPoint(point: CGPoint, page: PDFPage) {
         let convertedPoint = pdfView.convert(point, to: page)
-        let hitTestRect = CGRect(x: convertedPoint.x - 3, y: convertedPoint.y - 3, width: 6, height: 6)
+        let scaleFactor = pdfView.scaleFactor
+        let scaledRadius = 3 / scaleFactor
+        let hitTestRect = CGRect(x: convertedPoint.x - scaledRadius, y: convertedPoint.y - scaledRadius, width: scaledRadius * 2, height: scaledRadius * 2)
         
+        // pdf 위에서 지워지는 annotation 찾는 부분
         let annotations = page.annotations.filter { annotation in
             annotation.bounds.intersects(hitTestRect)
         }
@@ -235,6 +243,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             for annotation in annotations {
                 let annotationBounds = annotation.bounds
                 
+                // 베열에서 지울 annotation 찾는 부분
                 let indicesToRemove = drawingDataArray.indices.filter { index in
                     let drawing = drawingDataArray[index]
                     return drawing.pageIndex == pageIndex && drawing.path.bounds.intersects(annotationBounds)
