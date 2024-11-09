@@ -57,7 +57,7 @@ struct CommentCell: View {
                     
                     Button(action: {
                         if let tappedComment = pdfViewModel.tappedComment {
-                            viewModel.deleteComment(selection: tappedComment.selection, comment: tappedComment)
+                            viewModel.deleteComment(comment: tappedComment)
                         }
                         pdfViewModel.isCommentTapped = false
                     }, label: {

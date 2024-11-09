@@ -83,6 +83,7 @@ extension OriginalViewController {
     /// ViewModel 설정
     private func setData() {
         self.mainPDFView.document = self.viewModel.document
+        self.mainPDFView.document = self.commentViewModel.document
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()
