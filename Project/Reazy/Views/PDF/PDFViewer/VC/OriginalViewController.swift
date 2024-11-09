@@ -48,6 +48,11 @@ final class OriginalViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        Task.init {
+            // 집중모드 데이터 패치
+            await self.viewModel.fetchAnnotations()
+        }
+        
         viewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
@@ -59,63 +64,6 @@ final class OriginalViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc
-    func postScreenTouch() {
-        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
-        NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
-    }
-    
-    private func updateGestureRecognizer(for mode: ToolMode) {
-        // 현재 설정된 제스처 인식기를 제거
-        if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
-            for recognizer in gestureRecognizers {
-                self.mainPDFView.removeGestureRecognizer(recognizer)
-            }
-        }
-        
-        // toolMode에 따라 제스처 인식기를 추가
-        if mode == .pencil || mode == .eraser {
-            let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-            self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-            pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
-            viewModel.pdfDrawer.pdfView = self.mainPDFView
-            viewModel.pdfDrawer.drawingTool = .none
-        }
-    }
-    
-    // 코멘트 버튼 annotation 제스처
-    @objc
-    func handleCommentTap(_ sender: UITapGestureRecognizer) {
-        let location = sender.location(in: mainPDFView)
-        
-        guard let page = mainPDFView.page(for: location, nearest: true) else { return }
-        let pageLocation = mainPDFView.convert(location, to: page)
-        
-        /// 해당 위치에 Annotation이 있는지 확인
-        if let tappedAnnotation = page.annotation(at: pageLocation) {
-            print("found annotation")
-            
-            if let buttonID = tappedAnnotation.contents,
-               let tappedComment = commentViewModel.comments.first(where: { $0.ButtonID == buttonID }) {
-                
-                print(tappedComment)
-                viewModel.isCommentTapped.toggle()
-                print(viewModel.isCommentTapped)
-                
-                if viewModel.isCommentTapped {
-                    viewModel.tappedComment = tappedComment
-                    commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
-                    commentViewModel.findCommentGroup(comment: tappedComment)
-                } else {
-                    viewModel.tappedComment = nil
-                }
-                
-            } else {
-                print("No match comment annotation")
-            }
-        }
     }
 }
 
@@ -135,11 +83,6 @@ extension OriginalViewController {
     /// ViewModel 설정
     private func setData() {
         self.mainPDFView.document = self.viewModel.document
-        
-        // 집중모드 데이터 패치
-        Task.init {
-            await self.viewModel.fetchFocusAnnotations()
-        }
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()
@@ -305,6 +248,63 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             return true
         }
         return false
+    }
+    
+    @objc
+    func postScreenTouch() {
+        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
+        NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+    }
+    
+    private func updateGestureRecognizer(for mode: ToolMode) {
+        // 현재 설정된 제스처 인식기를 제거
+        if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
+            for recognizer in gestureRecognizers {
+                self.mainPDFView.removeGestureRecognizer(recognizer)
+            }
+        }
+        
+        // toolMode에 따라 제스처 인식기를 추가
+        if mode == .pencil || mode == .eraser {
+            let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+            self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+            pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+            viewModel.pdfDrawer.pdfView = self.mainPDFView
+            viewModel.pdfDrawer.drawingTool = .none
+        }
+    }
+    
+    // 코멘트 버튼 annotation 제스처
+    @objc
+    func handleCommentTap(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: mainPDFView)
+        
+        guard let page = mainPDFView.page(for: location, nearest: true) else { return }
+        let pageLocation = mainPDFView.convert(location, to: page)
+        
+        /// 해당 위치에 Annotation이 있는지 확인
+        if let tappedAnnotation = page.annotation(at: pageLocation) {
+            print("found annotation")
+            
+            if let buttonID = tappedAnnotation.contents,
+               let tappedComment = commentViewModel.comments.first(where: { $0.ButtonID == buttonID }) {
+                
+                print(tappedComment)
+                viewModel.isCommentTapped.toggle()
+                print(viewModel.isCommentTapped)
+                
+                if viewModel.isCommentTapped {
+                    viewModel.tappedComment = tappedComment
+                    commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
+                    commentViewModel.findCommentGroup(tappedComment: tappedComment)
+                } else {
+                    viewModel.tappedComment = nil
+                }
+                
+            } else {
+                print("No match comment annotation")
+            }
+        }
     }
 }
 

@@ -12,6 +12,7 @@ import UIKit
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
+    private var commentService: CommentDataService
     
     // pdf 관련
     @Published var pdfConvertedBounds: CGRect = .zero
@@ -20,17 +21,31 @@ class CommentViewModel: ObservableObject {
     @Published var isTappedDelete: Bool = false
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
     var commentGroup: [Comment] = []
-    let pdfID: UUID
     
-    init(pdfID: UUID) {
-        self.pdfID = pdfID
+    public var paperInfo: PaperInfo
+    
+    init(
+        commentService: CommentDataService,
+        paperInfo: PaperInfo
+    ) {
+        self.commentService = commentService
+        self.paperInfo = paperInfo
+        
+        // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
+        switch commentService.loadCommentData(for: paperInfo.id, pdfURL: paperInfo.url) {
+        case .success(let commentList):
+            commentGroup = commentList
+        case .failure(_):
+            return
+        }
     }
     
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {
         
         let selectedLine = getSelectedLine(selection: selection)
-        let newComment = Comment(ButtonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
+        let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
+        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         comments.append(newComment)
         drawUnderline(selection: selection, newComment: newComment)
         
@@ -44,6 +59,7 @@ class CommentViewModel: ObservableObject {
     
     // 코멘트 삭제
     func deleteComment(selection: PDFSelection, comment: Comment) {
+        _ = commentService.deleteCommentData(for: paperInfo.id, id: comment.id)
         comments.removeAll(where: { $0.id == comment.id })
         removeAnnotations(comment: comment)
     }
@@ -137,7 +153,7 @@ extension CommentViewModel {
         commentIcon.color = .point4
         
         /// 버튼에 코멘트 정보 참조
-        commentIcon.setValue(newComment.ButtonID, forAnnotationKey: .contents)
+        commentIcon.setValue(newComment.buttonID, forAnnotationKey: .contents)
         page.addAnnotation(commentIcon)
     }
     
@@ -206,7 +222,7 @@ extension CommentViewModel {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String{
                     
                     if commentGroup.count == 1 {
-                        if annotationID == comment.ButtonID || annotationID == comment.id.uuidString {
+                        if annotationID == comment.buttonID || annotationID == comment.id.uuidString {
                             page.removeAnnotation(annotation)
                         }
                     } else if commentGroup.count > 1, annotationID == comment.id.uuidString {

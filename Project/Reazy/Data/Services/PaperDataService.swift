@@ -10,9 +10,11 @@ import CoreData
 import UIKit
 
 class PaperDataService: PaperDataInterface {
+    static let shared = PaperDataService()
+    
     private let container: NSPersistentContainer
     
-    init() {
+    private init() {
         container = NSPersistentContainer(name: "Reazy")
         container.loadPersistentStores { (storeDescription, error) in
             if let error = error as NSError? {
