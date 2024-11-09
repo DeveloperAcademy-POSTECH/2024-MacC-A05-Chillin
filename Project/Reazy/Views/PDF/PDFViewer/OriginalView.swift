@@ -87,7 +87,7 @@ struct OriginalView: View {
         let margin: CGFloat = 100 // 여유 공간
         
         // 키보드에 가려질 경우
-        if position.y > keyboardTopY {
+        if position.y + 50 > keyboardTopY {
             return (position.y - keyboardTopY) + margin
         } else {
             return 0 // 키보드에 안 가려짐
