@@ -112,8 +112,7 @@ struct PaperInfoView: View {
                                 self.isEditingMemo = true
                             }
                             
-                            Button("삭제", systemImage: "trash") {
-                                // MARK: - 삭제 함수 추가
+                            Button("삭제", systemImage: "trash", role: .destructive) {
                                 pdfFileManager.deleteMemo(at: id)
                                 self.memo = nil
                             }
