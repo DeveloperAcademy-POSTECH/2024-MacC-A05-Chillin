@@ -11,36 +11,30 @@ import Foundation
 struct PaperInfo {
     let id: UUID
     var title: String
-    var dateTime: String
-    var author: String
-    let pages: Int
-    let publisher: String
     let thumbnail: Data
     let url: Data
     var lastModifiedDate: Date
     var isFavorite: Bool
+    var memo: String?
+    var isFigureSaved: Bool
     
     init(
         id: UUID = .init(),
         title: String,
-        datetime: String,
-        author: String,
-        pages: Int,
-        publisher: String,
         thumbnail: Data,
         url: Data,
         lastModifiedDate: Date = .init(),
-        isFavorite: Bool = false
+        isFavorite: Bool = false,
+        memo: String? = nil,
+        isFigureSaved: Bool = false
     ) {
         self.id = id
         self.title = title
-        self.dateTime = datetime
-        self.author = author
-        self.pages = pages
-        self.publisher = publisher
         self.thumbnail = thumbnail
         self.url = url
         self.lastModifiedDate = lastModifiedDate
         self.isFavorite = isFavorite
+        self.memo = memo
+        self.isFigureSaved = isFigureSaved
     }
 }

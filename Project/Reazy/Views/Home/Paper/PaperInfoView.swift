@@ -10,14 +10,10 @@ import SwiftUI
 struct PaperInfoView: View {
     @EnvironmentObject var pdfFileManager: PDFFileManager
     
-    // TODO: memo 추가 필요
     let id: UUID
     let image: Data
     let title: String
-    let author: String
-    let pages: Int
-    let publisher: String
-    let dateTime: String
+    var memo: String?
     var isFavorite: Bool
     
     @State var isStarSelected: Bool
@@ -33,7 +29,6 @@ struct PaperInfoView: View {
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
-    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -123,7 +118,9 @@ struct PaperInfoView: View {
                             }
                             
                             Button("삭제", systemImage: "trash") {
-                                // TODO: 메모 삭제 기능 구현
+                                // MARK: - 삭제 함수 추가
+                                pdfFileManager.deleteMemo(at: id)
+                                isMemo = false
                             }
                             
                         } label: {
@@ -135,7 +132,7 @@ struct PaperInfoView: View {
                         }
                     } else {
                         Button {
-                            isMemo.toggle()
+                            isEditingMemo.toggle()
                         } label: {
                             Image(systemName: "plus")
                                 .resizable()
@@ -191,13 +188,15 @@ struct PaperInfoView: View {
             }
             
             self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
-                // TODO: PDF 메모 업데이트 메소드 구현
-                self.pdfFileManager.updateMemo()
+                // MARK: - 업데이트 함수 구현 완료
+                self.pdfFileManager.updateMemo(at: id, memo: memoText)
             }
         }
         .onAppear {
-            // TODO: 메모 있을 시 연동
-//            self.memoText = self.paperInfo.memo
+            if memo != nil {
+                isMemo = true
+                memoText = memo ?? "메모 불러오기 실패"
+            }
         }
     }
     
@@ -249,12 +248,10 @@ struct PaperInfoView: View {
         id: .init(),
         image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
-        author: "Smith, John",
-        pages: 43,
-        publisher: "NATURE",
-        dateTime: "1999-06-23",
+        memo: "",
         isFavorite: false,
         isStarSelected: false,
+        isMemo: false,
         isEditingTitle: .constant(false),
         isEditingMemo: .constant(false),
         onNavigate: {},

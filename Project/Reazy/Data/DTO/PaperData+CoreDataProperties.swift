@@ -16,14 +16,12 @@ extension PaperData {
     
     @NSManaged public var id: UUID
     @NSManaged public var title: String
-    @NSManaged public var dateTime: String?
-    @NSManaged public var author: String?
-    @NSManaged public var pages: Int32
-    @NSManaged public var publisher: String?
     @NSManaged public var thumbnail: Data
     @NSManaged public var url: Data
     @NSManaged public var lastModifiedDate: Date
     @NSManaged public var isFavorite: Bool
+    @NSManaged public var memo: String?
+    @NSManaged public var isFigureSaved: Bool
     
     @NSManaged public var drawingData: Set<DrawingData>?
     @NSManaged public var commentData: Set<CommentData>?
