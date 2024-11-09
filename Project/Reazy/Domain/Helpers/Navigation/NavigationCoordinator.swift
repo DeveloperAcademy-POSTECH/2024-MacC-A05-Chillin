@@ -50,7 +50,7 @@ final class NavigationCoordinator: CoordinatorProtocol {
         case .home:
             HomeView()
         case .mainPDF(let paperInfo):
-            MainPDFView(mainPDFViewModel: .init(paperInfo: paperInfo), commentViewModel: .init(commentService: CommentDataService.shared, paperInfo: paperInfo))
+            MainPDFView(mainPDFViewModel: .init(paperInfo: paperInfo), commentViewModel: .init(/*commentService: CommentDataService.shared,*/ paperInfo: paperInfo))
         }
     }
     

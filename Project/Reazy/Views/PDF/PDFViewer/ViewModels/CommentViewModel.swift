@@ -12,7 +12,7 @@ import UIKit
 
 class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
-    private var commentService: CommentDataService
+//    private var commentService: CommentDataService
     
     var pdfCoordinates: CGRect = .zero
     
@@ -28,19 +28,19 @@ class CommentViewModel: ObservableObject {
     public var paperInfo: PaperInfo
     
     init(
-        commentService: CommentDataService,
+//        commentService: CommentDataService,
         paperInfo: PaperInfo
     ) {
-        self.commentService = commentService
+//        self.commentService = commentService
         self.paperInfo = paperInfo
         
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
-        switch commentService.loadCommentData(for: paperInfo.id, pdfURL: paperInfo.url) {
-        case .success(let commentList):
-            commentGroup = commentList
-        case .failure(_):
-            return
-        }
+//        switch commentService.loadCommentData(for: paperInfo.id, pdfURL: paperInfo.url) {
+//        case .success(let commentList):
+//            commentGroup = commentList
+//        case .failure(_):
+//            return
+//        }
     }
     
     // 코멘트 추가
@@ -53,7 +53,7 @@ class CommentViewModel: ObservableObject {
         }
         
         let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
-        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
+//        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         comments.append(newComment)
         drawUnderline(selection: selection, newComment: newComment)
         
@@ -67,7 +67,7 @@ class CommentViewModel: ObservableObject {
     
     // 코멘트 삭제
     func deleteComment(comment: Comment) {
-        _ = commentService.deleteCommentData(for: paperInfo.id, id: comment.id)
+//        _ = commentService.deleteCommentData(for: paperInfo.id, id: comment.id)
         comments.removeAll(where: { $0.id == comment.id })
         removeAnnotations(comment: comment)
     }
