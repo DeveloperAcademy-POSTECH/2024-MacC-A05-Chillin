@@ -167,12 +167,15 @@ extension MainPDFViewModel {
     // TODO: 네트워크 연결 확인 필요, 진행도 알려줘야함, 진행 후 데이터 저장 필요
     public func fetchAnnotations() async {
         // 처음 들어오는지 여부 판단
-        // 처음 들어오면 다운로드 진행
-//        if !paperInfo.figure.isEmpty {
-//
-//        } else
-        
-        await downloadFigureAnnotation()
+        // 처음 들어오면 다운로드 진행        
+        if !paperInfo.isFigureSaved {
+            await downloadFigureAnnotation()
+            DispatchQueue.main.async { [weak self] in
+                self?.paperInfo.isFigureSaved = true
+            }
+        } else {
+            
+        }
         
     }
     
