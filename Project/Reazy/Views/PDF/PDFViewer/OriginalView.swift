@@ -15,11 +15,13 @@ struct OriginalView: View {
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @StateObject var commentViewModel: CommentViewModel
     
-    @ObservedObject private var keyboardResponder = KeyboardResponder()
-    let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
+    @State private var keyboardOffset: CGFloat = 0
+    
+    private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
+    private let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
-        VStack{
+        GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
                     OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
@@ -50,7 +52,25 @@ struct OriginalView: View {
                         .position(viewModel.isCommentTapped
                                   ? commentViewModel.commentPosition
                                   : viewModel.commentInputPosition )
-                        .offset(y: +keyboardResponder.keyboardHeight / 20)
+                }
+            }
+            .offset(y: -keyboardOffset)
+            .onAppear {
+                
+                let screenHeight = geometry.size.height
+                
+                // 키보드 Notification 설정
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation {
+                            keyboardOffset = calculateOffset(for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: screenHeight)
+                        }
+                    }
+                }
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                    withAnimation {
+                        keyboardOffset = 0
+                    }
                 }
             }
             .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
@@ -59,36 +79,19 @@ struct OriginalView: View {
             .onChange(of: viewModel.selectedText) { _, newValue in
                 viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
             }
-            .offset(y: commentViewModel.pdfCoordinates.midY > viewModel.commentInputPosition.y
-                     ? -keyboardResponder.keyboardHeight / 10
-                     : -keyboardResponder.keyboardHeight / 1.2 )
-            .animation(.smooth(duration: 0.5), value: keyboardResponder.keyboardHeight)
+        }
+    }
+    // 키보드 offset 계산
+    private func calculateOffset(for position: CGPoint, keyboardFrame: CGRect, screenHeight: CGFloat) -> CGFloat {
+        let keyboardTopY = screenHeight - keyboardFrame.height
+        let margin: CGFloat = 100 // 여유 공간
+        
+        // 키보드에 가려질 경우
+        if position.y > keyboardTopY {
+            return (position.y - keyboardTopY) + margin
+        } else {
+            return 0 // 키보드에 안 가려짐
         }
     }
 }
 
-class KeyboardResponder: ObservableObject {
-    @Published var keyboardHeight: CGFloat = 0
-    
-    private var cancellables = Set<AnyCancellable>()
-    
-    init() {
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-            .sink { [weak self] notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    DispatchQueue.main.async {
-                        self?.keyboardHeight = keyboardFrame.height
-                    }
-                }
-            }
-            .store(in: &cancellables)
-        
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-            .sink { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.keyboardHeight = 0
-                }
-            }
-            .store(in: &cancellables)
-    }
-}
