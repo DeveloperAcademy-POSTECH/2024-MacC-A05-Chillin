@@ -15,6 +15,7 @@ struct CommentCell: View {
     
     var body: some View {
         HStack(alignment: .center){
+            
             Divider()
                 .frame(width: 2, height: 14)
                 .background(.point4)
@@ -77,5 +78,4 @@ struct CommentCell: View {
         }
         .padding([.trailing, .bottom], 9)
     }
-    
 }

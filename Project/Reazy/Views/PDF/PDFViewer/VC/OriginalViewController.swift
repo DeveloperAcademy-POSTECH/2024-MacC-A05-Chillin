@@ -210,7 +210,6 @@ extension OriginalViewController {
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
-                                self.commentViewModel.pdfConvertedBounds = convertedBounds
                             }
                         }
                     }

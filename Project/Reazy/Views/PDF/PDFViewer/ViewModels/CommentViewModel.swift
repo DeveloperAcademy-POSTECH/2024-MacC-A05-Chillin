@@ -14,13 +14,11 @@ class CommentViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     private var commentService: CommentDataService
     
-    // pdf 관련
-    @Published var pdfConvertedBounds: CGRect = .zero
     var pdfCoordinates: CGRect = .zero
     
     @Published var isTappedDelete: Bool = false
     var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
-    var commentGroup: [Comment] = []
+    var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들 부를 때
     
     public var paperInfo: PaperInfo
     
