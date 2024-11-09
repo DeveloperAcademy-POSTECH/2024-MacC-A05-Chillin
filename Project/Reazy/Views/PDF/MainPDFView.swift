@@ -15,6 +15,7 @@ enum LayoutOrientation {
 struct MainPDFView: View {
     
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var pdfFileManager: PDFFileManager
     
     
     @StateObject public var mainPDFViewModel: MainPDFViewModel

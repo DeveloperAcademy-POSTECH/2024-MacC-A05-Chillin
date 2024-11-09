@@ -15,6 +15,8 @@ struct AppView: App {
     // Navigation 컨트롤
     @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
     
+    @StateObject private var pdfFileManager: PDFFileManager = .init(paperService: .shared)
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $navigationCoordinator.path) {
@@ -30,6 +32,7 @@ struct AppView: App {
                     }
             }
             .environmentObject(navigationCoordinator)
+            .environmentObject(pdfFileManager)
         }
     }
 }
