@@ -70,7 +70,7 @@ class PDFDrawer {
 }
 
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
-    // 모든 드로잉 꺼내서 pdfview에 페이지 별로 추가하는 함수
+    // MARK: -모든 드로잉 꺼내서 pdfview에 페이지 별로 추가하는 함수
     func loadDrawings() {
         pdfView.goToFirstPage(nil)
         
@@ -86,7 +86,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         pdfView.setNeedsDisplay()
     }
     
-    // 제스처 최초 시작 시 한 번 실행되는 함수
+    // MARK: -제스처 최초 시작 시 한 번 실행되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
@@ -100,7 +100,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         }
     }
     
-    // 제스처 움직이는 동안 실행되는 함수
+    // MARK: -제스처 움직이는 동안 실행되는 함수
     func gestureRecognizerMoved(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
@@ -135,6 +135,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     }
     
     private func updateEraserLayer(at location: CGPoint) {
+        // 지우개 레이어가 없다면 새로 생성
         if eraserLayer == nil {
             eraserLayer = CAShapeLayer()
             eraserLayer?.fillColor = UIColor(hex: "#EFEFF8").cgColor
@@ -143,16 +144,14 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             pdfView.layer.addSublayer(eraserLayer!)
         }
         
-        
-        // 지우개 겉 모양 (원)은 고정된 크기
-        let eraserCirclePath = UIBezierPath(arcCenter: location, radius: 14, startAngle: 0, endAngle: .pi * 2, clockwise: true)
+        // 확대 축소 비율 고려해서 지우개 모양 만들기
+        let scaleFactor = pdfView.scaleFactor
+        let eraserRadius = 5 * scaleFactor
+        let eraserCirclePath = UIBezierPath(arcCenter: location, radius: eraserRadius, startAngle: 0, endAngle: .pi * 2, clockwise: true)
         eraserLayer?.path = eraserCirclePath.cgPath
     }
-
-
-
     
-    // 패드에서 제스처 뗄 때 실행되는 함수
+    // MARK: - 패드에서 제스처 뗄 때 실행되는 함수
     func gestureRecognizerEnded(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
@@ -197,7 +196,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         forceRedraw(annotation: currentAnnotation!, onPage: onPage)
     }
     
-    // 획을 그리고 배열에 저장하는 함수
+    // MARK: -획을 그리고 배열에 저장하는 함수
     private func createFinalAnnotation(path: UIBezierPath, page: PDFPage) -> PDFAnnotation {
         let border = PDFBorder()
         border.lineWidth = drawingTool.width
@@ -227,38 +226,38 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         return annotation
     }
     
-    // 지우개로 주석 지울 때 실행되는 함수
+    // MARK: - 지우개로 주석 지울 때 실행되는 함수
     private func removeAnnotationAtPoint(point: CGPoint, page: PDFPage) {
         let convertedPoint = pdfView.convert(point, to: page)
         let scaleFactor = pdfView.scaleFactor
-        let scaledRadius = 3 / scaleFactor
+        let scaledRadius = 5 / scaleFactor
         let hitTestRect = CGRect(x: convertedPoint.x - scaledRadius, y: convertedPoint.y - scaledRadius, width: scaledRadius * 2, height: scaledRadius * 2)
         
-        // pdf 위에서 지워지는 annotation 찾는 부분
         let annotations = page.annotations.filter { annotation in
             annotation.bounds.intersects(hitTestRect)
         }
         
         if let pageIndex = pdfView.document?.index(for: page) {
             for annotation in annotations {
-                let annotationBounds = annotation.bounds
-                
-                // 베열에서 지울 annotation 찾는 부분
-                let indicesToRemove = drawingDataArray.indices.filter { index in
-                    let drawing = drawingDataArray[index]
-                    return drawing.pageIndex == pageIndex && drawing.path.bounds.intersects(annotationBounds)
-                }
-                
-                // 뒤쪽 인덱스 주석부터 제거
-                for index in indicesToRemove.reversed() {
-                    let drawing = drawingDataArray[index]
-                    let id = drawing.id
+                // 하이라이트랑 드로잉만 지우기
+                if annotation.type == "Ink" || annotation.type == "Highlight" {
+                    let annotationBounds = annotation.bounds
                     
-                    _ = drawingService.deleteDrawingData(for: pdfID, id: id)
-                    drawingDataArray.remove(at: index)
+                    let indicesToRemove = drawingDataArray.indices.filter { index in
+                        let drawing = drawingDataArray[index]
+                        return drawing.pageIndex == pageIndex && drawing.path.bounds.intersects(annotationBounds)
+                    }
+                    
+                    // 겹쳐진 부분 위층부터 지우기 위해 뒤쪽 인덱스 주석부터 제거
+                    for index in indicesToRemove.reversed() {
+                        let drawing = drawingDataArray[index]
+                        let id = drawing.id
+                        
+                        _ = drawingService.deleteDrawingData(for: pdfID, id: id)
+                        drawingDataArray.remove(at: index)
+                    }
+                    page.removeAnnotation(annotation)
                 }
-                
-                page.removeAnnotation(annotation)
             }
         }
     }
