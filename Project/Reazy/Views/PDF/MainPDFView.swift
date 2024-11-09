@@ -462,10 +462,3 @@ private struct OverlaySearchView: View {
     }
 }
 
-
-/// 이름 변경 뷰
-//private struct ChangeTitleView: View {
-//    var body: some View {
-//        
-//    }
-//}
