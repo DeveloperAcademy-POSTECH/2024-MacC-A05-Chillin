@@ -36,14 +36,12 @@ class PaperDataService: PaperDataInterface {
                 return PaperInfo(
                     id: paperData.id,
                     title: paperData.title,
-                    datetime: paperData.dateTime ?? "--",
-                    author: paperData.author ?? "--",
-                    pages: Int(paperData.pages),
-                    publisher: paperData.publisher ?? "--",
                     thumbnail: paperData.thumbnail,
                     url: paperData.url,
                     lastModifiedDate: paperData.lastModifiedDate,
-                    isFavorite: paperData.isFavorite
+                    isFavorite: paperData.isFavorite,
+                    memo: paperData.memo ?? nil,
+                    isFigureSaved: paperData.isFigureSaved
                 )
             }
             return .success(pdfDataList)
@@ -59,14 +57,12 @@ class PaperDataService: PaperDataInterface {
         
         newPaperData.id = info.id
         newPaperData.title = info.title
-        newPaperData.dateTime = info.dateTime
-        newPaperData.author = info.author
         newPaperData.url = info.url
-        newPaperData.pages = Int32(info.pages)
-        newPaperData.publisher = info.publisher
         newPaperData.thumbnail = info.thumbnail
         newPaperData.lastModifiedDate = info.lastModifiedDate
         newPaperData.isFavorite = info.isFavorite
+        newPaperData.memo = info.memo
+        newPaperData.isFigureSaved = info.isFigureSaved
         
         do {
             try dataContext.save()
@@ -87,13 +83,11 @@ class PaperDataService: PaperDataInterface {
             if let dataToEdit = results.first {
                 // 기존 데이터 수정
                 dataToEdit.title = info.title
-                dataToEdit.dateTime = info.dateTime
-                dataToEdit.author = info.author
                 dataToEdit.url = info.url
-                dataToEdit.pages = Int32(info.pages)
-                dataToEdit.publisher = info.publisher
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
+                dataToEdit.memo = info.memo
+                dataToEdit.isFigureSaved = info.isFigureSaved
                 
                 try dataContext.save()
                 return .success(VoidResponse())

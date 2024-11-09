@@ -74,16 +74,32 @@ struct PaperListView: View {
                     
                     Divider()
                     
-                    if isSearching && filteredPaperInfos.isEmpty {
-                        Spacer()
-                        
-                        Text("\"\(searchText)\"와\n일치하는 결과가 없어요")
-                            .reazyFont(.h5)
-                            .foregroundStyle(.gray600)
-                            .multilineTextAlignment(.center)
-                            .padding(.bottom, keyboardHeight)
-                        
-                        Spacer()
+                    if filteredPaperInfos.isEmpty {
+                        if isSearching {
+                            Spacer()
+                            
+                            Text("\"\(searchText)\"와\n일치하는 결과가 없어요")
+                                .reazyFont(.h5)
+                                .foregroundStyle(.gray600)
+                                .multilineTextAlignment(.center)
+                                .padding(.bottom, keyboardHeight)
+                            
+                            Spacer()
+                        } else {
+                            Spacer()
+                            
+                            Image("empty")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 146)
+                                .padding(.bottom, 11)
+                            Text("새로운 논문을 가져와주세요")
+                                .reazyFont(.h5)
+                                .foregroundStyle(.gray550)
+                                .padding(.bottom, 80)
+                            
+                            Spacer()
+                        }
                     } else {
                         // MARK: - CoreData
                         ScrollView {
@@ -142,10 +158,7 @@ struct PaperListView: View {
                                 id: filteredPaperInfos[selectedPaperIndex].id,
                                 image: filteredPaperInfos[selectedPaperIndex].thumbnail,
                                 title: filteredPaperInfos[selectedPaperIndex].title,
-                                author: filteredPaperInfos[selectedPaperIndex].author,
-                                pages: filteredPaperInfos[selectedPaperIndex].pages,
-                                publisher: filteredPaperInfos[selectedPaperIndex].publisher,
-                                dateTime: filteredPaperInfos[selectedPaperIndex].dateTime,
+                                memo: filteredPaperInfos[selectedPaperIndex].memo,
                                 isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
                                 isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
                                 isEditingTitle: $isEditingTitle,
