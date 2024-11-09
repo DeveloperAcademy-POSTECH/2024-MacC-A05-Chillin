@@ -240,7 +240,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         if let pageIndex = pdfView.document?.index(for: page) {
             for annotation in annotations {
                 // 하이라이트랑 드로잉만 지우기
-                if annotation.type == "Ink" || annotation.type == "Highlight" {
+                if annotation.type == "Ink" || (annotation.type == "Highlight" && annotation.value(forAnnotationKey: .contents) == nil) {
                     let annotationBounds = annotation.bounds
                     
                     let indicesToRemove = drawingDataArray.indices.filter { index in
