@@ -257,7 +257,7 @@ struct MainPDFView: View {
                                                 .padding(EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 0))
                                             
                                             Button {
-                                                
+                                                self.titleText.removeAll()
                                             } label: {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .font(.system(size: 14))
@@ -271,6 +271,16 @@ struct MainPDFView: View {
                                     }
                                     .padding(.vertical, 15)
                                     .padding(.horizontal, 15)
+                                }
+                                .onAppear {
+                                    self.titleText = mainPDFViewModel.paperInfo.title
+                                }
+                                .onDisappear {
+                                    if !self.titleText.isEmpty {
+                                        let id = self.mainPDFViewModel.paperInfo.id
+                                        self.pdfFileManager.updateTitle(at: id, title: self.titleText)
+                                        self.mainPDFViewModel.paperInfo.title = self.titleText
+                                    }
                                 }
                             }
                             
@@ -313,7 +323,6 @@ struct MainPDFView: View {
             }
             .onAppear {
                 updateOrientation(with: geometry)
-                self.titleText = mainPDFViewModel.paperInfo.title
             }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
