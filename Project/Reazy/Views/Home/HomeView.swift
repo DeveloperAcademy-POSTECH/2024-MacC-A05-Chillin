@@ -357,6 +357,8 @@ private struct RenamePaperTitleView: View {
                             pdfFileManager.updateTitle(at: paperInfo.id, title: text)
                             isEditingTitle = false
                         } else {
+                            // MARK: - 메모 업데이트 메소드 구현 완료
+                            pdfFileManager.updateMemo(at: paperInfo.id, memo: text)
                             isEditingMemo = false
                         }
                     }
@@ -416,7 +418,7 @@ private struct RenamePaperTitleView: View {
             if isEditingTitle {
                 self.text = paperInfo.title
             } else {
-                // TODO: 메모 입력
+                self.text = paperInfo.memo ?? ""
             }
         }
     }
