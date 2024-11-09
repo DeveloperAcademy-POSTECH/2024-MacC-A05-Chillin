@@ -16,7 +16,10 @@ import SwiftUICore
 final class PDFFileManager: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
     @Published public var isLoading: Bool = false
+    @Published public var memoText: String = ""
+
     private var paperService: PaperDataService
+    
     
     init(
         paperService: PaperDataService
