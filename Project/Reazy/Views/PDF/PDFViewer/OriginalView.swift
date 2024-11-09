@@ -13,7 +13,7 @@ import Combine
 struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
-    @StateObject var commentViewModel: CommentViewModel
+    @EnvironmentObject var commentViewModel: CommentViewModel
     
     @State private var keyboardOffset: CGFloat = 0
     

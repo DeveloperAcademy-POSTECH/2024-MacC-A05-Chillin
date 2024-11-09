@@ -10,9 +10,11 @@ import CoreData
 import UIKit
 
 class DrawingDataService: DrawingDataInterface {
+    static let shared = DrawingDataService()
+    
     private let container: NSPersistentContainer
     
-    init() {
+    private init() {
         container = NSPersistentContainer(name: "Reazy")
         container.loadPersistentStores { (storeDescription, error) in
             if let error = error as NSError? {

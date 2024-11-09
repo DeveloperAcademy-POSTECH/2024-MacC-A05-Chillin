@@ -30,6 +30,7 @@ extension NetworkManager {
     }
     
     /// Sample 텍스트 좌표 필터링 메소드
+    /*
     static func filterData(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FocusAnnotation] {
         
         var result = [FocusAnnotation]()
@@ -118,6 +119,7 @@ extension NetworkManager {
         }
         return result
     }
+     */
     
     /// Sample 이미지 좌표 필터링 메소드
     static func filterFigure(input: PDFLayout, pageWidth: CGFloat, pageHeight: CGFloat) -> [FigureAnnotation] {
