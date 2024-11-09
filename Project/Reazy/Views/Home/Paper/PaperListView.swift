@@ -129,7 +129,6 @@ struct PaperListView: View {
                                                 }
                                             }
                                         )
-                                        .environmentObject(pdfFileManager)
                                         
                                         Rectangle()
                                             .frame(height: 1)
