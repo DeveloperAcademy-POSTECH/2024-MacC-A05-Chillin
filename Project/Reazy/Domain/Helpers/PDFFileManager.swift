@@ -57,7 +57,6 @@ extension PDFFileManager {
             throw PDFUploadError.invalidURL
         }
         
-        //TODO: 데이터 저장 메소드 추가 필요
         if let firstPage = tempDoc?.page(at: 0) {
             let width = firstPage.bounds(for: .mediaBox).width
             let height = firstPage.bounds(for: .mediaBox).height
@@ -67,10 +66,6 @@ extension PDFFileManager {
             
             let paperInfo = PaperInfo(
                 title: url.lastPathComponent,
-                datetime: "",
-                author: "",
-                pages: pageCount ?? 0,
-                publisher: "알 수 없음",
                 thumbnail: thumbnailData!,
                 url: urlData
             )
@@ -83,10 +78,6 @@ extension PDFFileManager {
         } else {
             let paperInfo = PaperInfo(
                 title: url.lastPathComponent,
-                datetime: "",
-                author: "",
-                pages: pageCount ?? 0,
-                publisher: "알 수 없음",
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: urlData
             )
@@ -117,6 +108,20 @@ extension PDFFileManager {
         }
     }
     
+    public func updateMemo(at id: UUID, memo: String) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].memo = memo
+            _ = paperService.editPDFInfo(paperInfos[index])
+        }
+    }
+    
+    public func deleteMemo(at id: UUID) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].memo = nil
+            _ = paperService.editPDFInfo(paperInfos[index])
+        }
+    }
+    
     public func updateFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite
@@ -139,11 +144,6 @@ extension PDFFileManager {
             _ = paperService.editPDFInfo(paperInfos[index])
         }
     }
-    
-    // TODO: 메모 업데이트 메소드
-    public func updateMemo() {
-        
-    }
 }
 
 
@@ -154,13 +154,11 @@ extension PDFFileManager {
         let sampleUrl = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
         self.paperInfos.append(PaperInfo(
             title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
-            datetime: "2024. 10. 20. 오후 08:56",
-            author: "Smith, John",
-            pages: 43,
-            publisher: "NATURE",
             thumbnail: .init(),
             url: try! Data(contentsOf: sampleUrl),
-            isFavorite: false
+            isFavorite: false,
+            memo: "test",
+            isFigureSaved: false
         ))
     }
 }
