@@ -363,6 +363,8 @@ extension MainPDFViewModel {
             return nil
         }
         
+        page.displaysAnnotations = false
+        
         figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
         
         let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
