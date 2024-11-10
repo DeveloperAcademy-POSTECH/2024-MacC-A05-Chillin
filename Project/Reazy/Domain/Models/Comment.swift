@@ -10,12 +10,16 @@ import PDFKit
 
 struct Comment: Identifiable {
     let id : UUID
-    let buttonID: String
-    var selection: PDFSelection
-    var text: String
-    var selectedLine: CGRect
-    var pages: [Int]
-    var bounds: CGRect
-    var selectedText: String
+    let buttonID: String        // commentIcon
+    var text: String            // 입력한 텍스트
+    var selectedLine: CGRect    // selection된 라인
+    var pages: [Int]            // selection page 배열
+    var bounds: CGRect          // selection 전체영역
+    var selectedText: String    // selection 텍스트
+    var selectionsByLine: [selectionByLine]     // line별 selection 값
 }
 
+struct selectionByLine {
+    var page: Int
+    var bounds: CGRect
+}

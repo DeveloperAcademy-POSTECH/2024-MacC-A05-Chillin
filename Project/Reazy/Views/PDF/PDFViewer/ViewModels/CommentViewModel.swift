@@ -56,7 +56,9 @@ class CommentViewModel: ObservableObject {
             self.selectedText = text
         }
         
-        let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine, pages: pages, bounds: selectedBounds, selectedText: selectedText)
+        let selections = getSelectionsByLine(selection: selection)
+        
+        let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", text: text, selectedLine: selectedLine, pages: pages, bounds: selectedBounds, selectedText: selectedText, selectionsByLine: selections)
         
         //        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         
@@ -84,6 +86,22 @@ class CommentViewModel: ObservableObject {
 
 //MARK: - 초기세팅
 extension CommentViewModel {
+    
+    private func getSelectionsByLine(selection: PDFSelection) -> [selectionByLine] {
+            var selections: [selectionByLine] = []
+            
+            let lineSelections = selection.selectionsByLine()
+            
+            for lineSelection in lineSelections {
+                if let page = lineSelection.pages.first {
+                    let bounds = lineSelection.bounds(for: page)
+                    let pageIndex = document?.index(for: page) ?? -1
+                    selections.append(selectionByLine(page: pageIndex, bounds: bounds))
+                }
+            }
+            
+            return selections
+        }
     
     // 저장할 comment의 position 값 세팅
     func setCommentPosition(comment: Comment, pdfView: PDFView) {
