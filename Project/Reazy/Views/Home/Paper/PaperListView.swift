@@ -15,6 +15,7 @@ struct PaperListView: View {
     @Binding var selectedPaperID: UUID?
     @Binding var selectedItems: Set<Int>
     @State private var isFavoritesSelected: Bool = false
+    @State private var isNavigationPushed: Bool = false
     
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
@@ -126,8 +127,9 @@ struct PaperListView: View {
                                             isEditing: isEditing,
                                             isEditingSelected: selectedItems.contains(index),
                                             onSelect: {
-                                                if !isEditing {
+                                                if !isEditing || !isNavigationPushed {
                                                     if selectedPaperID == filteredPaperInfos[index].id {
+                                                        self.isNavigationPushed = true
                                                         navigateToPaper()
                                                         pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
                                                     }
@@ -178,7 +180,8 @@ struct PaperListView: View {
                                 isEditingTitle: $isEditingTitle,
                                 isEditingMemo: $isEditingMemo,
                                 onNavigate: {
-                                    if !isEditing {
+                                    if !isEditing || !isNavigationPushed {
+                                        self.isNavigationPushed = true
                                         navigateToPaper()
                                     }
                                 },
