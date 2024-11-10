@@ -19,7 +19,7 @@ class CommentViewModel: ObservableObject {
     
     @Published var comments: [Comment] = []     /// 저장된 comment
     @Published var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
-    var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
+    @Published var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
     
     //Comment Model
     @Published var selectedText: String = ""
@@ -28,20 +28,6 @@ class CommentViewModel: ObservableObject {
     
     init(paperInfo: PaperInfo) {
         self.paperInfo = paperInfo
-        $comments
-            .dropFirst() /// 초기 빈 배열 상태를 무시
-            .sink { [weak self] comments in
-                guard let self = self else { return }
-                
-                if let newComment = comments.last {     /// 추가된 마지막 comment
-                    self.drawUnderline(newComment: newComment)
-                    
-                    if commentGroup.count == 1 {
-                        self.drawCommentIcon(newComment: newComment)
-                    }
-                }
-            }
-            .store(in: &cancellables)
     }
     
     // 코멘트 추가
@@ -64,13 +50,13 @@ class CommentViewModel: ObservableObject {
                                  iconPosition: getCommentIconPostion(selection: selection)
         )
         comments.append(newComment)
+        
+        drawUnderline(newComment: newComment)
         findCommentGroup(comment: newComment)
         
-        //drawUnderline(newComment: newComment)
-        
-        //        if commentGroup.count == 1 {
-        //            addCommentIcon(newComment: newComment)
-        //        }
+        if commentGroup.count == 1 {
+            drawCommentIcon(newComment: newComment)
+        }
     }
     
     // 코멘트 삭제
@@ -129,7 +115,7 @@ extension CommentViewModel {
     // 저장할 comment의 position 값 세팅
     func setCommentPosition(comment: Comment, pdfView: PDFView) {
         if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
+            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
             
             let convertedBounds = pdfView.convert(comment.bounds, from: page)
             let position = CGPoint(
@@ -171,9 +157,11 @@ extension CommentViewModel {
     
     // 같은 buttonID를 공유하는 comment 찾기
     func findCommentGroup(comment: Comment) {
+        dump("코멘트 : \(comments)")
         let group = comments.filter { $0.buttonID == comment.buttonID }
         print("find")
         self.commentGroup = group
+        dump("코멘트 그룹 : \(commentGroup)")
     }
     
     // selection 영역이 있는 pages를 [Int]로 반환
@@ -202,6 +190,10 @@ extension CommentViewModel {
     /// 버튼 추가
     func drawCommentIcon(newComment: Comment) {
         print("draw")
+        print(commentGroup.count)
+        if commentGroup.count == 1 { return }
+
+        print("draw")
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: newComment.pages, document: document).first else { return }
             let image = UIImage(systemName: "text.bubble")
@@ -214,6 +206,7 @@ extension CommentViewModel {
             
             /// 버튼에 코멘트 정보 참조
             commentIcon.setValue(newComment.buttonID, forAnnotationKey: .contents)
+            print(newComment.buttonID)
             page.addAnnotation(commentIcon)
         }
     }
@@ -279,7 +272,7 @@ extension CommentViewModel {
     
     private func removeAnnotations(comment: Comment) {
         if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
+            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
             for annotation in page.annotations {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
                     
@@ -293,4 +286,15 @@ extension CommentViewModel {
     }
     
 }
+
+extension CommentViewModel {
+    
+    func loadComments() {
+//        ForEach(comments) { comment.indices in
+            
+        }
+        
+    }
+    
+
 
