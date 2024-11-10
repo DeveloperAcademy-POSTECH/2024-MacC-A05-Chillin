@@ -42,12 +42,20 @@ class PDFDrawer {
     private var drawingDataArray: [Drawing] = []
     private var drawingService: DrawingDataService
     
+    // MARK: - [Lucid] 하이라이트 배열 선언
+    @Published var highlightDataArray: [Highlight] = []
+    var viewModel: MainPDFViewModel
+
+    
     init(
+        viewModel: MainPDFViewModel,
         drawingService: DrawingDataService,
         pdfID: UUID
     ) {
+        self.viewModel = viewModel
         self.drawingService = drawingService
         self.pdfID = pdfID
+        
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
         switch drawingService.loadDrawingData(for: pdfID) {
         case .success(let drawingList):
@@ -222,6 +230,59 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         return annotation
     }
     
+
+    // MARK: - [Lucid] 하이라이트 기능
+    func highlightingText(color: HighlightColors) {
+
+        // toolMode가 highlight일때 동작
+        guard viewModel.toolMode == .highlight else { return }
+        
+        print("\n\n < - - - - - - - - - - | NewDrag | - - - - - - - - - - >\n")
+
+        // PDFView 안에서 스크롤 영역 파악
+        guard let currentSelection = pdfView.currentSelection else { return }
+        print("1. 드래그 텍스트 : \(currentSelection)")
+
+        // 선택된 텍스트를 줄 단위로 나눔
+        let selections = currentSelection.selectionsByLine()
+        print("2. 줄단위 텍스트 : \(selections)")
+
+        guard let page = selections.first?.pages.first else { return }
+        print("3. 해당 페이지 : \(page)")
+
+        let highlightColor = color.uiColor
+        print("4. 하이라이트 색상 : \(highlightColor) \n")
+        
+        var loopCheckNum = 0
+
+        selections.forEach { selection in
+            
+            loopCheckNum += 1
+            
+            var bounds = selection.bounds(for: page)
+            print("5. 텍스트 영역 좌표 : \(bounds)")
+            
+            let originBoundsHeight = bounds.size.height
+            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
+            bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+
+            let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
+            highlight.endLineStyle = .none
+            highlight.color = highlightColor
+
+            page.addAnnotation(highlight)
+            
+            // MARK: - [Lucid] 하이라이트 배열 추가
+            let highlightData = Highlight(id: UUID(), pageIndex: page, bounds: bounds, color: highlight.color)
+            highlightDataArray.append(highlightData)
+            print("6-\(loopCheckNum). 하이라이트 데이터 : \(highlightData) \n")
+        }
+        
+        print("[추가] 하이라이트 데이터 배열 : \(highlightDataArray.count)")
+        pdfView.clearSelection()
+    }
+    
+    
     // 지우개로 주석 지울 때 실행되는 함수
     private func removeAnnotationAtPoint(point: CGPoint, page: PDFPage) {
         let convertedPoint = pdfView.convert(point, to: page)
@@ -248,6 +309,19 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     _ = drawingService.deleteDrawingData(for: pdfID, id: id)
                     drawingDataArray.remove(at: index)
                 }
+                
+                // MARK: - [Lucid] 하이라이트 배열 삭제
+                let highlightToRemove = highlightDataArray.indices.filter { index in
+                    let highlight = highlightDataArray[index]
+                    return highlight.pageIndex == page && highlight.bounds.intersects(annotationBounds)
+                }
+                
+                for index in highlightToRemove.reversed() {
+                    highlightDataArray.remove(at: index)
+                }
+                
+                print("\n\n < - - - - - - - - - - | NewDrag | - - - - - - - - - - >\n")
+                print("[삭제] 하이라이트 데이터 배열 : \(highlightDataArray.count)")
                 
                 page.removeAnnotation(annotation)
             }

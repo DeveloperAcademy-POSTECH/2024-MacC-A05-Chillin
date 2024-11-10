@@ -45,7 +45,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // 하이라이트 색상
     @Published var selectedHighlightColor: HighlightColors = .yellow
-    
+        
     // Comment
     @Published var isCommentTapped: Bool = false {
         didSet{
@@ -75,7 +75,6 @@ final class MainPDFViewModel: ObservableObject {
     
     // for drawing
     public var pdfDrawer: PDFDrawer
-    
     public var paperInfo: PaperInfo
     
     init(paperInfo: PaperInfo) {
@@ -89,8 +88,7 @@ final class MainPDFViewModel: ObservableObject {
             url.stopAccessingSecurityScopedResource()
         }
         
-        self.pdfDrawer = .init(drawingService: DrawingDataService(), pdfID: paperInfo.id)
-        
+        self.pdfDrawer = .init(viewModel: MainPDFViewModel(paperInfo: paperInfo), drawingService: DrawingDataService(), pdfID: paperInfo.id)
     }
 }
 
@@ -297,38 +295,66 @@ extension MainPDFViewModel {
     }
 }
 
-
+// MARK: - [Lucid] 하이라이트 기능 가져오기
 extension MainPDFViewModel {
-    // 하이라이트 기능
-    func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        // toolMode가 highlight일때 동작
-        guard toolMode == .highlight else { return }
-
-        // PDFView 안에서 스크롤 영역 파악
-        guard let currentSelection = pdfView.currentSelection else { return }
-
-        // 선택된 텍스트를 줄 단위로 나눔
-        let selections = currentSelection.selectionsByLine()
-
-        guard let page = selections.first?.pages.first else { return }
-
-        let highlightColor = color.uiColor
-
-        selections.forEach { selection in
-            var bounds = selection.bounds(for: page)
-            let originBoundsHeight = bounds.size.height
-            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
-            bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
-
-            let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
-            highlight.endLineStyle = .none
-            highlight.color = highlightColor
-
-            page.addAnnotation(highlight)
-        }
-        
-        pdfView.clearSelection()
+    
+    func highlightText(color: HighlightColors) {
+        pdfDrawer.highlightingText(color: color)
     }
+//        
+//        
+//        
+//        
+//        
+//    func highlightText(in pdfView: PDFView, with color: HighlightColors) {
+//        
+//        // toolMode가 highlight일때 동작
+//        guard toolMode == .highlight else { return }
+//        
+//        print("\n\n < - - - - - - - - - - | NewDrag | - - - - - - - - - - >\n")
+//
+//        // PDFView 안에서 스크롤 영역 파악
+//        guard let currentSelection = pdfView.currentSelection else { return }
+//        print("1. 드래그 텍스트 : \(currentSelection)")
+//
+//        // 선택된 텍스트를 줄 단위로 나눔
+//        let selections = currentSelection.selectionsByLine()
+//        print("2. 줄단위 텍스트 : \(selections)")
+//
+//        guard let page = selections.first?.pages.first else { return }
+//        print("3. 해당 페이지 : \(page)")
+//
+//        let highlightColor = color.uiColor
+//        print("4. 하이라이트 색상 : \(highlightColor) \n")
+//        
+//        var loopCheckNum = 0
+//
+//        selections.forEach { selection in
+//            
+//            loopCheckNum += 1
+//            
+//            var bounds = selection.bounds(for: page)
+//            print("5. 텍스트 영역 좌표 : \(bounds)")
+//            
+//            let originBoundsHeight = bounds.size.height
+//            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
+//            bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+//
+//            let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
+//            highlight.endLineStyle = .none
+//            highlight.color = highlightColor
+//
+//            page.addAnnotation(highlight)
+//            
+//            // MARK: - [Lucid] 하이라이트 배열 추가
+//            let highlightData = Highlight(id: UUID(), pageIndex: page, bounds: bounds, color: highlight.color)
+//            pdfDrawer.highlightDataArray.append(highlightData)
+//            print("6-\(loopCheckNum). 하이라이트 데이터 : \(highlightData) \n")
+//        }
+//        
+//        print("[추가] 하이라이트 데이터 배열 : \(pdfDrawer.highlightDataArray.count)")
+//        pdfView.clearSelection()
+//    }
 }
 
 /**

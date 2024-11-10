@@ -224,7 +224,8 @@ extension OriginalViewController {
                 switch self.viewModel.toolMode {
                 case .highlight:
                     DispatchQueue.main.async {
-                        self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+//                        self.viewModel.highlightText(color: color, in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+                        self.viewModel.highlightText(color: self.viewModel.selectedHighlightColor)
                     }
                 case .translate, .comment:
                     guard let selection = self.mainPDFView.currentSelection else {
