@@ -17,6 +17,15 @@
         <attribute name="path" optional="YES" attributeType="Binary"/>
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="drawingData" inverseEntity="PaperData"/>
     </entity>
+    <entity name="FigureData" representedClassName="FigureData" syncable="YES">
+        <attribute name="coords" optional="YES" attributeType="Transformable"/>
+        <attribute name="figDesc" optional="YES" attributeType="String"/>
+        <attribute name="graphicCoord" optional="YES" attributeType="Transformable"/>
+        <attribute name="head" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="label" optional="YES" attributeType="String"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="figureData" inverseEntity="PaperData"/>
+    </entity>
     <entity name="PaperData" representedClassName="PaperData" syncable="YES">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -28,5 +37,6 @@
         <attribute name="url" optional="YES" attributeType="Binary"/>
         <relationship name="commentData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentData" inverseName="paperData" inverseEntity="CommentData"/>
         <relationship name="drawingData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DrawingData" inverseName="paperData" inverseEntity="DrawingData"/>
+        <relationship name="figureData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FigureData" inverseName="paperData" inverseEntity="FigureData"/>
     </entity>
 </model>

@@ -127,8 +127,8 @@ class CommentDataService: CommentDataInterface {
         fetchRequest.predicate = NSPredicate(format: "paperData.id == %@ AND id == %@", pdfID as CVarArg, comment.id as CVarArg)
         
         do {
-            let results = try dataContext.fetch(fetchRequest)
-            if let commentToEdit = results.first {
+            let result = try dataContext.fetch(fetchRequest)
+            if let commentToEdit = result.first {
                 
                 commentToEdit.text = comment.text
                 

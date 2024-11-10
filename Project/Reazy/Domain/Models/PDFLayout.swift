@@ -14,13 +14,13 @@ import Foundation
 struct PDFLayout: Codable {
     let fig: [Figure]
     let table: [Figure]?
-    
-    struct Figure: Codable {
-        let id: String
-        let head: String?
-        let label: String?
-        let figDesc: String?
-        let coords: [String]
-        let graphicCoord: [String]?
-    }
+}
+
+struct Figure: Codable {
+    let id: String
+    let head: String?
+    let label: String?
+    let figDesc: String?
+    let coords: [String]
+    let graphicCoord: [String]?
 }
