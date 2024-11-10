@@ -12,16 +12,9 @@ import UIKit
 class DrawingDataService: DrawingDataInterface {
     static let shared = DrawingDataService()
     
-    private let container: NSPersistentContainer
+    private let container: NSPersistentContainer = PersistantContainer.shared.container
     
-    private init() {
-        container = NSPersistentContainer(name: "Reazy")
-        container.loadPersistentStores { (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-    }
+    private init() { }
     
     func loadDrawingData(for pdfID: UUID) -> Result<[Drawing], Error> {
         let dataContext = container.viewContext

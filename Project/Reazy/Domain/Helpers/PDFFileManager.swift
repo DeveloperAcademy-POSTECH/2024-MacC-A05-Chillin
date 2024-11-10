@@ -149,6 +149,13 @@ extension PDFFileManager {
             _ = paperService.editPDFInfo(paperInfos[index])
         }
     }
+    
+    public func updateIsFigureSaved(at id: UUID, isFigureSaved: Bool) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].isFigureSaved = isFigureSaved
+            _ = paperService.editPDFInfo(paperInfos[index])
+        }
+    }
 }
 
 

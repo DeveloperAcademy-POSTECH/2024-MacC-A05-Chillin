@@ -308,6 +308,3 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
 }
 
-//#Preview {
-//    OriginalViewController(viewModel: .init())
-//}
