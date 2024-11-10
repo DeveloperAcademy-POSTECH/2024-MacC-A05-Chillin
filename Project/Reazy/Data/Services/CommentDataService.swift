@@ -13,16 +13,9 @@ import UIKit
 class CommentDataService: CommentDataInterface {
     static let shared = CommentDataService()
     
-    private let container: NSPersistentContainer
+    private let container: NSPersistentContainer = PersistantContainer.shared.container
     
-    private init() {
-        container = NSPersistentContainer(name: "Reazy")
-        container.loadPersistentStores { (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-    }
+    private init() { }
     
     func loadCommentData(for pdfID: UUID, pdfURL: Data) -> Result<[Comment], Error> {
         let dataContext = container.viewContext
