@@ -25,4 +25,5 @@ extension PaperData {
     
     @NSManaged public var drawingData: Set<DrawingData>?
     @NSManaged public var commentData: Set<CommentData>?
+    @NSManaged public var figureData: Set<FigureData>?
 }
