@@ -151,7 +151,6 @@ struct PaperInfoView: View {
                             .foregroundStyle(.gray550)
                         
                         VStack {
-                            // TODO: 메모 데이터 연결 필요
                             Text(self.memo!)
                                 .lineLimit(4)
                                 .reazyFont(.body2)
