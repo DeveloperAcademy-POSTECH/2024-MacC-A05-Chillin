@@ -60,11 +60,10 @@ extension AppView {
         }
         
         let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
-        let pdfURL = Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")
         
         let layout = try! JSONDecoder().decode(PDFLayout.self, from: .init(contentsOf: url))
         
-        let id = try! pdfFileManager.uploadPDFFile(url: [pdfURL!])!
+        let id = pdfFileManager.uploadSampleFile()!
         pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
         
         layout.fig.forEach {

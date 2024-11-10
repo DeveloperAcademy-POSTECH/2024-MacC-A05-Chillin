@@ -268,6 +268,10 @@ extension PaperListView {
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
             print("bookmartdata to url failed")
+            
+            if data.isEmpty {
+                navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
+            }
             return
         }
         

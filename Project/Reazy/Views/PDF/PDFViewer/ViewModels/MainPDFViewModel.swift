@@ -92,6 +92,10 @@ final class MainPDFViewModel: ObservableObject {
         url.startAccessingSecurityScopedResource() {
             self.document = PDFDocument(url: url)
             url.stopAccessingSecurityScopedResource()
+        } else {
+            if paperInfo.url.isEmpty {
+                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!)
+            }
         }
         
         self.pdfDrawer = .init(drawingService: DrawingDataService.shared, pdfID: paperInfo.id)

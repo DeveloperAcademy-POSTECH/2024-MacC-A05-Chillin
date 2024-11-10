@@ -34,6 +34,8 @@ class CommentDataService: CommentDataInterface {
                 url.startAccessingSecurityScopedResource() {
                     document = PDFDocument(url: url)
                     url.stopAccessingSecurityScopedResource()
+                } else {
+                    document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!)
                 }
                 
                 if let document = document {
