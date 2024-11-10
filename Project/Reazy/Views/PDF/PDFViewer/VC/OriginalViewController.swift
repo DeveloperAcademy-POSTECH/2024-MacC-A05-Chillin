@@ -212,7 +212,6 @@ extension OriginalViewController {
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
-//                                self.commentViewModel.getSelectionBounds(selection: selection, pdfView: self.mainPDFView)
                                 self.commentViewModel.selectedBounds = bound
                             }
                         }
