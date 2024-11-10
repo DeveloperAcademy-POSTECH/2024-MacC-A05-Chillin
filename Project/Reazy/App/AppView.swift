@@ -34,11 +34,7 @@ struct AppView: App {
             .environmentObject(navigationCoordinator)
             .environmentObject(pdfFileManager)
             .onAppear {
-                let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
-                let pdfURL = Bundle.main.url(forResource: "SamplePDF", withExtension: "pdf")
-                let a = try! JSONDecoder().decode(PDFLayout.self, from: .init(contentsOf: url))
-                
-                try! pdfFileManager.uploadPDFFile(url: [pdfURL!])
+                setSample()
             }
         }
     }
@@ -51,5 +47,36 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UIView.appearance().tintColor = UIColor.primary1
 
         return true
+    }
+}
+
+
+extension AppView {
+    private func setSample() {
+        let isFirst = UserDefaults.standard.bool(forKey: "sample")
+        
+        if isFirst {
+            return
+        }
+        
+        let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
+        let pdfURL = Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")
+        
+        let layout = try! JSONDecoder().decode(PDFLayout.self, from: .init(contentsOf: url))
+        
+        let id = try! pdfFileManager.uploadPDFFile(url: [pdfURL!])!
+        pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
+        
+        layout.fig.forEach {
+            let _ = FigureDataService.shared.saveFigureData(for: id, with: .init(
+                id: $0.id,
+                head: $0.head,
+                label: $0.label,
+                figDesc: $0.figDesc,
+                coords: $0.coords,
+                graphicCoord: $0.graphicCoord))
+        }
+        
+        UserDefaults.standard.set(true, forKey: "sample")
     }
 }
