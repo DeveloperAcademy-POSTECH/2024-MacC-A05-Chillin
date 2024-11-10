@@ -13,16 +13,12 @@ struct PaperInfoView: View {
     let id: UUID
     let image: Data
     let title: String
-    var memo: String?
+    @State var memo: String?
     var isFavorite: Bool
     
     @State var isStarSelected: Bool
     
-    // TODO: 임시 메모 텍스트, 및 있는지 모델 반영 필요
-    @State private var memoText: String = ""
-    @State var isMemo: Bool = false
-    
-    @State private var timer: Timer?
+    @State private var isDeleteConfirm: Bool = false
     
     @Binding var isEditingTitle: Bool
     @Binding var isEditingMemo: Bool
@@ -78,8 +74,7 @@ struct PaperInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    pdfFileManager.deletePDFFile(at: id)
-                    onDelete()
+                    self.isDeleteConfirm.toggle()
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -111,16 +106,15 @@ struct PaperInfoView: View {
                     
                     Spacer()
                     
-                    if isMemo {
+                    if !(self.memo == nil) {
                         Menu {
                             Button("수정", systemImage: "pencil") {
                                 self.isEditingMemo = true
                             }
                             
-                            Button("삭제", systemImage: "trash") {
-                                // MARK: - 삭제 함수 추가
+                            Button("삭제", systemImage: "trash", role: .destructive) {
                                 pdfFileManager.deleteMemo(at: id)
-                                isMemo = false
+                                self.memo = nil
                             }
                             
                         } label: {
@@ -132,7 +126,8 @@ struct PaperInfoView: View {
                         }
                     } else {
                         Button {
-                            isEditingMemo.toggle()
+                            self.memo = ""
+                            self.isEditingMemo = true
                         } label: {
                             Image(systemName: "plus")
                                 .resizable()
@@ -145,7 +140,7 @@ struct PaperInfoView: View {
                 }
                 .padding(.bottom, 13)
                 
-                if isMemo {
+                if self.memo != nil {
                     ZStack(alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 10)
                             .foregroundStyle(.gray200)
@@ -156,8 +151,7 @@ struct PaperInfoView: View {
                             .foregroundStyle(.gray550)
                         
                         VStack {
-                            // TODO: 메모 데이터 연결 필요
-                            Text("이 편지는 영국에서 시작되어....")
+                            Text(self.memo!)
                                 .lineLimit(4)
                                 .reazyFont(.body2)
                                 .foregroundStyle(.gray700)
@@ -182,21 +176,25 @@ struct PaperInfoView: View {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
         }
-        .onChange(of: memoText) { _, newValue in
-            if let timer = self.timer {
-                timer.invalidate()
-            }
-            
-            self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
-                // MARK: - 업데이트 함수 구현 완료
-                self.pdfFileManager.updateMemo(at: id, memo: memoText)
-            }
+        .onChange(of: self.id) {
+            let paperInfo = self.pdfFileManager.paperInfos.first { $0.id == self.id }!
+            self.memo = paperInfo.memo
         }
-        .onAppear {
-            if memo != nil {
-                isMemo = true
-                memoText = memo ?? "메모 불러오기 실패"
-            }
+        .onChange(of: self.pdfFileManager.memoText) {
+            self.memo = self.pdfFileManager.memoText
+        }
+        .onChange(of: self.isEditingMemo) {
+            self.pdfFileManager.memoText = memo!
+        }
+        .alert(isPresented: $isDeleteConfirm) {
+            Alert(
+                title: Text("정말 삭제하시겠습니까?"),
+                message: Text("삭제된 파일은 복구할 수 없습니다."),
+                primaryButton: .destructive(Text("삭제")) {
+                    pdfFileManager.deletePDFFile(at: id)
+                    onDelete()
+                },
+                secondaryButton: .default(Text("취소")))
         }
     }
     
@@ -251,7 +249,6 @@ struct PaperInfoView: View {
         memo: "",
         isFavorite: false,
         isStarSelected: false,
-        isMemo: false,
         isEditingTitle: .constant(false),
         isEditingMemo: .constant(false),
         onNavigate: {},

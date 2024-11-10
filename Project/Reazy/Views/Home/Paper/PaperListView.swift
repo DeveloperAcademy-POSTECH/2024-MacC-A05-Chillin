@@ -102,41 +102,55 @@ struct PaperListView: View {
                         }
                     } else {
                         // MARK: - CoreData
-                        ScrollView {
-                            VStack(spacing: 0) {
-                                ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
-                                    PaperListCell(
-                                        title: filteredPaperInfos[index].title,
-                                        date: timeAgoString(from: filteredPaperInfos[index].lastModifiedDate),
-                                        isSelected: selectedPaperID == filteredPaperInfos[index].id,
-                                        isEditing: isEditing,
-                                        isEditingSelected: selectedItems.contains(index),
-                                        onSelect: {
-                                            if !isEditing {
-                                                if selectedPaperID == filteredPaperInfos[index].id {
-                                                    navigateToPaper()
-                                                    pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
+                        if filteredPaperInfos.isEmpty {
+                            VStack(spacing: 11) {
+                                Spacer()
+                                Image(.homePlaceholder)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 110)
+                                
+                                Text("새로운 논문을 가져와주세요")
+                                    .reazyFont(.h5)
+                                    .foregroundStyle(.gray550.opacity(0.3))
+                                Spacer()
+                            }
+                        } else {
+                            ScrollView {
+                                VStack(spacing: 0) {
+                                    ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
+                                        PaperListCell(
+                                            title: filteredPaperInfos[index].title,
+                                            date: timeAgoString(from: filteredPaperInfos[index].lastModifiedDate),
+                                            isSelected: selectedPaperID == filteredPaperInfos[index].id,
+                                            isEditing: isEditing,
+                                            isEditingSelected: selectedItems.contains(index),
+                                            onSelect: {
+                                                if !isEditing {
+                                                    if selectedPaperID == filteredPaperInfos[index].id {
+                                                        navigateToPaper()
+                                                        pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
+                                                    }
+                                                    else {
+                                                        selectedPaperID = filteredPaperInfos[index].id
+                                                    }
                                                 }
-                                                else {
-                                                    selectedPaperID = filteredPaperInfos[index].id
+                                            },
+                                            onEditingSelect: {
+                                                if isEditing {
+                                                    if selectedItems.contains(index) {
+                                                        selectedItems.remove(index)
+                                                    } else {
+                                                        selectedItems.insert(index)
+                                                    }
                                                 }
                                             }
-                                        },
-                                        onEditingSelect: {
-                                            if isEditing {
-                                                if selectedItems.contains(index) {
-                                                    selectedItems.remove(index)
-                                                } else {
-                                                    selectedItems.insert(index)
-                                                }
-                                            }
-                                        }
-                                    )
-                                    .environmentObject(pdfFileManager)
-                                    
-                                    Rectangle()
-                                        .frame(height: 1)
-                                        .foregroundStyle(.primary3)
+                                        )
+                                        
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundStyle(.primary3)
+                                    }
                                 }
                             }
                         }

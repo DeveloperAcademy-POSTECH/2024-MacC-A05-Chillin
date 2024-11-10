@@ -16,7 +16,10 @@ import SwiftUICore
 final class PDFFileManager: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
     @Published public var isLoading: Bool = false
+    @Published public var memoText: String = ""
+
     private var paperService: PaperDataService
+    
     
     init(
         paperService: PaperDataService
@@ -50,8 +53,10 @@ extension PDFFileManager {
         }
         
         let tempDoc = PDFDocument(url: url)
+        var lastComponent = url.lastPathComponent.split(separator: ".")
+        lastComponent.removeLast()
         
-        let pageCount = tempDoc?.pageCount
+        let title = lastComponent.joined()
         
         guard let urlData = try? url.bookmarkData(options: .minimalBookmark) else {
             throw PDFUploadError.invalidURL
@@ -65,7 +70,7 @@ extension PDFFileManager {
             let thumbnailData = image.pngData()
             
             let paperInfo = PaperInfo(
-                title: url.lastPathComponent,
+                title: title,
                 thumbnail: thumbnailData!,
                 url: urlData
             )
