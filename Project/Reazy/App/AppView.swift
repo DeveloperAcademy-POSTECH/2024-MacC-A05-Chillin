@@ -33,6 +33,13 @@ struct AppView: App {
             }
             .environmentObject(navigationCoordinator)
             .environmentObject(pdfFileManager)
+            .onAppear {
+                let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
+                let pdfURL = Bundle.main.url(forResource: "SamplePDF", withExtension: "pdf")
+                let a = try! JSONDecoder().decode(PDFLayout.self, from: .init(contentsOf: url))
+                
+                try! pdfFileManager.uploadPDFFile(url: [pdfURL!])
+            }
         }
     }
 }
