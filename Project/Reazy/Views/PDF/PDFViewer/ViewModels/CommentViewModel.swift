@@ -234,11 +234,11 @@ extension CommentViewModel {
     
     /// 밑줄 그리기
     private func drawUnderline(selection: PDFSelection, newComment: Comment) {
-        let selections = selection.selectionsByLine()
-        
-        for lineSelection in selections {
-            for page in lineSelection.pages {
-                var bounds = lineSelection.bounds(for: page)
+        for index in newComment.pages {
+            guard let page = document?.page(at: index) else { continue }
+            
+            for selection in newComment.selectionsByLine {
+                var bounds = selection.bounds
                 
                 /// 밑줄 높이 조정
                 let originalBoundsHeight = bounds.size.height
