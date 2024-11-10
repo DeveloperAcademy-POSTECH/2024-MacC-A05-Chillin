@@ -13,8 +13,6 @@ import UIKit
 class CommentViewModel: ObservableObject {
     
     public var paperInfo: PaperInfo
-
-    //    private var commentService: CommentDataService
     
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
@@ -29,20 +27,8 @@ class CommentViewModel: ObservableObject {
     var pages: [Int] = []
     @Published var selectedBounds: CGRect = .zero
     
-    init(
-        //        commentService: CommentDataService,
-        paperInfo: PaperInfo
-    ) {
-        //        self.commentService = commentService
+    init(paperInfo: PaperInfo) {
         self.paperInfo = paperInfo
-        
-        // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
-        //        switch commentService.loadCommentData(for: paperInfo.id, pdfURL: paperInfo.url) {
-        //        case .success(let commentList):
-        //            commentGroup = commentList
-        //        case .failure(_):
-        //            return
-        //        }
     }
     
     // 코멘트 추가
@@ -65,8 +51,6 @@ class CommentViewModel: ObservableObject {
                                  bounds: selectedBounds
                                  )
         
-        //        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
-        
         comments.append(newComment)
         drawUnderline(selection: selection, newComment: newComment)
         findCommentGroup(comment: newComment)
@@ -78,7 +62,6 @@ class CommentViewModel: ObservableObject {
     
     // 코멘트 삭제
     func deleteComment(comment: Comment) {
-        //        _ = commentService.deleteCommentData(for: paperInfo.id, id: comment.id)
         comments.removeAll(where: { $0.id == comment.id })
         removeAnnotations(comment: comment)
     }
