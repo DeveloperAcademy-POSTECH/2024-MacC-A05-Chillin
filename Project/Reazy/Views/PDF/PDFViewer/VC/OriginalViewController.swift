@@ -92,8 +92,6 @@ extension OriginalViewController {
         // PDF 문서 로드 완료 후 드로잉 데이터 패치
         DispatchQueue.main.async {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
-            self.viewModel.pdfDrawer.loadDrawings()
-            // TODO: - Core data에서 배열 load 하는 곳
         }
     }
     

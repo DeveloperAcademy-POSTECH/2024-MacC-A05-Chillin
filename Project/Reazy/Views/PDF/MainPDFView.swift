@@ -324,6 +324,9 @@ struct MainPDFView: View {
             .onAppear {
                 updateOrientation(with: geometry)
             }
+            .onDisappear {
+                mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+            }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
