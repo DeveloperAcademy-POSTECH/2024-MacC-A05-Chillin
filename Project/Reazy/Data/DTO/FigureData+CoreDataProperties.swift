@@ -19,7 +19,7 @@ extension FigureData {
     @NSManaged public var label: String?
     @NSManaged public var figDesc: String?
     @NSManaged public var coords: [String]
-    @NSManaged public var graphiCoord: [String]?
+    @NSManaged public var graphicCoord: [String]?
     
     @NSManaged public var paperData: PaperData?
 }
