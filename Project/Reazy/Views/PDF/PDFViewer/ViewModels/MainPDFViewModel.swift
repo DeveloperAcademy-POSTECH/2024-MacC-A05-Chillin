@@ -92,17 +92,12 @@ final class MainPDFViewModel: ObservableObject {
             self.document = PDFDocument(url: url)
             url.stopAccessingSecurityScopedResource()
         }
-        
-        self.pdfDrawer = .init(drawingService: DrawingDataService.shared, pdfID: paperInfo.id)
-        
-        
+        self.pdfDrawer = .init()
     }
     
     deinit {
         print(#function)
     }
-    
-    
 }
 
 
@@ -115,8 +110,6 @@ extension MainPDFViewModel {
     public func savePDF(pdfView: PDFView) {
         print("savePDF")
         guard let document = pdfView.document else { return }
-        
-        // PDF 문서를 저장할 URL 확인 (초기 파일 URL이어야 함)
         guard let pdfURL = document.documentURL else {
             print("PDF URL을 찾을 수 없습니다.")
             return
