@@ -14,10 +14,8 @@ struct Comment: Identifiable {
     var selection: PDFSelection
     var text: String
     var selectedLine: CGRect
-    /*
-     var pages: [Int]
-     var selectedLines: [CGRect]
-     var selectText: String
-     */
+    var pages: [Int]
+    var bounds: CGRect
+    var selectedText: String
 }
 

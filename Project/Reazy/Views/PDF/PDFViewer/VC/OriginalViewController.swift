@@ -209,8 +209,11 @@ extension OriginalViewController {
                                 self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
                                 self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
                                 
+                                
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
+//                                self.commentViewModel.getSelectionBounds(selection: selection, pdfView: self.mainPDFView)
+                                self.commentViewModel.selectedBounds = bound
                             }
                         }
                     }
@@ -295,8 +298,8 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
                 
                 if viewModel.isCommentTapped {
                     viewModel.tappedComment = tappedComment
-                    commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
                     commentViewModel.findCommentGroup(comment: tappedComment)
+                    commentViewModel.setCommentPosition(comment: tappedComment, pdfView: mainPDFView)
                 } else {
                     viewModel.tappedComment = nil
                 }

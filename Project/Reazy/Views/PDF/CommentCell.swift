@@ -21,12 +21,10 @@ struct CommentCell: View {
                 .background(.point4)
             //.padding(.trailing, 6)
             
-            if let commentText = comment.selection.string {
-                Text(commentText.replacingOccurrences(of: "\n", with: ""))
+            Text(comment.selectedText.replacingOccurrences(of: "\n", with: ""))
                     .reazyFont(.body3)
                     .foregroundStyle(.point4)
                     .lineLimit(1)
-            }
         }
         .padding(.bottom, 8)
         .padding(.trailing, 16)

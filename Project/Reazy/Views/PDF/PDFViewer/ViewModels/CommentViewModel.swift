@@ -11,63 +11,67 @@ import SwiftUI
 import UIKit
 
 class CommentViewModel: ObservableObject {
-    @Published var comments: [Comment] = []
-//    private var commentService: CommentDataService
-    
-    var pdfCoordinates: CGRect = .zero
-    
-    @Published var isTappedDelete: Bool = false
-    var commentPosition: CGPoint = .zero        /// 저장된 commentPosition
-    var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들 부를 때
-    public var document: PDFDocument?
-    
-    //Comment Model
-    var pages: [Int] = []
-    
     
     public var paperInfo: PaperInfo
+
+    //    private var commentService: CommentDataService
+    
+    public var document: PDFDocument?
+    var pdfCoordinates: CGRect = .zero
+    
+    @Published var comments: [Comment] = []     /// 저장된 comment
+    var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
+    var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
+    
+    
+    //Comment Model
+    var selectedText: String = ""
+    var pages: [Int] = []
+    @Published var selectedBounds: CGRect = .zero
     
     init(
-//        commentService: CommentDataService,
+        //        commentService: CommentDataService,
         paperInfo: PaperInfo
     ) {
-//        self.commentService = commentService
+        //        self.commentService = commentService
         self.paperInfo = paperInfo
         
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
-//        switch commentService.loadCommentData(for: paperInfo.id, pdfURL: paperInfo.url) {
-//        case .success(let commentList):
-//            commentGroup = commentList
-//        case .failure(_):
-//            return
-//        }
+        //        switch commentService.loadCommentData(for: paperInfo.id, pdfURL: paperInfo.url) {
+        //        case .success(let commentList):
+        //            commentGroup = commentList
+        //        case .failure(_):
+        //            return
+        //        }
     }
     
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {
         
         let selectedLine = getSelectedLine(selection: selection)
-        
         if let document = self.document {
             getSelectionPages(selection: selection, document: document)
         }
+        if let text = selection.string {
+            self.selectedText = text
+        }
         
-        let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine)
-//        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
+        let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", selection: selection, text: text, selectedLine: selectedLine, pages: pages, bounds: selectedBounds, selectedText: selectedText)
+        
+        //        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
+        
         comments.append(newComment)
         drawUnderline(selection: selection, newComment: newComment)
-        
         findCommentGroup(comment: newComment)
-        dump(commentGroup)
         
         if commentGroup.count == 1 {
-            addCommentIcon(selection: selection, newComment: newComment)
+            addCommentIcon(newComment: newComment)
         }
     }
     
     // 코멘트 삭제
     func deleteComment(comment: Comment) {
-//        _ = commentService.deleteCommentData(for: paperInfo.id, id: comment.id)
+        //        _ = commentService.deleteCommentData(for: paperInfo.id, id: comment.id)
         comments.removeAll(where: { $0.id == comment.id })
         removeAnnotations(comment: comment)
     }
@@ -82,15 +86,13 @@ class CommentViewModel: ObservableObject {
 extension CommentViewModel {
     
     // 저장할 comment의 position 값 세팅
-    func setCommentPosition(selection: PDFSelection, pdfView: PDFView) {
-        // Todo : selecton.pages 저장
-        if let page = selection.pages.first {
-            let bound = selection.bounds(for: page)
-            let convertedBounds = pdfView.convert(bound, from: page)
-            
+    func setCommentPosition(comment: Comment, pdfView: PDFView) {
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
+            let convertedBounds = pdfView.convert(comment.bounds, from: page)
             let position = CGPoint(
                 x: convertedBounds.midX,
-                y: convertedBounds.maxY + 70
+                y: convertedBounds.maxY + 50
             )
             self.commentPosition = position
         }
@@ -147,7 +149,7 @@ extension CommentViewModel {
     
     func convertToPDFPage(pageIndex: [Int], document: PDFDocument) -> [PDFPage] {
         let PDFPages = pageIndex.compactMap { document.page(at: $0) }
-            return PDFPages
+        return PDFPages
     }
 }
 
@@ -155,7 +157,7 @@ extension CommentViewModel {
 extension CommentViewModel {
     
     /// 버튼 추가
-    private func addCommentIcon(selection: PDFSelection, newComment: Comment) {
+    private func addCommentIcon(newComment: Comment) {
         
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
@@ -247,16 +249,18 @@ extension CommentViewModel {
     }
     
     private func removeAnnotations(comment: Comment) {
-        for page in comment.selection.pages {
-            for annotation in page.annotations {
-                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String{
-                    
-                    if commentGroup.count == 1 {
-                        if annotationID == comment.buttonID || annotationID == comment.id.uuidString {
+        if let document = document {
+            for page in convertToPDFPage(pageIndex: pages, document: document) {
+                for annotation in page.annotations {
+                    if let annotationID = annotation.value(forAnnotationKey: .contents) as? String{
+                        
+                        if commentGroup.count == 1 {
+                            if annotationID == comment.buttonID || annotationID == comment.id.uuidString {
+                                page.removeAnnotation(annotation)
+                            }
+                        } else if commentGroup.count > 1, annotationID == comment.id.uuidString {
                             page.removeAnnotation(annotation)
                         }
-                    } else if commentGroup.count > 1, annotationID == comment.id.uuidString {
-                        page.removeAnnotation(annotation)
                     }
                 }
             }
