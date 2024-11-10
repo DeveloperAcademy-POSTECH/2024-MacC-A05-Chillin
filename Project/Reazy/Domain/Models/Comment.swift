@@ -17,6 +17,7 @@ struct Comment: Identifiable {
     var selectedLine: CGRect                    // selection된 라인
     var pages: [Int]                            // selection page 배열
     var bounds: CGRect                          // selection 전체영역
+    var iconPosition: CGRect
 }
 
 struct selectionByLine {

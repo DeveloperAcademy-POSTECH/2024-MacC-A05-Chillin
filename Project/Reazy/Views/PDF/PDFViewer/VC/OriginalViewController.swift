@@ -45,6 +45,8 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handlePDFLoad), name: .PDFViewDocumentChanged, object: mainPDFView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -95,6 +97,17 @@ extension OriginalViewController {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
             self.viewModel.pdfDrawer.loadDrawings()
             // TODO: - Core data에서 배열 load 하는 곳
+        }
+    }
+    
+    @objc func handlePDFLoad() {
+        guard let document = mainPDFView.document else { return }
+        print("PDF Document loaded with \(document.pageCount) pages.")
+        
+        // 모든 주석과 아이콘 그리기
+        for comment in commentViewModel.comments {
+            commentViewModel.drawUnderline(newComment: comment)
+            commentViewModel.drawCommentIcon(newComment: comment)
         }
     }
     
@@ -208,7 +221,6 @@ extension OriginalViewController {
                                 self.viewModel.selectedText = selectedText
                                 self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
                                 self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
-                                
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition

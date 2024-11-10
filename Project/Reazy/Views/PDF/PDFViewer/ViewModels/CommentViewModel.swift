@@ -7,28 +7,41 @@
 
 import Foundation
 import PDFKit
-import SwiftUI
-import UIKit
+import Combine
 
 class CommentViewModel: ObservableObject {
     
     public var paperInfo: PaperInfo
+    private var cancellables = Set<AnyCancellable>()
     
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
     
     @Published var comments: [Comment] = []     /// 저장된 comment
-    var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
+    @Published var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
     var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
     
-    
     //Comment Model
-    var selectedText: String = ""
-    var pages: [Int] = []
+    @Published var selectedText: String = ""
+    @Published var pages: [Int] = []
     @Published var selectedBounds: CGRect = .zero
     
     init(paperInfo: PaperInfo) {
         self.paperInfo = paperInfo
+        $comments
+            .dropFirst() /// 초기 빈 배열 상태를 무시
+            .sink { [weak self] comments in
+                guard let self = self else { return }
+                
+                if let newComment = comments.last {     /// 추가된 마지막 comment
+                    self.drawUnderline(newComment: newComment)
+                    
+                    if commentGroup.count == 1 {
+                        self.drawCommentIcon(newComment: newComment)
+                    }
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // 코멘트 추가
@@ -40,7 +53,6 @@ class CommentViewModel: ObservableObject {
         if let text = selection.string {
             self.selectedText = text
         }
-        
         let newComment = Comment(id: UUID(),
                                  buttonID: "\(getSelectedLine(selection: selection))",
                                  text: text,
@@ -48,16 +60,17 @@ class CommentViewModel: ObservableObject {
                                  selectionsByLine: getSelectionsByLine(selection: selection),
                                  selectedLine: getSelectedLine(selection: selection),
                                  pages: pages,
-                                 bounds: selectedBounds
-                                 )
-        
+                                 bounds: selectedBounds,
+                                 iconPosition: getCommentIconPostion(selection: selection)
+        )
         comments.append(newComment)
-        drawUnderline(selection: selection, newComment: newComment)
         findCommentGroup(comment: newComment)
         
-        if commentGroup.count == 1 {
-            addCommentIcon(newComment: newComment)
-        }
+        //drawUnderline(newComment: newComment)
+        
+        //        if commentGroup.count == 1 {
+        //            addCommentIcon(newComment: newComment)
+        //        }
     }
     
     // 코멘트 삭제
@@ -72,46 +85,23 @@ class CommentViewModel: ObservableObject {
     }
 }
 
-//MARK: - 초기세팅
+//MARK: - 초기세팅을 위한 메서드
 extension CommentViewModel {
     
     // 저장할 라인 별 selection
     private func getSelectionsByLine(selection: PDFSelection) -> [selectionByLine] {
-            var selections: [selectionByLine] = []
-            
-            let lineSelections = selection.selectionsByLine()
-            
-            for lineSelection in lineSelections {
-                if let page = lineSelection.pages.first {
-                    let bounds = lineSelection.bounds(for: page)
-                    let pageIndex = document?.index(for: page) ?? -1
-                    selections.append(selectionByLine(page: pageIndex, bounds: bounds))
-                }
-            }
-            
-            return selections
-        }
-    
-    // 저장할 comment의 position 값 세팅
-    func setCommentPosition(comment: Comment, pdfView: PDFView) {
-        if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
-            let convertedBounds = pdfView.convert(comment.bounds, from: page)
-            let position = CGPoint(
-                x: convertedBounds.midX,
-                y: convertedBounds.maxY + 50
-            )
-            self.commentPosition = position
-        }
-    }
-    
-    // buttonAnnotation 추가를 위한 pdfView의 좌표 값
-    func getPDFCoordinates(pdfView: PDFView) {
-        guard let currentPage = pdfView.currentPage else { return }
-        let bounds = currentPage.bounds(for: pdfView.displayBox)
-        let pdfCoordinates = pdfView.convert(bounds, from: currentPage)
+        var selections: [selectionByLine] = []
         
-        self.pdfCoordinates = pdfCoordinates
+        let lineSelections = selection.selectionsByLine()
+        
+        for lineSelection in lineSelections {
+            if let page = lineSelection.pages.first {
+                let bounds = lineSelection.bounds(for: page)
+                let pageIndex = document?.index(for: page) ?? -1
+                selections.append(selectionByLine(page: pageIndex, bounds: bounds))
+            }
+        }
+        return selections
     }
     
     // selection이 위치하는 Line의 bounds값
@@ -136,9 +126,53 @@ extension CommentViewModel {
         return selectedLine
     }
     
+    // 저장할 comment의 position 값 세팅
+    func setCommentPosition(comment: Comment, pdfView: PDFView) {
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
+            
+            let convertedBounds = pdfView.convert(comment.bounds, from: page)
+            let position = CGPoint(
+                x: convertedBounds.midX,
+                y: convertedBounds.maxY + 50
+            )
+            self.commentPosition = position
+        }
+    }
+    
+    // buttonAnnotation 추가를 위한 pdfView의 좌표 값
+    func getPDFCoordinates(pdfView: PDFView) {
+        guard let currentPage = pdfView.currentPage else { return }
+        let bounds = currentPage.bounds(for: pdfView.displayBox)
+        let pdfCoordinates = pdfView.convert(bounds, from: currentPage)
+        
+        self.pdfCoordinates = pdfCoordinates
+    }
+    
+    // buttonAnnotation 추가를 위한 아이콘 위치 구하기
+    func getCommentIconPostion(selection: PDFSelection) -> CGRect {
+        
+        var iconPosition: CGRect = .zero
+        let lineBounds = getSelectedLine(selection: selection)
+        
+        ///PDF 문서의 colum 구분
+        let isLeft = lineBounds.maxX < pdfCoordinates.midX
+        let isRight = lineBounds.minX >= pdfCoordinates.midX
+        let isAcross = !isLeft && !isRight
+        
+        ///colum에 따른 commentIcon 좌표 값 설정
+        if isLeft {
+            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
+        } else if isRight || isAcross {
+            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
+        }
+        return iconPosition
+    }
+    
     // 같은 buttonID를 공유하는 comment 찾기
     func findCommentGroup(comment: Comment) {
         let group = comments.filter { $0.buttonID == comment.buttonID }
+        print("find")
         self.commentGroup = group
     }
     
@@ -166,29 +200,14 @@ extension CommentViewModel {
 extension CommentViewModel {
     
     /// 버튼 추가
-    private func addCommentIcon(newComment: Comment) {
-        
+    func drawCommentIcon(newComment: Comment) {
+        print("draw")
         if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
-            let lineBounds = newComment.selectedLine
-            
-            ///PDF 문서의 colum 구분
-            let isLeft = lineBounds.maxX < pdfCoordinates.midX
-            let isRight = lineBounds.minX >= pdfCoordinates.midX
-            let isAcross = !isLeft && !isRight
-            
-            var iconPosition: CGRect = .zero
-            
-            ///colum에 따른 commentIcon 좌표 값 설정
-            if isLeft {
-                iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
-            } else if isRight || isAcross {
-                iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
-            }
-            
+            guard let page = convertToPDFPage(pageIndex: newComment.pages, document: document).first else { return }
             let image = UIImage(systemName: "text.bubble")
             image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
-            let commentIcon = ImageAnnotation(imageBounds: iconPosition, image: image)
+            
+            let commentIcon = ImageAnnotation(imageBounds: newComment.iconPosition, image: image)
             
             commentIcon.widgetFieldType = .button
             commentIcon.color = .point4
@@ -233,7 +252,8 @@ extension CommentViewModel {
     }
     
     /// 밑줄 그리기
-    private func drawUnderline(selection: PDFSelection, newComment: Comment) {
+    func drawUnderline(newComment: Comment) {
+        print("drawline")
         for index in newComment.pages {
             guard let page = document?.page(at: index) else { continue }
             
@@ -258,19 +278,19 @@ extension CommentViewModel {
     }
     
     private func removeAnnotations(comment: Comment) {
-        guard let document = document else { return }
-        for page in convertToPDFPage(pageIndex: pages, document: document) {
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: pages, document: document).first else { return }
             for annotation in page.annotations {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
                     
                     if (commentGroup.count == 1 && (annotationID == comment.buttonID || annotationID == comment.id.uuidString)) ||
-                       (commentGroup.count > 1 && annotationID == comment.id.uuidString) {
+                        (commentGroup.count > 1 && annotationID == comment.id.uuidString) {
                         page.removeAnnotation(annotation)
                     }
                 }
             }
         }
     }
-
+    
 }
 
