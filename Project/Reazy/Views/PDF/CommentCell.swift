@@ -19,7 +19,6 @@ struct CommentCell: View {
             Divider()
                 .frame(width: 2, height: 14)
                 .background(.point4)
-            //.padding(.trailing, 6)
             
             Text(comment.selectedText.replacingOccurrences(of: "\n", with: ""))
                     .reazyFont(.body3)
