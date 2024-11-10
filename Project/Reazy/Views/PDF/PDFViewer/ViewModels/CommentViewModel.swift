@@ -48,7 +48,6 @@ class CommentViewModel: ObservableObject {
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {
         
-        let selectedLine = getSelectedLine(selection: selection)
         if let document = self.document {
             getSelectionPages(selection: selection, document: document)
         }
@@ -56,9 +55,15 @@ class CommentViewModel: ObservableObject {
             self.selectedText = text
         }
         
-        let selections = getSelectionsByLine(selection: selection)
-        
-        let newComment = Comment(id: UUID(), buttonID: "\(selectedLine)", text: text, selectedLine: selectedLine, pages: pages, bounds: selectedBounds, selectedText: selectedText, selectionsByLine: selections)
+        let newComment = Comment(id: UUID(),
+                                 buttonID: "\(getSelectedLine(selection: selection))",
+                                 text: text,
+                                 selectedText: selectedText,
+                                 selectionsByLine: getSelectionsByLine(selection: selection),
+                                 selectedLine: getSelectedLine(selection: selection),
+                                 pages: pages,
+                                 bounds: selectedBounds
+                                 )
         
         //        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         
@@ -87,6 +92,7 @@ class CommentViewModel: ObservableObject {
 //MARK: - 초기세팅
 extension CommentViewModel {
     
+    // 저장할 라인 별 selection
     private func getSelectionsByLine(selection: PDFSelection) -> [selectionByLine] {
             var selections: [selectionByLine] = []
             
@@ -165,11 +171,13 @@ extension CommentViewModel {
         self.pages = pages
     }
     
+    // pageIndex를 PDFPage로 변환
     func convertToPDFPage(pageIndex: [Int], document: PDFDocument) -> [PDFPage] {
         let PDFPages = pageIndex.compactMap { document.page(at: $0) }
         return PDFPages
     }
 }
+
 
 //MARK: - PDF Anootation관련
 extension CommentViewModel {
@@ -267,22 +275,19 @@ extension CommentViewModel {
     }
     
     private func removeAnnotations(comment: Comment) {
-        if let document = document {
-            for page in convertToPDFPage(pageIndex: pages, document: document) {
-                for annotation in page.annotations {
-                    if let annotationID = annotation.value(forAnnotationKey: .contents) as? String{
-                        
-                        if commentGroup.count == 1 {
-                            if annotationID == comment.buttonID || annotationID == comment.id.uuidString {
-                                page.removeAnnotation(annotation)
-                            }
-                        } else if commentGroup.count > 1, annotationID == comment.id.uuidString {
-                            page.removeAnnotation(annotation)
-                        }
+        guard let document = document else { return }
+        for page in convertToPDFPage(pageIndex: pages, document: document) {
+            for annotation in page.annotations {
+                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
+                    
+                    if (commentGroup.count == 1 && (annotationID == comment.buttonID || annotationID == comment.id.uuidString)) ||
+                       (commentGroup.count > 1 && annotationID == comment.id.uuidString) {
+                        page.removeAnnotation(annotation)
                     }
                 }
             }
         }
     }
+
 }
 
