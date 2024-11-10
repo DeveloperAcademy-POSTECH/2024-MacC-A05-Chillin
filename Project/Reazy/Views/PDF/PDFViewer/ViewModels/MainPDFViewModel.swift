@@ -95,11 +95,14 @@ final class MainPDFViewModel: ObservableObject {
         
         self.pdfDrawer = .init(drawingService: DrawingDataService.shared, pdfID: paperInfo.id)
         
+        
     }
     
     deinit {
         print(#function)
     }
+    
+    
 }
 
 
@@ -108,6 +111,27 @@ extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
+    
+    public func savePDF(pdfView: PDFView) {
+        print("savePDF")
+        guard let document = pdfView.document else { return }
+        
+        // PDF 문서를 저장할 URL 확인 (초기 파일 URL이어야 함)
+        guard let pdfURL = document.documentURL else {
+            print("PDF URL을 찾을 수 없습니다.")
+            return
+        }
+
+        // PDF 파일을 지정한 URL에 덮어쓰기 저장
+        do {
+            let pdfData = document.dataRepresentation()
+            try pdfData?.write(to: pdfURL)
+            print("PDF 저장이 완료되었습니다.")
+        } catch {
+            print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
+        }
+    }
+    
     /// 초기 figure 업데이트 메소드
     public func downloadFigureAnnotation() async {
         NWPathMonitor.startMonitoring { isConnected in
