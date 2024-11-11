@@ -172,6 +172,7 @@ extension CommentViewModel {
     
     // 저장할 comment의 position 값 세팅
     func setCommentPosition(selectedComments: [Comment], pdfView: PDFView) {
+        print("위치값 세팅 시작")
         let buttonId = selectedComments.first?.buttonId
         let commentId = selectedComments.first?.id
         
@@ -181,12 +182,12 @@ extension CommentViewModel {
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: selectedComments[0].pages, document: document).first else { return }
             
-            let offset = CGFloat(selectedComments.count) * 50.0
             var convertedBounds: CGRect = .zero
+            let offset = CGFloat(selectedComments.count) * 50.0
             
             if selectedComments.count == 1 {
                 convertedBounds = pdfView.convert(boundForOneComment, from: page)
-            } else if selectedComments.count > 1 {
+            } else {
                 convertedBounds = pdfView.convert(boundForComments, from: page)
             }
             
