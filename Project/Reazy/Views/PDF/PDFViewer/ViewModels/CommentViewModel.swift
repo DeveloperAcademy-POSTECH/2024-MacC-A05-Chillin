@@ -26,8 +26,7 @@ class CommentViewModel: ObservableObject {
     @Published var buttonGroup: [ButtonGroup] = []
     
     private var newbuttonid = UUID()
-    private var isNewButton: Bool = false
-    private var newButtonIndex: Int = 0
+    private var isNewButton: Bool = true
     
     @Published var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
     
@@ -55,19 +54,21 @@ class CommentViewModel: ObservableObject {
         
         // 같은 buttonID를 공유하는 comment 찾기
         
-        for (index, group) in buttonGroup.enumerated() {
+        
+        isNewButton = true
+        for group in buttonGroup {
             if group.selectedLine == getSelectedLine(selection: selection) {
                 // 이미 있는 그룹에 내가 붙는 경우
                 isNewButton = false
-                newButtonIndex = index
                 newbuttonid = group.id
                 break
-                
             }
         }
+        print("for loop end")
         
         // 새로운 그룹이 필요하다면 추가
         if isNewButton {
+            print("is New Button value is true")
             let newGroup = ButtonGroup(
                 id: UUID(),
                 page: pages[0],
@@ -92,7 +93,7 @@ class CommentViewModel: ObservableObject {
         
         drawUnderline(newComment: newComment)
         if isNewButton{
-            drawCommentIcon(button: buttonGroup[newButtonIndex])
+            drawCommentIcon(button: buttonGroup.last!)
         }
         
     }
@@ -100,8 +101,10 @@ class CommentViewModel: ObservableObject {
     // 코멘트 삭제
     func deleteComment(commentId: UUID) {
         
-        let buttonID = comments.filter { $0.id == commentId }.first?.buttonId
+        // filter -> 수정필요
         let comment = comments.filter { $0.id == commentId }.first!
+        let buttonList = comments.filter { $0.buttonId == comment.buttonId }
+        let currentButtonId = comment.buttonId
         comments.removeAll(where: { $0.id == commentId })
         
         if let document = self.document {
@@ -109,15 +112,17 @@ class CommentViewModel: ObservableObject {
             for annotation in page.annotations {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
                     
-                    if (commentGroup.count == 1 && (annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString)) ||
-                        (commentGroup.count > 1 && annotationID == comment.id.uuidString) {
+                    if buttonList.count == 1 {
+                        if annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString {
+                            buttonGroup.removeAll(where: { $0.id ==  currentButtonId})
+                            page.removeAnnotation(annotation)
+                        }
+                    } else if buttonList.count > 1, annotationID == comment.id.uuidString {
                         page.removeAnnotation(annotation)
                     }
                 }
             }
         }
-        
-        
     }
     
     // TODO : 수정 액션 추가해야 함
