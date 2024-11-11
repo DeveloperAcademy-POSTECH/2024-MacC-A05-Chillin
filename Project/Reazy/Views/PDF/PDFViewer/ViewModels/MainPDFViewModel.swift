@@ -51,27 +51,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // Comment
     @Published var isCommentTapped: Bool = false
-//    {
-//        didSet{
-//            if !isCommentTapped, let comment = tappedComment {
-//                setHighlight(comment: comment, isTapped: false)
-//            }
-//        }
-//    }
-//    @Published var tappedComment: Comment? {
-//        didSet {
-//            if isCommentTapped, let comment = tappedComment {
-//                setHighlight(comment: comment, isTapped: true)
-//            }
-//        }
-//    }
-    
     @Published var selectedComments: [Comment] = []
-//    {
-//        didSet {
-//            setHighlight(selectedComments: selectedComments, isTapped: !isCommentTapped)
-//        }
-//    }
     
     @Published var commentSelection: PDFSelection?
     @Published var commentInputPosition: CGPoint = .zero
