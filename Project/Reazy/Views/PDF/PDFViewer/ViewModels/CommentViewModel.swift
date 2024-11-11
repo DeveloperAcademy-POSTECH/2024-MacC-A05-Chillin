@@ -18,8 +18,8 @@ class CommentViewModel: ObservableObject {
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
     
-    @Published var comments: [Comment] = []     /// 저장된 comment
-    @Published var commentGroup: [Comment] = [] // 저장된 comment 중 같은 ButtonID인 애들만 부를 때
+    @Published var comments: [Comment] = []         /// 저장된 comment
+    @Published var commentGroup: [Comment] = []     /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
     
     
     // MARK: - button
@@ -28,7 +28,7 @@ class CommentViewModel: ObservableObject {
     private var newbuttonid = UUID()
     private var isNewButton: Bool = true
     
-    @Published var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
+    @Published var commentPosition: CGPoint = .zero  /// 저장된 comment.bounds로부터 얻은 position
     
     //Comment Model
     @Published var selectedText: String = ""
@@ -49,12 +49,6 @@ class CommentViewModel: ObservableObject {
         if let text = selection.string {
             self.selectedText = text
         }
-        
-        // 같은 그룹 있는지
-        
-        // 같은 buttonID를 공유하는 comment 찾기
-        
-        
         isNewButton = true
         for group in buttonGroup {
             if group.selectedLine == getSelectedLine(selection: selection) {
@@ -84,7 +78,6 @@ class CommentViewModel: ObservableObject {
                                  text: text,
                                  selectedText: selectedText,
                                  selectionsByLine: getSelectionsByLine(selection: selection),
-                                 selectedLine: getSelectedLine(selection: selection),
                                  pages: pages,
                                  bounds: selectedBounds
         )
@@ -101,7 +94,6 @@ class CommentViewModel: ObservableObject {
     // 코멘트 삭제
     func deleteComment(commentId: UUID) {
         
-        // filter -> 수정필요
         let comment = comments.filter { $0.id == commentId }.first!
         let buttonList = comments.filter { $0.buttonId == comment.buttonId }
         let currentButtonId = comment.buttonId
@@ -315,18 +307,6 @@ extension CommentViewModel {
             }
         }
     }
-    
-    
-    
-}
-
-extension CommentViewModel {
-    
-    func loadComments() {
-        //        ForEach(comments) { comment.indices in
-        
-    }
-    
 }
 
 

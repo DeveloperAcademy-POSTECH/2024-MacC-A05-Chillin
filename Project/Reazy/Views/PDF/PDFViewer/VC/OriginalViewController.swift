@@ -62,7 +62,6 @@ final class OriginalViewController: UIViewController {
             selectionsByLine: [
                 selectionByLine(page:0, bounds: CGRect(x: 51.0236, y: 668.2831, width: 139.7584, height: 18.176000000000045))
             ],
-            selectedLine: CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045),
             pages: [0],
             bounds: CGRect(x: 51.0236, y: 668.2831, width: 139.7584, height: 18.176000000000045)
         )
@@ -75,7 +74,6 @@ final class OriginalViewController: UIViewController {
             selectionsByLine: [
                 selectionByLine(page:0, bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045))
             ],
-            selectedLine: CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045),
             pages: [0],
             bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045)
         )

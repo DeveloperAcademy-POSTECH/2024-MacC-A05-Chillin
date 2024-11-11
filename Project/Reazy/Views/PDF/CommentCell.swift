@@ -55,6 +55,7 @@ struct CommentCell: View {
                     Button(action: {
                         viewModel.deleteComment(commentId: comment.id)
                         pdfViewModel.isCommentTapped = false
+                        pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
                     }, label: {
                         HStack{
                             Image(systemName: "trash")
