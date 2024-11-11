@@ -1,177 +1,144 @@
-////
-////  CommentDataService.swift
-////  Reazy
-////
-////  Created by 유지수 on 11/7/24.
-////
 //
-//import Foundation
-//import CoreData
-//import PDFKit
-//import UIKit
+//  CommentDataService.swift
+//  Reazy
 //
-//class CommentDataService: CommentDataInterface {
-//    static let shared = CommentDataService()
-//    
-//    private let container: NSPersistentContainer = PersistantContainer.shared.container
-//    
-//    private init() { }
-//    
-//    func loadCommentData(for pdfID: UUID, pdfURL: Data) -> Result<[Comment], Error> {
-//        let dataContext = container.viewContext
-//        let fetchRequest: NSFetchRequest<CommentData> = CommentData.fetchRequest()
-//        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@", pdfID as CVarArg)
-//        
-//        do {
-//            let fetchComments = try dataContext.fetch(fetchRequest)
-//            let comments = fetchComments.compactMap { commentData -> Comment in
-//                
-//                var isStale = false
-//                var document: PDFDocument?
-//                var selection: PDFSelection?
-//                
-//                if let url = try? URL.init(resolvingBookmarkData: pdfURL, bookmarkDataIsStale: &isStale),
-//                url.startAccessingSecurityScopedResource() {
-//                    document = PDFDocument(url: url)
-//                    url.stopAccessingSecurityScopedResource()
-//                } else {
-//                    if let _ = UserDefaults.standard.value(forKey: "sampleId") as? String {
-//                        // TODO: 제대로 예외 처리 필요
-//                        document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!)
-//                    }
-//                }
-//                
-//                if let document = document {
-//                    let pageIndex = Int(commentData.pageIndex)
-//                    let firstPage = document.page(at: pageIndex)
-//                    print("commentData.pageIndex = \(commentData.pageIndex)")
-//                    print("commentData.text = \(String(describing: commentData.text))")
-//                    
-//                    selection = firstPage?.selection(for: NSRange(location: Int(commentData.startIndex), length: Int(commentData.length)))
-//                }
-//                
-//                let selectedLine: CGRect = {
-//                    if let rectData = commentData.selectedLine,
-//                       let unarchiveValue = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSValue.self, from: rectData) {
-//                        return unarchiveValue.cgRectValue
-//                    }
-//                    return .zero
-//                }()
-//                
-//                return Comment(
-//                    id: commentData.id ?? UUID(),
-//                    buttonID: commentData.buttonID,
-//                    selection: selection ?? PDFSelection(),
-//                    text: commentData.text ?? "",
-//                    selectedLine: selectedLine
-//                )
-//            }
-//            return .success(comments)
-//        } catch {
-//            return .failure(error)
-//        }
-//    }
-//    
-//    func saveCommentData(for pdfID: UUID, with comment: Comment) -> Result<VoidResponse, Error> {
-//        let dataContext = container.viewContext
-//        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
-//        fetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
-//        
-//        do {
-//            if let paperData = try dataContext.fetch(fetchRequest).first {
-//                
-//                let newComment = CommentData(context: dataContext)
-//                
-//                newComment.id = comment.id
-//                newComment.buttonID = comment.buttonID
-//                print("comment.pageIndex = \(String(describing: comment.selection.pages.first?.index))")
-//                print("comment.buttonID = \(comment.buttonID)")
-//                
-//                if let firstPage = comment.selection.pages.first,
-//                   let document = firstPage.document {
-//                    let pageIndex = document.index(for: firstPage)
-//                    newComment.pageIndex = Int32(pageIndex)
-//                    
-//                    let range = comment.selection.range(at: 0, on: firstPage)
-//                    newComment.startIndex = Int32(range.location)
-//                    newComment.length = Int32(range.length)
-//                }
-//                
-//                newComment.text = comment.text
-//                
-//                if let selectedLine = try? NSKeyedArchiver.archivedData(withRootObject: NSValue(cgRect: comment.selectedLine), requiringSecureCoding: false) {
-//                    newComment.selectedLine = selectedLine
-//                }
-//                
-//                newComment.paperData = paperData
-//                
-//                do {
-//                    try dataContext.save()
-//                    return .success(VoidResponse())
-//                } catch {
-//                    return .failure(error)
-//                }
-//            } else {
-//                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "CommentData not found"]))
-//            }
-//        } catch {
-//            return .failure(error)
-//        }
-//    }
-//    
-//    func editCommentData(for pdfID: UUID, with comment: Comment) -> Result<VoidResponse, Error> {
-//        let dataContext = container.viewContext
-//        let fetchRequest: NSFetchRequest<CommentData> = CommentData.fetchRequest()
-//        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@ AND id == %@", pdfID as CVarArg, comment.id as CVarArg)
-//        
-//        do {
-//            let result = try dataContext.fetch(fetchRequest)
-//            if let commentToEdit = result.first {
-//                
-//                commentToEdit.text = comment.text
-//                
-//                if let firstPage = comment.selection.pages.first,
-//                   let document = firstPage.document {
-//                    let pageIndex = document.index(for: firstPage)
-//                    commentToEdit.pageIndex = Int32(pageIndex)
-//                    
-//                    let range = comment.selection.range(at: 0, on: firstPage)
-//                    commentToEdit.startIndex = Int32(range.location)
-//                    commentToEdit.length = Int32(range.length)
-//                }
-//                
-//                commentToEdit.text = comment.text
-//                
-//                if let selectedLine = try? NSKeyedArchiver.archivedData(withRootObject: NSValue(cgRect: comment.selectedLine), requiringSecureCoding: false) {
-//                    commentToEdit.selectedLine = selectedLine
-//                }
-//                
-//                try dataContext.save()
-//                return .success(VoidResponse())
-//            } else {
-//                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Comment not found"]))
-//            }
-//        } catch {
-//            return .failure(error)
-//        }
-//    }
-//    
-//    func deleteCommentData(for pdfID: UUID, id: UUID) -> Result<VoidResponse, Error> {
-//        let dataContext = container.viewContext
-//        let fetchRequest: NSFetchRequest<CommentData> = CommentData.fetchRequest()
-//        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@ AND id == %@", pdfID as CVarArg, id as CVarArg)
-//        
-//        do {
-//            let result = try dataContext.fetch(fetchRequest)
-//            if let commentToDelete = result.first {
-//                dataContext.delete(commentToDelete)
-//                try dataContext.save()
-//                return .success(VoidResponse())
-//            } else {
-//                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Comment not found"]))
-//            }
-//        } catch {
-//            return .failure(error)
-//        }
-//    }
-//}
+//  Created by 유지수 on 11/11/24.
+//
+
+import Foundation
+import CoreData
+import UIKit
+
+class CommentDataService: CommentDataInterface {
+    static let shared = CommentDataService()
+    
+    private let container: NSPersistentContainer = PersistantContainer.shared.container
+    
+    private init() { }
+    
+    func loadCommentData(for pdfID: UUID) -> Result<[Comment], Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<CommentData> = CommentData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@", pdfID as CVarArg)
+        
+        do {
+            let fetchedComments = try dataContext.fetch(fetchRequest)
+            let comments = fetchedComments.map { commentData -> Comment in
+                
+                let selectionsByLine = commentData.selectionByLine.map { selection in
+                    let bounds = convertDataToCGRect(selection.bounds)
+                    
+                    return selectionByLine(page: Int(selection.page), bounds: bounds)
+                }
+                
+                let bounds = convertDataToCGRect(commentData.bounds)
+                
+                return Comment(
+                    id: commentData.id,
+                    buttonId: commentData.buttonID,
+                    text: commentData.text,
+                    selectedText: commentData.selectedText,
+                    selectionsByLine: selectionsByLine,
+                    pages: commentData.pages,
+                    bounds: bounds
+                )
+            }
+            return .success(comments)
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    func saveCommentData(for pdfID: UUID, with comment: Comment) -> Result<VoidResponse, Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
+        
+        do {
+            if let paperData = try dataContext.fetch(fetchRequest).first {
+                let newCommentData = CommentData(context: dataContext)
+                
+                newCommentData.id = comment.id
+                newCommentData.buttonID = comment.buttonId
+                newCommentData.text = comment.text
+                newCommentData.selectedText = comment.selectedText
+                
+                newCommentData.selectionByLine = Set(comment.selectionsByLine.map { selection in
+                    let selectionData = SelectionByLine(context: dataContext)
+                    selectionData.page = Int32(selection.page)
+                    
+                    let bounds = convertCGRectToData(selection.bounds) ?? Data()
+                    selectionData.bounds = bounds
+                    return selectionData
+                })
+                
+                newCommentData.pages = comment.pages
+                
+                newCommentData.bounds = convertCGRectToData(comment.bounds) ?? Data()
+                
+                newCommentData.paperData = paperData
+                
+                try dataContext.save()
+                return .success(VoidResponse())
+            } else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "CommentData not found"]))
+            }
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    func editCommentData(for pdfID: UUID, with comment: Comment) -> Result<VoidResponse, Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<CommentData> = CommentData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@ AND id == %@", pdfID as CVarArg, comment.id as CVarArg)
+        
+        do {
+            let result = try dataContext.fetch(fetchRequest)
+            if let commentToEdit = result.first {
+                
+                commentToEdit.text = comment.text
+                
+                try dataContext.save()
+                return .success(VoidResponse())
+            } else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Comment not found"]))
+            }
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    func deleteCommentData(for pdfID: UUID, id: UUID) -> Result<VoidResponse, Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<CommentData> = CommentData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "paperData.id == %@ AND id == %@", pdfID as CVarArg, id as CVarArg)
+        
+        do {
+            let result = try dataContext.fetch(fetchRequest)
+            if let commentToDelete = result.first {
+                
+                dataContext.delete(commentToDelete)
+                
+                try dataContext.save()
+                return .success(VoidResponse())
+            } else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Comment not found"]))
+            }
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    private func convertCGRectToData(_ rect: CGRect) -> Data? {
+        return try? NSKeyedArchiver.archivedData(withRootObject: NSValue(cgRect: rect), requiringSecureCoding: true)
+    }
+    
+    private func convertDataToCGRect(_ data: Data?) -> CGRect {
+        guard let data = data,
+              let rectValue = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSValue.self, from: data) else {
+            return .zero
+        }
+        return rectValue.cgRectValue
+    }
+}

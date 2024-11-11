@@ -16,9 +16,12 @@ class CommentViewModel: ObservableObject {
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
     
-    // TODO: - [브리] core data에서 넘겨줘야하는 배열 comments, buttonGroup
     @Published var comments: [Comment] = [] // 전체 코멘트 배열
     @Published var buttonGroup: [ButtonGroup] = [] // 전체 버튼 배열
+    var tempCommentArray: [Comment] = []
+    
+    var commentService: CommentDataService
+    private var buttonGroupService: ButtonGroupDataService
     
     // 해당 줄의 첫 코멘트를 생성하는 상황에 사용되는 변수
     private var newButtonId = UUID() // 새로 추가되는 버튼의 id
@@ -34,18 +37,31 @@ class CommentViewModel: ObservableObject {
     @Published var isEditMode = false
     @Published var comment: Comment?
     
-    init(paperInfo: PaperInfo) {
+    init(
+        paperInfo: PaperInfo,
+        commentService: CommentDataService,
+        buttonGroupService: ButtonGroupDataService
+    ) {
         self.paperInfo = paperInfo
+        self.commentService = commentService
+        self.buttonGroupService = buttonGroupService
+        // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
+        switch commentService.loadCommentData(for: paperInfo.id) {
+        case .success(let commentList):
+            tempCommentArray = commentList
+        case .failure(_):
+            return
+        }
+        
+        switch buttonGroupService.loadButtonGroup(for: paperInfo.id) {
+        case .success(let buttonGroupList):
+            buttonGroup = buttonGroupList
+        case .failure(_):
+            return
+        }
     }
     
     func loadComments() {
-        
-        // TODO: - [브리] 여기 함수 부를 때 core data에서 comments, buttonGroup 배열 받아서
-        // MARK: comments -> tempCommentArray 에 !!!!!! 하나씩 빼서 할 것들이 있어서 temp 배열에 넣어줘야해
-        // buttonGroup은 그냥 viewmodel.buttonGroup에 채워주면 됨
-        
-        let tempCommentArray: [Comment] = []
-        
         for comment in tempCommentArray {
             comments.append(comment)
             drawUnderline(newComment: comment)
@@ -81,6 +97,7 @@ class CommentViewModel: ObservableObject {
                 selectedLine: getSelectedLine(selection: selection),
                 buttonPosition: getCommentIconPostion(selection: selection)
             )
+            _ = buttonGroupService.saveButtonGroup(for: paperInfo.id, with: newGroup)
             buttonGroup.append(newGroup)
             newButtonId = newGroup.id
         }
@@ -93,6 +110,8 @@ class CommentViewModel: ObservableObject {
                                  pages: pages,
                                  bounds: selectedBounds
         )
+        
+        _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         comments.append(newComment)
         drawUnderline(newComment: newComment)
         if isNewButton{
@@ -106,6 +125,7 @@ class CommentViewModel: ObservableObject {
         let comment = comments.filter { $0.id == commentId }.first! ///전체 코멘트 그룹에서 삭제할 코멘트를 찾음
         let buttonList = comments.filter { $0.buttonId == comment.buttonId } ///전체 코멘트 그룹에서 삭제할 코멘트와 같은 버튼 id를 공유하는 코멘트들 리스트 찾음
         let currentButtonId = comment.buttonId // 삭제할 코멘트의 버튼 id를 변수에 담음
+        _ = commentService.deleteCommentData(for: paperInfo.id, id: commentId)
         comments.removeAll(where: { $0.id == commentId }) //전체 코멘트 그룹에서 코멘트 삭제
         
         if let document = self.document {
@@ -116,6 +136,7 @@ class CommentViewModel: ObservableObject {
                     // 마지막 버튼이었을 경우 버튼 아이콘, 밑줄 삭제
                     if buttonList.count == 1 {
                         if annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString {
+                            _ = buttonGroupService.deleteButtonGroup(for: paperInfo.id, id: currentButtonId)
                             buttonGroup.removeAll(where: { $0.id ==  currentButtonId})
                             page.removeAnnotation(annotation)
                         }
