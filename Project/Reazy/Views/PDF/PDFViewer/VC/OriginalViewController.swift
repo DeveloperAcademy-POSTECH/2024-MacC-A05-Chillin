@@ -218,7 +218,7 @@ extension OriginalViewController {
                     
                     // 텍스트 선택 후 딜레이
                     self.selectionWorkItem = workItem
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
                 default:
                     return
                 }

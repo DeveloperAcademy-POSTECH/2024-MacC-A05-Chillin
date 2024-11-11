@@ -39,7 +39,8 @@ struct CommentCell: View {
             Menu {
                 ControlGroup {
                     Button(action: {
-                        // TODO : 수정 액션 추가해야 함
+                        viewModel.comment = comment
+                        viewModel.isEditMode = true
                         pdfViewModel.isCommentTapped = false
                     }, label: {
                         HStack{

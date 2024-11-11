@@ -31,6 +31,9 @@ class CommentViewModel: ObservableObject {
     @Published var pages: [Int] = []
     @Published var selectedBounds: CGRect = .zero
     
+    @Published var isEditMode = false
+    @Published var comment: Comment?
+    
     init(paperInfo: PaperInfo) {
         self.paperInfo = paperInfo
     }
@@ -41,7 +44,7 @@ class CommentViewModel: ObservableObject {
         // MARK: comments -> tempCommentArray 에 !!!!!! 하나씩 빼서 할 것들이 있어서 temp 배열에 넣어줘야해
         // buttonGroup은 그냥 viewmodel.buttonGroup에 채워주면 됨
         
-        var tempCommentArray: [Comment] = []
+        let tempCommentArray: [Comment] = []
         
         for comment in tempCommentArray {
             comments.append(comment)
@@ -123,11 +126,6 @@ class CommentViewModel: ObservableObject {
                 }
             }
         }
-    }
-    
-    // TODO : 수정 액션 추가해야 함
-    func editComment(commentId: UUID) {
-        
     }
 }
 
@@ -319,9 +317,3 @@ extension CommentViewModel {
         }
     }
 }
-
-
-
-
-
-

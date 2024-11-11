@@ -30,6 +30,9 @@ struct CommentGroupView: View {
             .border(.primary2, width: 1)
             .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
         }
+        .onChange(of: viewModel.isEditMode) {
+            print("editmode")
+        }
     }
 }
 
@@ -83,14 +86,40 @@ private struct CommentInputView: View {
                 Spacer()
                 
                 Button(action: {
+                    
+                    defer {
+                        viewModel.isEditMode = false
+                    }
+                    pdfViewModel.isCommentTapped = false
+                    pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
+                    
                     if !text.isEmpty {
+                        if viewModel.isEditMode {
+                            guard let commentId = viewModel.comment?.id else {return}
+                            let comments = viewModel.comments
+                            
+                            _ = viewModel.comments.first{ $0.id == commentId }
+                            guard let idx = viewModel.comments.firstIndex(where: { $0.id == commentId }) else { return }
+                            
+                            let resultComment = Comment(
+                                id: comments[idx].id,
+                                buttonId: comments[idx].buttonId,
+                                text: self.text,
+                                selectedText: comments[idx].selectedText,
+                                selectionsByLine: comments[idx].selectionsByLine,
+                                pages: comments[idx].pages,
+                                bounds: comments[idx].bounds)
+                            
+                            viewModel.comments[idx] = resultComment
+                            return
+                        }
                         pdfViewModel.isCommentSaved = true
                         viewModel.addComment(text: text,
                                              selection: changedSelection
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
-//                        dump(viewModel.comments)
                     }
+                    viewModel.isEditMode = false
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .foregroundStyle(text.isEmpty ? .primary4 : .primary1)
@@ -102,6 +131,12 @@ private struct CommentInputView: View {
         }
         .padding(.top, 16)
         .padding(.bottom, 9)
+        .onReceive(self.viewModel.$comment) {
+            guard let comment = $0 else { return }
+            if viewModel.isEditMode {
+                self.text = comment.text
+            }
+        }
     }
 }
 

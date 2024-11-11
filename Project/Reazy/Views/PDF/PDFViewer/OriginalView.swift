@@ -46,7 +46,7 @@ struct OriginalView: View {
                         }
                     }
                 }
-                if viewModel.isCommentVisible == true {
+                if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
                     CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
                         .position(viewModel.isCommentTapped
                                   ? commentViewModel.commentPosition
