@@ -96,7 +96,7 @@ extension PDFFileManager {
     
     @MainActor
     public func uploadSampleFile() -> UUID? {
-        let pdfURL = Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!
+        let pdfURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
         
         let tempDoc = PDFDocument(url: pdfURL)
         var lastComponent = pdfURL.lastPathComponent.split(separator: ".")

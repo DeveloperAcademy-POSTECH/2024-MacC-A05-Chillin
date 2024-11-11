@@ -104,7 +104,7 @@ final class MainPDFViewModel: ObservableObject {
         } else {
             if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
                id == paperInfo.id.uuidString {
-                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!)
+                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
             }
         }
         self.pdfDrawer = .init()
