@@ -109,7 +109,18 @@ extension MainPDFViewModel {
             print("PDF URL을 찾을 수 없습니다.")
             return
         }
-
+        
+        for pageIndex in 0..<document.pageCount {
+            guard let page = document.page(at: pageIndex) else { continue }
+            
+            // 각 페이지의 모든 주석을 반복하며 밑줄과 코멘트 아이콘 지우기
+            for annotation in page.annotations {
+                if annotation.value(forAnnotationKey: .contents) != nil {
+                    page.removeAnnotation(annotation)
+                }
+            }
+        }
+        
         // PDF 파일을 지정한 URL에 덮어쓰기 저장
         do {
             let pdfData = document.dataRepresentation()
