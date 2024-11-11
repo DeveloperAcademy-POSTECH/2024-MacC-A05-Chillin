@@ -21,7 +21,7 @@ final class OriginalViewController: UIViewController {
     
     var cancellable: Set<AnyCancellable> = []
     var selectionWorkItem: DispatchWorkItem?
-
+    
     
     let mainPDFView: PDFView = {
         let view = PDFView()
@@ -50,9 +50,13 @@ final class OriginalViewController: UIViewController {
         // 코멘트 loading 하는 함수
         // core data에서 브리가 준 배열을 하나씩 꺼내서
         
+        let button1 = ButtonGroup.init(id: UUID(), page: 0, selectedLine: CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045), buttonPosition: CGRect(x: 431.6508000000001, y: 670.2831, width: 10.0, height: 10.0))
+        
+        commentViewModel.buttonGroup.append(button1)
+        
         let dummyComment = Comment(
             id: UUID(),
-            buttonID: "CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045)",
+            buttonId: button1.id,
             text: "text",
             selectedText: "A review of the global",
             selectionsByLine: [
@@ -60,49 +64,33 @@ final class OriginalViewController: UIViewController {
             ],
             selectedLine: CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045),
             pages: [0],
-            bounds: CGRect(x: 51.0236, y: 668.2831, width: 139.7584, height: 18.176000000000045),
-            iconPosition: CGRect(x: 431.6508000000001, y: 670.2831, width: 10.0, height: 10.0)
+            bounds: CGRect(x: 51.0236, y: 668.2831, width: 139.7584, height: 18.176000000000045)
         )
         
         let dummyComment2 = Comment(
             id: UUID(),
-            buttonID: "CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045)",
-            text: "hhhh",
+            buttonId: button1.id,
+            text: "kk",
             selectedText: "change impacts",
             selectionsByLine: [
                 selectionByLine(page:0, bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045))
             ],
             selectedLine: CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045),
             pages: [0],
-            bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045),
-            iconPosition: CGRect(x: 431.6508000000001, y: 670.2831, width: 10.0, height: 10.0)
+            bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045)
         )
         
         // 다른 빈 배열 하나에 다 저장해놓고
         commentViewModel.comments.append(dummyComment)
         
-        
-        // 그 새로 만든 배열을 for 문으로 돌리는데
-        // for comment in commentarray {
-//        1. commentViewModel.comments.append(comment)
-        
-//    }
-        
-        
-        
-        
         // 모든 주석과 아이콘 그리기
-            commentViewModel.findCommentGroup(comment: commentViewModel.comments[0])
-            commentViewModel.drawUnderline(newComment: commentViewModel.comments[0])
-            commentViewModel.drawCommentIcon(newComment: commentViewModel.comments[0])
-//        }
+        commentViewModel.drawUnderline(newComment: commentViewModel.comments[0])
+        commentViewModel.drawCommentIcon(button: commentViewModel.buttonGroup[0])
         commentViewModel.comments.append(dummyComment2)
-//        for comment in commentViewModel.comments {
-            commentViewModel.findCommentGroup(comment: commentViewModel.comments[1])
-            commentViewModel.drawUnderline(newComment: commentViewModel.comments[1])
-            commentViewModel.drawCommentIcon(newComment: commentViewModel.comments[1])
-//        }
-
+        commentViewModel.drawUnderline(newComment: commentViewModel.comments[1])
+        commentViewModel.drawCommentIcon(button: commentViewModel.buttonGroup[0])
+        //        }
+        
         //NotificationCenter.default.addObserver(self, selector: #selector(handlePDFLoad), name: .PDFViewDocumentChanged, object: mainPDFView)
     }
     
@@ -157,16 +145,16 @@ extension OriginalViewController {
         }
     }
     
-    @objc func handlePDFLoad() {
-        guard let document = mainPDFView.document else { return }
-        print("PDF Document loaded with \(document.pageCount) pages.")
-        
-        // 모든 주석과 아이콘 그리기
-        for comment in commentViewModel.comments {
-            commentViewModel.drawUnderline(newComment: comment)
-            commentViewModel.drawCommentIcon(newComment: comment)
-        }
-    }
+    //    @objc func handlePDFLoad() {
+    //        guard let document = mainPDFView.document else { return }
+    //        print("PDF Document loaded with \(document.pageCount) pages.")
+    //
+    //        // 모든 주석과 아이콘 그리기
+    //        for comment in commentViewModel.comments {
+    //            commentViewModel.drawUnderline(newComment: comment)
+    //            commentViewModel.drawCommentIcon(newComment: comment)
+    //        }
+    //    }
     
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
@@ -355,25 +343,14 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         
         /// 해당 위치에 Annotation이 있는지 확인
         if let tappedAnnotation = page.annotation(at: pageLocation) {
-            print(tappedAnnotation)
-            print(tappedAnnotation.contents)
-            
-            
-            if let buttonID = tappedAnnotation.contents,
-               let tappedComment = commentViewModel.comments.first(where: { $0.buttonID == buttonID }) {
-                
-                print(tappedComment)
+            if let buttonID = tappedAnnotation.contents {
+                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                 viewModel.isCommentTapped.toggle()
-                print(viewModel.isCommentTapped)
-                
                 if viewModel.isCommentTapped {
-                    viewModel.tappedComment = tappedComment
-                    commentViewModel.findCommentGroup(comment: tappedComment)
-                    commentViewModel.setCommentPosition(comment: tappedComment, pdfView: mainPDFView)
+                    commentViewModel.setCommentPosition(comment: viewModel.selectedComments.first!, pdfView: mainPDFView)
                 } else {
                     viewModel.tappedComment = nil
                 }
-                
             } else {
                 print("No match comment annotation")
             }

@@ -8,6 +8,7 @@
 import Foundation
 import PDFKit
 import Combine
+import SwiftUI
 
 class CommentViewModel: ObservableObject {
     
@@ -18,7 +19,16 @@ class CommentViewModel: ObservableObject {
     var pdfCoordinates: CGRect = .zero
     
     @Published var comments: [Comment] = []     /// 저장된 comment
-    @Published var commentGroup: [Comment] = []            /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
+    @Published var commentGroup: [Comment] = [] // 저장된 comment 중 같은 ButtonID인 애들만 부를 때
+    
+    
+    // MARK: - button
+    @Published var buttonGroup: [ButtonGroup] = []
+    
+    private var newbuttonid = UUID()
+    private var isNewButton: Bool = false
+    private var newButtonIndex: Int = 0
+    
     @Published var commentPosition: CGPoint = .zero        /// 저장된 comment.bounds로부터 얻은 position
     
     //Comment Model
@@ -32,6 +42,7 @@ class CommentViewModel: ObservableObject {
     
     // 코멘트 추가
     func addComment(text: String, selection: PDFSelection) {
+        print("addcomment")
         
         if let document = self.document {
             getSelectionPages(selection: selection, document: document)
@@ -39,30 +50,74 @@ class CommentViewModel: ObservableObject {
         if let text = selection.string {
             self.selectedText = text
         }
+        
+        // 같은 그룹 있는지
+        
+        // 같은 buttonID를 공유하는 comment 찾기
+        
+        for (index, group) in buttonGroup.enumerated() {
+            if group.selectedLine == getSelectedLine(selection: selection) {
+                // 이미 있는 그룹에 내가 붙는 경우
+                isNewButton = false
+                newButtonIndex = index
+                newbuttonid = group.id
+                break
+                
+            }
+        }
+        
+        // 새로운 그룹이 필요하다면 추가
+        if isNewButton {
+            let newGroup = ButtonGroup(
+                id: UUID(),
+                page: pages[0],
+                selectedLine: getSelectedLine(selection: selection),
+                buttonPosition: getCommentIconPostion(selection: selection)
+            )
+            buttonGroup.append(newGroup)
+            newbuttonid = newGroup.id
+        }
+        
         let newComment = Comment(id: UUID(),
-                                 buttonID: "\(getSelectedLine(selection: selection))",
+                                 buttonId: newbuttonid,
                                  text: text,
                                  selectedText: selectedText,
                                  selectionsByLine: getSelectionsByLine(selection: selection),
                                  selectedLine: getSelectedLine(selection: selection),
                                  pages: pages,
-                                 bounds: selectedBounds,
-                                 iconPosition: getCommentIconPostion(selection: selection)
+                                 bounds: selectedBounds
         )
+        
         comments.append(newComment)
         
         drawUnderline(newComment: newComment)
-        findCommentGroup(comment: newComment)
-        
-        if commentGroup.count == 1 {
-            drawCommentIcon(newComment: newComment)
+        if isNewButton{
+            drawCommentIcon(button: buttonGroup[newButtonIndex])
         }
+        
     }
     
     // 코멘트 삭제
-    func deleteComment(comment: Comment) {
-        comments.removeAll(where: { $0.id == comment.id })
-        removeAnnotations(comment: comment)
+    func deleteComment(commentId: UUID) {
+        
+        let buttonID = comments.filter { $0.id == commentId }.first?.buttonId
+        let comment = comments.filter { $0.id == commentId }.first!
+        comments.removeAll(where: { $0.id == commentId })
+        
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
+            for annotation in page.annotations {
+                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
+                    
+                    if (commentGroup.count == 1 && (annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString)) ||
+                        (commentGroup.count > 1 && annotationID == comment.id.uuidString) {
+                        page.removeAnnotation(annotation)
+                    }
+                }
+            }
+        }
+        
+        
     }
     
     // TODO : 수정 액션 추가해야 함
@@ -155,14 +210,7 @@ extension CommentViewModel {
         return iconPosition
     }
     
-    // 같은 buttonID를 공유하는 comment 찾기
-    func findCommentGroup(comment: Comment) {
-        dump("코멘트 : \(comments)")
-        let group = comments.filter { $0.buttonID == comment.buttonID }
-        print("find")
-        self.commentGroup = group
-        dump("코멘트 그룹 : \(commentGroup)")
-    }
+    
     
     // selection 영역이 있는 pages를 [Int]로 반환
     func getSelectionPages(selection: PDFSelection, document: PDFDocument) {
@@ -188,27 +236,20 @@ extension CommentViewModel {
 extension CommentViewModel {
     
     /// 버튼 추가
-    func drawCommentIcon(newComment: Comment) {
-        print("draw")
-        print(commentGroup.count)
-        if commentGroup.count == 1 { return }
-
-        print("draw")
-        if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: newComment.pages, document: document).first else { return }
-            let image = UIImage(systemName: "text.bubble")
-            image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
-            
-            let commentIcon = ImageAnnotation(imageBounds: newComment.iconPosition, image: image)
-            
-            commentIcon.widgetFieldType = .button
-            commentIcon.color = .point4
-            
-            /// 버튼에 코멘트 정보 참조
-            commentIcon.setValue(newComment.buttonID, forAnnotationKey: .contents)
-            print(newComment.buttonID)
-            page.addAnnotation(commentIcon)
-        }
+    func drawCommentIcon(button: ButtonGroup) {
+        let PDFPage = document?.page(at: button.page)
+        
+        let image = UIImage(systemName: "text.bubble")
+        image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
+        
+        let commentIcon = ImageAnnotation(imageBounds: button.buttonPosition, image: image)
+        
+        commentIcon.widgetFieldType = .button
+        commentIcon.color = .point4
+        
+        /// 버튼에 코멘트 정보 참조
+        commentIcon.setValue(button.id.uuidString, forAnnotationKey: .contents)
+        PDFPage?.addAnnotation(commentIcon)
     }
     
     public class ImageAnnotation: PDFAnnotation {
@@ -270,31 +311,18 @@ extension CommentViewModel {
         }
     }
     
-    private func removeAnnotations(comment: Comment) {
-        if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
-            for annotation in page.annotations {
-                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
-                    
-                    if (commentGroup.count == 1 && (annotationID == comment.buttonID || annotationID == comment.id.uuidString)) ||
-                        (commentGroup.count > 1 && annotationID == comment.id.uuidString) {
-                        page.removeAnnotation(annotation)
-                    }
-                }
-            }
-        }
-    }
+    
     
 }
 
 extension CommentViewModel {
     
     func loadComments() {
-//        ForEach(comments) { comment.indices in
-            
-        }
+        //        ForEach(comments) { comment.indices in
         
     }
     
+}
+
 
 

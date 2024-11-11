@@ -64,6 +64,7 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
+    @Published var selectedComments: [Comment] = []
     @Published var commentSelection: PDFSelection?
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
@@ -408,7 +409,7 @@ extension MainPDFViewModel {
                     highlight.color = UIColor.comment
                     
                     /// 하이라이트 주석 구별하기
-                    highlight.setValue("\(comment.buttonID) isHighlight", forAnnotationKey: .contents)
+                    highlight.setValue("\(comment.buttonId) isHighlight", forAnnotationKey: .contents)
                     page.addAnnotation(highlight)
                 }
             }
@@ -419,7 +420,7 @@ extension MainPDFViewModel {
                 
                 for annotation in page.annotations {
                     if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
-                       annotationValue == "\(comment.buttonID) isHighlight" {
+                       annotationValue == "\(comment.buttonId) isHighlight" {
                         page.removeAnnotation(annotation)
                     }
                 }

@@ -11,7 +11,7 @@ struct CommentCell: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     
-    var comment: Comment
+    var comment: Comment // 선택된 comment
     
     var body: some View {
         HStack(alignment: .center){
@@ -53,9 +53,7 @@ struct CommentCell: View {
                     .foregroundStyle(.gray600)
                     
                     Button(action: {
-                        if let tappedComment = pdfViewModel.tappedComment {
-                            viewModel.deleteComment(comment: tappedComment)
-                        }
+                        viewModel.deleteComment(commentId: comment.id)
                         pdfViewModel.isCommentTapped = false
                     }, label: {
                         HStack{
