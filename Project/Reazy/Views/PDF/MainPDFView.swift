@@ -58,14 +58,12 @@ struct MainPDFView: View {
                                             RoundedRectangle(cornerRadius: 6)
                                                 .fill(Color.clear)
                                                 .frame(width: 26, height: 26)
-                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                                             
                                             Image(systemName: "list.bullet")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .foregroundStyle(selectedIndex == 1 ? .gray100 : .gray800)
                                                 .frame(width: 18)
-                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                                         }
                                     )
                             }
@@ -86,14 +84,12 @@ struct MainPDFView: View {
                                             RoundedRectangle(cornerRadius: 6)
                                                 .fill(Color.clear)
                                                 .frame(width: 26, height: 26)
-                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                                             
                                             Image(systemName: "rectangle.grid.1x2")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .foregroundStyle(selectedIndex == 2 ? .gray100 : .gray800)
                                                 .frame(width: 18)
-                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                                         }
                                     )
                             }
@@ -112,11 +108,9 @@ struct MainPDFView: View {
                                             RoundedRectangle(cornerRadius: 6)
                                                 .fill(Color.clear)
                                                 .frame(width: 26, height: 26)
-                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                                             Text("Fig")
                                                 .font(.system(size: 14))
                                                 .foregroundStyle(isFigSelected ? .gray100 : .gray800)
-                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                                         }
                                     )
                             }
@@ -258,12 +252,10 @@ struct MainPDFView: View {
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(Color.clear)
                                         .frame(width: 26, height: 26)
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                                     
                                     Image(systemName: "chevron.down")
                                         .font(.system(size: 12))
                                         .foregroundStyle(.gray800)
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                                 }
                             }
                             .padding(.leading, 0)
@@ -329,12 +321,10 @@ struct MainPDFView: View {
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(Color.clear)
                                         .frame(width: 26, height: 26)
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                                     
                                     Image(systemName: "chevron.left")
                                         .foregroundStyle(.gray800)
                                         .font(.system(size: 14))
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                                 }
                             }
                             .padding(.trailing, 10)
@@ -346,12 +336,10 @@ struct MainPDFView: View {
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(Color.clear)
                                         .frame(width: 26, height: 26)
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                                     
                                     Image(systemName: "magnifyingglass")
                                         .foregroundStyle(.gray800)
                                         .font(.system(size: 16))
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                                 }
                             }
                         }

@@ -70,7 +70,6 @@ struct ColorButton: View {
                 Circle()
                     .fill(Color.clear)
                     .frame(width: 26, height: 26)
-                    .overlay(Circle().stroke(Color.blue, lineWidth: 1))
                 
                 Circle()
                     .frame(width: 18, height: 18)
@@ -114,14 +113,12 @@ struct WriteViewButton: View {
                         RoundedRectangle(cornerRadius: 6)
                             .fill(Color.clear)
                             .frame(width: 26, height: 26)
-                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
                         
                         buttonOwner.icon
                             .resizable()
                             .scaledToFit()
                             .foregroundStyle(foregroundColor)
                             .frame(height: 18)
-                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
                     }
                 )
         }
