@@ -54,11 +54,19 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .foregroundStyle(selectedIndex == 1 ? .primary1 : .clear)
                                     .overlay (
-                                        Image(systemName: "list.bullet")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .foregroundStyle(selectedIndex == 1 ? .gray100 : .gray800)
-                                            .frame(width: 18)
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(Color.clear)
+                                                .frame(width: 26, height: 26)
+                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+                                            
+                                            Image(systemName: "list.bullet")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundStyle(selectedIndex == 1 ? .gray100 : .gray800)
+                                                .frame(width: 18)
+                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
+                                        }
                                     )
                             }
                             .padding(.trailing, 36)
@@ -74,11 +82,19 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .foregroundStyle(selectedIndex == 2 ? .primary1 : .clear)
                                     .overlay (
-                                        Image(systemName: "rectangle.grid.1x2")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .foregroundStyle(selectedIndex == 2 ? .gray100 : .gray800)
-                                            .frame(width: 18)
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(Color.clear)
+                                                .frame(width: 26, height: 26)
+                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+                                            
+                                            Image(systemName: "rectangle.grid.1x2")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundStyle(selectedIndex == 2 ? .gray100 : .gray800)
+                                                .frame(width: 18)
+                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
+                                        }
                                     )
                             }
                             
@@ -92,9 +108,16 @@ struct MainPDFView: View {
                                 // MARK: - 부리꺼 : 색상 적용 필요
                                     .foregroundStyle(isFigSelected ? Color(hex: "5F5DAA") : .clear)
                                     .overlay (
-                                        Text("Fig")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle(isFigSelected ? .gray100 : .gray800)
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(Color.clear)
+                                                .frame(width: 26, height: 26)
+                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+                                            Text("Fig")
+                                                .font(.system(size: 14))
+                                                .foregroundStyle(isFigSelected ? .gray100 : .gray800)
+                                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
+                                        }
                                     )
                             }
                         }
@@ -231,10 +254,19 @@ struct MainPDFView: View {
                             Button {
                                 self.isModifyTitlePresented.toggle()
                             } label: {
-                                Image(systemName: "chevron.down")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(.gray800)
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(Color.clear)
+                                        .frame(width: 26, height: 26)
+                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+                                    
+                                    Image(systemName: "chevron.down")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.gray800)
+                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
+                                }
                             }
+                            .padding(.leading, 0)
                             .popover(isPresented: $isModifyTitlePresented) {
                                 ZStack {
                                     Color.gray200
@@ -293,17 +325,34 @@ struct MainPDFView: View {
                             Button(action: {
                                 navigationCoordinator.pop()
                             }) {
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(.gray800)
-                                    .font(.system(size: 14))
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(Color.clear)
+                                        .frame(width: 26, height: 26)
+                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+                                    
+                                    Image(systemName: "chevron.left")
+                                        .foregroundStyle(.gray800)
+                                        .font(.system(size: 14))
+                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
+                                }
                             }
-                            .padding(.trailing, 29)
+                            .padding(.trailing, 10)
+                            
                             Button(action: {
                                 self.isSearchSelected.toggle()
                             }) {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundStyle(.gray800)
-                                    .font(.system(size: 16))
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(Color.clear)
+                                        .frame(width: 26, height: 26)
+                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.blue, lineWidth: 1))
+                                    
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundStyle(.gray800)
+                                        .font(.system(size: 16))
+                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red, lineWidth: 1))
+                                }
                             }
                         }
                     },
@@ -443,7 +492,7 @@ struct MainPDFView: View {
                 selectedColor = color
                 mainPDFViewModel.selectedHighlightColor = color
             }
-            .padding(.trailing, color == .blue ? .zero : 18)
+            .padding(.trailing, color == .blue ? .zero : 10)
         }
         
         Rectangle()
