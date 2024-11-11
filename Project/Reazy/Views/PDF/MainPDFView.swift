@@ -326,6 +326,7 @@ struct MainPDFView: View {
             }
             .onDisappear {
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+                // TODO: - [브리] commentViewModel에 있는 comments랑 buttonGroup 배열 두 개 저장하는 거 여기서
             }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)

@@ -11,21 +11,19 @@ struct CommentCell: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
     
-    var comment: Comment
+    var comment: Comment // 선택된 comment
     
     var body: some View {
         HStack(alignment: .center){
+            
             Divider()
                 .frame(width: 2, height: 14)
                 .background(.point4)
-            //.padding(.trailing, 6)
             
-            if let commentText = comment.selection.string {
-                Text(commentText.replacingOccurrences(of: "\n", with: ""))
+            Text(comment.selectedText.replacingOccurrences(of: "\n", with: ""))
                     .reazyFont(.body3)
                     .foregroundStyle(.point4)
                     .lineLimit(1)
-            }
         }
         .padding(.bottom, 8)
         .padding(.trailing, 16)
@@ -55,10 +53,9 @@ struct CommentCell: View {
                     .foregroundStyle(.gray600)
                     
                     Button(action: {
-                        if let tappedComment = pdfViewModel.tappedComment {
-                            viewModel.deleteComment(selection: tappedComment.selection, comment: tappedComment)
-                        }
+                        viewModel.deleteComment(commentId: comment.id)
                         pdfViewModel.isCommentTapped = false
+                        pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
                     }, label: {
                         HStack{
                             Image(systemName: "trash")
@@ -77,5 +74,4 @@ struct CommentCell: View {
         }
         .padding([.trailing, .bottom], 9)
     }
-    
 }

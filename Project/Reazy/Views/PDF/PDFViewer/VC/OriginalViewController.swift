@@ -22,6 +22,7 @@ final class OriginalViewController: UIViewController {
     var cancellable: Set<AnyCancellable> = []
     var selectionWorkItem: DispatchWorkItem?
     
+    
     let mainPDFView: PDFView = {
         let view = PDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -83,6 +84,7 @@ extension OriginalViewController {
     /// ViewModel 설정
     private func setData() {
         self.mainPDFView.document = self.viewModel.document
+        self.commentViewModel.document = self.viewModel.document
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()
@@ -92,9 +94,10 @@ extension OriginalViewController {
         // PDF 문서 로드 완료 후 드로잉 데이터 패치
         DispatchQueue.main.async {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
+            // TODO: - Core data에서 배열 load 하는 곳
+            self.commentViewModel.loadComments()
         }
     }
-    
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
         self.mainPDFView.currentSelection = nil
@@ -208,7 +211,7 @@ extension OriginalViewController {
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
-                                self.commentViewModel.pdfConvertedBounds = convertedBounds
+                                self.commentViewModel.selectedBounds = bound
                             }
                         }
                     }
@@ -282,23 +285,15 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         
         /// 해당 위치에 Annotation이 있는지 확인
         if let tappedAnnotation = page.annotation(at: pageLocation) {
-            print("found annotation")
-            
-            if let buttonID = tappedAnnotation.contents,
-               let tappedComment = commentViewModel.comments.first(where: { $0.buttonID == buttonID }) {
-                
-                print(tappedComment)
+            if let buttonID = tappedAnnotation.contents {
+                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                 viewModel.isCommentTapped.toggle()
-                print(viewModel.isCommentTapped)
-                
                 if viewModel.isCommentTapped {
-                    viewModel.tappedComment = tappedComment
-                    commentViewModel.setCommentPosition(selection: tappedComment.selection, pdfView: mainPDFView)
-                    commentViewModel.findCommentGroup(comment: tappedComment)
+                    commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
+                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                 } else {
-                    viewModel.tappedComment = nil
+                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                 }
-                
             } else {
                 print("No match comment annotation")
             }

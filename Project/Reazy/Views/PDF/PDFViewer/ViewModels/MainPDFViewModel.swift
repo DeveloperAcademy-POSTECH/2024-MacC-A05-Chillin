@@ -50,20 +50,29 @@ final class MainPDFViewModel: ObservableObject {
     @Published var selectedHighlightColor: HighlightColors = .yellow
     
     // Comment
-    @Published var isCommentTapped: Bool = false {
-        didSet{
-            if !isCommentTapped, let comment = tappedComment {
-                setHighlight(comment: comment, isTapped: false)
-            }
-        }
-    }
-    @Published var tappedComment: Comment? {
-        didSet {
-            if isCommentTapped, let comment = tappedComment {
-                setHighlight(comment: comment, isTapped: true)
-            }
-        }
-    }
+    @Published var isCommentTapped: Bool = false
+//    {
+//        didSet{
+//            if !isCommentTapped, let comment = tappedComment {
+//                setHighlight(comment: comment, isTapped: false)
+//            }
+//        }
+//    }
+//    @Published var tappedComment: Comment? {
+//        didSet {
+//            if isCommentTapped, let comment = tappedComment {
+//                setHighlight(comment: comment, isTapped: true)
+//            }
+//        }
+//    }
+    
+    @Published var selectedComments: [Comment] = []
+//    {
+//        didSet {
+//            setHighlight(selectedComments: selectedComments, isTapped: !isCommentTapped)
+//        }
+//    }
+    
     @Published var commentSelection: PDFSelection?
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
@@ -466,34 +475,40 @@ extension MainPDFViewModel {
     }
     
     /// 하이라이트
-    public func setHighlight(comment: Comment, isTapped: Bool) {
-        
-        if isTapped == true {
-            let selections = comment.selection.selectionsByLine()
-            for lineSelection in selections {
-                for page in lineSelection.pages {
-                    var bounds = lineSelection.bounds(for: page)
+    public func setHighlight(selectedComments: [Comment], isTapped: Bool) {
+        if isTapped {
+            for comment in selectedComments {
+                for index in comment.pages {
+                    guard let page = document?.page(at: index) else { continue }
                     
-                    /// 하이라이트 높이 조정
-                    let originalBoundsHeight = bounds.size.height
-                    bounds.size.height *= 0.6
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
-                    
-                    let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
-                    highlight.color = UIColor.comment
-                    
-                    /// 하이라이트 주석 구별하기
-                    highlight.setValue("\(comment.buttonID) isHighlight", forAnnotationKey: .contents)
-                    page.addAnnotation(highlight)
+                    for selection in comment.selectionsByLine {
+                        var bounds = selection.bounds
+                        
+                        /// 하이라이트 높이 조정
+                        let originalBoundsHeight = bounds.size.height
+                        bounds.size.height *= 0.6
+                        bounds.origin.y += (originalBoundsHeight - bounds.height) / 2
+                        
+                        let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
+                        highlight.color = UIColor.comment
+                        
+                        /// 하이라이트 주석 구별하기
+                        highlight.setValue("\(comment.buttonId) isHighlight", forAnnotationKey: .contents)
+                        page.addAnnotation(highlight)
+                    }
                 }
             }
         } else {
-            for page in comment.selection.pages {
-                for annotation in page.annotations {
-                    /// 하이라이트 주석만 제거
-                    if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
-                       annotationValue == "\(comment.buttonID) isHighlight" {
-                        page.removeAnnotation(annotation)
+            for comment in selectedComments {
+                /// 하이라이트 제거
+                for index in comment.pages {
+                    guard let page = document?.page(at: index) else { continue }
+                    
+                    for annotation in page.annotations {
+                        if let annotationValue = annotation.value(forAnnotationKey: .contents) as? String,
+                           annotationValue == "\(comment.buttonId) isHighlight" {
+                            page.removeAnnotation(annotation)
+                        }
                     }
                 }
             }

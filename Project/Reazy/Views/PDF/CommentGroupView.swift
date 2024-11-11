@@ -19,9 +19,7 @@ struct CommentGroupView: View {
         ZStack {
             VStack {
                 if pdfViewModel.isCommentTapped {
-                    if let comment = viewModel.comments.first(where: { $0.id == pdfViewModel.tappedComment?.id }) {
-                        CommentView(viewModel: viewModel, commentGroup: viewModel.commentGroup, comment: comment)
-                    }
+                    CommentView(viewModel: viewModel, selectedComments: pdfViewModel.selectedComments)
                 } else {
                     CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
                 }
@@ -40,17 +38,15 @@ struct CommentGroupView: View {
 // 저장된 코멘트
 private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
-    var commentGroup: [Comment]
-    var comment: Comment
-    
+    var selectedComments: [Comment]
     var body: some View {
         
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(commentGroup.indices, id: \.self) { index in
-                CommentCell(viewModel: viewModel, comment: commentGroup[index])
+            ForEach(selectedComments.indices, id: \.self) { index in
+                CommentCell(viewModel: viewModel, comment: selectedComments[index])
                     .padding(.leading, 16)
                 
-                if index < commentGroup.count - 1 {
+                if index < selectedComments.count - 1 {
                     Divider()
                         .frame(height: 1)
                         .foregroundStyle(.primary2)
@@ -93,7 +89,7 @@ private struct CommentInputView: View {
                                              selection: changedSelection
                         )
                         text = "" // 코멘트 추가 후 텍스트 필드 비우기
-                        dump(viewModel.comments)
+//                        dump(viewModel.comments)
                     }
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
