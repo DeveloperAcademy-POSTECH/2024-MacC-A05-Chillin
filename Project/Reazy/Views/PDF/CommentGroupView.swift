@@ -110,6 +110,7 @@ private struct CommentInputView: View {
                                 pages: comments[idx].pages,
                                 bounds: comments[idx].bounds)
                             
+                            _ = viewModel.commentService.editCommentData(for: viewModel.paperInfo.id, with: resultComment)
                             viewModel.comments[idx] = resultComment
                             return
                         }

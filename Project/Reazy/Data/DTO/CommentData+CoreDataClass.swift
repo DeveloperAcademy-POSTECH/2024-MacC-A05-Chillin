@@ -2,7 +2,7 @@
 //  CommentData+CoreDataClass.swift
 //  Reazy
 //
-//  Created by 유지수 on 11/7/24.
+//  Created by 유지수 on 11/11/24.
 //
 
 import Foundation

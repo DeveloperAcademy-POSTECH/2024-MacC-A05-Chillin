@@ -9,7 +9,7 @@ import Foundation
 
 protocol CommentDataInterface {
     /// 코멘트 기록을 불러옵니다
-    func loadCommentData(for pdfID: UUID, pdfURL: Data) -> Result<[Comment], Error>
+    func loadCommentData(for pdfID: UUID) -> Result<[Comment], Error>
     /// 코멘트 기록을 저장합니다
     func saveCommentData(for pdfID: UUID, with comment: Comment) -> Result<VoidResponse, Error>
     /// 코멘트 기록을 수정합니다
