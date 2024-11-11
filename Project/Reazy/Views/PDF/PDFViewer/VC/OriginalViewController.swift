@@ -289,7 +289,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
                 viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                 viewModel.isCommentTapped.toggle()
                 if viewModel.isCommentTapped {
-                    commentViewModel.setCommentPosition(comment: viewModel.selectedComments.first!, pdfView: mainPDFView)
+                    commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
                     viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                 } else {
                     viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
