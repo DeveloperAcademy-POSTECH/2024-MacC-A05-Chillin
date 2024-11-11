@@ -64,6 +64,7 @@ extension AppView {
         let layout = try! JSONDecoder().decode(PDFLayout.self, from: .init(contentsOf: url))
         
         let id = pdfFileManager.uploadSampleFile()!
+        UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
         pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
         
         layout.fig.forEach {
