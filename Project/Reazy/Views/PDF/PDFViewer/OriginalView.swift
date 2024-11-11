@@ -48,9 +48,7 @@ struct OriginalView: View {
                 }
                 if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
                     CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
-                        .position(viewModel.isCommentTapped
-                                  ? commentViewModel.commentPosition
-                                  : viewModel.commentInputPosition )
+                        .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
                 }
             }
             .offset(y: -keyboardOffset)

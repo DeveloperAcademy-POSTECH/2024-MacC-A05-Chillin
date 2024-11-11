@@ -97,8 +97,6 @@ private struct CommentInputView: View {
                         if viewModel.isEditMode {
                             guard let commentId = viewModel.comment?.id else {return}
                             let comments = viewModel.comments
-                            
-                            _ = viewModel.comments.first{ $0.id == commentId }
                             guard let idx = viewModel.comments.firstIndex(where: { $0.id == commentId }) else { return }
                             
                             let resultComment = Comment(
