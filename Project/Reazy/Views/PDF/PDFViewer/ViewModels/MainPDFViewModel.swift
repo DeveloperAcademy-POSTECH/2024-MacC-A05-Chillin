@@ -92,6 +92,11 @@ final class MainPDFViewModel: ObservableObject {
         url.startAccessingSecurityScopedResource() {
             self.document = PDFDocument(url: url)
             url.stopAccessingSecurityScopedResource()
+        } else {
+            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
+               id == paperInfo.id.uuidString {
+                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!)
+            }
         }
         self.pdfDrawer = .init()
     }
@@ -367,6 +372,8 @@ extension MainPDFViewModel {
             return nil
         }
         
+        figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+        
         let document = PDFDocument()                                    // 새 PDFDocument 생성
         let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
         
@@ -376,7 +383,8 @@ extension MainPDFViewModel {
             return nil
         }
         
-        figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+        page.displaysAnnotations = false
+        
         
         let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
         let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)
