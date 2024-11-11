@@ -46,50 +46,6 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
-        
-        // 코멘트 loading 하는 함수
-        // core data에서 브리가 준 배열을 하나씩 꺼내서
-        
-        let button1 = ButtonGroup.init(id: UUID(), page: 0, selectedLine: CGRect(x: 51.0236, y: 668.2831, width: 375.62720000000013, height: 18.176000000000045), buttonPosition: CGRect(x: 431.6508000000001, y: 670.2831, width: 10.0, height: 10.0))
-        
-        commentViewModel.buttonGroup.append(button1)
-        
-        let dummyComment = Comment(
-            id: UUID(),
-            buttonId: button1.id,
-            text: "text",
-            selectedText: "A review of the global",
-            selectionsByLine: [
-                selectionByLine(page:0, bounds: CGRect(x: 51.0236, y: 668.2831, width: 139.7584, height: 18.176000000000045))
-            ],
-            pages: [0],
-            bounds: CGRect(x: 51.0236, y: 668.2831, width: 139.7584, height: 18.176000000000045)
-        )
-        
-        let dummyComment2 = Comment(
-            id: UUID(),
-            buttonId: button1.id,
-            text: "kk",
-            selectedText: "change impacts",
-            selectionsByLine: [
-                selectionByLine(page:0, bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045))
-            ],
-            pages: [0],
-            bounds: CGRect(x: 244.1884, y: 668.2831, width: 101.11040000000003, height: 18.176000000000045)
-        )
-        
-        // 다른 빈 배열 하나에 다 저장해놓고
-        commentViewModel.comments.append(dummyComment)
-        
-        // 모든 주석과 아이콘 그리기
-        commentViewModel.drawUnderline(newComment: commentViewModel.comments[0])
-        commentViewModel.drawCommentIcon(button: commentViewModel.buttonGroup[0])
-        commentViewModel.comments.append(dummyComment2)
-        commentViewModel.drawUnderline(newComment: commentViewModel.comments[1])
-        commentViewModel.drawCommentIcon(button: commentViewModel.buttonGroup[0])
-        //        }
-        
-        //NotificationCenter.default.addObserver(self, selector: #selector(handlePDFLoad), name: .PDFViewDocumentChanged, object: mainPDFView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -140,20 +96,9 @@ extension OriginalViewController {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
             self.viewModel.pdfDrawer.loadDrawings()
             // TODO: - Core data에서 배열 load 하는 곳
+            self.commentViewModel.loadComments()
         }
     }
-    
-    //    @objc func handlePDFLoad() {
-    //        guard let document = mainPDFView.document else { return }
-    //        print("PDF Document loaded with \(document.pageCount) pages.")
-    //
-    //        // 모든 주석과 아이콘 그리기
-    //        for comment in commentViewModel.comments {
-    //            commentViewModel.drawUnderline(newComment: comment)
-    //            commentViewModel.drawCommentIcon(newComment: comment)
-    //        }
-    //    }
-    
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
         self.mainPDFView.currentSelection = nil

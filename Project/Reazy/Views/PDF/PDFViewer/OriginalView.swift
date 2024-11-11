@@ -35,7 +35,6 @@ struct OriginalView: View {
                 .onTapGesture {
                     // 터치 시 말풍선 뷰를 숨기는 처리 추가
                     viewModel.updateBubbleView(selectedText: "", bubblePosition: .zero)
-                    print("tapped")
                 }
                 // 번역에 사용되는 말풍선뷰
                 if viewModel.toolMode == .translate {

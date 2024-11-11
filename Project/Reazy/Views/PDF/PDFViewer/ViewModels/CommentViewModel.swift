@@ -7,26 +7,22 @@
 
 import Foundation
 import PDFKit
-import Combine
 import SwiftUI
 
 class CommentViewModel: ObservableObject {
     
     public var paperInfo: PaperInfo
-    private var cancellables = Set<AnyCancellable>()
     
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
     
-    @Published var comments: [Comment] = []         /// 저장된 comment
-    @Published var commentGroup: [Comment] = []     /// 저장된 comment 중 같은 ButtonID인 애들만 부를 때
+    // TODO: - [브리] core data에서 넘겨줘야하는 배열 comments, buttonGroup
+    @Published var comments: [Comment] = [] // 전체 코멘트 배열
+    @Published var buttonGroup: [ButtonGroup] = [] // 전체 버튼 배열
     
-    
-    // MARK: - button
-    @Published var buttonGroup: [ButtonGroup] = []
-    
-    private var newbuttonid = UUID()
-    private var isNewButton: Bool = true
+    // 해당 줄의 첫 코멘트를 생성하는 상황에 사용되는 변수
+    private var newButtonId = UUID() // 새로 추가되는 버튼의 id
+    private var isNewButton: Bool = true // 해당 줄의 첫 코멘트인지 확인
     
     @Published var commentPosition: CGPoint = .zero  /// 저장된 comment.bounds로부터 얻은 position
     
@@ -39,10 +35,26 @@ class CommentViewModel: ObservableObject {
         self.paperInfo = paperInfo
     }
     
-    // 코멘트 추가
-    func addComment(text: String, selection: PDFSelection) {
-        print("addcomment")
+    func loadComments() {
         
+        // TODO: - [브리] 여기 함수 부를 때 core data에서 comments, buttonGroup 배열 받아서
+        // comments -> tempCommentArray 에 !!!!!! 하나씩 빼서 할 것들이 있어서 temp 배열에 넣어줘야해
+        // buttonGroup은 그냥 viewmodel.buttonGroup에 채워주면 됨
+        
+        var tempCommentArray: [Comment] = []
+        
+        for comment in tempCommentArray {
+            comments.append(comment)
+            drawUnderline(newComment: comment)
+        }
+        
+        for button in buttonGroup {
+            drawCommentIcon(button: button)
+        }
+    }
+    
+    // 새로운 코멘트 추가하는 상황
+    func addComment(text: String, selection: PDFSelection) {
         if let document = self.document {
             getSelectionPages(selection: selection, document: document)
         }
@@ -52,17 +64,14 @@ class CommentViewModel: ObservableObject {
         isNewButton = true
         for group in buttonGroup {
             if group.selectedLine == getSelectedLine(selection: selection) {
-                // 이미 있는 그룹에 내가 붙는 경우
+                // 해당 줄에 이미 다른 코멘트가 저장되어있는 경우
                 isNewButton = false
-                newbuttonid = group.id
+                // 기존에 존재하는 그룹의 버튼 id를 추가될 코멘트의 id로 지정
+                newButtonId = group.id
                 break
             }
         }
-        print("for loop end")
-        
-        // 새로운 그룹이 필요하다면 추가
         if isNewButton {
-            print("is New Button value is true")
             let newGroup = ButtonGroup(
                 id: UUID(),
                 page: pages[0],
@@ -70,46 +79,45 @@ class CommentViewModel: ObservableObject {
                 buttonPosition: getCommentIconPostion(selection: selection)
             )
             buttonGroup.append(newGroup)
-            newbuttonid = newGroup.id
+            newButtonId = newGroup.id
         }
         
         let newComment = Comment(id: UUID(),
-                                 buttonId: newbuttonid,
+                                 buttonId: newButtonId,
                                  text: text,
                                  selectedText: selectedText,
                                  selectionsByLine: getSelectionsByLine(selection: selection),
                                  pages: pages,
                                  bounds: selectedBounds
         )
-        
         comments.append(newComment)
-        
         drawUnderline(newComment: newComment)
         if isNewButton{
+            // 방금 추가된 버튼의 아이콘을 그림
             drawCommentIcon(button: buttonGroup.last!)
         }
-        
     }
     
     // 코멘트 삭제
     func deleteComment(commentId: UUID) {
-        
-        let comment = comments.filter { $0.id == commentId }.first!
-        let buttonList = comments.filter { $0.buttonId == comment.buttonId }
-        let currentButtonId = comment.buttonId
-        comments.removeAll(where: { $0.id == commentId })
+        let comment = comments.filter { $0.id == commentId }.first! ///전체 코멘트 그룹에서 삭제할 코멘트를 찾음
+        let buttonList = comments.filter { $0.buttonId == comment.buttonId } ///전체 코멘트 그룹에서 삭제할 코멘트와 같은 버튼 id를 공유하는 코멘트들 리스트 찾음
+        let currentButtonId = comment.buttonId // 삭제할 코멘트의 버튼 id를 변수에 담음
+        comments.removeAll(where: { $0.id == commentId }) //전체 코멘트 그룹에서 코멘트 삭제
         
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
             for annotation in page.annotations {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
                     
+                    // 마지막 버튼이었을 경우 버튼 아이콘, 밑줄 삭제
                     if buttonList.count == 1 {
                         if annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString {
                             buttonGroup.removeAll(where: { $0.id ==  currentButtonId})
                             page.removeAnnotation(annotation)
                         }
                     } else if buttonList.count > 1, annotationID == comment.id.uuidString {
+                        // 버튼에 연결된 남은 코멘트 존재하면 버튼은 두고 밑줄만 삭제
                         page.removeAnnotation(annotation)
                     }
                 }
@@ -118,7 +126,7 @@ class CommentViewModel: ObservableObject {
     }
     
     // TODO : 수정 액션 추가해야 함
-    func editComment(comment: Comment, text: String) {
+    func editComment(commentId: UUID) {
         
     }
 }
@@ -284,7 +292,6 @@ extension CommentViewModel {
     
     /// 밑줄 그리기
     func drawUnderline(newComment: Comment) {
-        print("drawline")
         for index in newComment.pages {
             guard let page = document?.page(at: index) else { continue }
             
@@ -308,6 +315,9 @@ extension CommentViewModel {
         }
     }
 }
+
+
+
 
 
 

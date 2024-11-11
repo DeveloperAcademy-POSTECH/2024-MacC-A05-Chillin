@@ -402,7 +402,6 @@ extension MainPDFViewModel {
     /// 하이라이트
     public func setHighlight(selectedComments: [Comment], isTapped: Bool) {
         if isTapped {
-            print("istapped true")
             for comment in selectedComments {
                 for index in comment.pages {
                     guard let page = document?.page(at: index) else { continue }
@@ -425,7 +424,6 @@ extension MainPDFViewModel {
                 }
             }
         } else {
-            print("istapped false")
             for comment in selectedComments {
                 /// 하이라이트 제거
                 for index in comment.pages {
@@ -439,7 +437,6 @@ extension MainPDFViewModel {
                     }
                 }
             }
-
         }
     }
 }
