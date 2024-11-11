@@ -130,13 +130,12 @@ struct PaperListView: View {
                                             isEditing: isEditing,
                                             isEditingSelected: selectedItems.contains(index),
                                             onSelect: {
-                                                if !isEditing || !isNavigationPushed {
+                                                if !isEditing && !isNavigationPushed {
                                                     if selectedPaperID == filteredPaperInfos[index].id {
                                                         self.isNavigationPushed = true
                                                         navigateToPaper()
                                                         pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
-                                                    }
-                                                    else {
+                                                    } else {
                                                         selectedPaperID = filteredPaperInfos[index].id
                                                     }
                                                 }
@@ -191,7 +190,7 @@ struct PaperListView: View {
                                 isEditingTitle: $isEditingTitle,
                                 isEditingMemo: $isEditingMemo,
                                 onNavigate: {
-                                    if !isEditing || !isNavigationPushed {
+                                    if !isEditing && !isNavigationPushed {
                                         self.isNavigationPushed = true
                                         navigateToPaper()
                                     }
@@ -244,6 +243,7 @@ struct PaperListView: View {
                 // Notification 제거
                 NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
                 NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+                self.isNavigationPushed = false
             }
             .onChange(of: selectedPaperID) {
                 initializeSelectedPaperID()
