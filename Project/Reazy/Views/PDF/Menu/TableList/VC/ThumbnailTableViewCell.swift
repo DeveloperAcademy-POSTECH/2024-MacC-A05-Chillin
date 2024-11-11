@@ -66,13 +66,15 @@ extension ThumbnailTableViewCell {
         self.addSubview(pageNumLabel)
         self.addSubview(thumbnailView)
         
+        let viewWidth = UIScreen.main.bounds.width * 0.22 * 0.7
+        
         let ratio = thumbnail.size.width / thumbnail.size.height
         
         NSLayoutConstraint.activate([
             thumbnailView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             thumbnailView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            thumbnailView.heightAnchor.constraint(equalToConstant: 210 ),
-            thumbnailView.widthAnchor.constraint(equalToConstant: 210 * ratio)
+            thumbnailView.heightAnchor.constraint(equalToConstant: viewWidth ),
+            thumbnailView.widthAnchor.constraint(equalToConstant: viewWidth * ratio)
         ])
         
         NSLayoutConstraint.activate([

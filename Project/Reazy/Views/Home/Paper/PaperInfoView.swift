@@ -31,7 +31,6 @@ struct PaperInfoView: View {
             Image(uiImage: .init(data: image) ?? .init(resource: .testThumbnail))
                 .resizable()
                 .scaledToFit()
-                .frame(height: 370)
                 .padding(.horizontal, 30)
             
             Text(title)

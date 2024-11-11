@@ -12,17 +12,9 @@ import UIKit
 class FigureDataService: FigureDataInterface {
     static let shared = FigureDataService()
     
-    private let container: NSPersistentContainer
+    private let container: NSPersistentContainer = PersistantContainer.shared.container
     
-    private init() {
-        container = NSPersistentContainer(name: "Reazy")
-        container.loadPersistentStores {
-            (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-    }
+    private init() { }
     
     func loadFigureData(for pdfID: UUID) -> Result<[Figure], any Error> {
         let dataContext = container.viewContext
@@ -39,7 +31,7 @@ class FigureDataService: FigureDataInterface {
                     label: figureData.label,
                     figDesc: figureData.figDesc,
                     coords: figureData.coords,
-                    graphicCoord: figureData.graphiCoord
+                    graphicCoord: figureData.graphicCoord
                 )
             }
             return .success(figures)
@@ -49,36 +41,51 @@ class FigureDataService: FigureDataInterface {
     }
     
     func saveFigureData(for pdfID: UUID, with figure: Figure) -> Result<VoidResponse, any Error> {
-        let dataContext = container.viewContext
-        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
+        var result: Result<VoidResponse, any Error>?
         
-        do {
-            if let paperData = try dataContext.fetch(fetchRequest).first {
-                
-                let newFigureData = FigureData(context: dataContext)
-                
-                newFigureData.id = figure.id
-                newFigureData.head = figure.head
-                newFigureData.label = figure.label
-                newFigureData.figDesc = figure.figDesc
-                newFigureData.coords = figure.coords
-                newFigureData.graphiCoord = figure.graphicCoord
-                
-                newFigureData.paperData = paperData
-                
-                do {
-                    try dataContext.save()
-                    return .success(VoidResponse())
-                } catch {
-                    return .failure(error)
+        /// NSManagedObject는 Thread-safe 하지 못해 하나의 쓰레드에서만 사용해야 함
+        /// 해결 방법으로 performBackgroundTask 사용
+        container.performBackgroundTask { context in
+            // 저장되어 있는 것을 우선으로 하는 merge policy
+            context.mergePolicy = NSMergePolicy(merge: .mergeByPropertyStoreTrumpMergePolicyType)
+            
+            let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
+            
+            do {
+                if let paperData = try context.fetch(fetchRequest).first {
+                    
+                    let newFigureData = FigureData(context: context)
+                    
+                    newFigureData.id = figure.id
+                    newFigureData.head = figure.head
+                    newFigureData.label = figure.label
+                    newFigureData.figDesc = figure.figDesc
+                    newFigureData.coords = figure.coords
+                    newFigureData.graphicCoord = figure.graphicCoord
+                    
+                    newFigureData.paperData = paperData
+                    
+                    do {
+                        try context.save()
+                        result = .success(.init())
+                    } catch {
+                        print(String(describing: error))
+                        result = .failure(error)
+                    }
+                } else {
+                    result = .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "FigureData not found"]))
                 }
-            } else {
-                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "FigureData not found"]))
+            } catch {
+                result = .failure(error)
             }
-        } catch {
-            return .failure(error)
         }
+        
+        if result == nil {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "FigureData not found"]))
+        }
+        
+        return result!
     }
     
     func editFigureData(for pdfID: UUID, with figure: Figure) -> Result<VoidResponse, any Error> {
@@ -94,7 +101,7 @@ class FigureDataService: FigureDataInterface {
                 figureToEdit.label = figure.label
                 figureToEdit.figDesc = figure.figDesc
                 figureToEdit.coords = figure.coords
-                figureToEdit.graphiCoord = figure.graphicCoord
+                figureToEdit.graphicCoord = figure.graphicCoord
                 
                 try dataContext.save()
                 return .success(VoidResponse())

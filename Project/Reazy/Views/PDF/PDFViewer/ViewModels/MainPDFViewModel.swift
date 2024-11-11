@@ -76,6 +76,7 @@ final class MainPDFViewModel: ObservableObject {
     @Published var commentSelection: PDFSelection?
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
+    @Published public var paperInfo: PaperInfo
     
     public var document: PDFDocument?
     public var focusDocument: PDFDocument?
@@ -88,8 +89,8 @@ final class MainPDFViewModel: ObservableObject {
     // for drawing
     public var pdfDrawer: PDFDrawer
     
-    @Published public var paperInfo: PaperInfo
-    
+    private var figureService: FigureDataService = .shared
+        
     init(paperInfo: PaperInfo) {
         self.paperInfo = paperInfo
         
@@ -100,10 +101,13 @@ final class MainPDFViewModel: ObservableObject {
         url.startAccessingSecurityScopedResource() {
             self.document = PDFDocument(url: url)
             url.stopAccessingSecurityScopedResource()
+        } else {
+            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
+               id == paperInfo.id.uuidString {
+                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!)
+            }
         }
-        
-        self.pdfDrawer = .init(drawingService: DrawingDataService.shared, pdfID: paperInfo.id)
-        
+        self.pdfDrawer = .init()
     }
     
     deinit {
@@ -117,9 +121,30 @@ extension MainPDFViewModel {
     public func setPDFDocument(url: URL) {
         self.document = PDFDocument(url: url)
     }
+    
+    public func savePDF(pdfView: PDFView) {
+        print("savePDF")
+        guard let document = pdfView.document else { return }
+        guard let pdfURL = document.documentURL else {
+            print("PDF URL을 찾을 수 없습니다.")
+            return
+        }
+
+        // PDF 파일을 지정한 URL에 덮어쓰기 저장
+        do {
+            let pdfData = document.dataRepresentation()
+            try pdfData?.write(to: pdfURL)
+            print("PDF 저장이 완료되었습니다.")
+        } catch {
+            print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
+        }
+    }
+    
     /// 초기 figure 업데이트 메소드
     public func downloadFigureAnnotation() async {
+        // 네트워크 확인 메소드
         NWPathMonitor.startMonitoring { isConnected in
+            // 네트워크에 연결되어 있지 않는 경우
             if !isConnected {
                 DispatchQueue.main.async {
                     self.figureStatus = .networkDisconnection
@@ -145,7 +170,6 @@ extension MainPDFViewModel {
             
             guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
                   url.startAccessingSecurityScopedResource() else {
-                print("123123")
                 return
             }
             
@@ -158,6 +182,18 @@ extension MainPDFViewModel {
                     let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
                     
                     self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+                    
+                    let id = self.paperInfo.id
+                    
+                    input.fig.forEach {
+                        let _ = self.figureService.saveFigureData(for: id, with: .init(
+                            id: $0.id,
+                            head: $0.head,
+                            label: $0.label,
+                            figDesc: $0.figDesc,
+                            coords: $0.coords,
+                            graphicCoord: $0.graphicCoord))
+                    }
                     
                     print("end network connect")
                     DispatchQueue.main.async {
@@ -173,18 +209,54 @@ extension MainPDFViewModel {
         }
     }
     
-    // TODO: 네트워크 연결 확인 필요, 진행도 알려줘야함, 진행 후 데이터 저장 필요
+    /// 피규어 fetch 메소드
     public func fetchAnnotations() async {
         // 처음 들어오는지 여부 판단
-        // 처음 들어오면 다운로드 진행        
+        // 처음 들어오면 다운로드 진행
         if !paperInfo.isFigureSaved {
             await downloadFigureAnnotation()
             DispatchQueue.main.async { [weak self] in
                 self?.paperInfo.isFigureSaved = true
             }
-        } else {
             
+            return
         }
+        
+        guard let page = self.document?.page(at: 0) else {
+            DispatchQueue.main.async {
+                self.figureStatus = .empty
+            }
+            return
+        }
+        
+        // 이미 있는 경우
+        // 저장된 피규어 불러오기
+        let width = page.bounds(for: .mediaBox).width
+        let height = page.bounds(for: .mediaBox).height
+        
+        switch self.figureService.loadFigureData(for: self.paperInfo.id) {
+        case .success(let figureList):
+            let result = NetworkManager.filterFigure(
+                input: .init(fig: figureList, table: nil),
+                pageWidth: width,
+                pageHeight: height)
+            
+            
+            DispatchQueue.main.async { [weak self] in
+                if result.isEmpty {
+                    self?.figureStatus = .empty
+                    return
+                }
+                self?.figureAnnotations = result
+                self?.figureStatus = .complete
+            }
+        
+        case .failure:
+            DispatchQueue.main.async {
+                self.figureStatus = .empty
+            }
+        }
+        
         
     }
     
@@ -309,6 +381,8 @@ extension MainPDFViewModel {
             return nil
         }
         
+        figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+        
         let document = PDFDocument()                                    // 새 PDFDocument 생성
         let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
         
@@ -318,7 +392,8 @@ extension MainPDFViewModel {
             return nil
         }
         
-        figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+        page.displaysAnnotations = false
+        
         
         let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
         let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)

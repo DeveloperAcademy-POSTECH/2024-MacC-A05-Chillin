@@ -15,6 +15,7 @@ struct PaperListView: View {
     @Binding var selectedPaperID: UUID?
     @Binding var selectedItems: Set<Int>
     @State private var isFavoritesSelected: Bool = false
+    @State private var isNavigationPushed: Bool = false
     
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
@@ -36,6 +37,9 @@ struct PaperListView: View {
         }
         return infos
     }
+    
+    @State private var isIPadMini: Bool = false
+    @State private var isVertical = false
     
     var body: some View {
         // 화면 비율에 따라서 리스트 크기 설정 (반응형 UI)
@@ -126,8 +130,9 @@ struct PaperListView: View {
                                             isEditing: isEditing,
                                             isEditingSelected: selectedItems.contains(index),
                                             onSelect: {
-                                                if !isEditing {
+                                                if !isEditing || !isNavigationPushed {
                                                     if selectedPaperID == filteredPaperInfos[index].id {
+                                                        self.isNavigationPushed = true
                                                         navigateToPaper()
                                                         pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
                                                     }
@@ -156,7 +161,15 @@ struct PaperListView: View {
                         }
                     }
                 }
-                .frame(width: isEditing || isSearching ? geometry.size.width : geometry.size.width * 0.7)
+                .frame(width: {
+                    if isEditing || isSearching {
+                        return geometry.size.width
+                    } else if isIPadMini && isVertical {
+                        return geometry.size.width * 0.6
+                    } else {
+                        return geometry.size.width * 0.7
+                    }
+                }())
                 .background(.gray300)
                 
                 // 편집 모드 & 검색 모드에서는 문서 정보가 보이지 않아야 함
@@ -178,7 +191,8 @@ struct PaperListView: View {
                                 isEditingTitle: $isEditingTitle,
                                 isEditingMemo: $isEditingMemo,
                                 onNavigate: {
-                                    if !isEditing {
+                                    if !isEditing || !isNavigationPushed {
+                                        self.isNavigationPushed = true
                                         navigateToPaper()
                                     }
                                 },
@@ -209,6 +223,8 @@ struct PaperListView: View {
             }
             .onAppear {
                 initializeSelectedPaperID()
+                detectIPadMini()
+                updateOrientation(with: geometry)
                 
                 // 키보드 높이에 맞게 검색 Text 위치 조정
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
@@ -232,6 +248,10 @@ struct PaperListView: View {
             .onChange(of: selectedPaperID) {
                 initializeSelectedPaperID()
             }
+            .onChange(of: geometry.size) {
+                detectIPadMini()
+                updateOrientation(with: geometry)
+            }
             .background(.gray200)
             .ignoresSafeArea()
         }
@@ -251,6 +271,12 @@ extension PaperListView {
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
             print("bookmartdata to url failed")
+            
+            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
+               id == selectedPaperID.uuidString {
+                navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
+                return
+            }
             return
         }
         
@@ -303,6 +329,21 @@ extension PaperListView {
             dateFormatter.pmSymbol = "오후"
             return dateFormatter.string(from: date)
         }
+    }
+}
+
+extension PaperListView {
+    private func detectIPadMini() {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let screenSize = UIScreen.main.nativeBounds.size
+            let isMiniSize = (screenSize.width == 1536 && screenSize.height == 2048) ||
+            (screenSize.width == 1488 && screenSize.height == 2266)
+            self.isIPadMini = isMiniSize
+        }
+    }
+    
+    private func updateOrientation(with geometry: GeometryProxy) {
+        isVertical = geometry.size.height > geometry.size.width
     }
 }
 

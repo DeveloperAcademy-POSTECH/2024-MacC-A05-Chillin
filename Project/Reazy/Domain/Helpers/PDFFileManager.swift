@@ -82,7 +82,7 @@ extension PDFFileManager {
             
         } else {
             let paperInfo = PaperInfo(
-                title: url.lastPathComponent,
+                title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: urlData
             )
@@ -92,6 +92,51 @@ extension PDFFileManager {
             
             return paperInfo.id
         }
+    }
+    
+    @MainActor
+    public func uploadSampleFile() -> UUID? {
+        let pdfURL = Bundle.main.url(forResource: "Reazy Sample", withExtension: "pdf")!
+        
+        let tempDoc = PDFDocument(url: pdfURL)
+        var lastComponent = pdfURL.lastPathComponent.split(separator: ".")
+        lastComponent.removeLast()
+        
+        let title = lastComponent.joined()
+        let sampleData = Data()
+        
+        if let firstPage = tempDoc?.page(at: 0) {
+            let width = firstPage.bounds(for: .mediaBox).width
+            let height = firstPage.bounds(for: .mediaBox).height
+            
+            let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
+            let thumbnailData = image.pngData()
+            
+            let paperInfo = PaperInfo(
+                title: title,
+                thumbnail: thumbnailData!,
+                url: sampleData
+            )
+            
+            _ = paperService.savePDFInfo(paperInfo)
+            paperInfos.append(paperInfo)
+            
+            return paperInfo.id
+            
+        } else {
+            let paperInfo = PaperInfo(
+                title: title,
+                thumbnail: UIImage(resource: .testThumbnail).pngData()!,
+                url: sampleData
+            )
+            
+            _ = paperService.savePDFInfo(paperInfo)
+            paperInfos.append(paperInfo)
+            
+            return paperInfo.id
+        }
+        
+        
     }
     
     public func deletePDFFile(at id: UUID) {
@@ -146,6 +191,13 @@ extension PDFFileManager {
     public func updateLastModifiedDate(at id: UUID, lastModifiedDate: Date) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].lastModifiedDate = lastModifiedDate
+            _ = paperService.editPDFInfo(paperInfos[index])
+        }
+    }
+    
+    public func updateIsFigureSaved(at id: UUID, isFigureSaved: Bool) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].isFigureSaved = isFigureSaved
             _ = paperService.editPDFInfo(paperInfos[index])
         }
     }

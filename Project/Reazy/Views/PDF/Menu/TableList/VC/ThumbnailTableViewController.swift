@@ -66,6 +66,13 @@ extension ThumbnailTableViewController {
                 self?.thumbnailTableView.scrollToRow(at: .init(row: num, section: 0), at: .top, animated: true)
             }
             .store(in: &self.cancellables)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(redrawScreen), name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+    
+
+    @objc private func redrawScreen() {
+        self.thumbnailTableView.reloadData()
     }
 }
 
@@ -91,7 +98,7 @@ extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSour
     
     /// 셀 높이
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        250
+        UIScreen.main.bounds.width * 0.2
     }
     
     /// 셀 선택 되었을 때

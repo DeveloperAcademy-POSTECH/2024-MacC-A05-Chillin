@@ -12,16 +12,9 @@ import UIKit
 class PaperDataService: PaperDataInterface {
     static let shared = PaperDataService()
     
-    private let container: NSPersistentContainer
+    private let container: NSPersistentContainer = PersistantContainer.shared.container
     
-    private init() {
-        container = NSPersistentContainer(name: "Reazy")
-        container.loadPersistentStores { (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-    }
+    private init() { }
     
     // 저장된 PDF 정보를 모두 불러옵니다
     func loadPDFInfo() -> Result<[PaperInfo], any Error> {

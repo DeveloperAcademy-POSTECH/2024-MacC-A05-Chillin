@@ -324,8 +324,18 @@ struct MainPDFView: View {
             .onAppear {
                 updateOrientation(with: geometry)
             }
+            .onDisappear {
+                mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+            }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
+            }
+            .onChange(of: self.mainPDFViewModel.figureStatus) { _, newValue in
+                // 다운로드가 완료된 경우 isFigureSaved 값 변경
+                if newValue == .complete {
+                    let id = self.mainPDFViewModel.paperInfo.id
+                    self.pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
+                }
             }
             .statusBarHidden()
         }

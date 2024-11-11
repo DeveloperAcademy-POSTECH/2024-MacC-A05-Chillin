@@ -30,7 +30,6 @@ enum DrawingTool: Int {
 }
 
 class PDFDrawer {
-    private let pdfID: UUID
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
@@ -39,53 +38,14 @@ class PDFDrawer {
     var color = UIColor(hex: "#5F5CAB")
     var drawingTool = DrawingTool.none
     private var eraserLayer: CAShapeLayer? = nil
-    private var drawingDataArray: [Drawing] = []
-    private var drawingService: DrawingDataService
-    
-    init(
-        drawingService: DrawingDataService,
-        pdfID: UUID
-    ) {
-        self.drawingService = drawingService
-        self.pdfID = pdfID
-        // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가
-        switch drawingService.loadDrawingData(for: pdfID) {
-        case .success(let drawingList):
-            drawingDataArray = drawingList
-        case .failure(_):
-            return
-        }
-    }
     
     private func saveAndAddnnotation(_ path: UIBezierPath, on page: PDFPage) {
         let finalAnnotation = createFinalAnnotation(path: path, page: page)
         page.addAnnotation(finalAnnotation)
-        
-        if let pageIndex = pdfView.document?.index(for: page) {
-            let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
-            _ = drawingService.saveDrawingData(for: pdfID, with: drawingData)
-            drawingDataArray.append(drawingData)
-        }
     }
 }
 
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
-    // MARK: -모든 드로잉 꺼내서 pdfview에 페이지 별로 추가하는 함수
-    func loadDrawings() {
-        pdfView.goToFirstPage(nil)
-        
-        guard let document = pdfView.document else { return }
-        
-        for drawing in drawingDataArray {
-            guard let page = document.page(at: drawing.pageIndex) else { continue }
-            let annotation = createFinalAnnotation(path: drawing.path, page: page)
-            annotation.color = drawing.color
-            page.addAnnotation(annotation)
-        }
-        
-        pdfView.setNeedsDisplay()
-    }
-    
     // MARK: -제스처 최초 시작 시 한 번 실행되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
         guard let page = pdfView.page(for: location, nearest: true) else { return }
@@ -215,14 +175,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         annotation.add(signingPathCentered)
         page.addAnnotation(annotation)
         
-        if drawingTool == .pencil {
-            if let pageIndex = pdfView.document?.index(for: page) {
-                let drawingData = Drawing(id: UUID(), pageIndex: pageIndex, path: path, color: color)
-                _ = drawingService.saveDrawingData(for: pdfID, with: drawingData)
-                drawingDataArray.append(drawingData)
-            }
-        }
-        
         return annotation
     }
     
@@ -237,25 +189,12 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             annotation.bounds.intersects(hitTestRect)
         }
         
-        if let pageIndex = pdfView.document?.index(for: page) {
+        if (pdfView.document?.index(for: page)) != nil {
             for annotation in annotations {
                 // 하이라이트랑 드로잉만 지우기
                 if annotation.type == "Ink" || (annotation.type == "Highlight" && annotation.value(forAnnotationKey: .contents) == nil) {
-                    let annotationBounds = annotation.bounds
-                    
-                    let indicesToRemove = drawingDataArray.indices.filter { index in
-                        let drawing = drawingDataArray[index]
-                        return drawing.pageIndex == pageIndex && drawing.path.bounds.intersects(annotationBounds)
-                    }
-                    
-                    // 겹쳐진 부분 위층부터 지우기 위해 뒤쪽 인덱스 주석부터 제거
-                    for index in indicesToRemove.reversed() {
-                        let drawing = drawingDataArray[index]
-                        let id = drawing.id
-                        
-                        _ = drawingService.deleteDrawingData(for: pdfID, id: id)
-                        drawingDataArray.remove(at: index)
-                    }
+                    _ = annotation.bounds
+                
                     page.removeAnnotation(annotation)
                 }
             }
