@@ -38,7 +38,7 @@ class CommentViewModel: ObservableObject {
     func loadComments() {
         
         // TODO: - [브리] 여기 함수 부를 때 core data에서 comments, buttonGroup 배열 받아서
-        // comments -> tempCommentArray 에 !!!!!! 하나씩 빼서 할 것들이 있어서 temp 배열에 넣어줘야해
+        // MARK: comments -> tempCommentArray 에 !!!!!! 하나씩 빼서 할 것들이 있어서 temp 배열에 넣어줘야해
         // buttonGroup은 그냥 viewmodel.buttonGroup에 채워주면 됨
         
         var tempCommentArray: [Comment] = []
