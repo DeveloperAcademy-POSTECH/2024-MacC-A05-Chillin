@@ -193,7 +193,6 @@ extension CommentViewModel {
     
     // 저장할 comment의 position 값 세팅
     func setCommentPosition(selectedComments: [Comment], pdfView: PDFView) {
-        print("위치값 세팅 시작")
         let buttonId = selectedComments.first?.buttonId
         let commentId = selectedComments.first?.id
         
