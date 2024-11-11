@@ -163,8 +163,8 @@ private struct SearchTopView: View {
     var body: some View {
         HStack {
             Text("\(viewModel.searchResults.count)개 일치")
+                .reazyFont(.text5)
                 .foregroundStyle(.gray700)
-                .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
             
             Spacer()
             
