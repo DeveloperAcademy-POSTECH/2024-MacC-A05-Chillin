@@ -16,6 +16,7 @@ struct OriginalView: View {
     @EnvironmentObject var commentViewModel: CommentViewModel
     
     @State private var keyboardOffset: CGFloat = 0
+    @State private var cancellables: Set<AnyCancellable> = []
     
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
     private let screenHeight = UIScreen.main.bounds.height
@@ -57,24 +58,35 @@ struct OriginalView: View {
                 let screenHeight = geometry.size.height
                 
                 // 키보드 Notification 설정
-                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                        withAnimation {
-                            keyboardOffset = calculateOffset(for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: screenHeight)
+                NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+                    .receive(on: DispatchQueue.main)
+                    .sink {
+                        if let keyboardFrame = $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                            withAnimation {
+                                keyboardOffset = calculateOffset(
+                                    for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: screenHeight)
+                            }
                         }
                     }
-                }
-                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                    withAnimation {
-                        keyboardOffset = 0
+                    .store(in: &cancellables)
+                
+                NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+                    .receive(on: DispatchQueue.main)
+                    .sink { _ in
+                        withAnimation {
+                            keyboardOffset = 0
+                        }
                     }
-                }
+                    .store(in: &cancellables)
             }
             .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
             .animation(.smooth(duration: 0.1), value: viewModel.isCommentTapped)
             .transition(.move(edge: .bottom).combined(with: .opacity))
             .onChange(of: viewModel.selectedText) { _, newValue in
                 viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.bubbleViewPosition)
+            }
+            .onDisappear {
+                self.cancellables.forEach { $0.cancel() }
             }
         }
     }
