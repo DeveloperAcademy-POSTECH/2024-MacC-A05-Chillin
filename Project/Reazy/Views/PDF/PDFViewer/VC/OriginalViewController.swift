@@ -178,7 +178,7 @@ extension OriginalViewController {
                     guard let selection = self.mainPDFView.currentSelection else {
                         // 선택된 텍스트가 없을 때 특정 액션
                         self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
-                        self.viewModel.translateViewVisible = false                        // 말풍선 뷰 숨김
+                        self.viewModel.translateViewVisible = true                        // 말풍선 뷰 숨김
                         return
                     }
                     

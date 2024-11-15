@@ -33,16 +33,11 @@ struct OriginalView: View {
                         viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                     }
                 }
-                .onTapGesture {
-                    // 터치 시 말풍선 뷰를 숨기는 처리 추가
-                    viewModel.updateTranslateView(selectedText: "", translateBubblePosition: .zero)
-                }
                 // 번역에 사용되는 말풍선뷰
                 if viewModel.toolMode == .translate {
                     if #available(iOS 18.0, *) {
                         if viewModel.isTranslateViewVisible {
-                            TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition, isPaperViewFirst: $viewModel.isPaperViewFirst)
-                                .environmentObject(floatingViewModel)
+                            TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
                                 .environmentObject(viewModel)
                         }
                     }
