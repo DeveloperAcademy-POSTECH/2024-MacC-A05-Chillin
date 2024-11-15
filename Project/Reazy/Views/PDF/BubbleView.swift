@@ -2,12 +2,12 @@ import SwiftUI
 import Translation
 
 @available(iOS 18.0, *)
-struct BubbleView: View {
+struct TranslateView: View {
     @EnvironmentObject var viewModel: MainPDFViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     @Binding var selectedText: String
-    @Binding var bubblePosition: CGRect
+    @Binding var translatePosition: CGRect
     @Binding var isPaperViewFirst: Bool
     
     @State private var targetText = "" // 번역 결과 텍스트
@@ -125,15 +125,15 @@ struct BubbleView: View {
                     }
                 }
                 .onAppear {
-                    bubblePositionForScreen(bubblePosition, in: geometry.size)
-                    textWidth = bubblePosition.width * 1.5 // 글자 수 적을 때 너비 여유롭게
+                    bubblePositionForScreen(translatePosition, in: geometry.size)
+                    textWidth = translatePosition.width * 1.5 // 글자 수 적을 때 너비 여유롭게
                     triggerTranslation()
                 }
                 .position(updatedBubblePosition)
                 .onChange(of: selectedText) {
                     isTranslationComplete = false // 번역 완료 되었을 때 뷰 다시 그리게 false 처리
-                    bubblePositionForScreen(bubblePosition, in: geometry.size)
-                    textWidth = bubblePosition.width * 1.5
+                    bubblePositionForScreen(translatePosition, in: geometry.size)
+                    textWidth = translatePosition.width * 1.5
                     triggerTranslation()
                 }
                 .onPreferenceChange(ViewHeightKey.self) { height in
@@ -167,7 +167,7 @@ struct BubbleView: View {
                               target: Locale.Language(identifier: "ko"))
     }
     
-    // BubbleView 위치 조정하는 함수
+    // TranslateView 위치 조정하는 함수
     private func bubblePositionForScreen(_ rect: CGRect, in screenSize: CGSize) {
         if  floatingViewModel.splitMode { // 스플릿 뷰 켜져 있으면 항상 아래에 붙게
             // 말풍선이 선택 영역 아래에 붙음
