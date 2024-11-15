@@ -66,6 +66,10 @@ final class OriginalViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit {
+        self.cancellable.forEach { $0.cancel() }
+    }
 }
 
 // MARK: - 초기 설정
@@ -123,7 +127,7 @@ extension OriginalViewController {
     /// 데이터 Binding
     private func setBinding() {
         // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-        viewModel.$toolMode
+        self.viewModel.$toolMode
             .sink { [weak self] mode in
                 self?.updateGestureRecognizer(for: mode)
             }

@@ -25,8 +25,10 @@ struct SearchBar: View {
             self.text = ""
           }, label: {
             Image(systemName: "xmark.circle.fill")
-            
           })
+          .id(text)
+          .transition(.opacity)
+          .animation(.easeInOut(duration: 0.2), value: text)
         } else {
           EmptyView()
         }
