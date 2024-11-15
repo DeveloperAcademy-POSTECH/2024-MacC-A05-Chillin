@@ -287,6 +287,9 @@ struct MainPDFView: View {
                                                     .font(.system(size: 16))
                                                     .foregroundStyle(.gray600)
                                             }
+                                            .id(titleText)
+                                            .transition(.opacity)
+                                            .animation(.easeInOut(duration: 0.2), value: titleText)
                                             .padding(.trailing, 8)
                                             
                                         }
