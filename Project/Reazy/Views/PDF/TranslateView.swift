@@ -32,7 +32,7 @@ struct TranslateView: View {
             Color.clear
                 .foregroundStyle(.gray200)
                 .popover(isPresented: $isPopoverVisible, arrowEdge: .bottom) {
-                    ZStack(alignment: .center) {
+                    ZStack(alignment: .top) {
                         ScrollView {
                             Text(targetText)
                                 .foregroundColor(.point2)
