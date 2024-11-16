@@ -14,7 +14,14 @@ import Combine
  원문 모드 ViewController
  */
 
-final class OriginalViewController: UIViewController {
+class CustomPDFView: PDFView {
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+            // 모든 메뉴 액션을 비활성화하여 메뉴가 나타나지 않도록 함
+            return false
+        }
+}
+
+final class OriginalViewController: UIViewController, UIEditMenuInteractionDelegate {
     
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
@@ -23,8 +30,8 @@ final class OriginalViewController: UIViewController {
     var selectionWorkItem: DispatchWorkItem?
     
     
-    let mainPDFView: PDFView = {
-        let view = PDFView()
+    let mainPDFView: CustomPDFView = {
+        let view = CustomPDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
         view.autoScales = false
@@ -46,6 +53,13 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
+    }
+    
+    // menu 없애기
+    override func buildMenu(with builder: UIMenuBuilder) {
+        builder.remove(menu: .share)
+        builder.remove(menu: .lookup)
+        super.buildMenu(with: builder)
     }
     
     override func viewWillAppear(_ animated: Bool) {
