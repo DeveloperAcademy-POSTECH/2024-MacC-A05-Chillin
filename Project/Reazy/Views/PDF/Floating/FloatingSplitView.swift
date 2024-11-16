@@ -157,6 +157,7 @@ struct FloatingSplitView: View {
                     .frame(height: isVertical ? geometry.size.height * 0.2 : geometry.size.height * 0.3)
                 }
             }
+            .background(.gray100)
             .onAppear {
                 updateOrientation(with: geometry)
             }

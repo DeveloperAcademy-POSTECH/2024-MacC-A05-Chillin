@@ -64,7 +64,6 @@ struct PaperListView: View {
                         
                         Button(action: {
                             isFavoritesSelected = true
-                            // TODO: - 즐겨찾기 filter 적용 필요
                         }, label: {
                             Text("즐겨찾기")
                                 .reazyFont(isFavoritesSelected ? .text3 : .h2)
@@ -97,7 +96,7 @@ struct PaperListView: View {
                                 .scaledToFit()
                                 .frame(height: 146)
                                 .padding(.bottom, 11)
-                            Text("새로운 논문을 가져와주세요")
+                            Text(isFavoritesSelected ? "즐겨찾기한 논문이 없어요" : "새로운 논문을 가져와주세요")
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray550)
                                 .padding(.bottom, 80)

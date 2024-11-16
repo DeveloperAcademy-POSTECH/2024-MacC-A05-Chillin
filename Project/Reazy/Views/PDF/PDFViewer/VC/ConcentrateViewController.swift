@@ -57,6 +57,10 @@ final class ConcentrateViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
+    }
 }
 
 // MARK: - 초기 세팅

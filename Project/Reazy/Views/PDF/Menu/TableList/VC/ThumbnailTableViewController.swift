@@ -44,6 +44,10 @@ final class ThumbnailTableViewController: UIViewController {
         setUI()
         setBinding()
     }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
+    }
 }
 
 // MARK: - UI 초기 설정
@@ -67,11 +71,15 @@ extension ThumbnailTableViewController {
             }
             .store(in: &self.cancellables)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(redrawScreen), name: UIDevice.orientationDidChangeNotification, object: nil)
+        NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
+            .sink { [weak self] _ in
+                self?.redrawScreen()
+            }
+            .store(in: &self.cancellables)
     }
     
 
-    @objc private func redrawScreen() {
+    private func redrawScreen() {
         self.thumbnailTableView.reloadData()
     }
 }
