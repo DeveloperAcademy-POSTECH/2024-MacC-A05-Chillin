@@ -33,12 +33,11 @@ struct TranslateView: View {
                 .foregroundStyle(.gray200)
                 .popover(isPresented: $isPopoverVisible, arrowEdge: .bottom) {
                     ZStack(alignment: .top) {
-                        ScrollView {
+                        ScrollView(showsIndicators: false)  {
                             Text(targetText)
                                 .foregroundColor(.point2)
                                 .lineSpacing(8)
                                 .padding(.vertical, 14)
-                                .padding(.horizontal, 16)
                                 .font(.system(size: 16, weight: .regular))
                                 .frame(maxWidth: maxBubbleWidth, alignment: .leading)
                                 .background(
@@ -48,7 +47,7 @@ struct TranslateView: View {
                                     }
                                 )
                         }
-                        .padding(.vertical, 14)
+                        .padding(.bottom, 14)
                         .padding(.horizontal, 16)
                         .frame(height: min(textHeight, maxBubbleHeight))
                         .frame(maxWidth: maxBubbleWidth, maxHeight: maxBubbleHeight) // ScrollView 높이 제한
