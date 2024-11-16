@@ -166,14 +166,18 @@ extension OriginalViewController {
         
         // 현재 드래그된 텍스트 가져오는 함수
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
-            .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
+        
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                
                 switch self.viewModel.toolMode {
+                    
                 case .highlight:
                     DispatchQueue.main.async {
                         self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
                     }
+                    
                 case .translate, .comment:
                     guard let selection = self.mainPDFView.currentSelection else {
                         // 선택된 텍스트가 없을 때 특정 액션
@@ -223,6 +227,7 @@ extension OriginalViewController {
                     // 텍스트 선택 후 딜레이
                     self.selectionWorkItem = workItem
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+                    
                 default:
                     return
                 }
