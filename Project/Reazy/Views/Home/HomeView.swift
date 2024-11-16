@@ -338,16 +338,14 @@ private struct RenamePaperTitleView: View {
                         }
                     } label: {
                         Image(systemName: "xmark")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 17)
+                            .font(.system(size: 18))
                     }
                     .foregroundStyle(.gray100)
                     .padding(28)
                     
                     Spacer()
                     
-                    Button("완료") {
+                    Button(action: {
                         if isEditingTitle {
                             pdfFileManager.updateTitle(at: paperInfo.id, title: text)
                             isEditingTitle = false
@@ -356,9 +354,16 @@ private struct RenamePaperTitleView: View {
                             self.pdfFileManager.memoText = text
                             isEditingMemo = false
                         }
+                    }) {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay(
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            )
                     }
-                    .reazyFont(.button1)
-                    .foregroundStyle(.gray100)
                     .padding(28)
                 }
                 

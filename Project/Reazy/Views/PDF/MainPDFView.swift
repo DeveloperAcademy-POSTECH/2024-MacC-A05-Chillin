@@ -17,7 +17,6 @@ struct MainPDFView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var pdfFileManager: PDFFileManager
     
-    
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
@@ -38,9 +37,6 @@ struct MainPDFView: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    Divider()
-                        .foregroundStyle(Color(hex: "CCCEE1"))
-                    
                     ZStack {
                         HStack(spacing: 0) {
                             Button(action: {
@@ -101,7 +97,6 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                // MARK: - 부리꺼 : 색상 적용 필요
                                     .foregroundStyle(isFigSelected ? Color(hex: "5F5DAA") : .clear)
                                     .overlay (
                                         ZStack {
@@ -178,11 +173,13 @@ struct MainPDFView: View {
                             Spacer()
                         }
                         .background(.clear)
-                        
                     }
+                    .zIndex(1)
                     
-                    Divider()
+                    Rectangle()
+                        .frame(height: 1)
                         .foregroundStyle(Color(hex: "CCCEE1"))
+                        .zIndex(1)
                     
                     GeometryReader { geometry in
                         ZStack {
@@ -366,7 +363,6 @@ struct MainPDFView: View {
             }
             .onDisappear {
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
-                // TODO: - [브리] commentViewModel에 있는 comments랑 buttonGroup 배열 두 개 저장하는 거 여기서
             }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
