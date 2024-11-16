@@ -23,6 +23,7 @@ struct MainPDFView: View {
     @StateObject public var commentViewModel: CommentViewModel
     @StateObject public var focusFigureViewModel: FocusFigureViewModel
     @StateObject public var pageListViewModel: PageListViewModel
+    @StateObject public var searchViewModel: SearchViewModel
     
     @State private var selectedButton: WriteButton? = nil
     @State private var selectedColor: HighlightColors = .yellow
@@ -353,7 +354,7 @@ struct MainPDFView: View {
                 )
                 .overlay {
                     OverlaySearchView(isSearchSelected: self.$isSearchSelected)
-                        .environmentObject(mainPDFViewModel)
+                        .environmentObject(searchViewModel)
                         .animation(.spring(.bouncy), value: self.isSearchSelected)
                 }
                 
@@ -411,8 +412,8 @@ struct MainPDFView: View {
                     }
                 }
             )
-            .environmentObject(mainPDFViewModel)
             .environmentObject(floatingViewModel)
+            .environmentObject(focusFigureViewModel)
             
             divider(for: orientation)
         }
@@ -424,6 +425,7 @@ struct MainPDFView: View {
                 .environmentObject(commentViewModel)
                 .environmentObject(focusFigureViewModel)
                 .environmentObject(pageListViewModel)
+                .environmentObject(searchViewModel)
             // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
             if #unavailable(iOS 18.0) {
                 if mainPDFViewModel.toolMode == .translate {
@@ -447,8 +449,8 @@ struct MainPDFView: View {
                     }
                 }
             )
-            .environmentObject(mainPDFViewModel)
             .environmentObject(floatingViewModel)
+            .environmentObject(focusFigureViewModel)
         }
     }
     

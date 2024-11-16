@@ -18,12 +18,17 @@ final class SearchViewModel: ObservableObject {
     @Published public var isLoading: Bool = false           // 검색 중 알려주는 flag
     @Published public var isSearched: Bool = false          // 검색이 완료되었는지 알려주는 flag
     
+    @Published public var searchSelection: PDFSelection?
+    @Published public var searchDestination: PDFDestination?
+    
     private var searchAnnotations: [PDFAnnotation] = []     // 하이라이팅을 위한 annotation 배열
+    private let pdfSharedData: PDFSharedData = .shared
     
     public var isNoMatchTextVisible: Bool {
         !searchText.isEmpty && searchResults.isEmpty && !isLoading && isSearched
     }
     
+
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
         let text: AttributedString      // 검색 결과가 포함된 텍스트
@@ -63,7 +68,7 @@ extension SearchViewModel {
             searchSelections.forEach { selection in
                 guard let page = selection.pages.first, let pageText = page.string else { return }
                 
-                DispatchQueue.main.async{
+                DispatchQueue.main.async {
                     self.addAnnotations(document: document, selection: selection)
                 }
                 
@@ -247,6 +252,16 @@ extension SearchViewModel {
         }
         
         self.searchAnnotations.removeAll()
+    }
+    
+    public func goToPage(at num: Int) {
+        guard let page = self.pdfSharedData.document?.page(at: num) else {
+            return
+        }
+        
+        let destination = PDFDestination(page: page, at: .zero)
+        
+        self.searchDestination = destination
     }
 }
 

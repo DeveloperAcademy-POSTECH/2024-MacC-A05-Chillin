@@ -21,6 +21,7 @@ final class OriginalViewController: UIViewController {
     
     let focusFigureViewModel: FocusFigureViewModel
     let pageListViewModel: PageListViewModel
+    let searchViewModel: SearchViewModel
     
     var cancellable: Set<AnyCancellable> = []
     var selectionWorkItem: DispatchWorkItem?
@@ -62,13 +63,15 @@ final class OriginalViewController: UIViewController {
         viewModel: MainPDFViewModel,
         commentViewModel: CommentViewModel,
         originalViewModel: FocusFigureViewModel,
-        pageListViewModel: PageListViewModel
+        pageListViewModel: PageListViewModel,
+        searchViewModel: SearchViewModel
     ) {
         self.viewModel = viewModel
         self.commentViewModel = commentViewModel
         
         self.focusFigureViewModel = originalViewModel
         self.pageListViewModel = pageListViewModel
+        self.searchViewModel = searchViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -149,7 +152,18 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        self.viewModel.$searchSelection
+        self.searchViewModel.$searchDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                guard let destination = destination,
+                      let page = destination.page else { return }
+                self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
+        
+        
+        self.searchViewModel.$searchSelection
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] selection in
                 self?.mainPDFView.setCurrentSelection(selection, animate: true)
             }

@@ -14,10 +14,16 @@ struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject private var pageListViewModel: PageListViewModel
+    @EnvironmentObject private var searchViewModel: SearchViewModel
     @StateObject var commentViewModel: CommentViewModel
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
-        OriginalViewController(viewModel: mainPDFViewModel, commentViewModel: commentViewModel, originalViewModel: focusFigureViewModel, pageListViewModel: pageListViewModel)
+        OriginalViewController(
+            viewModel: mainPDFViewModel,
+            commentViewModel: commentViewModel,
+            originalViewModel: focusFigureViewModel,
+            pageListViewModel: pageListViewModel,
+            searchViewModel: searchViewModel)
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {

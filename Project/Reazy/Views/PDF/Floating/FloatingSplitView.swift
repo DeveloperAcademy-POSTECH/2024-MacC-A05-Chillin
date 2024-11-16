@@ -15,9 +15,8 @@ struct SplitDocumentDetails {
 }
 
 struct FloatingSplitView: View {
-    
-    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @ObservedObject var observableDocument: ObservableDocument
     
@@ -76,7 +75,7 @@ struct FloatingSplitView: View {
                     HStack(spacing: 0) {
                         Spacer()
                         Button(action: {
-                            floatingViewModel.moveToPreviousFigure(mainPDFViewModel: mainPDFViewModel, observableDocument: observableDocument)
+                            floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 12, weight: .medium))
@@ -87,7 +86,7 @@ struct FloatingSplitView: View {
                             .foregroundStyle(.gray800)
                             .padding(.horizontal, 24)
                         Button(action: {
-                            floatingViewModel.moveToNextFigure(mainPDFViewModel: mainPDFViewModel, observableDocument: observableDocument)
+                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .medium))
@@ -116,7 +115,7 @@ struct FloatingSplitView: View {
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal) {
                             HStack(spacing: 8) {
-                                ForEach(0..<mainPDFViewModel.figureAnnotations.count, id: \.self) { index in
+                                ForEach(0 ..< focusFigureViewModel.figures.count, id: \.self) { index in
                                     FigureCell(index: index, onSelect: { newDocumentID, newDocument, newHead in
                                         if floatingViewModel.selectedFigureCellID != newDocumentID {
                                             floatingViewModel.updateSplitDocument(with: newDocument, documentID: newDocumentID, head: newHead)
@@ -128,7 +127,6 @@ struct FloatingSplitView: View {
                                             }
                                         }
                                     })
-                                    .environmentObject(mainPDFViewModel)
                                     .environmentObject(floatingViewModel)
                                     .padding(.trailing, 5)
                                     .id(index)

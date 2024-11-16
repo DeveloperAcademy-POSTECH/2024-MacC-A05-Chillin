@@ -12,10 +12,8 @@ import PDFKit
 /**
  검색 결과 보여주는 View
  */
-struct SearchView: View {
-    @EnvironmentObject var mainViewModel: MainPDFViewModel
-    
-    @StateObject private var viewModel: SearchViewModel = .init()
+struct SearchView: View {    
+    @EnvironmentObject private var viewModel: SearchViewModel
     
     @State private var searchTimer: Timer?
     @State private var selectedIndex: Int?
@@ -83,8 +81,8 @@ struct SearchView: View {
                 if viewModel.searchResults.isEmpty { return }
                 guard let index = self.selectedIndex else { return }
                 
-                mainViewModel.searchSelection = viewModel.searchResults[index].selection
-                mainViewModel.goToPage(at: viewModel.searchResults[index].page)
+                viewModel.searchSelection = viewModel.searchResults[index].selection
+                viewModel.goToPage(at: viewModel.searchResults[index].page)
             }
             .onAppear {
                 UITextField.appearance().clearButtonMode = .whileEditing
@@ -286,7 +284,7 @@ extension SearchView {
             return
         }
 
-        guard let document = mainViewModel.document else { return }
+        guard let document = PDFSharedData.shared.document else { return }
         
         if let timer = self.searchTimer {
             timer.invalidate()

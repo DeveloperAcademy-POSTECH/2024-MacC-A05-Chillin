@@ -12,7 +12,6 @@ import SwiftUI
  Navigation 관리하는 클래스
  */
 
-//@MainActor
 final class NavigationCoordinator: CoordinatorProtocol {
     @Published public var path: NavigationPath = .init()
     @Published var sheet: Sheet?
@@ -69,7 +68,8 @@ final class NavigationCoordinator: CoordinatorProtocol {
                         DefaultFocusFigureUseCase(
                             focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument))
                 ),
-                pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase())
+                pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
+                searchViewModel: .init()
             )
         }
     }
