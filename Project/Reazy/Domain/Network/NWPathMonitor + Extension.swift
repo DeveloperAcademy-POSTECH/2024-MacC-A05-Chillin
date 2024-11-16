@@ -9,7 +9,7 @@ import Network
 
 
 extension NWPathMonitor {
-    static func startMonitoring(callBack: @escaping (Bool) -> Void) {
+    public func startMonitoring(callBack: @escaping (Bool) -> Void) {
         let monitor = NWPathMonitor()
         
         monitor.start(queue: .main)

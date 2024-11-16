@@ -21,6 +21,7 @@ struct MainPDFView: View {
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
+    @StateObject public var focusFigureViewModel: FocusFigureViewModel
     
     @State private var selectedButton: WriteButton? = nil
     @State private var selectedColor: HighlightColors = .yellow
@@ -229,6 +230,7 @@ struct MainPDFView: View {
                                     })
                                     .environmentObject(mainPDFViewModel)
                                     .environmentObject(floatingViewModel)
+                                    .environmentObject(focusFigureViewModel)
                                     .background(.white)
                                     .frame(width: geometry.size.width * 0.22)
                                 }
@@ -419,6 +421,7 @@ struct MainPDFView: View {
                 .environmentObject(mainPDFViewModel)
                 .environmentObject(floatingViewModel)
                 .environmentObject(commentViewModel)
+                .environmentObject(focusFigureViewModel)
             // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
             if #unavailable(iOS 18.0) {
                 if mainPDFViewModel.toolMode == .translate {

@@ -131,4 +131,30 @@ class FigureDataService: FigureDataInterface {
             return .failure(error)
         }
     }
+    
+    func editPaperInfo(info: PaperInfo) -> Result<VoidResponse, any Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", info.id as CVarArg)
+        
+        do {
+            let results = try dataContext.fetch(fetchRequest)
+            if let dataToEdit = results.first {
+                // 기존 데이터 수정
+                dataToEdit.title = info.title
+                dataToEdit.url = info.url
+                dataToEdit.lastModifiedDate = info.lastModifiedDate
+                dataToEdit.isFavorite = info.isFavorite
+                dataToEdit.memo = info.memo
+                dataToEdit.isFigureSaved = info.isFigureSaved
+                
+                try dataContext.save()
+                return .success(VoidResponse())
+            } else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
+            }
+        } catch {
+            return .failure(error)
+        }
+    }
 }

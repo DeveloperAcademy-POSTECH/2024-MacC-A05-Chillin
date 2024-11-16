@@ -61,7 +61,7 @@ extension AppView {
         
         let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
         
-        let layout = try! JSONDecoder().decode(PDFLayout.self, from: .init(contentsOf: url))
+        let layout = try! JSONDecoder().decode(PDFLayoutResponseDTO.self, from: .init(contentsOf: url))
         
         let id = pdfFileManager.uploadSampleFile()!
         UserDefaults.standard.set(id.uuidString, forKey: "sampleId")

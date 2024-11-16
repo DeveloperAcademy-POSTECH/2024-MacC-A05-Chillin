@@ -18,6 +18,7 @@ final class OriginalViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
+    let focusFigureViewModel: FocusFigureViewModel
     
     var cancellable: Set<AnyCancellable> = []
     var selectionWorkItem: DispatchWorkItem?
@@ -49,17 +50,16 @@ final class OriginalViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        Task.init {
-            // 집중모드 데이터 패치
-            await self.viewModel.fetchAnnotations()
-        }
+        // 집중모드 데이터 패치
+        self.focusFigureViewModel.fetchAnnotations()
         
         viewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
-    init(viewModel: MainPDFViewModel, commentViewModel: CommentViewModel) {
+    init(viewModel: MainPDFViewModel, commentViewModel: CommentViewModel, originalViewModel: FocusFigureViewModel) {
         self.viewModel = viewModel
         self.commentViewModel = commentViewModel
+        self.focusFigureViewModel = originalViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -87,8 +87,9 @@ extension OriginalViewController {
     
     /// ViewModel 설정
     private func setData() {
-        self.mainPDFView.document = self.viewModel.document
+//        self.mainPDFView.document = self.viewModel.document
         self.commentViewModel.document = self.viewModel.document
+        self.mainPDFView.document = self.focusFigureViewModel.getDocument
         
         // 썸네일 이미지 패치
         self.viewModel.fetchThumbnailImage()

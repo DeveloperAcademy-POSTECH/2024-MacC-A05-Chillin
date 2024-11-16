@@ -134,7 +134,7 @@ extension MainPDFViewModel {
     /// 초기 figure 업데이트 메소드
     public func downloadFigureAnnotation() async {
         // 네트워크 확인 메소드
-        NWPathMonitor.startMonitoring { isConnected in
+        NWPathMonitor().startMonitoring { isConnected in
             // 네트워크에 연결되어 있지 않는 경우
             if !isConnected {
                 DispatchQueue.main.async {
@@ -170,9 +170,9 @@ extension MainPDFViewModel {
             
             Task.init {
                 do {
-                    let input: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
+                    let input: PDFLayoutResponseDTO = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
                     
-                    self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+                    self.figureAnnotations = NetworkManager.filterFigure(input: input)
                     
                     let id = self.paperInfo.id
                     
@@ -228,9 +228,8 @@ extension MainPDFViewModel {
         switch self.figureService.loadFigureData(for: self.paperInfo.id) {
         case .success(let figureList):
             let result = NetworkManager.filterFigure(
-                input: .init(fig: figureList, table: nil),
-                pageWidth: width,
-                pageHeight: height)
+                input: .init(fig: figureList, table: nil)
+            )
             
             
             DispatchQueue.main.async { [weak self] in
@@ -284,10 +283,7 @@ extension MainPDFViewModel {
         }
         let input = try! NetworkManager.getSamplePDFData()
         
-        let width = page.bounds(for: .mediaBox).width
-        let height = page.bounds(for: .mediaBox).height
-        
-        self.figureAnnotations = NetworkManager.filterFigure(input: input, pageWidth: width, pageHeight: height)
+        self.figureAnnotations = NetworkManager.filterFigure(input: input)
     }
 }
 

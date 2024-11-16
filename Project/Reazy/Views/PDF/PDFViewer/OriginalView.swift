@@ -14,6 +14,7 @@ struct OriginalView: View {
     @EnvironmentObject private var viewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject var commentViewModel: CommentViewModel
+    @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     
     @State private var keyboardOffset: CGFloat = 0
     @State private var cancellables: Set<AnyCancellable> = []

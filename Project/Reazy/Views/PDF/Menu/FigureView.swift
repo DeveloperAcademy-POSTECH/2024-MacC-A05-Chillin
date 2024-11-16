@@ -12,6 +12,7 @@ import PDFKit
 struct FigureView: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @State private var scrollToIndex: Int? = nil
     let onSelect: (String, PDFDocument, String) -> Void
@@ -22,7 +23,7 @@ struct FigureView: View {
             VStack(spacing: 0) {
                 // TODO: 처음 들어오는지 여부 판단 필요
                 
-                switch mainPDFViewModel.figureStatus {
+                switch focusFigureViewModel.figureStatus {
                 case .networkDisconnection:
                     VStack(spacing: 12) {
                         Text("Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다.")
@@ -30,9 +31,7 @@ struct FigureView: View {
                             .foregroundStyle(.gray600)
                         
                         Button {
-                            Task.init {
-                                await mainPDFViewModel.fetchAnnotations()
-                            }
+                            focusFigureViewModel.fetchAnnotations()
                         } label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 8)
@@ -73,7 +72,7 @@ struct FigureView: View {
                     // ScrollViewReader로 자동 스크롤 구현
                     ScrollViewReader { proxy in
                         List {
-                            ForEach(0..<mainPDFViewModel.figureAnnotations.count, id: \.self) { index in
+                            ForEach(0 ..< focusFigureViewModel.figures.count, id: \.self) { index in
                                 FigureCell(index: index, onSelect: onSelect)
                                     .padding(.bottom, 21)
                                     .listRowSeparator(.hidden)

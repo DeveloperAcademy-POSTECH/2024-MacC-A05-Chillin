@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
 		2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 2C14693F2CE25B7600B35D92 /* Settings.bundle */; };
+		2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */; };
+		2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */; };
+		2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */; };
+		2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */; };
+		2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,6 +30,11 @@
 		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 		2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkUnitTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C14693F2CE25B7600B35D92 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepository.swift; sourceTree = "<group>"; };
+		2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepositoryImpl.swift; sourceTree = "<group>"; };
+		2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureUseCase.swift; sourceTree = "<group>"; };
+		2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureViewModel.swift; sourceTree = "<group>"; };
+		2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutResponseDTO.swift; sourceTree = "<group>"; };
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -60,9 +70,102 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2C1473D72CE73C2100B35D92 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473E42CE7894200B35D92 /* OriginalPaper */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		2C1473D82CE73C2900B35D92 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473E12CE7876900B35D92 /* UseCases */,
+				2C1473DB2CE73D3A00B35D92 /* Interfaces */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		2C1473D92CE73C3E00B35D92 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473EC2CE87BE200B35D92 /* Network */,
+				2C1473DA2CE73C7600B35D92 /* Repositories */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		2C1473DA2CE73C7600B35D92 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		2C1473DB2CE73D3A00B35D92 /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473DC2CE73D4300B35D92 /* Repositories */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
+		2C1473DC2CE73D4300B35D92 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		2C1473E12CE7876900B35D92 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		2C1473E42CE7894200B35D92 /* OriginalPaper */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473E52CE7896A00B35D92 /* ViewModel */,
+			);
+			path = OriginalPaper;
+			sourceTree = "<group>";
+		};
+		2C1473E52CE7896A00B35D92 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		2C1473EC2CE87BE200B35D92 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473ED2CE87BE800B35D92 /* DataMapping */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		2C1473ED2CE87BE800B35D92 /* DataMapping */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */,
+			);
+			path = DataMapping;
+			sourceTree = "<group>";
+		};
 		2C7AE8812CBCF290004098AF = {
 			isa = PBXGroup;
 			children = (
+				2C1473D92CE73C3E00B35D92 /* Data */,
+				2C1473D82CE73C2900B35D92 /* Domain */,
+				2C1473D72CE73C2100B35D92 /* Presentation */,
 				2C14588E2CD769FB00B35D92 /* Server.xcconfig */,
 				6E08044B2CBD2B12000AFEEE /* Project */,
 				2C1458952CD7D09800B35D92 /* NetworkUnitTest */,
@@ -199,6 +302,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
+				2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */,
+				2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */,
+				2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */,
+				2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

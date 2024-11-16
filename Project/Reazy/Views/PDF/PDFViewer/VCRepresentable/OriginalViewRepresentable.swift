@@ -12,10 +12,11 @@ struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
     typealias UIViewControllerType = OriginalViewController
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @StateObject var commentViewModel: CommentViewModel
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
-        OriginalViewController(viewModel: mainPDFViewModel, commentViewModel: commentViewModel)
+        OriginalViewController(viewModel: mainPDFViewModel, commentViewModel: commentViewModel, originalViewModel: focusFigureViewModel)
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {

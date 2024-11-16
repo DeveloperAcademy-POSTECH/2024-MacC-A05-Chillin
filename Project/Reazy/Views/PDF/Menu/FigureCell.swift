@@ -49,6 +49,7 @@ struct FigureCell: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     let index: Int
     let onSelect: (String, PDFDocument, String) -> Void
@@ -58,11 +59,11 @@ struct FigureCell: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
-                if let document = mainPDFViewModel.setFigureDocument(for: index) {
+                if let document = focusFigureViewModel.setFigureDocument(for: index) {
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
                         let aspectRatio = pageRect.width / pageRect.height
-                        let head = mainPDFViewModel.figureAnnotations[index].head
+                        let head = focusFigureViewModel.figures[index].head
                         let documentID = "figure-\(index)"
                         
                         PDFKitView(document: document, isScrollEnabled: false)
@@ -86,7 +87,7 @@ struct FigureCell: View {
             }
             .padding(.bottom, 10)
             
-            Text(mainPDFViewModel.figureAnnotations[index].head)
+            Text(focusFigureViewModel.figures[index].head)
                 .reazyFont(.body3)
                 .foregroundStyle(.gray800)
         }
