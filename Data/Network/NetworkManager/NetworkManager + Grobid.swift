@@ -10,6 +10,8 @@ import Foundation
 /**
  Grobid 모델과 통신 관련 메소드
  */
+
+/*
 extension NetworkManager {
     
     /// Sample 데이터 불러오기
@@ -171,3 +173,5 @@ extension NetworkManager {
         return result
     }
 }
+
+*/

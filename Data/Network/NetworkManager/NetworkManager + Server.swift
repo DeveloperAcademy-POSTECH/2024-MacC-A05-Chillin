@@ -10,6 +10,8 @@ import Foundation
 /**
  pdf 분석 관련 메소드
  */
+
+
 extension NetworkManager {
     
     /// 서버에 pdf 데이터 전송

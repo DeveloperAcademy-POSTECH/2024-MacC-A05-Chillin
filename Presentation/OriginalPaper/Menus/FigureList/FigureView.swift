@@ -95,17 +95,18 @@ struct FigureView: View {
             }
         }
         // 원문보기 페이지 변경시 자동 스크롤
-        .onChange(of: mainPDFViewModel.changedPageNumber) { _, newValue in
-            updateScrollIndex(for: newValue)
+        .onReceive(focusFigureViewModel.$changedPageNumber) { num in
+            guard let num = num else { return }
+            updateScrollIndex(for: num)
         }
     }
     
     private func updateScrollIndex(for pageNumber: Int) {
-        let pageCount = mainPDFViewModel.figureAnnotations.count
+        let pageCount = focusFigureViewModel.figures.count
         var foundIndex: Int? = nil
         
         for index in 0..<pageCount {
-            if mainPDFViewModel.figureAnnotations[index].page == pageNumber {
+            if focusFigureViewModel.figures[index].page == pageNumber {
                 foundIndex = index
                 break
             }
@@ -115,7 +116,7 @@ struct FigureView: View {
             scrollToIndex = index + 1
         } else {
             for index in 0..<pageCount {
-                if mainPDFViewModel.figureAnnotations[index].page > pageNumber {
+                if focusFigureViewModel.figures[index].page > pageNumber {
                     scrollToIndex = index
                     break
                 }

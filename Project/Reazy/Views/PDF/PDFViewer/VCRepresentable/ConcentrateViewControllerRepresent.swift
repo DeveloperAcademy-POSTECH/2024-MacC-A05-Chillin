@@ -11,6 +11,8 @@ import SwiftUI
 /**
  집중 모드 vc SwiftUI 로 변환
  */
+
+/*
 struct ConcentrateViewControllerRepresent: UIViewControllerRepresentable {
     typealias UIViewControllerType = ConcentrateViewController
     
@@ -24,3 +26,4 @@ struct ConcentrateViewControllerRepresent: UIViewControllerRepresentable {
         
     }
 }
+*/

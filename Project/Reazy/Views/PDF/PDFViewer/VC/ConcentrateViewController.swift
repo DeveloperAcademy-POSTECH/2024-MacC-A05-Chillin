@@ -9,6 +9,7 @@ import UIKit
 import PDFKit
 import Combine
 
+/*
 final class ConcentrateViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
@@ -145,3 +146,5 @@ extension ConcentrateViewController {
             .store(in: &self.cancellables)
     }
 }
+
+*/

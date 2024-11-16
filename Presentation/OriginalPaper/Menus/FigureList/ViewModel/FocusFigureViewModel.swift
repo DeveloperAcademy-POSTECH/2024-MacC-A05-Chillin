@@ -14,6 +14,7 @@ import PDFKit
 class FocusFigureViewModel: ObservableObject {
     @Published public var figures: [FigureAnnotation] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
+    @Published public var changedPageNumber: Int?
     
     
     private var focusFigureUseCase: FocusFigureUseCase

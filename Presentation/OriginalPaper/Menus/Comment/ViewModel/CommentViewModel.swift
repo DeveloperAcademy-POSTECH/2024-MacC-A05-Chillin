@@ -38,11 +38,10 @@ class CommentViewModel: ObservableObject {
     @Published var comment: Comment?
     
     init(
-        paperInfo: PaperInfo,
         commentService: CommentDataService,
         buttonGroupService: ButtonGroupDataService
     ) {
-        self.paperInfo = paperInfo
+        self.paperInfo = PDFSharedData.shared.paperInfo!
         self.commentService = commentService
         self.buttonGroupService = buttonGroupService
         // MARK: - 기존에 저장된 데이터가 있다면 모델에 저장된 데이터를 추가

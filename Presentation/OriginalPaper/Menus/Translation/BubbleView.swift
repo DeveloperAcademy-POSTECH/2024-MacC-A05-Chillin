@@ -3,7 +3,6 @@ import Translation
 
 @available(iOS 18.0, *)
 struct BubbleView: View {
-    @EnvironmentObject var viewModel: MainPDFViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     @Binding var selectedText: String

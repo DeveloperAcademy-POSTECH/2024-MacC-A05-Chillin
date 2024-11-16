@@ -57,7 +57,7 @@ final class OriginalViewController: UIViewController {
         // 집중모드 데이터 패치
         self.focusFigureViewModel.fetchAnnotations()
         
-        pageListViewModel.goToPage(at: viewModel.changedPageNumber)
+//        pageListViewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
     init(
@@ -103,7 +103,7 @@ extension OriginalViewController {
     
     /// ViewModel 설정
     private func setData() {
-        self.commentViewModel.document = self.viewModel.document
+        self.commentViewModel.document = PDFSharedData.shared.document
         self.mainPDFView.document = self.focusFigureViewModel.getDocument
         
         
@@ -195,6 +195,7 @@ extension OriginalViewController {
                 guard let page = self?.mainPDFView.currentPage else { return }
                 guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
                 self?.pageListViewModel.changedPageNumber = num
+                self?.focusFigureViewModel.changedPageNumber = num
             }
             .store(in: &self.cancellable)
         

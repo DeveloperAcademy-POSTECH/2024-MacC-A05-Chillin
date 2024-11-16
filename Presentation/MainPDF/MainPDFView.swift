@@ -245,7 +245,7 @@ struct MainPDFView: View {
                 .customNavigationBar(
                     centerView: {
                         HStack(spacing: 5) {
-                            Text(mainPDFViewModel.paperInfo.title)
+                            Text(mainPDFViewModel.pdfSharedData.paperInfo?.title ?? "알 수 없음")
                                 .reazyFont(.h3)
                                 .foregroundStyle(.gray800)
                                 .lineLimit(1)
@@ -302,13 +302,15 @@ struct MainPDFView: View {
                                     .padding(.horizontal, 15)
                                 }
                                 .onAppear {
-                                    self.titleText = mainPDFViewModel.paperInfo.title
+                                    self.titleText = mainPDFViewModel.pdfSharedData.paperInfo?.title ?? "알 수 없음"
                                 }
                                 .onDisappear {
                                     if !self.titleText.isEmpty {
-                                        let id = self.mainPDFViewModel.paperInfo.id
+                                        guard let id = self.mainPDFViewModel.pdfSharedData.paperInfo?.id else {
+                                            return
+                                        }
                                         self.pdfFileManager.updateTitle(at: id, title: self.titleText)
-                                        self.mainPDFViewModel.paperInfo.title = self.titleText
+                                        self.mainPDFViewModel.pdfSharedData.paperInfo?.title = self.titleText
                                     }
                                 }
                             }
@@ -373,13 +375,13 @@ struct MainPDFView: View {
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
-            .onChange(of: self.mainPDFViewModel.figureStatus) { _, newValue in
-                // 다운로드가 완료된 경우 isFigureSaved 값 변경
-                if newValue == .complete {
-                    let id = self.mainPDFViewModel.paperInfo.id
-                    self.pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
-                }
-            }
+//            .onChange(of: self.mainPDFViewModel.figureStatus) { _, newValue in
+//                // 다운로드가 완료된 경우 isFigureSaved 값 변경
+//                if newValue == .complete {
+//                    let id = self.mainPDFViewModel.paperInfo.id
+//                    self.pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
+//                }
+//            }
             .statusBarHidden()
         }
     }

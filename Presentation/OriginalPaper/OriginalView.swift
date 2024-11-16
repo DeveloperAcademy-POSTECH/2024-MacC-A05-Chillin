@@ -44,7 +44,6 @@ struct OriginalView: View {
                         if viewModel.isBubbleViewVisible {
                             BubbleView(selectedText: $viewModel.selectedText, bubblePosition: $viewModel.bubbleViewPosition, isPaperViewFirst: $viewModel.isPaperViewFirst)
                                 .environmentObject(floatingViewModel)
-                                .environmentObject(viewModel)
                         }
                     }
                 }
