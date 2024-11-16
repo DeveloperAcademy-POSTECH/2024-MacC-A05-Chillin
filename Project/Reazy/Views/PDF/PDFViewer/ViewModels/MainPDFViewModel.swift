@@ -131,124 +131,124 @@ extension MainPDFViewModel {
         }
     }
     
-    /// 초기 figure 업데이트 메소드
-    public func downloadFigureAnnotation() async {
-        // 네트워크 확인 메소드
-        NWPathMonitor().startMonitoring { isConnected in
-            // 네트워크에 연결되어 있지 않는 경우
-            if !isConnected {
-                DispatchQueue.main.async {
-                    self.figureStatus = .networkDisconnection
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                self.figureStatus = .loading
-            }
-            
-            guard let page = self.document?.page(at: 0) else {
-                DispatchQueue.main.async {
-                    self.figureStatus = .empty
-                }
-                return
-            }
-            
-            let width = page.bounds(for: .mediaBox).width
-            let height = page.bounds(for: .mediaBox).height
-            
-            var isStale = false
-            
-            guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
-                  url.startAccessingSecurityScopedResource() else {
-                return
-            }
-            
-            defer {
-                url.stopAccessingSecurityScopedResource()
-            }
-            
-            Task.init {
-                do {
-                    let input: PDFLayoutResponseDTO = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
-                    
-                    self.figureAnnotations = NetworkManager.filterFigure(input: input)
-                    
-                    let id = self.paperInfo.id
-                    
-                    input.fig.forEach {
-                        let _ = self.figureService.saveFigureData(for: id, with: .init(
-                            id: $0.id,
-                            head: $0.head,
-                            label: $0.label,
-                            figDesc: $0.figDesc,
-                            coords: $0.coords,
-                            graphicCoord: $0.graphicCoord))
-                    }
-                    
-                    print("end network connect")
-                    DispatchQueue.main.async {
-                        self.figureStatus = .complete
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        self.figureStatus = .empty
-                    }
-                    print(String(describing: error))
-                }
-            }
-        }
-    }
-    
-    /// 피규어 fetch 메소드
-    public func fetchAnnotations() async {
-        // 처음 들어오는지 여부 판단
-        // 처음 들어오면 다운로드 진행
-        if !paperInfo.isFigureSaved {
-            await downloadFigureAnnotation()
-            DispatchQueue.main.async { [weak self] in
-                self?.paperInfo.isFigureSaved = true
-            }
-            
-            return
-        }
-        
-        guard let page = self.document?.page(at: 0) else {
-            DispatchQueue.main.async {
-                self.figureStatus = .empty
-            }
-            return
-        }
-        
-        // 이미 있는 경우
-        // 저장된 피규어 불러오기
-        let width = page.bounds(for: .mediaBox).width
-        let height = page.bounds(for: .mediaBox).height
-        
-        switch self.figureService.loadFigureData(for: self.paperInfo.id) {
-        case .success(let figureList):
-            let result = NetworkManager.filterFigure(
-                input: .init(fig: figureList, table: nil)
-            )
-            
-            
-            DispatchQueue.main.async { [weak self] in
-                if result.isEmpty {
-                    self?.figureStatus = .empty
-                    return
-                }
-                self?.figureAnnotations = result
-                self?.figureStatus = .complete
-            }
-        
-        case .failure:
-            DispatchQueue.main.async {
-                self.figureStatus = .empty
-            }
-        }
-        
-        
-    }
+//    /// 초기 figure 업데이트 메소드
+//    public func downloadFigureAnnotation() async {
+//        // 네트워크 확인 메소드
+//        NWPathMonitor().startMonitoring { isConnected in
+//            // 네트워크에 연결되어 있지 않는 경우
+//            if !isConnected {
+//                DispatchQueue.main.async {
+//                    self.figureStatus = .networkDisconnection
+//                }
+//                return
+//            }
+//            
+//            DispatchQueue.main.async {
+//                self.figureStatus = .loading
+//            }
+//            
+//            guard let page = self.document?.page(at: 0) else {
+//                DispatchQueue.main.async {
+//                    self.figureStatus = .empty
+//                }
+//                return
+//            }
+//            
+//            let width = page.bounds(for: .mediaBox).width
+//            let height = page.bounds(for: .mediaBox).height
+//            
+//            var isStale = false
+//            
+//            guard let url = try? URL.init(resolvingBookmarkData: self.paperInfo.url, bookmarkDataIsStale: &isStale),
+//                  url.startAccessingSecurityScopedResource() else {
+//                return
+//            }
+//            
+//            defer {
+//                url.stopAccessingSecurityScopedResource()
+//            }
+//            
+//            Task.init {
+//                do {
+//                    let input: PDFLayoutResponseDTO = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: url)
+//                    
+//                    self.figureAnnotations = NetworkManager.filterFigure(input: input)
+//                    
+//                    let id = self.paperInfo.id
+//                    
+//                    input.fig.forEach {
+//                        let _ = self.figureService.saveFigureData(for: id, with: .init(
+//                            id: $0.id,
+//                            head: $0.head,
+//                            label: $0.label,
+//                            figDesc: $0.figDesc,
+//                            coords: $0.coords,
+//                            graphicCoord: $0.graphicCoord))
+//                    }
+//                    
+//                    print("end network connect")
+//                    DispatchQueue.main.async {
+//                        self.figureStatus = .complete
+//                    }
+//                } catch {
+//                    DispatchQueue.main.async {
+//                        self.figureStatus = .empty
+//                    }
+//                    print(String(describing: error))
+//                }
+//            }
+//        }
+//    }
+//    
+//    /// 피규어 fetch 메소드
+//    public func fetchAnnotations() async {
+//        // 처음 들어오는지 여부 판단
+//        // 처음 들어오면 다운로드 진행
+//        if !paperInfo.isFigureSaved {
+//            await downloadFigureAnnotation()
+//            DispatchQueue.main.async { [weak self] in
+//                self?.paperInfo.isFigureSaved = true
+//            }
+//            
+//            return
+//        }
+//        
+//        guard let page = self.document?.page(at: 0) else {
+//            DispatchQueue.main.async {
+//                self.figureStatus = .empty
+//            }
+//            return
+//        }
+//        
+//        // 이미 있는 경우
+//        // 저장된 피규어 불러오기
+//        let width = page.bounds(for: .mediaBox).width
+//        let height = page.bounds(for: .mediaBox).height
+//        
+//        switch self.figureService.loadFigureData(for: self.paperInfo.id) {
+//        case .success(let figureList):
+//            let result = NetworkManager.filterFigure(
+//                input: .init(fig: figureList, table: nil)
+//            )
+//            
+//            
+//            DispatchQueue.main.async { [weak self] in
+//                if result.isEmpty {
+//                    self?.figureStatus = .empty
+//                    return
+//                }
+//                self?.figureAnnotations = result
+//                self?.figureStatus = .complete
+//            }
+//        
+//        case .failure:
+//            DispatchQueue.main.async {
+//                self.figureStatus = .empty
+//            }
+//        }
+//        
+//
+//    }
     
     // 텍스트 PDF 붙이는 함수
     public func setFocusDocument() {
@@ -320,77 +320,43 @@ extension MainPDFViewModel {
     }
 }
 
-/**
- PageListView 관련
- */
-extension MainPDFViewModel {
-    /// 현재 document 에서 썸네일 이미지 가져오는 메소드
-    public func fetchThumbnailImage() {
-        var images = [UIImage]()
-        
-        guard let document = self.document else { return }
-        
-        for i in 0 ..< document.pageCount {
-            if let page = document.page(at: i) {
-                
-                let height = page.bounds(for: .mediaBox).height
-                let width = page.bounds(for: .mediaBox).width
-                
-                let image = page.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
-                images.append(image)
-            }
-        }
-        
-        self.thumnailImages = images
-    }
-    
-    /// 페이지 리스트 뷰에서 PDFDestination 생성 메소드
-    public func goToPage(at num: Int) {
-        guard let page = self.document?.page(at: num) else { return }
-        
-        let destination = PDFDestination(page: page, at: .zero)
-        DispatchQueue.main.async {
-            self.selectedDestination = destination
-        }
-    }
-}
 
 /**
  Figure 모아보기 뷰 관련
  */
-extension MainPDFViewModel {
-    /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
-    public func setFigureDocument(for index: Int) -> PDFDocument? {
-        
-        // 인덱스가 유효한지 확인
-        guard index >= 0 && index < self.figureAnnotations.count else {
-            print("Invalid index")
-            return nil
-        }
-        
-        figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
-        
-        let document = PDFDocument()                                    // 새 PDFDocument 생성
-        let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
-        
-        // 해당 페이지 가져오기
-        guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
-            print("Failed to get page")
-            return nil
-        }
-        
-        page.displaysAnnotations = false
-        
-        
-        let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
-        let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)
-        
-        page.setBounds(croppedRect, for: .mediaBox)                     // 페이지의 bounds 설정
-        document.insert(page, at: 0)                                    // 새 document에 페이지 추가
-        
-        return document                                                 // 생성된 PDFDocument 변환
-    }
-}
+//extension MainPDFViewModel {
+//    /// img 파일에서 크롭 후 pdfDocument 형태로 저장하는 함수
+//    public func setFigureDocument(for index: Int) -> PDFDocument? {
+//        
+//        // 인덱스가 유효한지 확인
+//        guard index >= 0 && index < self.figureAnnotations.count else {
+//            print("Invalid index")
+//            return nil
+//        }
+//        
+//        figureAnnotations.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+//        
+//        let document = PDFDocument()                                    // 새 PDFDocument 생성
+//        let annotation = self.figureAnnotations[index]                  // 주어진 인덱스의 annotation 가져오기
+//        
+//        // 해당 페이지 가져오기
+//        guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
+//            print("Failed to get page")
+//            return nil
+//        }
+//        
+//        page.displaysAnnotations = false
+//        
+//        
+//        let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
+//        let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)
+//        
+//        page.setBounds(croppedRect, for: .mediaBox)                     // 페이지의 bounds 설정
+//        document.insert(page, at: 0)                                    // 새 document에 페이지 추가
+//        
+//        return document                                                 // 생성된 PDFDocument 변환
+//    }
+//}
 
 extension MainPDFViewModel {
     public var isBubbleViewVisible: Bool {

@@ -14,13 +14,13 @@ import Combine
  썸네일 ViewController(페이지 리스트)
  */
 final class ThumbnailTableViewController: UIViewController {
-    
-    let viewModel: MainPDFViewModel
+    let pageListViewModel: PageListViewModel
     
     var cancellables: Set<AnyCancellable> = []
     
-    init(viewModel: MainPDFViewModel) {
-        self.viewModel = viewModel
+    init(pageListViewModel: PageListViewModel) {
+        self.pageListViewModel = pageListViewModel
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -43,6 +43,10 @@ final class ThumbnailTableViewController: UIViewController {
 
         setUI()
         setBinding()
+
+        self.pageListViewModel.getPageThumbnails {
+            self.thumbnailTableView.reloadData()
+        }
     }
     
     deinit {
@@ -64,8 +68,10 @@ extension ThumbnailTableViewController {
     }
     
     private func setBinding() {
-        self.viewModel.$changedPageNumber
+        
+        self.pageListViewModel.$changedPageNumber
             .sink { [weak self] num in
+                guard let num = num else { return }
                 NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": num])
                 self?.thumbnailTableView.scrollToRow(at: .init(row: num, section: 0), at: .top, animated: true)
             }
@@ -89,15 +95,17 @@ extension ThumbnailTableViewController {
 extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSource {
     /// 페이지 리스트 갯수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        self.viewModel.thumnailImages.count
+        self.pageListViewModel.thumnailImages.count
     }
     
     /// 들어갈 셀 추가
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = indexPath.row
         
-        let cell = ThumbnailTableViewCell(pageNum: row, thumbnail: self.viewModel.thumnailImages[row])
-        if self.viewModel.changedPageNumber == row {
+        let cell = ThumbnailTableViewCell(pageNum: row, thumbnail: self.pageListViewModel.thumnailImages[row])
+        if self.pageListViewModel.changedPageNumber == row {
+            cell.selectCell()
+        } else if self.pageListViewModel.changedPageNumber == nil, row == 0 {
             cell.selectCell()
         }
         
@@ -114,7 +122,7 @@ extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSour
 //        guard let cell = tableView.cellForRow(at: indexPath) as? ThumbnailTableViewCell else { return }
         
         NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": indexPath.row])
-        self.viewModel.changedPageNumber = indexPath.row
-        self.viewModel.goToPage(at: indexPath.row)
+        self.pageListViewModel.changedPageNumber = indexPath.row
+        self.pageListViewModel.goToPage(at: indexPath.row)
     }
 }

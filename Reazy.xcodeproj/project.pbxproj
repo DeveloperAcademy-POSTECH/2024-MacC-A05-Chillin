@@ -9,11 +9,19 @@
 /* Begin PBXBuildFile section */
 		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
 		2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 2C14693F2CE25B7600B35D92 /* Settings.bundle */; };
+		2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14734C2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift */; };
+		2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14734D2CE73B6F00B35D92 /* ThumbnailTableViewController.swift */; };
+		2C1473BF2CE73B6F00B35D92 /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14734F2CE73B6F00B35D92 /* ThumbnailView.swift */; };
+		2C1473C02CE73B6F00B35D92 /* FigureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473512CE73B6F00B35D92 /* FigureCell.swift */; };
+		2C1473C12CE73B6F00B35D92 /* FigureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473522CE73B6F00B35D92 /* FigureView.swift */; };
+		2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473532CE73B6F00B35D92 /* PageListView.swift */; };
 		2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */; };
 		2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */; };
 		2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */; };
 		2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */; };
 		2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */; };
+		2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473F12CE8818200B35D92 /* PageListViewModel.swift */; };
+		2C1473F42CE8828800B35D92 /* PageListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473F32CE8828800B35D92 /* PageListUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,11 +38,19 @@
 		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 		2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkUnitTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C14693F2CE25B7600B35D92 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		2C14734C2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailTableViewCell.swift; sourceTree = "<group>"; };
+		2C14734D2CE73B6F00B35D92 /* ThumbnailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailTableViewController.swift; sourceTree = "<group>"; };
+		2C14734F2CE73B6F00B35D92 /* ThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailView.swift; sourceTree = "<group>"; };
+		2C1473512CE73B6F00B35D92 /* FigureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureCell.swift; sourceTree = "<group>"; };
+		2C1473522CE73B6F00B35D92 /* FigureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureView.swift; sourceTree = "<group>"; };
+		2C1473532CE73B6F00B35D92 /* PageListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListView.swift; sourceTree = "<group>"; };
 		2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepository.swift; sourceTree = "<group>"; };
 		2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepositoryImpl.swift; sourceTree = "<group>"; };
 		2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureUseCase.swift; sourceTree = "<group>"; };
 		2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureViewModel.swift; sourceTree = "<group>"; };
 		2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutResponseDTO.swift; sourceTree = "<group>"; };
+		2C1473F12CE8818200B35D92 /* PageListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListViewModel.swift; sourceTree = "<group>"; };
+		2C1473F32CE8828800B35D92 /* PageListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListUseCase.swift; sourceTree = "<group>"; };
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -124,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */,
+				2C1473F32CE8828800B35D92 /* PageListUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -131,7 +148,7 @@
 		2C1473E42CE7894200B35D92 /* OriginalPaper */ = {
 			isa = PBXGroup;
 			children = (
-				2C1473E52CE7896A00B35D92 /* ViewModel */,
+				2C1473EE2CE8815B00B35D92 /* Menus */,
 			);
 			path = OriginalPaper;
 			sourceTree = "<group>";
@@ -158,6 +175,53 @@
 				2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */,
 			);
 			path = DataMapping;
+			sourceTree = "<group>";
+		};
+		2C1473EE2CE8815B00B35D92 /* Menus */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473F62CE8902900B35D92 /* FigureList */,
+				2C1473EF2CE8816500B35D92 /* PageList */,
+			);
+			path = Menus;
+			sourceTree = "<group>";
+		};
+		2C1473EF2CE8816500B35D92 /* PageList */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473F52CE88EFE00B35D92 /* Views */,
+				2C1473F02CE8817400B35D92 /* ViewModel */,
+			);
+			path = PageList;
+			sourceTree = "<group>";
+		};
+		2C1473F02CE8817400B35D92 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473F12CE8818200B35D92 /* PageListViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		2C1473F52CE88EFE00B35D92 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473532CE73B6F00B35D92 /* PageListView.swift */,
+				2C14734F2CE73B6F00B35D92 /* ThumbnailView.swift */,
+				2C14734D2CE73B6F00B35D92 /* ThumbnailTableViewController.swift */,
+				2C14734C2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2C1473F62CE8902900B35D92 /* FigureList */ = {
+			isa = PBXGroup;
+			children = (
+				2C1473E52CE7896A00B35D92 /* ViewModel */,
+				2C1473522CE73B6F00B35D92 /* FigureView.swift */,
+				2C1473512CE73B6F00B35D92 /* FigureCell.swift */,
+			);
+			path = FigureList;
 			sourceTree = "<group>";
 		};
 		2C7AE8812CBCF290004098AF = {
@@ -302,11 +366,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C1473F42CE8828800B35D92 /* PageListUseCase.swift in Sources */,
+				2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
 				2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */,
 				2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */,
 				2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */,
 				2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */,
+				2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */,
+				2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */,
+				2C1473BF2CE73B6F00B35D92 /* ThumbnailView.swift in Sources */,
+				2C1473C02CE73B6F00B35D92 /* FigureCell.swift in Sources */,
+				2C1473C12CE73B6F00B35D92 /* FigureView.swift in Sources */,
+				2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

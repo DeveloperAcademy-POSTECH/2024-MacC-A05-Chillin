@@ -18,7 +18,9 @@ final class OriginalViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
+    
     let focusFigureViewModel: FocusFigureViewModel
+    let pageListViewModel: PageListViewModel
     
     var cancellable: Set<AnyCancellable> = []
     var selectionWorkItem: DispatchWorkItem?
@@ -53,13 +55,20 @@ final class OriginalViewController: UIViewController {
         // 집중모드 데이터 패치
         self.focusFigureViewModel.fetchAnnotations()
         
-        viewModel.goToPage(at: viewModel.changedPageNumber)
+        pageListViewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
-    init(viewModel: MainPDFViewModel, commentViewModel: CommentViewModel, originalViewModel: FocusFigureViewModel) {
+    init(
+        viewModel: MainPDFViewModel,
+        commentViewModel: CommentViewModel,
+        originalViewModel: FocusFigureViewModel,
+        pageListViewModel: PageListViewModel
+    ) {
         self.viewModel = viewModel
         self.commentViewModel = commentViewModel
+        
         self.focusFigureViewModel = originalViewModel
+        self.pageListViewModel = pageListViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -87,12 +96,9 @@ extension OriginalViewController {
     
     /// ViewModel 설정
     private func setData() {
-//        self.mainPDFView.document = self.viewModel.document
         self.commentViewModel.document = self.viewModel.document
         self.mainPDFView.document = self.focusFigureViewModel.getDocument
         
-        // 썸네일 이미지 패치
-        self.viewModel.fetchThumbnailImage()
         
         // pdfView midX 가져오기
         self.commentViewModel.getPDFCoordinates(pdfView: mainPDFView)
@@ -134,7 +140,8 @@ extension OriginalViewController {
             }
             .store(in: &cancellable)
         
-        self.viewModel.$selectedDestination
+        self.pageListViewModel.$selectedDestination
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
                 guard let destination = destination else { return }
                 guard let page = destination.page else { return }
@@ -156,12 +163,11 @@ extension OriginalViewController {
             .store(in: &cancellable)
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let page = self?.mainPDFView.currentPage else { return }
-                guard let num = self?.viewModel.document?.index(for: page) else { return }
-                DispatchQueue.main.async {
-                    self?.viewModel.changedPageNumber = num
-                }
+                guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
+                self?.pageListViewModel.changedPageNumber = num
             }
             .store(in: &self.cancellable)
         

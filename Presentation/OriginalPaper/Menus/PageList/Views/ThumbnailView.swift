@@ -11,12 +11,12 @@ import SwiftUI
  썸네일 뷰 컨트롤러 -> SwiftUI
  */
 struct ThumbnailView: UIViewControllerRepresentable {
-    @EnvironmentObject var viewModel: MainPDFViewModel
+    @EnvironmentObject private var pageListViewModel: PageListViewModel
     
     typealias UIViewControllerType = ThumbnailTableViewController
     
     func makeUIViewController(context: Context) -> ThumbnailTableViewController {
-        .init(viewModel: self.viewModel)
+        .init(pageListViewModel: self.pageListViewModel)
     }
     
     func updateUIViewController(_ uiViewController: ThumbnailTableViewController, context: Context) { }
