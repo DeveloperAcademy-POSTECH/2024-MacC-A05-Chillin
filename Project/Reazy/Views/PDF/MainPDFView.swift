@@ -24,6 +24,7 @@ struct MainPDFView: View {
     @StateObject public var focusFigureViewModel: FocusFigureViewModel
     @StateObject public var pageListViewModel: PageListViewModel
     @StateObject public var searchViewModel: SearchViewModel
+    @StateObject public var indexViewModel: IndexViewModel
     
     @State private var selectedButton: WriteButton? = nil
     @State private var selectedColor: HighlightColors = .yellow
@@ -199,8 +200,8 @@ struct MainPDFView: View {
                             
                             HStack(spacing: 0){
                                 if selectedIndex == 1 {
-                                    TableView()
-                                        .environmentObject(mainPDFViewModel)
+                                    IndexView()
+                                        .environmentObject(indexViewModel)
                                         .background(.white)
                                         .frame(width: geometry.size.width * 0.22)
                                     
@@ -426,6 +427,7 @@ struct MainPDFView: View {
                 .environmentObject(focusFigureViewModel)
                 .environmentObject(pageListViewModel)
                 .environmentObject(searchViewModel)
+                .environmentObject(indexViewModel)
             // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
             if #unavailable(iOS 18.0) {
                 if mainPDFViewModel.toolMode == .translate {

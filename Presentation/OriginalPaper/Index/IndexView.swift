@@ -10,24 +10,22 @@ import PDFKit
 
 
 // MARK: - 쿠로꺼 : 목차 뷰
-struct TableView: View {
+struct IndexView: View {
+    @EnvironmentObject private var indexViewModel: IndexViewModel
     
-    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
-    
-    @State var tableViewModel: TableViewModel = .init()
     @State var selectedID: UUID? = nil
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                if tableViewModel.tableItems.isEmpty {
+                if indexViewModel.tableItems.isEmpty {
                     Text("개요가 있으면,\n여기에 표시됩니다")
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
                         .padding(.top, 302)
                 } else {
-                    ForEach(tableViewModel.tableItems) { item in
-                        TableCell(item: item, selectedID: $selectedID)
+                    ForEach(indexViewModel.tableItems) { item in
+                        IndexCell(item: item, selectedID: $selectedID)
                     }
                 }
                 Spacer()
@@ -37,11 +35,7 @@ struct TableView: View {
             .frame(maxWidth: .infinity)
         }
         .onAppear {
-            if let document = mainPDFViewModel.document{
-                tableViewModel.tableItems = tableViewModel.extractToc(from: document)
-            } else {
-                tableViewModel.tableItems = []
-            }
+            indexViewModel.extractIndex()
         }
     }
 }

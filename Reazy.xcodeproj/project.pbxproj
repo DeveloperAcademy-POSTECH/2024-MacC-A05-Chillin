@@ -17,6 +17,9 @@
 		2C1473C02CE73B6F00B35D92 /* FigureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473512CE73B6F00B35D92 /* FigureCell.swift */; };
 		2C1473C12CE73B6F00B35D92 /* FigureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473522CE73B6F00B35D92 /* FigureView.swift */; };
 		2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473532CE73B6F00B35D92 /* PageListView.swift */; };
+		2C1473C32CE73B6F00B35D92 /* IndexCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473542CE73B6F00B35D92 /* IndexCell.swift */; };
+		2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473552CE73B6F00B35D92 /* IndexView.swift */; };
+		2C1473CB2CE73B6F00B35D92 /* IndexViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14735F2CE73B6F00B35D92 /* IndexViewModel.swift */; };
 		2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */; };
 		2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */; };
 		2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */; };
@@ -24,6 +27,7 @@
 		2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */; };
 		2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473F12CE8818200B35D92 /* PageListViewModel.swift */; };
 		2C1473F42CE8828800B35D92 /* PageListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473F32CE8828800B35D92 /* PageListUseCase.swift */; };
+		2C1474122CE8EC6E00B35D92 /* IndexUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1474112CE8EC6E00B35D92 /* IndexUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +52,9 @@
 		2C1473512CE73B6F00B35D92 /* FigureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureCell.swift; sourceTree = "<group>"; };
 		2C1473522CE73B6F00B35D92 /* FigureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureView.swift; sourceTree = "<group>"; };
 		2C1473532CE73B6F00B35D92 /* PageListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListView.swift; sourceTree = "<group>"; };
+		2C1473542CE73B6F00B35D92 /* IndexCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexCell.swift; sourceTree = "<group>"; };
+		2C1473552CE73B6F00B35D92 /* IndexView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexView.swift; sourceTree = "<group>"; };
+		2C14735F2CE73B6F00B35D92 /* IndexViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexViewModel.swift; sourceTree = "<group>"; };
 		2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepository.swift; sourceTree = "<group>"; };
 		2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepositoryImpl.swift; sourceTree = "<group>"; };
 		2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureUseCase.swift; sourceTree = "<group>"; };
@@ -55,6 +62,7 @@
 		2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutResponseDTO.swift; sourceTree = "<group>"; };
 		2C1473F12CE8818200B35D92 /* PageListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListViewModel.swift; sourceTree = "<group>"; };
 		2C1473F32CE8828800B35D92 /* PageListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListUseCase.swift; sourceTree = "<group>"; };
+		2C1474112CE8EC6E00B35D92 /* IndexUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexUseCase.swift; sourceTree = "<group>"; };
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,6 +76,11 @@
 		2C1474002CE895D300B35D92 /* Components */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Components;
+			sourceTree = "<group>";
+		};
+		2C14740A2CE8EBBE00B35D92 /* Floating */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Floating;
 			sourceTree = "<group>";
 		};
 		6E08044B2CBD2B12000AFEEE /* Project */ = {
@@ -150,6 +163,7 @@
 			children = (
 				2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */,
 				2C1473F32CE8828800B35D92 /* PageListUseCase.swift */,
+				2C1474112CE8EC6E00B35D92 /* IndexUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -157,6 +171,8 @@
 		2C1473E42CE7894200B35D92 /* OriginalPaper */ = {
 			isa = PBXGroup;
 			children = (
+				2C14740F2CE8EBEB00B35D92 /* Index */,
+				2C14740A2CE8EBBE00B35D92 /* Floating */,
 				2C1473EE2CE8815B00B35D92 /* Menus */,
 			);
 			path = OriginalPaper;
@@ -252,6 +268,24 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		2C14740F2CE8EBEB00B35D92 /* Index */ = {
+			isa = PBXGroup;
+			children = (
+				2C1474102CE8EC4100B35D92 /* ViewModel */,
+				2C1473542CE73B6F00B35D92 /* IndexCell.swift */,
+				2C1473552CE73B6F00B35D92 /* IndexView.swift */,
+			);
+			path = Index;
+			sourceTree = "<group>";
+		};
+		2C1474102CE8EC4100B35D92 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2C14735F2CE73B6F00B35D92 /* IndexViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		2C7AE8812CBCF290004098AF = {
 			isa = PBXGroup;
 			children = (
@@ -316,6 +350,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				2C1474002CE895D300B35D92 /* Components */,
+				2C14740A2CE8EBBE00B35D92 /* Floating */,
 				6E08044B2CBD2B12000AFEEE /* Project */,
 			);
 			name = Reazy;
@@ -396,6 +431,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C1473F42CE8828800B35D92 /* PageListUseCase.swift in Sources */,
+				2C1474122CE8EC6E00B35D92 /* IndexUseCase.swift in Sources */,
 				2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
 				2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */,
@@ -410,6 +446,9 @@
 				2C1473C02CE73B6F00B35D92 /* FigureCell.swift in Sources */,
 				2C1473C12CE73B6F00B35D92 /* FigureView.swift in Sources */,
 				2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */,
+				2C1473C32CE73B6F00B35D92 /* IndexCell.swift in Sources */,
+				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,
+				2C1473CB2CE73B6F00B35D92 /* IndexViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
