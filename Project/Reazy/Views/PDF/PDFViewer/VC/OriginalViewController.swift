@@ -14,14 +14,7 @@ import Combine
  원문 모드 ViewController
  */
 
-class CustomPDFView: PDFView {
-    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-            // 모든 메뉴 액션을 비활성화하여 메뉴가 나타나지 않도록 함
-            return false
-        }
-}
-
-final class OriginalViewController: UIViewController, UIEditMenuInteractionDelegate {
+final class OriginalViewController: UIViewController {
     
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
@@ -54,12 +47,40 @@ final class OriginalViewController: UIViewController, UIEditMenuInteractionDeleg
         self.setGestures()
         self.setBinding()
     }
-    
-    // menu 없애기
+
+    // menu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
-        builder.remove(menu: .share)
-        builder.remove(menu: .lookup)
         super.buildMenu(with: builder)
+        builder.remove(menu: .share)
+        
+        let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
+            if let selectedTextRange = self.mainPDFView.currentSelection?.string {
+                let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                if let url = URL(string: "https://www.google.com/search?q=\(query)") {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        let menu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction])
+        builder.insertSibling(menu, afterMenu: .standardEdit)
+        
+        
+        switch viewModel.toolMode {
+        case .comment, .highlight, .translate:
+            builder.remove(menu: .lookup)
+        default :
+            builder.replaceChildren(ofMenu: .lookup) { elements in
+                return elements.filter { item in
+                    switch (item as? UICommand)?.title.description {
+                        //translate, lookup 메뉴 들어가게
+                    case "Search Web", "Translate":
+                        return true
+                    default:
+                        return false
+                    }
+                }
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -136,13 +157,6 @@ extension OriginalViewController {
     
     /// 데이터 Binding
     private func setBinding() {
-        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-        viewModel.$toolMode
-            .sink { [weak self] mode in
-                self?.updateGestureRecognizer(for: mode)
-            }
-            .store(in: &cancellable)
-        
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
                 guard let destination = destination else { return }
@@ -157,10 +171,12 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
         self.viewModel.$toolMode
             .sink { [weak self] mode in
+                // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
                 self?.updateGestureRecognizer(for: mode)
+                // toolMode 변경에 따라 canPerformAction 동작하도록
+                self?.mainPDFView.toolMode = mode
             }
             .store(in: &cancellable)
         
@@ -315,3 +331,36 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
 }
 
+extension OriginalViewController: UIEditMenuInteractionDelegate {
+    
+    func editMenuInteraction(_ interaction: UIEditMenuInteraction, menuFor configuration: UIEditMenuConfiguration, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
+            // 선택한 텍스트로 Google 검색
+            if let selectedTextRange = self.mainPDFView.currentSelection?.string {
+                let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                if let url = URL(string: "https://www.google.com/search?q=\(query)") {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        return UIMenu(children: [searchWebAction])
+    }
+}
+
+//canPerformAction()으로 menuAction 제한
+class CustomPDFView: PDFView {
+    var toolMode: ToolMode = .none
+    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch toolMode {
+        case .comment, .highlight, .translate :
+            return false
+            
+        default :
+            if action == #selector(copy(_:)) {
+                return true
+            }
+            return false
+        }
+    }
+}
