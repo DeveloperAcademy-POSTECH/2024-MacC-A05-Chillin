@@ -51,8 +51,8 @@ final class OriginalViewController: UIViewController {
     // menu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
-        builder.remove(menu: .share)
         
+        /// web 검색 액션
         let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
             if let selectedTextRange = self.mainPDFView.currentSelection?.string {
                 let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
@@ -61,19 +61,23 @@ final class OriginalViewController: UIViewController {
                 }
             }
         }
-        let menu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction])
-        builder.insertSibling(menu, afterMenu: .standardEdit)
         
+        /// 검색 액션을 새로운 메뉴로 추가하기
+        let newMenu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction])
+        builder.insertSibling(newMenu, afterMenu: .standardEdit)
         
+        /// 모드에 따라 뜨는 메뉴 다르게 설정
         switch viewModel.toolMode {
         case .comment, .highlight, .translate:
             builder.remove(menu: .lookup)
+            builder.remove(menu: .share)
+            builder.remove(menu: newMenu.identifier)
         default :
             builder.replaceChildren(ofMenu: .lookup) { elements in
                 return elements.filter { item in
                     switch (item as? UICommand)?.title.description {
-                        //translate, lookup 메뉴 들어가게
-                    case "Search Web", "Translate":
+                        ///translate, lookup 메뉴 들어가게
+                    case "Search Web" :
                         return true
                     default:
                         return false
