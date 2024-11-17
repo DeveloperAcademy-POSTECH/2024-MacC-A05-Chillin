@@ -511,10 +511,12 @@ extension MainPDFViewModel {
 enum ToolMode {
     case none
     case translate
+    case comment
+    case drawing // 추가
+    // TODO: - [펑키/루시드] ToolMode 분리 필요
     case pencil
     case eraser
     case highlight
-    case comment
 }
 
 extension MainPDFViewModel {

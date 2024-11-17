@@ -21,16 +21,18 @@ struct MainPDFView: View {
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
     
-    @State private var selectedButton: WriteButton? = nil
-    @State private var selectedColor: HighlightColors = .yellow
+    @State private var selectedButton: Buttons? = nil
     
     @State private var selectedIndex: Int = 0
     @State private var isReadModeFirstSelected: Bool = false
     
+    @State private var isListSelected: Bool = false
     @State private var isFigSelected: Bool = false
     @State private var isSearchSelected: Bool = false
+    @State private var isReadMode: Bool = false
+    
     @State private var isVertical = false
-    @State private var isModifyTitlePresented: Bool = false
+    @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
     
     var body: some View {
@@ -40,53 +42,63 @@ struct MainPDFView: View {
                     ZStack {
                         HStack(spacing: 0) {
                             Button(action: {
-                                if selectedIndex == 1 {
-                                    selectedIndex = 0
-                                } else {
-                                    selectedIndex = 1
-                                }
+                                navigationCoordinator.pop()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.clear)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(selectedIndex == 1 ? .primary1 : .clear)
-                                    .overlay (
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .fill(Color.clear)
-                                                .frame(width: 26, height: 26)
-                                            
-                                            Image(systemName: "list.bullet")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .foregroundStyle(selectedIndex == 1 ? .gray100 : .gray800)
-                                                .frame(width: 18)
-                                        }
+                                    .overlay(
+                                        Image(systemName: "chevron.left")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(.gray800)
                                     )
                             }
-                            .padding(.trailing, 36)
+                            .padding(.trailing, 24)
                             
                             Button(action: {
-                                if selectedIndex == 2 {
-                                    selectedIndex = 0
-                                } else {
-                                    selectedIndex = 2
-                                }
+                                isListSelected.toggle()
+                                isSearchSelected = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
+                                    .foregroundStyle(isListSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(selectedIndex == 2 ? .primary1 : .clear)
-                                    .overlay (
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .fill(Color.clear)
-                                                .frame(width: 26, height: 26)
-                                            
-                                            Image(systemName: "rectangle.grid.1x2")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .foregroundStyle(selectedIndex == 2 ? .gray100 : .gray800)
-                                                .frame(width: 18)
-                                        }
+                                    .overlay(
+                                        Image(systemName: "list.bullet")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                    )
+                            }
+                            .padding(.trailing, 24)
+                            
+                            Button(action: {
+                                isSearchSelected.toggle()
+                                isListSelected = false
+                            }) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .foregroundStyle(isSearchSelected ? .primary1 : .clear)
+                                    .frame(width: 26, height: 26)
+                                    .overlay(
+                                        Image(systemName: "magnifyingglass")
+                                            .font(.system(size: 16))
+                                            .foregroundStyle(isSearchSelected ? .gray100 : .gray800)
+                                    )
+                            }
+                            
+                            Rectangle()
+                                .frame(width: 1.2, height: 16)
+                                .foregroundStyle(.primary4)
+                                .padding(.horizontal, 16)
+                            
+                            Button(action: {
+                                isReadMode.toggle()
+                            }) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .foregroundStyle(isReadMode ? .primary1 : .clear)
+                                    .frame(width: 26, height: 26)
+                                    .overlay(
+                                        Image(systemName: "text.justify")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(isReadMode ? .gray100 : .gray800)
                                     )
                             }
                             
@@ -97,42 +109,34 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(isFigSelected ? Color(hex: "5F5DAA") : .clear)
+                                    .foregroundStyle(isFigSelected ? .primary1 : .clear)
                                     .overlay (
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .fill(Color.clear)
-                                                .frame(width: 26, height: 26)
-                                            Text("Fig")
-                                                .font(.system(size: 14))
-                                                .foregroundStyle(isFigSelected ? .gray100 : .gray800)
-                                        }
+                                        Text("Fig")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(isFigSelected ? .gray100 : .gray800)
+                                    )
+                            }
+                            .padding(.trailing, 24)
+                            
+                            Button(action: {
+                                // TODO: - 설정 액션 추가
+                            }) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .frame(width: 26, height: 26)
+                                    .foregroundStyle(Color.clear)
+                                    .overlay(
+                                        Image(systemName: "ellipsis")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(.gray800)
                                     )
                             }
                         }
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 22)
-                        .background(.primary3)
                         
                         HStack(spacing: 0) {
                             Spacer()
                             
-                            ForEach(WriteButton.allCases, id: \.self) { btn in
-                                // 조건부 Padding값 조정
-                                let trailingPadding: CGFloat = {
-                                    if selectedButton == .highlight && btn == .highlight {
-                                        return .zero
-                                    } else if btn == .translate {
-                                        return .zero
-                                    } else {
-                                        return 32
-                                    }
-                                }()
-                                
-                                // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
-                                WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
-                                    // MARK: - 작성 관련 버튼 action 입력
-                                    /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
+                            ForEach(Buttons.allCases, id: \.self) { btn in
+                                ButtonsView(button: $selectedButton, selectedButton: btn) {
                                     if selectedButton == btn {
                                         selectedButton = nil
                                         mainPDFViewModel.toolMode = .none
@@ -141,39 +145,30 @@ struct MainPDFView: View {
                                     }
                                     
                                     switch selectedButton {
+                                    case .drawing:
+                                        mainPDFViewModel.toolMode = .drawing
+                                    case .comment:
+                                        mainPDFViewModel.toolMode = .comment
                                     case .translate:
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                         mainPDFViewModel.toolMode = .translate
-                                        
-                                    case .pencil:
-                                        mainPDFViewModel.toolMode = .pencil
-                                        
-                                    case .eraser:
-                                        mainPDFViewModel.toolMode = .eraser
-                                        
-                                    case .highlight:
-                                        mainPDFViewModel.toolMode = .highlight
-                                        
-                                    case .comment:
-                                        mainPDFViewModel.toolMode = .comment
-                                        
+                                    case .lasso:
+                                        // TODO: - toolMode에 올가미 추가
+                                        print("올가미 모드 선택")
                                     default:
-                                        // 전체 비활성화
                                         mainPDFViewModel.toolMode = .none
                                     }
                                 }
-                                .padding(.trailing, trailingPadding)
-                                
-                                // Highlight 버튼이 선택될 경우 색상을 선택
-                                if selectedButton == .highlight && btn == .highlight {
-                                    highlightColorSelector()
-                                }
+                                .padding(.trailing, btn == .lasso ? 0 : 30)
                             }
                             
                             Spacer()
                         }
-                        .background(.clear)
                     }
+                    .padding(.top, 26)
+                    .padding(.bottom, 11)
+                    .padding(.horizontal, 20)
+                    .background(.primary3)
                     .zIndex(1)
                     
                     Rectangle()
@@ -183,37 +178,32 @@ struct MainPDFView: View {
                     
                     GeometryReader { geometry in
                         ZStack {
-                            ZStack {
-                                if isVertical {
-                                    splitLayout(for: .vertical)
-                                } else {
-                                    splitLayout(for: .horizontal)
-                                }
-                            }
-                            
-                            HStack(spacing: 0){
-                                if selectedIndex == 1 {
-                                    TableView()
-                                        .environmentObject(mainPDFViewModel)
-                                        .background(.white)
-                                        .frame(width: geometry.size.width * 0.22)
+                            HStack(spacing: 0) {
+                                ZStack {
+                                    if isListSelected {
+                                        MenuView()
+                                            .environmentObject(mainPDFViewModel)
+                                            .frame(width: 252)
+                                            .background(.gray100)
+                                            .transition(.move(edge: .leading))
+                                    }
                                     
-                                    Rectangle()
-                                        .frame(width: 1)
-                                        .foregroundStyle(Color(hex: "CCCEE1"))
-                                } else if selectedIndex == 2 {
-                                    PageView()
-                                        .environmentObject(mainPDFViewModel)
-                                        .background(.white)
-                                        .frame(width: geometry.size.width * 0.22)
-                                    
-                                    Rectangle()
-                                        .frame(width: 1)
-                                        .foregroundStyle(Color(hex: "CCCEE1"))
-                                } else {
-                                    EmptyView()
+                                    if isSearchSelected {
+                                        // TODO: - [무니] SearchView 추가 필요
+                                    }
                                 }
                                 
+                                ZStack {
+                                    if isVertical {
+                                        splitLayout(for: .vertical)
+                                    } else {
+                                        splitLayout(for: .horizontal)
+                                    }
+                                }
+                            }
+                            .animation(.easeInOut(duration: 0.3), value: isListSelected)
+                            
+                            HStack(spacing: 0) {
                                 Spacer()
                                 
                                 if isFigSelected && !floatingViewModel.splitMode {
@@ -234,130 +224,26 @@ struct MainPDFView: View {
                         .ignoresSafeArea()
                     }
                 }
-                .customNavigationBar(
-                    centerView: {
-                        HStack(spacing: 5) {
-                            Text(mainPDFViewModel.paperInfo.title)
-                                .reazyFont(.h3)
-                                .foregroundStyle(.gray800)
-                                .lineLimit(1)
-                            
-                            Button {
-                                self.isModifyTitlePresented.toggle()
-                            } label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(Color.clear)
-                                        .frame(width: 26, height: 26)
-                                    
-                                    Image(systemName: "chevron.down")
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(.gray800)
-                                }
-                            }
-                            .padding(.leading, 0)
-                            .popover(isPresented: $isModifyTitlePresented) {
-                                ZStack {
-                                    Color.gray200
-                                        .scaleEffect(1.5)
-                                    
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(.gray100)
-                                            .frame(width: 400, height: 52)
-                                        
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(lineWidth: 1)
-                                            .foregroundStyle(.gray400)
-                                            .frame(width: 400, height: 52)
-                                        
-                                        HStack(spacing: 0) {
-                                            TextField("제목을 입력하세요", text: $titleText)
-                                                .reazyFont(.body2)
-                                                .foregroundStyle(.gray900)
-                                                .padding(EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 0))
-                                            
-                                            Button {
-                                                self.titleText.removeAll()
-                                            } label: {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .font(.system(size: 16))
-                                                    .foregroundStyle(.gray600)
-                                            }
-                                            .id(titleText)
-                                            .transition(.opacity)
-                                            .animation(.easeInOut(duration: 0.2), value: titleText)
-                                            .padding(.trailing, 8)
-                                            
-                                        }
-                                        .frame(width: 400, height: 52)
-                                        
-                                    }
-                                    .padding(.vertical, 15)
-                                    .padding(.horizontal, 15)
-                                }
-                                .onAppear {
-                                    self.titleText = mainPDFViewModel.paperInfo.title
-                                }
-                                .onDisappear {
-                                    if !self.titleText.isEmpty {
-                                        let id = self.mainPDFViewModel.paperInfo.id
-                                        self.pdfFileManager.updateTitle(at: id, title: self.titleText)
-                                        self.mainPDFViewModel.paperInfo.title = self.titleText
-                                    }
-                                }
-                            }
-                            
-                        }
-                        .frame(width: isVertical ? 383 : 567)
-                        
-                    },
-                    leftView: {
-                        HStack(spacing: 0) {
-                            Button(action: {
-                                navigationCoordinator.pop()
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(Color.clear)
-                                        .frame(width: 26, height: 26)
-                                    
-                                    Image(systemName: "chevron.left")
-                                        .foregroundStyle(.gray800)
-                                        .font(.system(size: 14))
-                                }
-                            }
-                            .padding(.trailing, 10)
-                            
-                            Button(action: {
-                                self.isSearchSelected.toggle()
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(Color.clear)
-                                        .frame(width: 26, height: 26)
-                                    
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundStyle(.gray800)
-                                        .font(.system(size: 16))
-                                }
-                            }
-                        }
-                    },
-                    rightView: {
-                        EmptyView()
+                
+                if mainPDFViewModel.toolMode == .drawing {
+                    // TODO: - [브리] 위치 이동 필요
+                    HStack(spacing: 0) {
+                        DrawingView()
+                            .environmentObject(mainPDFViewModel)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.gray100)
+                            )
+                            .padding(.leading, 24)
+                        Spacer()
                     }
-                )
-                .overlay {
-                    OverlaySearchView(isSearchSelected: self.$isSearchSelected)
-                        .environmentObject(mainPDFViewModel)
-                        .animation(.spring(.bouncy), value: self.isSearchSelected)
                 }
                 
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
             }
+            .navigationBarHidden(true)
             .onAppear {
                 updateOrientation(with: geometry)
             }
@@ -375,6 +261,20 @@ struct MainPDFView: View {
                 }
             }
             .statusBarHidden()
+        }
+    }
+    
+    @ViewBuilder
+    private func mainView(isReadMode: Bool) -> some View {
+        if isReadMode {
+            // TODO: - [무니] 집중모드 수정
+            ConcentrateView()
+                .environmentObject(mainPDFViewModel)
+        } else {
+            OriginalView()
+                .environmentObject(mainPDFViewModel)
+                .environmentObject(floatingViewModel)
+                .environmentObject(commentViewModel)
         }
     }
     
@@ -414,10 +314,7 @@ struct MainPDFView: View {
         }
         
         ZStack {
-            OriginalView()
-                .environmentObject(mainPDFViewModel)
-                .environmentObject(floatingViewModel)
-                .environmentObject(commentViewModel)
+            mainView(isReadMode: isReadMode)
             // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
             if #unavailable(iOS 18.0) {
                 if mainPDFViewModel.toolMode == .translate {
@@ -462,31 +359,6 @@ struct MainPDFView: View {
     // 기기의 방향에 따라 isVertical 상태를 업데이트하는 함수
     private func updateOrientation(with geometry: GeometryProxy) {
         isVertical = geometry.size.height > geometry.size.width
-    }
-    
-    @ViewBuilder
-    private func highlightColorSelector() -> some View {
-        Rectangle()
-            .frame(width: 1, height: 19)
-            .foregroundStyle(.primary4)
-            .padding(.leading, 24)
-            .padding(.trailing, 17)
-        
-        ForEach(HighlightColors.allCases, id: \.self) { color in
-            ColorButton(button: $selectedColor, buttonOwner: color) {
-                // MARK: - 펜 색상 변경 action 입력
-                /// 펜 색상을 변경할 경우, 변경된 색상을 입력하는 로직은 여기에 추가
-                selectedColor = color
-                mainPDFViewModel.selectedHighlightColor = color
-            }
-            .padding(.trailing, color == .blue ? .zero : 10)
-        }
-        
-        Rectangle()
-            .frame(width: 1, height: 19)
-            .foregroundStyle(.primary4)
-            .padding(.leading, 24)
-            .padding(.trailing, 17)
     }
 }
 
