@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol FigureDataInterface {
+protocol FigureDataRepository {
     /// 저장된 FigureData를 불러옵니다
     func loadFigureData(for pdfID: UUID) -> Result<[Figure], Error>
     /// FigureData를 저장합니다

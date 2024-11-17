@@ -14,8 +14,8 @@ enum Options {
 }
 
 struct HomeView: View {
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject private var pdfFileManager: PDFFileManager
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State var selectedMenu: Options = .main
     @State var selectedPaperID: UUID?
@@ -97,16 +97,10 @@ struct HomeView: View {
                 RenamePaperTitleView(
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
-                    paperInfo: pdfFileManager.paperInfos.first { $0.id == selectedPaperID! }!)
+                    paperInfo: homeViewModel.paperInfos.first { $0.id == selectedPaperID! }!)
             }
         }
         .background(Color(hex: "F7F7FB"))
-        .overlay {
-            if pdfFileManager.isLoading {
-                ProgressView()
-                    .progressViewStyle(.circular)
-            }
-        }
         .statusBarHidden()
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
@@ -120,7 +114,7 @@ struct HomeView: View {
 
 /// 기본 화면 버튼 뷰
 private struct MainMenuView: View {
-    @EnvironmentObject var pdfFileManager: PDFFileManager
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State private var isFileImporterPresented: Bool = false
     @State private var errorAlert: Bool = false
@@ -206,23 +200,8 @@ private struct MainMenuView: View {
     private func importPDFToDevice(result: Result<[Foundation.URL], any Error>) {
         switch result {
         case .success(let url):
-            do {
-                if let newPaperID = try pdfFileManager.uploadPDFFile(url: url) {
-                    selectedPaperID = newPaperID
-                }
-            } catch {
-                print(String(describing: error))
-                
-                if let error = error as? PDFUploadError {
-                    switch error {
-                    case .failedToAccessingSecurityScope:
-                        self.errorStatus = .accessError
-                        self.errorAlert.toggle()
-                    case .invalidURL:
-                        self.errorStatus = .invalidURL
-                        self.errorAlert.toggle()
-                    }
-                }
+            if let newPaperID = homeViewModel.uploadPDF(url: url) {
+                selectedPaperID = newPaperID
             }
         case .failure(let error):
             print(String(describing: error))
@@ -261,7 +240,8 @@ private struct SearchMenuView: View {
 
 /// 수정 화면 버튼 뷰
 private struct EditMenuView: View {
-    @EnvironmentObject var pdfFileManager: PDFFileManager
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
     @State private var isStarSelected: Bool = false
     
     @Binding var selectedMenu: Options
@@ -272,13 +252,13 @@ private struct EditMenuView: View {
     var body: some View {
         HStack(spacing: 0) {
             let selectedIDs: [UUID] = selectedItems.compactMap { index in
-                guard index < pdfFileManager.paperInfos.count else { return nil }
-                return pdfFileManager.paperInfos[index].id
+                guard index < homeViewModel.paperInfos.count else { return nil }
+                return homeViewModel.paperInfos[index].id
             }
             
             Button(action: {
                 isStarSelected.toggle()
-                pdfFileManager.updateFavorites(at: selectedIDs)
+                homeViewModel.updateFavorites(at: selectedIDs)
             }, label : {
                 Image(systemName: isStarSelected ? "star.fill" : "star")
                     .resizable()
@@ -289,7 +269,7 @@ private struct EditMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                pdfFileManager.deletePDFFiles(at: selectedIDs)
+                homeViewModel.deletePDF(ids: selectedIDs)
             }, label: {
                 Image(systemName: "trash")
                     .resizable()
@@ -316,7 +296,7 @@ private struct EditMenuView: View {
 
 /// 논문 타이틀 수정 뷰
 private struct RenamePaperTitleView: View {
-    @EnvironmentObject private var pdfFileManager: PDFFileManager
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State private var text: String = ""
     
@@ -349,11 +329,11 @@ private struct RenamePaperTitleView: View {
                     
                     Button("완료") {
                         if isEditingTitle {
-                            pdfFileManager.updateTitle(at: paperInfo.id, title: text)
+                            homeViewModel.updateTitle(at: paperInfo.id, title: text)
                             isEditingTitle = false
                         } else {
-                            pdfFileManager.updateMemo(at: paperInfo.id, memo: text)
-                            self.pdfFileManager.memoText = text
+                            homeViewModel.updateMemo(at: paperInfo.id, memo: text)
+                            self.homeViewModel.memoText = text
                             isEditingMemo = false
                         }
                     }

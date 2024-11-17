@@ -9,8 +9,8 @@ import SwiftUI
 import Combine
 
 struct PaperListView: View {
-    @EnvironmentObject var pdfFileManager: PDFFileManager
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @Binding var selectedPaperID: UUID?
     @Binding var selectedItems: Set<Int>
@@ -29,8 +29,8 @@ struct PaperListView: View {
     
     var filteredPaperInfos: [PaperInfo] {
         var infos = isFavoritesSelected
-        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        ? homeViewModel.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        : homeViewModel.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         
         if !searchText.isEmpty {
             infos = infos.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
@@ -134,7 +134,7 @@ struct PaperListView: View {
                                                     if selectedPaperID == filteredPaperInfos[index].id {
                                                         self.isNavigationPushed = true
                                                         navigateToPaper()
-                                                        pdfFileManager.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
+                                                        homeViewModel.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
                                                     } else {
                                                         selectedPaperID = filteredPaperInfos[index].id
                                                     }
@@ -203,7 +203,6 @@ struct PaperListView: View {
                                     }
                                 }
                             )
-                            .environmentObject(pdfFileManager)
                         }
                     }
                     .animation(.easeInOut, value: isEditing)
@@ -262,7 +261,7 @@ struct PaperListView: View {
 extension PaperListView {
     private func navigateToPaper() {
         guard let selectedPaperID = selectedPaperID,
-              let selectedPaper = pdfFileManager.paperInfos.first(where: { $0.id == selectedPaperID }) else {
+              let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == selectedPaperID }) else {
             return
         }
         
@@ -298,14 +297,14 @@ extension PaperListView {
     private func initializeSelectedPaperID() {
         let filteredPaperInfos =
         isFavoritesSelected
-        ? pdfFileManager.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-        : pdfFileManager.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        ? homeViewModel.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+        : homeViewModel.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         
         if selectedPaperID == nil, let firstPaper = filteredPaperInfos.first {
             selectedPaperID = firstPaper.id
         }
         
-        pdfFileManager.paperInfos = filteredPaperInfos
+        homeViewModel.paperInfos = filteredPaperInfos
     }
 }
 
@@ -344,24 +343,5 @@ extension PaperListView {
     
     private func updateOrientation(with geometry: GeometryProxy) {
         isVertical = geometry.size.height > geometry.size.width
-    }
-}
-
-
-#Preview {
-    let manager = PDFFileManager(paperService: PaperDataService.shared)
-    
-    PaperListView(
-        selectedPaperID: .constant(nil),
-        selectedItems: .constant([]),
-        isEditing: .constant(false),
-        isSearching: .constant(false),
-        isEditingTitle: .constant(false),
-        isEditingMemo: .constant(false),
-        searchText: .constant("")
-    )
-    .environmentObject(manager)
-    .onAppear {
-        manager.uploadSampleData()
     }
 }

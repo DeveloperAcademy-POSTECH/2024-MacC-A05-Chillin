@@ -9,8 +9,8 @@ import Foundation
 import CoreData
 import UIKit
 
-class CommentDataService: CommentDataInterface {
-    static let shared = CommentDataService()
+class CommentDataRepositoryImpl: CommentDataRepository {
+    static let shared = CommentDataRepositoryImpl()
     
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     

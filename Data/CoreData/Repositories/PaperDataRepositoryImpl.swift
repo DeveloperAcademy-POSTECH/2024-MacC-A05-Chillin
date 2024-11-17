@@ -9,12 +9,12 @@ import Foundation
 import CoreData
 import UIKit
 
-class PaperDataService: PaperDataInterface {
-    static let shared = PaperDataService()
+class PaperDataRepositoryImpl: PaperDataRepository {
+//    static let shared = PaperDataRepositoryImpl()
     
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
-    private init() { }
+//    private init() { }
     
     // 저장된 PDF 정보를 모두 불러옵니다
     func loadPDFInfo() -> Result<[PaperInfo], any Error> {

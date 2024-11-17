@@ -9,8 +9,8 @@ import Foundation
 import CoreData
 import UIKit
 
-class FigureDataService: FigureDataInterface {
-    static let shared = FigureDataService()
+class FigureDataRepositoryImpl: FigureDataRepository {
+    static let shared = FigureDataRepositoryImpl()
     
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     

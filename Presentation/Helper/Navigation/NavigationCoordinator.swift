@@ -59,8 +59,8 @@ final class NavigationCoordinator: CoordinatorProtocol {
             MainPDFView(
                 mainPDFViewModel: .init(),
                 commentViewModel: .init(
-                    commentService: CommentDataService.shared,
-                    buttonGroupService: ButtonGroupDataService.shared
+                    commentService: CommentDataRepositoryImpl.shared,
+                    buttonGroupService: ButtonGroupDataRepositoryImpl.shared
                 ),
                 focusFigureViewModel: .init(
                     focusFigureUseCase:

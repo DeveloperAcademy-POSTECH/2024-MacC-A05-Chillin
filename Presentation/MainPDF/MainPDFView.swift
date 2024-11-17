@@ -14,8 +14,8 @@ enum LayoutOrientation {
 
 struct MainPDFView: View {
     
-    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
-    @EnvironmentObject private var pdfFileManager: PDFFileManager
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     
     @StateObject public var mainPDFViewModel: MainPDFViewModel
@@ -309,7 +309,7 @@ struct MainPDFView: View {
                                         guard let id = self.mainPDFViewModel.pdfSharedData.paperInfo?.id else {
                                             return
                                         }
-                                        self.pdfFileManager.updateTitle(at: id, title: self.titleText)
+                                        self.homeViewModel.updateTitle(at: id, title: self.titleText)
                                         self.mainPDFViewModel.pdfSharedData.paperInfo?.title = self.titleText
                                     }
                                 }
@@ -375,13 +375,6 @@ struct MainPDFView: View {
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
-//            .onChange(of: self.mainPDFViewModel.figureStatus) { _, newValue in
-//                // 다운로드가 완료된 경우 isFigureSaved 값 변경
-//                if newValue == .complete {
-//                    let id = self.mainPDFViewModel.paperInfo.id
-//                    self.pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
-//                }
-//            }
             .statusBarHidden()
         }
     }

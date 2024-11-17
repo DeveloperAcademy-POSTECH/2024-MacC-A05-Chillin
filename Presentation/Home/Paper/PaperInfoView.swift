@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PaperInfoView: View {
-    @EnvironmentObject var pdfFileManager: PDFFileManager
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     let id: UUID
     let image: Data
@@ -59,7 +59,7 @@ struct PaperInfoView: View {
                 
                 Button(action: {
                     isStarSelected.toggle()
-                    pdfFileManager.updateFavorite(at: id, isFavorite: isStarSelected)
+                    homeViewModel.updateFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -112,7 +112,7 @@ struct PaperInfoView: View {
                             }
                             
                             Button("삭제", systemImage: "trash", role: .destructive) {
-                                pdfFileManager.deleteMemo(at: id)
+                                self.homeViewModel.deleteMemo(at: id)
                                 self.memo = nil
                             }
                             
@@ -176,21 +176,22 @@ struct PaperInfoView: View {
                 .frame(height: 185)
         }
         .onChange(of: self.id) {
-            let paperInfo = self.pdfFileManager.paperInfos.first { $0.id == self.id }!
+            let paperInfo = homeViewModel.paperInfos.first { $0.id == self.id }!
             self.memo = paperInfo.memo
         }
-        .onChange(of: self.pdfFileManager.memoText) {
-            self.memo = self.pdfFileManager.memoText
+        .onChange(of: self.homeViewModel.memoText) {
+            self.memo = self.homeViewModel.memoText
         }
         .onChange(of: self.isEditingMemo) {
-            self.pdfFileManager.memoText = memo!
+            self.homeViewModel.memoText = memo!
         }
         .alert(isPresented: $isDeleteConfirm) {
             Alert(
                 title: Text("정말 삭제하시겠습니까?"),
                 message: Text("삭제된 파일은 복구할 수 없습니다."),
                 primaryButton: .destructive(Text("삭제")) {
-                    pdfFileManager.deletePDFFile(at: id)
+                    let ids = [id]
+                    self.homeViewModel.deletePDF(ids: ids)
                     onDelete()
                 },
                 secondaryButton: .default(Text("취소")))
@@ -210,7 +211,7 @@ struct PaperInfoView: View {
     private func actionButton() -> some View {
         Button(action: {
             onNavigate()
-            pdfFileManager.updateLastModifiedDate(at: id, lastModifiedDate: Date())
+            homeViewModel.updateLastModifiedDate(at: id, lastModifiedDate: .init())
         }) {
             HStack(spacing: 0) {
                 Text("읽기 ")

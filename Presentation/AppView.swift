@@ -14,8 +14,11 @@ struct AppView: App {
     
     // Navigation 컨트롤
     @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
-    
-    @StateObject private var pdfFileManager: PDFFileManager = .init(paperService: .shared)
+    @StateObject private var homeViewModel: HomeViewModel = .init(
+        homeViewUseCase: DefaultHomeViewUseCase(
+            paperDataRepository: PaperDataRepositoryImpl()
+        )
+    )
     
     var body: some Scene {
         WindowGroup {
@@ -32,7 +35,7 @@ struct AppView: App {
                     }
             }
             .environmentObject(navigationCoordinator)
-            .environmentObject(pdfFileManager)
+            .environmentObject(homeViewModel)
             .onAppear {
                 setSample()
             }
@@ -63,12 +66,12 @@ extension AppView {
         
         let layout = try! JSONDecoder().decode(PDFLayoutResponseDTO.self, from: .init(contentsOf: url))
         
-        let id = pdfFileManager.uploadSampleFile()!
+        let id = homeViewModel.uploadSamplePDF()!
         UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
-        pdfFileManager.updateIsFigureSaved(at: id, isFigureSaved: true)
+        homeViewModel.updateIsFigureSaved(at: id, isFigureSaved: true)
         
         layout.fig.forEach {
-            let _ = FigureDataService.shared.saveFigureData(for: id, with: .init(
+            let _ = FigureDataRepositoryImpl.shared.saveFigureData(for: id, with: .init(
                 id: $0.id,
                 head: $0.head,
                 label: $0.label,

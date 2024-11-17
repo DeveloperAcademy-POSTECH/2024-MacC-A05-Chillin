@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ButtonGroupDataInterface {
+protocol ButtonGroupDataRepository {
     /// 저장된 버튼 그룹을 불러옵니다
     func loadButtonGroup(for pdfID: UUID) -> Result<[ButtonGroup], Error>
     /// 버튼 그룹을 저장합니다

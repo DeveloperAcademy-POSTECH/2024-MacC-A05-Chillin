@@ -20,8 +20,8 @@ class CommentViewModel: ObservableObject {
     @Published var buttonGroup: [ButtonGroup] = [] // 전체 버튼 배열
     var tempCommentArray: [Comment] = []
     
-    var commentService: CommentDataService
-    private var buttonGroupService: ButtonGroupDataService
+    var commentService: CommentDataRepositoryImpl
+    private var buttonGroupService: ButtonGroupDataRepositoryImpl
     
     // 해당 줄의 첫 코멘트를 생성하는 상황에 사용되는 변수
     private var newButtonId = UUID() // 새로 추가되는 버튼의 id
@@ -38,8 +38,8 @@ class CommentViewModel: ObservableObject {
     @Published var comment: Comment?
     
     init(
-        commentService: CommentDataService,
-        buttonGroupService: ButtonGroupDataService
+        commentService: CommentDataRepositoryImpl,
+        buttonGroupService: ButtonGroupDataRepositoryImpl
     ) {
         self.paperInfo = PDFSharedData.shared.paperInfo!
         self.commentService = commentService

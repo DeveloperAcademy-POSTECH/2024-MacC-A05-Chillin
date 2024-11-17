@@ -39,7 +39,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
     public var pdfSharedData: PDFSharedData = .shared
     
     private let focusFigureRepository: FocusFigureRepository
-    private let paperDataService: FigureDataInterface = FigureDataService.shared
+    private let figureDataRepository: FigureDataRepository = FigureDataRepositoryImpl.shared
     
     init(
         focusFigureRepository: FocusFigureRepository
@@ -66,7 +66,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
         }
-        return paperDataService.saveFigureData(for: id, with: figure)
+        return figureDataRepository.saveFigureData(for: id, with: figure)
     }
     
     public func loadFigures() -> Result<[Figure], any Error> {
@@ -74,11 +74,11 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
             return .failure(NetworkManagerError.badRequest)
         }
         
-        return paperDataService.loadFigureData(for: id)
+        return figureDataRepository.loadFigureData(for: id)
     }
     
     public func editPaperInfo(info: PaperInfo) -> Result<VoidResponse, any Error> {
-        paperDataService.editPaperInfo(info: info)
+        figureDataRepository.editPaperInfo(info: info)
     }
 }
 

@@ -9,8 +9,8 @@ import Foundation
 import CoreData
 import UIKit
 
-class ButtonGroupDataService: ButtonGroupDataInterface {
-    static let shared = ButtonGroupDataService()
+class ButtonGroupDataRepositoryImpl: ButtonGroupDataRepository {
+    static let shared = ButtonGroupDataRepositoryImpl()
     
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
