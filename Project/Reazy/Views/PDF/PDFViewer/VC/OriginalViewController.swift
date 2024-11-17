@@ -339,22 +339,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
 }
 
-extension OriginalViewController: UIEditMenuInteractionDelegate {
-    
-    func editMenuInteraction(_ interaction: UIEditMenuInteraction, menuFor configuration: UIEditMenuConfiguration, suggestedActions: [UIMenuElement]) -> UIMenu? {
-        let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
-            // 선택한 텍스트로 Google 검색
-            if let selectedTextRange = self.mainPDFView.currentSelection?.string {
-                let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                if let url = URL(string: "https://www.google.com/search?q=\(query)") {
-                    UIApplication.shared.open(url)
-                }
-            }
-        }
-        return UIMenu(children: [searchWebAction])
-    }
-}
-
 //canPerformAction()으로 menuAction 제한
 class CustomPDFView: PDFView {
     var toolMode: ToolMode = .none
