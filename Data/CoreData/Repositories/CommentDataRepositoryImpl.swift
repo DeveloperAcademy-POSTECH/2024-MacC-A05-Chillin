@@ -10,11 +10,7 @@ import CoreData
 import UIKit
 
 class CommentDataRepositoryImpl: CommentDataRepository {
-//    static let shared = CommentDataRepositoryImpl()
-    
     private let container: NSPersistentContainer = PersistantContainer.shared.container
-    
-//    private init() { }
     
     func loadCommentData(for pdfID: UUID) -> Result<[Comment], Error> {
         let dataContext = container.viewContext

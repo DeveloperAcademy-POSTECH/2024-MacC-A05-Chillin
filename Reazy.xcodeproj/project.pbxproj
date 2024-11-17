@@ -69,6 +69,7 @@
 		2C5C240E2CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */; };
 		2C5C240F2CE9D1EF00C37A1B /* ConcentrateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */; };
 		2C5C24172CE9DB9E00C37A1B /* PDFUploadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */; };
+		2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */; };
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -147,6 +148,7 @@
 		2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateViewControllerRepresent.swift; sourceTree = "<group>"; };
 		2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateView.swift; sourceTree = "<group>"; };
 		2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFUploadError.swift; sourceTree = "<group>"; };
+		2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSharedData.swift; sourceTree = "<group>"; };
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1473DC2CE73D4300B35D92 /* Repositories */,
+				2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -733,6 +736,7 @@
 				2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */,
 				2C1473982CE73B6F00B35D92 /* PresentationType.swift in Sources */,
 				2C1473992CE73B6F00B35D92 /* NotificationCenter + Extension.swift in Sources */,
+				2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */,
 				2C14739B2CE73B6F00B35D92 /* ButtonGroupDataRepository.swift in Sources */,
 				2C14739C2CE73B6F00B35D92 /* CommentDataRepository.swift in Sources */,
 				2C14739D2CE73B6F00B35D92 /* FigureDataRepository.swift in Sources */,

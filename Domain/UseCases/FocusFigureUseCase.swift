@@ -83,30 +83,3 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         figureDataRepository.editPaperInfo(info: info)
     }
 }
-
-
-
-class PDFSharedData {
-    static let shared = PDFSharedData()
-    
-    public var document: PDFDocument?
-    public var paperInfo: PaperInfo?
-    
-    private init() { }
-    
-    public func makeDocument(from paperInfo: PaperInfo) {
-        var isStale: Bool = false
-        
-        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
-           url.startAccessingSecurityScopedResource() {
-            
-            defer {
-                url.stopAccessingSecurityScopedResource()
-            }
-            
-            let document = PDFDocument(url: url)
-            self.document = document
-            self.paperInfo = paperInfo
-        }
-    }
-}
