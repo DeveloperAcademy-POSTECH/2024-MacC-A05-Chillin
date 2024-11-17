@@ -269,7 +269,6 @@
 			children = (
 				2C1474542CE900DD00B35D92 /* CoreData */,
 				2C1473EC2CE87BE200B35D92 /* Network */,
-				2C1473DA2CE73C7600B35D92 /* Repositories */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -338,6 +337,7 @@
 		2C1473EC2CE87BE200B35D92 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				2C1473DA2CE73C7600B35D92 /* Repositories */,
 				2C1474742CE901A100B35D92 /* NetworkManager */,
 				2C1473ED2CE87BE800B35D92 /* DataMapping */,
 			);

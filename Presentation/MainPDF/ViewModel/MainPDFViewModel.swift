@@ -54,8 +54,6 @@ final class MainPDFViewModel: ObservableObject {
     // for drawing
     public var pdfDrawer: PDFDrawer = .init()
     
-    private var figureService: FigureDataRepositoryImpl = .shared
-    
     public var pdfSharedData: PDFSharedData = .shared
         
     init() {

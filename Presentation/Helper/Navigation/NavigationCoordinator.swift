@@ -11,7 +11,6 @@ import SwiftUI
 /**
  Navigation 관리하는 클래스
  */
-
 final class NavigationCoordinator: CoordinatorProtocol {
     @Published public var path: NavigationPath = .init()
     @Published var sheet: Sheet?
@@ -59,13 +58,14 @@ final class NavigationCoordinator: CoordinatorProtocol {
             MainPDFView(
                 mainPDFViewModel: .init(),
                 commentViewModel: .init(
-                    commentService: CommentDataRepositoryImpl.shared,
-                    buttonGroupService: ButtonGroupDataRepositoryImpl.shared
+                    commentService: CommentDataRepositoryImpl(),
+                    buttonGroupService: ButtonGroupDataRepositoryImpl()
                 ),
                 focusFigureViewModel: .init(
                     focusFigureUseCase:
                         DefaultFocusFigureUseCase(
-                            focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument))
+                            focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument),
+                            figureDataRepository: FigureDataRepositoryImpl())
                 ),
                 pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
                 searchViewModel: .init(),

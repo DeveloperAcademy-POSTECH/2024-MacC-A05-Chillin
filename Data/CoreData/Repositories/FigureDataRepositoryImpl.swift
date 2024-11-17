@@ -10,11 +10,7 @@ import CoreData
 import UIKit
 
 class FigureDataRepositoryImpl: FigureDataRepository {
-    static let shared = FigureDataRepositoryImpl()
-    
     private let container: NSPersistentContainer = PersistantContainer.shared.container
-    
-    private init() { }
     
     func loadFigureData(for pdfID: UUID) -> Result<[Figure], any Error> {
         let dataContext = container.viewContext

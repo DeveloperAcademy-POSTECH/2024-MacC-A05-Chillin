@@ -10,11 +10,7 @@ import CoreData
 import UIKit
 
 class PaperDataRepositoryImpl: PaperDataRepository {
-//    static let shared = PaperDataRepositoryImpl()
-    
     private let container: NSPersistentContainer = PersistantContainer.shared.container
-    
-//    private init() { }
     
     // 저장된 PDF 정보를 모두 불러옵니다
     func loadPDFInfo() -> Result<[PaperInfo], any Error> {

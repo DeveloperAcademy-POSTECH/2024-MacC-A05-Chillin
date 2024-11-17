@@ -39,12 +39,14 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
     public var pdfSharedData: PDFSharedData = .shared
     
     private let focusFigureRepository: FocusFigureRepository
-    private let figureDataRepository: FigureDataRepository = FigureDataRepositoryImpl.shared
+    private let figureDataRepository: FigureDataRepository
     
     init(
-        focusFigureRepository: FocusFigureRepository
+        focusFigureRepository: FocusFigureRepository,
+        figureDataRepository: FigureDataRepository
     ) {
         self.focusFigureRepository = focusFigureRepository
+        self.figureDataRepository = figureDataRepository
     }
     
     public func excute(

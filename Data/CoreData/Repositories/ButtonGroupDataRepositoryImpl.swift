@@ -10,11 +10,7 @@ import CoreData
 import UIKit
 
 class ButtonGroupDataRepositoryImpl: ButtonGroupDataRepository {
-    static let shared = ButtonGroupDataRepositoryImpl()
-    
     private let container: NSPersistentContainer = PersistantContainer.shared.container
-    
-    private init() { }
     
     func loadButtonGroup(for pdfID: UUID) -> Result<[ButtonGroup], any Error> {
         let dataContext = container.viewContext
