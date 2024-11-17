@@ -6,15 +6,15 @@
 //
 
 import UIKit
-
+import Combine
 
 /**
  페이지 리스트 TableView
  */
 class ThumbnailTableViewCell: UITableViewCell {
+    private var cancellables: Set<AnyCancellable> = []
 
     let pageNum: Int
-    
     let thumbnail: UIImage
     
     lazy var thumbnailView: UIImageView = {
@@ -46,7 +46,11 @@ class ThumbnailTableViewCell: UITableViewCell {
         
         setUI()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(isMyCell), name: .didSelectThumbnail, object: nil)
+        NotificationCenter.default.publisher(for: .didSelectThumbnail)
+            .sink { [weak self] in
+                self?.isMyCell($0)
+            }
+            .store(in: &self.cancellables)
     }
     
     required init?(coder: NSCoder) {
@@ -55,6 +59,10 @@ class ThumbnailTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+    }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
     }
 }
 
@@ -85,7 +93,6 @@ extension ThumbnailTableViewCell {
     }
     
     /// Notification에 따른 Cell UI 수정
-    @objc
     private func isMyCell(_ notification: Notification) {
         guard let obj = notification.userInfo?["num"] as? Int else { return }
         if obj == self.pageNum {

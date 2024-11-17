@@ -105,6 +105,10 @@ final class OriginalViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit {
+        self.cancellable.forEach { $0.cancel() }
+    }
 }
 
 // MARK: - 초기 설정
