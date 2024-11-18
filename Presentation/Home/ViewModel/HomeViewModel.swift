@@ -13,6 +13,7 @@ class HomeViewModel: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
+    @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -39,6 +40,9 @@ extension HomeViewModel {
             }
             return paperInfo?.id
         } catch {
+            if let error = error as? PDFUploadError {
+                self.errorStatus = error
+            }
             print(error)
             return nil
         }
