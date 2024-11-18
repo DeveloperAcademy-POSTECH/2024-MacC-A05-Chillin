@@ -11,6 +11,7 @@ import Combine
 struct PaperListView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
+    @StateObject private var paperListViewModel: PaperListViewModel = .init()
     
     @Binding var selectedPaperID: UUID?
     @Binding var selectedItems: Set<Int>
@@ -36,6 +37,11 @@ struct PaperListView: View {
             infos = infos.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
         }
         return infos
+    }
+    
+    var filteredLists: [FileSystemItem] {
+        let lists = paperListViewModel.sortLists(paperInfos: homeViewModel.paperInfos, folders: homeViewModel.folders)
+        return lists
     }
     
     @State private var isIPadMini: Bool = false
@@ -78,7 +84,7 @@ struct PaperListView: View {
                     
                     Divider()
                     
-                    if filteredPaperInfos.isEmpty {
+                    if filteredLists.isEmpty {
                         if isSearching {
                             Spacer()
                             
@@ -106,7 +112,7 @@ struct PaperListView: View {
                         }
                     } else {
                         // MARK: - CoreData
-                        if filteredPaperInfos.isEmpty {
+                        if filteredLists.isEmpty {
                             VStack(spacing: 11) {
                                 Spacer()
                                 Image(.homePlaceholder)
@@ -122,34 +128,62 @@ struct PaperListView: View {
                         } else {
                             ScrollView {
                                 VStack(spacing: 0) {
-                                    ForEach(0..<filteredPaperInfos.count, id: \.self) { index in
-                                        PaperListCell(
-                                            title: filteredPaperInfos[index].title,
-                                            date: timeAgoString(from: filteredPaperInfos[index].lastModifiedDate),
-                                            isSelected: selectedPaperID == filteredPaperInfos[index].id,
-                                            isEditing: isEditing,
-                                            isEditingSelected: selectedItems.contains(index),
-                                            onSelect: {
-                                                if !isEditing && !isNavigationPushed {
-                                                    if selectedPaperID == filteredPaperInfos[index].id {
-                                                        self.isNavigationPushed = true
-                                                        navigateToPaper()
-                                                        homeViewModel.updateLastModifiedDate(at: filteredPaperInfos[index].id, lastModifiedDate: Date())
-                                                    } else {
-                                                        selectedPaperID = filteredPaperInfos[index].id
+                                    ForEach(filteredLists.indices, id: \.self) { index in
+                                        let item = filteredLists[index]
+                                        switch item {
+                                        // 논문 추가
+                                        case .paper(let paperInfo):
+                                            PaperListCell(
+                                                title: paperInfo.title,
+                                                date: timeAgoString(from: paperInfo.lastModifiedDate),
+                                                isSelected: selectedPaperID == paperInfo.id,
+                                                isEditing: isEditing,
+                                                isEditingSelected: selectedItems.contains(index),
+                                                onSelect: {
+                                                    if !isEditing && !isNavigationPushed {
+                                                        if selectedPaperID == paperInfo.id {
+                                                            self.isNavigationPushed = true
+                                                            navigateToPaper()
+                                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                                        } else {
+                                                            selectedPaperID = paperInfo.id
+                                                        }
+                                                    }
+                                                },
+                                                onEditingSelect: {
+                                                    if isEditing {
+                                                        if selectedItems.contains(index) {
+                                                            selectedItems.remove(index)
+                                                        } else {
+                                                            selectedItems.insert(index)
+                                                        }
                                                     }
                                                 }
-                                            },
-                                            onEditingSelect: {
-                                                if isEditing {
-                                                    if selectedItems.contains(index) {
-                                                        selectedItems.remove(index)
-                                                    } else {
-                                                        selectedItems.insert(index)
+                                            )
+                                            
+                                        // 폴더 추가
+                                        case .folder(let folder):
+                                            FolderListCell(
+                                                title: folder.title,
+                                                createdAt: timeAgoString(from: folder.createdAt),
+                                                color: folder.color,
+                                                isSelected: false, // TODO: - [브리] 수정 필요
+                                                isEditing: isEditing,
+                                                isEditingSelected: selectedItems.contains(index),
+                                                onSelect: {
+                                                    // TODO: - [브리] 폴더 선택 액션 추가
+                                                },
+                                                onEditingSelect: {
+                                                    if isEditing {
+                                                        if selectedItems.contains(index) {
+                                                            selectedItems.remove(index)
+                                                        } else {
+                                                            selectedItems.insert(index)
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        )
+                                            )
+                                        }
                                         
                                         Rectangle()
                                             .frame(height: 1)
@@ -171,6 +205,7 @@ struct PaperListView: View {
                 }())
                 .background(.gray300)
                 
+                // TODO: - [브리] 폴더 시스템 추가 필요
                 // 편집 모드 & 검색 모드에서는 문서 정보가 보이지 않아야 함
                 if !isEditing && !isSearching {
                     Rectangle()

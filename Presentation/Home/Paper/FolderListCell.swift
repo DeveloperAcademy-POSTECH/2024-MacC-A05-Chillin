@@ -1,16 +1,18 @@
 //
-//  PaperListCell.swift
+//  FolderListCell.swift
 //  Reazy
 //
-//  Created by 유지수 on 10/14/24.
+//  Created by 유지수 on 11/18/24.
 //
 
 import SwiftUI
 
-struct PaperListCell: View {
+struct FolderListCell: View {
     
     let title: String
-    let date: String
+    let createdAt: String
+    let color: Color
+    
     let isSelected: Bool
     let isEditing: Bool
     let isEditingSelected: Bool
@@ -41,13 +43,10 @@ struct PaperListCell: View {
                 
                 RoundedRectangle(cornerRadius: 10)
                     .frame(width: 42, height: 42)
-                    .foregroundStyle(.gray500)
+                    .foregroundStyle(color)
                     .overlay(
-                        Image("document")
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 21)
+                        Image(systemName: "folder.fill")
+                            .font(.system(size: 18))
                             .foregroundStyle(.gray100)
                     )
                 
@@ -55,9 +54,9 @@ struct PaperListCell: View {
                     Text(title)
                         .lineLimit(1)
                         .reazyFont(.h2)
-                        .foregroundStyle(.gray900)
+                        .foregroundStyle(.gray800)
                         .padding(.bottom, 6)
-                    Text(date)
+                    Text(createdAt)
                         .reazyFont(.h4)
                         .foregroundStyle(.gray600)
                 }
@@ -81,11 +80,12 @@ struct PaperListCell: View {
 }
 
 #Preview {
-    PaperListCell(
-        title: "test",
-        date: "1시간 전",
+    FolderListCell(
+        title: "저널 클럽 1주차",
+        createdAt: "오늘 오후 07:23",
+        color: .primary1,
         isSelected: false,
-        isEditing: true,
+        isEditing: false,
         isEditingSelected: false,
         onSelect: {},
         onEditingSelect: {}

@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum Types {
+    case paper
+    case folder
+}
+
 struct PaperInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     

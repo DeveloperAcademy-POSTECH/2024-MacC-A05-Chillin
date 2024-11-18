@@ -32,6 +32,7 @@ struct HomeView: View {
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
+    @State private var isEditingFolder: Bool = false
     
     var body: some View {
         ZStack {
@@ -57,7 +58,8 @@ struct HomeView: View {
                                 isSearching: $isSearching,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
-                                selectedPaperID: $selectedPaperID)
+                                selectedPaperID: $selectedPaperID,
+                                isEditingFolder: $isEditingFolder)
                             
                         case .search:
                             SearchMenuView(
@@ -85,11 +87,11 @@ struct HomeView: View {
                     searchText: $searchText
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || isEditingFolder ? 20 : 0)
             
             
             Color.black
-                .opacity( isEditingTitle || isEditingMemo ? 0.5 : 0)
+                .opacity( isEditingTitle || isEditingMemo || isEditingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
             
@@ -99,11 +101,18 @@ struct HomeView: View {
                     isEditingMemo: $isEditingMemo,
                     paperInfo: homeViewModel.paperInfos.first { $0.id == selectedPaperID! }!)
             }
+            
+            if isEditingFolder {
+                FolderView(
+                    isEditingFolder: $isEditingFolder
+                )
+            }
         }
         .background(Color(hex: "F7F7FB"))
         .statusBarHidden()
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
+        .animation(.easeInOut, value: isEditingFolder)
     }
 }
 
@@ -125,19 +134,15 @@ private struct MainMenuView: View {
     @Binding var isEditing: Bool
     @Binding var selectedItems: Set<Int>
     @Binding var selectedPaperID: UUID?
+    @Binding var isEditingFolder: Bool
     
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .search
-                }
-                isSearching.toggle()
+                isEditingFolder.toggle()
             }) {
-                Image(systemName: "magnifyingglass")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
+                Image(systemName: "folder.badge.plus")
+                    .font(.system(size: 16))
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -150,9 +155,19 @@ private struct MainMenuView: View {
                 selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
+                    .font(.system(size: 16))
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedMenu = .search
+                }
+                isSearching.toggle()
+            }) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 16))
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -399,6 +414,114 @@ private struct RenamePaperTitleView: View {
                 self.text = paperInfo.title
             } else {
                 self.text = paperInfo.memo ?? ""
+            }
+        }
+    }
+}
+
+private struct FolderView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @State private var selectedColors: FolderColors = .folder1
+    
+    @Binding var isEditingFolder: Bool
+    @State private var text: String = ""
+    
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        isEditingFolder.toggle()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.gray100)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        homeViewModel.saveFolder(title: text, color: selectedColors.color)
+                        isEditingFolder.toggle()
+                    }) {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                }
+                .padding(.horizontal, 28)
+                .padding(.top, 28)
+                
+                Spacer()
+            }
+            
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 49)
+                    .frame(width: 206, height: 206)
+                    .foregroundStyle(selectedColors.color)
+                    .overlay(
+                        Image(systemName: "folder.fill")
+                            .font(.system(size: 88))
+                            .foregroundStyle(.gray300)
+                    )
+                    .padding(.trailing, 54)
+                
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        ForEach(FolderColors.allCases, id: \.self) { color in
+                            FolderColorButton(
+                                button: $selectedColors,
+                                selectedButton: color,
+                                action: {
+                                    selectedColors = color
+                                }
+                            )
+                            .padding(.trailing, color == .folder7 ? 0 : 20)
+                        }
+                    }
+                    .padding(.bottom, 24)
+                    
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 52)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 52)
+                    }
+                    .frame(width: 400, height: 52)
+                    .overlay(alignment: .leading) {
+                        TextField("폴더 제목을 입력해주세요.", text: $text, axis: .vertical)
+                            .lineLimit(1)
+                            .padding(.horizontal, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    .overlay(alignment: .trailing) {
+                        if !self.text.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                                .padding(.trailing, 10)
+                                .onTapGesture {
+                                    text = ""
+                                }
+                        }
+                    }
+                    .padding(.bottom, 16)
+                    
+                    Text("폴더 제목을 입력해 주세요")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.comment)
+                }
             }
         }
     }

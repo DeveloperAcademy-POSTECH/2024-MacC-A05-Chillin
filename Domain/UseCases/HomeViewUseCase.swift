@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import PDFKit
 
 
@@ -23,6 +24,9 @@ protocol HomeViewUseCase {
     
     func uploadPDFFile(url: [URL]) throws -> PaperInfo?
     func uploadSamplePDFFile() -> PaperInfo?
+    
+    @discardableResult
+    func saveFolder(title: String, color: Color) -> Folder
 }
 
 
@@ -145,5 +149,14 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             self.paperDataRepository.savePDFInfo(paperInfo)
             return paperInfo
         }
+    }
+    
+    public func saveFolder(title: String, color: Color) -> Folder {
+        let folder = Folder(
+            title: title,
+            color: color
+        )
+        
+        return folder
     }
 }

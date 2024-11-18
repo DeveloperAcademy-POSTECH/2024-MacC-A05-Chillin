@@ -6,11 +6,12 @@
 //
 
 import Foundation
-
+import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
+    @Published public var folders: [Folder] = []
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
     
@@ -134,4 +135,10 @@ extension HomeViewModel {
     }
 }
 
-
+extension HomeViewModel {
+    public func saveFolder(title: String, color: Color) {
+        // TODO: - [브리] CoreData 연결 시 수정 필요
+        let newFolder = self.homeViewUseCase.saveFolder(title: title, color: color)
+        self.folders.append(newFolder)
+    }
+}
