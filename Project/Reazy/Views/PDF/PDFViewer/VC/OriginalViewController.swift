@@ -68,7 +68,7 @@ final class OriginalViewController: UIViewController {
         
         /// 모드에 따라 뜨는 메뉴 다르게 설정
         switch viewModel.toolMode {
-        case .comment, .highlight, .translate:
+        case .comment, .drawing, .translate:
             builder.remove(menu: .lookup)
             builder.remove(menu: .share)
             builder.remove(menu: newMenu.identifier)
@@ -179,12 +179,18 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
+        self.viewModel.$toolMode
+            .sink { [weak self] mode in
+                self?.mainPDFView.toolMode = mode
+            }
+            .store(in: &cancellable)
+        
         self.viewModel.$drawingToolMode
             .sink { [weak self] mode in
                 // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
                 self?.updateGestureRecognizer(for: mode)
                 // toolMode 변경에 따라 canPerformAction 동작하도록
-                self?.mainPDFView.toolMode = mode
+                self?.mainPDFView.drawingToolMode = mode
             }
             .store(in: &cancellable)
         
@@ -351,13 +357,25 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
 //canPerformAction()으로 menuAction 제한
 class CustomPDFView: PDFView {
     var toolMode: ToolMode = .none
+    var drawingToolMode: DrawingToolMode = .none
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         switch toolMode {
-        case .comment, .highlight, .translate :
+        case .comment, .translate:
             return false
             
-        default :
+        case .drawing:
+            switch drawingToolMode {
+            case .highlight:
+                return false
+            default:
+                if action == #selector(copy(_:)) {
+                    return true
+                }
+                return false
+            }
+            
+        default:
             if action == #selector(copy(_:)) {
                 return true
             }
