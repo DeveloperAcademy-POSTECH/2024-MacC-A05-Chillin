@@ -179,7 +179,7 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        self.viewModel.$toolMode
+        self.viewModel.$drawingToolMode
             .sink { [weak self] mode in
                 // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
                 self?.updateGestureRecognizer(for: mode)
@@ -206,10 +206,14 @@ extension OriginalViewController {
                 guard let self = self else { return }
                 
                 switch self.viewModel.toolMode {
-                    
-                case .highlight:
-                    DispatchQueue.main.async {
-                        self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+                case .drawing:
+                    switch self.viewModel.drawingToolMode {
+                    case .highlight:
+                        DispatchQueue.main.async {
+                            self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+                        }
+                    default:
+                        return
                     }
                     
                 case .translate, .comment:
@@ -300,7 +304,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
     }
     
-    private func updateGestureRecognizer(for mode: ToolMode) {
+    private func updateGestureRecognizer(for mode: DrawingToolMode) {
         // 현재 설정된 제스처 인식기를 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
@@ -308,7 +312,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             }
         }
         
-        // toolMode에 따라 제스처 인식기를 추가
+        // drawingToolMode에 따라 제스처 인식기를 추가
         if mode == .pencil || mode == .eraser {
             let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
             self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// MARK: - Ver.1 Buttons
 enum WriteButton: String, CaseIterable {
     case comment
     case highlight
@@ -56,10 +57,10 @@ enum HighlightColors: String, CaseIterable {
     }
 }
 
-struct ColorButton: View {
-    @Binding var button: HighlightColors
+struct HighlightColorButton: View {
+    @Binding var button: HighlightColors?
     
-    let buttonOwner: HighlightColors
+    let selectedButton: HighlightColors
     let action: () -> Void
     
     var body: some View {
@@ -67,20 +68,26 @@ struct ColorButton: View {
             action()
         }) {
             ZStack {
-                Circle()
+                Rectangle()
                     .fill(Color.clear)
                     .frame(width: 26, height: 26)
                 
                 Circle()
                     .frame(width: 18, height: 18)
-                    .foregroundStyle(buttonOwner.color)
-                    .overlay(
-                        Image(systemName: "checkmark.circle")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 18, height: 18)
-                            .foregroundStyle(buttonOwner == button ? .gray700 : .clear)
-                    )
+                    .foregroundStyle(selectedButton.color)
+                    .overlay {
+                        if button == selectedButton {
+                            Image(systemName: "checkmark.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                                .foregroundStyle(.gray700)
+                        } else {
+                            Circle()
+                                .stroke(.primary4, lineWidth: 1)
+                                .frame(width: 18, height: 18)
+                        }
+                    }
             }
         }
     }
@@ -121,6 +128,109 @@ struct WriteViewButton: View {
                             .frame(height: 18)
                     }
                 )
+        }
+    }
+}
+
+// MARK: - Ver.2 Buttons
+enum Buttons: String, CaseIterable {
+    case drawing
+    case comment
+    case translate
+    case lasso
+    
+    var icon: Image {
+        switch self {
+        case .drawing:
+            return Image(systemName: "pencil.tip.crop.circle")
+        case .comment:
+            return Image(systemName: "text.bubble")
+        case .translate:
+            return Image(systemName: "globe")
+        case .lasso:
+            return Image(systemName: "square.dashed")
+        }
+    }
+}
+
+enum PenColors: String, CaseIterable {
+    case black
+    case red
+    case blue
+    case green
+    
+    var color: Color {
+        switch self {
+        case .black:
+            return .gray800
+        case .red:
+            return .pen1
+        case .blue:
+            return .pen2
+        case .green:
+            return .pen3
+        }
+    }
+    
+    var uiColor: UIColor {
+        return UIColor(self.color)
+    }
+}
+
+struct ButtonsView: View {
+    @Binding var button: Buttons?
+    
+    let selectedButton: Buttons
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            RoundedRectangle(cornerRadius: 6)
+                .foregroundStyle(button == selectedButton ? .primary1 : .clear)
+                .frame(width: 26, height: 26)
+                .overlay(
+                    selectedButton.icon
+                        .font(.system(size: 16))
+                        .foregroundStyle(button == selectedButton ? .gray100 : .gray800)
+                )
+        }
+    }
+}
+
+struct PenColorButton: View {
+    @Binding var button: PenColors?
+    
+    let selectedButton: PenColors
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            ZStack {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(width: 26, height: 26)
+                
+                Circle()
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(selectedButton.color)
+                    .overlay {
+                        if button == selectedButton {
+                            Image(systemName: "checkmark.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                                .foregroundStyle(.primary4)
+                        } else {
+                            Circle()
+                                .stroke(.primary4, lineWidth: 1)
+                                .frame(width: 18, height: 18)
+                        }
+                    }
+            }
         }
     }
 }

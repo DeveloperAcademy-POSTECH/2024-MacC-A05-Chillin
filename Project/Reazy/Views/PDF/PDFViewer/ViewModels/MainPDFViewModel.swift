@@ -31,9 +31,14 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
-    @Published var toolMode: ToolMode = .none {
+    @Published var drawingToolMode: DrawingToolMode = .none {
         didSet {
             updateDrawingTool()
+        }
+    }
+    
+    @Published var toolMode: ToolMode = .none {
+        didSet {
             if isCommentVisible {
                 updateCommentPosition(at: commentInputPosition)
             }
@@ -421,8 +426,8 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        // toolMode가 highlight일때 동작
-        guard toolMode == .highlight else { return }
+        // drawingToolMode가 highlight일때 동작
+        guard drawingToolMode == .highlight else { return }
 
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
@@ -511,15 +516,20 @@ extension MainPDFViewModel {
 enum ToolMode {
     case none
     case translate
+    case comment
+    case drawing // 추가
+}
+
+enum DrawingToolMode {
+    case none
     case pencil
     case eraser
     case highlight
-    case comment
 }
 
 extension MainPDFViewModel {
     private func updateDrawingTool() {
-        switch toolMode {
+        switch drawingToolMode {
         case .pencil:
             pdfDrawer.drawingTool = .pencil
         case .eraser:
