@@ -166,9 +166,11 @@ extension OriginalViewController {
         
         // 현재 드래그된 텍스트 가져오는 함수
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
-            .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
+        
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                
                 switch self.viewModel.toolMode {
                 case .drawing:
                     switch self.viewModel.drawingToolMode {
@@ -179,11 +181,12 @@ extension OriginalViewController {
                     default:
                         return
                     }
+                    
                 case .translate, .comment:
                     guard let selection = self.mainPDFView.currentSelection else {
                         // 선택된 텍스트가 없을 때 특정 액션
                         self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
-                        self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
+                        self.viewModel.translateViewVisible = true                        // 말풍선 뷰 숨김
                         return
                     }
                     
@@ -215,8 +218,8 @@ extension OriginalViewController {
                             DispatchQueue.main.async {
                                 // ViewModel에 선택된 텍스트와 위치 업데이트
                                 self.viewModel.selectedText = selectedText
-                                self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
-                                self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
+                                self.viewModel.translateViewPosition = screenPosition              // 위치 업데이트
+                                self.viewModel.translateViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
@@ -228,6 +231,7 @@ extension OriginalViewController {
                     // 텍스트 선택 후 딜레이
                     self.selectionWorkItem = workItem
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+                    
                 default:
                     return
                 }

@@ -318,7 +318,7 @@ struct MainPDFView: View {
             // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
             if #unavailable(iOS 18.0) {
                 if mainPDFViewModel.toolMode == .translate {
-                    BubbleViewOlderVer()
+                    TranslateViewOlderVer()
                 }
             }
         }
