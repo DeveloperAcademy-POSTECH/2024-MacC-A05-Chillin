@@ -426,8 +426,9 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        // drawingToolMode가 highlight일때 동작
-        guard drawingToolMode == .highlight else { return }
+        
+        // (toolMode == .drawing && drawingToolMode == .highlight) 일때 동작
+        guard toolMode == .drawing, drawingToolMode == .highlight else { return }
 
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
@@ -441,6 +442,7 @@ extension MainPDFViewModel {
 
         selections.forEach { selection in
             var bounds = selection.bounds(for: page)
+            
             let originBoundsHeight = bounds.size.height
             bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
             bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
