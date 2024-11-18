@@ -23,8 +23,8 @@ final class OriginalViewController: UIViewController {
     var selectionWorkItem: DispatchWorkItem?
     
     
-    let mainPDFView: PDFView = {
-        let view = PDFView()
+    let mainPDFView: CustomPDFView = {
+        let view = CustomPDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
         view.autoScales = false
@@ -46,6 +46,45 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
+    }
+
+    // menu 관련
+    override func buildMenu(with builder: UIMenuBuilder) {
+        super.buildMenu(with: builder)
+        
+        /// web 검색 액션
+        let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
+            if let selectedTextRange = self.mainPDFView.currentSelection?.string {
+                let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                if let url = URL(string: "https://www.google.com/search?q=\(query)") {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        
+        /// 검색 액션을 새로운 메뉴로 추가하기
+        let newMenu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction])
+        builder.insertSibling(newMenu, afterMenu: .standardEdit)
+        
+        /// 모드에 따라 뜨는 메뉴 다르게 설정
+        switch viewModel.toolMode {
+        case .comment, .highlight, .translate:
+            builder.remove(menu: .lookup)
+            builder.remove(menu: .share)
+            builder.remove(menu: newMenu.identifier)
+        default :
+            builder.replaceChildren(ofMenu: .lookup) { elements in
+                return elements.filter { item in
+                    switch (item as? UICommand)?.title.description {
+                        ///translate, lookup 메뉴 들어가게
+                    case "Search Web" :
+                        return true
+                    default:
+                        return false
+                    }
+                }
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -126,13 +165,6 @@ extension OriginalViewController {
     
     /// 데이터 Binding
     private func setBinding() {
-        // ViewModel drawingToolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-        self.viewModel.$drawingToolMode
-            .sink { [weak self] mode in
-                self?.updateGestureRecognizer(for: mode)
-            }
-            .store(in: &cancellable)
-        
         self.viewModel.$selectedDestination
             .sink { [weak self] destination in
                 guard let destination = destination else { return }
@@ -147,10 +179,12 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        // ViewModel drawingToolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
         self.viewModel.$drawingToolMode
             .sink { [weak self] mode in
+                // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
                 self?.updateGestureRecognizer(for: mode)
+                // toolMode 변경에 따라 canPerformAction 동작하도록
+                self?.mainPDFView.toolMode = mode
             }
             .store(in: &cancellable)
         
@@ -314,3 +348,20 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
 }
 
+//canPerformAction()으로 menuAction 제한
+class CustomPDFView: PDFView {
+    var toolMode: ToolMode = .none
+    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch toolMode {
+        case .comment, .highlight, .translate :
+            return false
+            
+        default :
+            if action == #selector(copy(_:)) {
+                return true
+            }
+            return false
+        }
+    }
+}
