@@ -17,7 +17,6 @@ struct MainPDFView: View {
     @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var pdfFileManager: PDFFileManager
     
-    
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
@@ -38,9 +37,6 @@ struct MainPDFView: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    Divider()
-                        .foregroundStyle(Color(hex: "CCCEE1"))
-                    
                     ZStack {
                         HStack(spacing: 0) {
                             Button(action: {
@@ -101,7 +97,6 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                // MARK: - 부리꺼 : 색상 적용 필요
                                     .foregroundStyle(isFigSelected ? Color(hex: "5F5DAA") : .clear)
                                     .overlay (
                                         ZStack {
@@ -119,79 +114,81 @@ struct MainPDFView: View {
                         .padding(.horizontal, 22)
                         .background(.primary3)
                         
-                            HStack(spacing: 0) {
-                                Spacer()
-                                
-                                ForEach(WriteButton.allCases, id: \.self) { btn in
-                                    // 조건부 Padding값 조정
-                                    let trailingPadding: CGFloat = {
-                                        if selectedButton == .highlight && btn == .highlight {
-                                            return .zero
-                                        } else if btn == .translate {
-                                            return .zero
-                                        } else {
-                                            return 32
-                                        }
-                                    }()
-                                    
-                                    // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
-                                    WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
-                                        // MARK: - 작성 관련 버튼 action 입력
-                                        /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
-                                        if selectedButton == btn {
-                                            selectedButton = nil
-                                            mainPDFViewModel.toolMode = .none
-                                        } else {
-                                            selectedButton = btn
-                                        }
-                                        
-                                        switch selectedButton {
-                                        case .translate:
-                                            NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                                            mainPDFViewModel.toolMode = .translate
-                                            
-                                        case .pencil:
-                                            mainPDFViewModel.toolMode = .pencil
-                                            
-                                        case .eraser:
-                                            mainPDFViewModel.toolMode = .eraser
-                                            
-                                        case .highlight:
-                                            mainPDFViewModel.toolMode = .highlight
-                                            
-                                        case .comment:
-                                            mainPDFViewModel.toolMode = .comment
-                                            
-                                        default:
-                                            // 전체 비활성화
-                                            mainPDFViewModel.toolMode = .none
-                                        }
-                                    }
-                                    .padding(.trailing, trailingPadding)
-                                    
-                                    // Highlight 버튼이 선택될 경우 색상을 선택
+                        HStack(spacing: 0) {
+                            Spacer()
+                            
+                            ForEach(WriteButton.allCases, id: \.self) { btn in
+                                // 조건부 Padding값 조정
+                                let trailingPadding: CGFloat = {
                                     if selectedButton == .highlight && btn == .highlight {
-                                        highlightColorSelector()
+                                        return .zero
+                                    } else if btn == .translate {
+                                        return .zero
+                                    } else {
+                                        return 32
+                                    }
+                                }()
+                                
+                                // [Comment], [Highlight], [Pencil], [Eraser], [Translate] 버튼
+                                WriteViewButton(button: $selectedButton, HighlightColors: $selectedColor, buttonOwner: btn) {
+                                    // MARK: - 작성 관련 버튼 action 입력
+                                    /// 위의 다섯 개 버튼의 action 로직은 이곳에 입력해 주세요
+                                    if selectedButton == btn {
+                                        selectedButton = nil
+                                        mainPDFViewModel.toolMode = .none
+                                    } else {
+                                        selectedButton = btn
+                                    }
+                                    
+                                    switch selectedButton {
+                                    case .translate:
+                                        NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
+                                        mainPDFViewModel.toolMode = .translate
+                                        
+                                    case .pencil:
+                                        mainPDFViewModel.toolMode = .pencil
+                                        
+                                    case .eraser:
+                                        mainPDFViewModel.toolMode = .eraser
+                                        
+                                    case .highlight:
+                                        mainPDFViewModel.toolMode = .highlight
+                                        
+                                    case .comment:
+                                        mainPDFViewModel.toolMode = .comment
+                                        
+                                    default:
+                                        // 전체 비활성화
+                                        mainPDFViewModel.toolMode = .none
                                     }
                                 }
+                                .padding(.trailing, trailingPadding)
                                 
-                                Spacer()
+                                // Highlight 버튼이 선택될 경우 색상을 선택
+                                if selectedButton == .highlight && btn == .highlight {
+                                    highlightColorSelector()
+                                }
                             }
-                            .background(.clear)
-                        
+                            
+                            Spacer()
+                        }
+                        .background(.clear)
                     }
+                    .zIndex(1)
                     
-                    Divider()
+                    Rectangle()
+                        .frame(height: 1)
                         .foregroundStyle(Color(hex: "CCCEE1"))
+                        .zIndex(1)
                     
                     GeometryReader { geometry in
                         ZStack {
-                                ZStack {
-                                    if isVertical {
-                                        splitLayout(for: .vertical)
-                                    } else {
-                                        splitLayout(for: .horizontal)
-                                    }
+                            ZStack {
+                                if isVertical {
+                                    splitLayout(for: .vertical)
+                                } else {
+                                    splitLayout(for: .horizontal)
+                                }
                             }
                             
                             HStack(spacing: 0){
@@ -287,6 +284,9 @@ struct MainPDFView: View {
                                                     .font(.system(size: 16))
                                                     .foregroundStyle(.gray600)
                                             }
+                                            .id(titleText)
+                                            .transition(.opacity)
+                                            .animation(.easeInOut(duration: 0.2), value: titleText)
                                             .padding(.trailing, 8)
                                             
                                         }
@@ -310,7 +310,7 @@ struct MainPDFView: View {
                             
                         }
                         .frame(width: isVertical ? 383 : 567)
-
+                        
                     },
                     leftView: {
                         HStack(spacing: 0) {
@@ -363,7 +363,6 @@ struct MainPDFView: View {
             }
             .onDisappear {
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
-                // TODO: - [브리] commentViewModel에 있는 comments랑 buttonGroup 배열 두 개 저장하는 거 여기서
             }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
@@ -422,7 +421,7 @@ struct MainPDFView: View {
             // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
             if #unavailable(iOS 18.0) {
                 if mainPDFViewModel.toolMode == .translate {
-                    BubbleViewOlderVer()
+                    TranslateViewOlderVer()
                 }
             }
         }

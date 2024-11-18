@@ -1,5 +1,5 @@
 //
-//  BubbleViewOlderVer.swift
+//  TranslateViewOlderVer.swift
 //  Reazy
 //
 //  Created by Minjung Lee on 10/31/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BubbleViewOlderVer: View {
+struct TranslateViewOlderVer: View {
 
     var body: some View {
         // 18.0 미만 버전에서 보여줄 화면
