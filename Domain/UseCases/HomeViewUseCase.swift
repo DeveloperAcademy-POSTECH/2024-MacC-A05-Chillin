@@ -21,7 +21,7 @@ protocol HomeViewUseCase {
     @discardableResult
     func deletePDFs(id: [UUID]) -> Result<VoidResponse, any Error>
     
-    func savePDFIntoDirectory(url: URL) throws -> Data?
+    func savePDFIntoDirectory(url: URL) throws -> (Data, URL)?
     
     func uploadPDFFile(url: [URL]) throws -> PaperInfo?
     func uploadSamplePDFFile() -> PaperInfo?
@@ -74,14 +74,16 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         
         let tempDoc = PDFDocument(url: url)
-        var lastComponent = url.lastPathComponent.split(separator: ".")
-        lastComponent.removeLast()
-        
-        let title = lastComponent.joined()
+
         
         guard let urlData = try? self.savePDFIntoDirectory(url: url) else {
             throw PDFUploadError.fileNameDuplication
         }
+        
+        var lastComponent = urlData.1.lastPathComponent.split(separator: ".")
+        lastComponent.removeLast()
+        
+        let title = lastComponent.joined()
         
         if let firstPage = tempDoc?.page(at: 0) {
             let width = firstPage.bounds(for: .mediaBox).width
@@ -93,7 +95,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: thumbnailData!,
-                url: urlData
+                url: urlData.0
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -103,7 +105,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
-                url: urlData
+                url: urlData.0
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -115,11 +117,13 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         let pdfURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
         
         let tempDoc = PDFDocument(url: pdfURL)
+
+        let urlData = try! self.savePDFIntoDirectory(url: pdfURL)!
+        
         var lastComponent = pdfURL.lastPathComponent.split(separator: ".")
         lastComponent.removeLast()
         
         let title = lastComponent.joined()
-        let urlData = try! self.savePDFIntoDirectory(url: pdfURL)!
         
         if let firstPage = tempDoc?.page(at: 0) {
             let width = firstPage.bounds(for: .mediaBox).width
@@ -131,7 +135,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: thumbnailData!,
-                url: urlData
+                url: urlData.0
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -142,7 +146,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
-                url: urlData
+                url: urlData.0
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -150,21 +154,43 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         }
     }
     
-    internal func savePDFIntoDirectory(url: URL) throws -> Data? {
+    internal func savePDFIntoDirectory(url: URL) throws -> (Data, URL)? {
         do {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             if manager.fileExists(atPath: fileURL.path()) {
-                throw PDFUploadError.fileNameDuplication
+                var dupNum = 1
+                
+                
+                var lastComponent = url.lastPathComponent.split(separator: ".")
+                lastComponent.removeLast()
+                
+                
+                while dupNum < 100 {
+                    let tempURL = documentURL.appending(path: lastComponent.joined() + "(\(dupNum)).pdf")
+                    
+                    if !manager.fileExists(atPath: tempURL.path()) {
+                        try manager.copyItem(at: url, to: tempURL)
+                        return try (tempURL.bookmarkData(options: .minimalBookmark), tempURL)
+                    }
+                    
+                    if dupNum == 99 {
+                        throw PDFUploadError.fileNameDuplication
+                    }
+                    
+                    dupNum += 1
+                }
+                
+                
             } else {
                 try manager.copyItem(at: url, to: fileURL)
             }
             
             let urlData = try fileURL.bookmarkData(options: .minimalBookmark)
             
-            return urlData
+            return (urlData, fileURL)
         } catch {
             print("error copying file: \(error)")
         }
