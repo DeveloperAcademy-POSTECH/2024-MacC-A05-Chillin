@@ -37,9 +37,11 @@ struct OriginalView: View {
                 // 번역에 사용되는 말풍선뷰
                 if viewModel.toolMode == .translate {
                     if #available(iOS 18.0, *) {
-                        if viewModel.isTranslateViewVisible {
+//                        if viewModel.isTranslateViewVisible {
                             TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
-                        }
+//                        }
+                    } else {
+                        
                     }
                 }
                 if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
@@ -77,9 +79,6 @@ struct OriginalView: View {
             .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
             .animation(.smooth(duration: 0.1), value: viewModel.isCommentTapped)
             .transition(.move(edge: .bottom).combined(with: .opacity))
-            .onChange(of: viewModel.selectedText) { _, newValue in
-                viewModel.updateBubbleView(selectedText: newValue, bubblePosition: viewModel.translateViewPosition)
-            }
             .onDisappear {
                 self.cancellables.forEach { $0.cancel() }
             }
