@@ -20,7 +20,7 @@ struct DrawingView: View {
         VStack(spacing: 0) {
             Button(action: {
                 isHighlight.toggle()
-//                mainPDFViewModel.toolMode = .highlight
+                mainPDFViewModel.drawingToolMode = .highlight
                 if selectedHighlightColor == nil {
                     selectedHighlightColor = .yellow
                 } else {
@@ -49,7 +49,7 @@ struct DrawingView: View {
                 HighlightColorButton(button: $selectedHighlightColor, selectedButton: color) {
                     isHighlight = true
                     selectedHighlightColor = color
-//                    mainPDFViewModel.toolMode = .highlight
+                    mainPDFViewModel.drawingToolMode = .highlight
                     mainPDFViewModel.selectedHighlightColor = color
                     
                     isPencil = false
@@ -66,7 +66,7 @@ struct DrawingView: View {
             
             Button(action: {
                 isPencil.toggle()
-//                mainPDFViewModel.toolMode = .pencil
+                mainPDFViewModel.drawingToolMode = .pencil
                 if selectedPenColor == nil {
                     selectedPenColor = .black
                 } else {
@@ -95,8 +95,9 @@ struct DrawingView: View {
                 PenColorButton(button: $selectedPenColor, selectedButton: color) {
                     isPencil = true
                     selectedPenColor = color
-//                    mainPDFViewModel.toolMode = .pencil
-//                    mainPDFViewModel.selectedPenColor = color
+                    mainPDFViewModel.drawingToolMode = .pencil
+                    // TODO: - 펜 색깔 추가 필요
+                    // mainPDFViewModel.selectedPenColor = color
                     
                     isHighlight = false
                     selectedHighlightColor = nil
@@ -112,7 +113,7 @@ struct DrawingView: View {
             
             Button(action: {
                 isEraser.toggle()
-//                mainPDFViewModel.toolMode = .eraser
+                mainPDFViewModel.drawingToolMode = .eraser
                 
                 isPencil = false
                 selectedPenColor = nil

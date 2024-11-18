@@ -119,7 +119,7 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                // TODO: - 설정 액션 추가
+                                // TODO: - [브리] 설정 액션 추가
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
