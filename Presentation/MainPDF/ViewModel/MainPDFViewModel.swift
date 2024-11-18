@@ -17,7 +17,7 @@ final class MainPDFViewModel: ObservableObject {
     @Published var selectedText: String = "" {
         didSet {
             /// 선택된 텍스트가 변경될 때 추가 작업
-            updateBubbleView(selectedText: selectedText, bubblePosition: bubbleViewPosition)
+            updateBubbleView(selectedText: selectedText, bubblePosition: translateViewPosition)
             
             if isCommentVisible {
                 updateCommentPosition(at: commentInputPosition)
@@ -25,9 +25,14 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
-    @Published var toolMode: ToolMode = .none {
+    @Published var drawingToolMode: DrawingToolMode = .none {
         didSet {
             updateDrawingTool()
+        }
+    }
+
+    @Published var toolMode: ToolMode = .none {
+        didSet {
             if isCommentVisible {
                 updateCommentPosition(at: commentInputPosition)
             }
@@ -37,8 +42,8 @@ final class MainPDFViewModel: ObservableObject {
     @Published var isPaperViewFirst: Bool = true
     
     // BubbleView의 상태와 위치
-    @Published var bubbleViewVisible: Bool = false
-    @Published var bubbleViewPosition: CGRect = .zero
+    @Published var isTranslateViewVisible: Bool = false
+    @Published var translateViewPosition: CGRect = .zero
     
     // 하이라이트 색상
     @Published var selectedHighlightColor: HighlightColors = .yellow
@@ -153,7 +158,7 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     public var isBubbleViewVisible: Bool {
         get {
-            self.toolMode == .translate && self.bubbleViewVisible && !self.selectedText.isEmpty
+            self.toolMode == .translate && self.isTranslateViewVisible && !self.selectedText.isEmpty
         }
     }
     
@@ -163,10 +168,10 @@ extension MainPDFViewModel {
         
         // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
         if !selectedText.isEmpty {
-            bubbleViewVisible = true
-            self.bubbleViewPosition = bubblePosition
+            isTranslateViewVisible = true
+            self.translateViewPosition = bubblePosition
         } else {
-            bubbleViewVisible = false
+            isTranslateViewVisible = false
         }
     }
 }
@@ -175,8 +180,8 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        // toolMode가 highlight일때 동작
-        guard toolMode == .highlight else { return }
+        // drawingToolMode가 highlight일때 동작
+        guard drawingToolMode == .highlight else { return }
 
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
@@ -265,15 +270,20 @@ extension MainPDFViewModel {
 enum ToolMode {
     case none
     case translate
+    case comment
+    case drawing
+}
+
+enum DrawingToolMode {
+    case none
     case pencil
     case eraser
     case highlight
-    case comment
 }
 
 extension MainPDFViewModel {
     private func updateDrawingTool() {
-        switch toolMode {
+        switch drawingToolMode {
         case .pencil:
             pdfDrawer.drawingTool = .pencil
         case .eraser:

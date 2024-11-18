@@ -33,12 +33,15 @@ struct PaperInfoView: View {
                 .scaledToFit()
                 .padding(.horizontal, 30)
             
-            Text(title)
-                .reazyFont(.text1)
-                .foregroundStyle(.gray900)
-                .padding(.horizontal, 30)
-                .padding(.top, 14)
-                .lineLimit(2)
+            HStack(spacing: 0) {
+                Text(title)
+                    .reazyFont(.text1)
+                    .foregroundStyle(.gray900)
+                    .padding(.horizontal, 30)
+                    .padding(.top, 14)
+                    .lineLimit(2)
+                Spacer()
+            }
             
             HStack(spacing: 0) {
                 Menu {

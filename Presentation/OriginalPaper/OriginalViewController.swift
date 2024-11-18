@@ -28,8 +28,8 @@ final class OriginalViewController: UIViewController {
     var selectionWorkItem: DispatchWorkItem?
     
     
-    let mainPDFView: PDFView = {
-        let view = PDFView()
+    let mainPDFView: CustomPDFView = {
+        let view = CustomPDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
         view.autoScales = false
@@ -52,6 +52,46 @@ final class OriginalViewController: UIViewController {
         self.setGestures()
         self.setBinding()
     }
+    
+    // menu 관련
+    override func buildMenu(with builder: UIMenuBuilder) {
+        super.buildMenu(with: builder)
+        
+        /// web 검색 액션
+        let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
+            if let selectedTextRange = self.mainPDFView.currentSelection?.string {
+                let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                if let url = URL(string: "https://www.google.com/search?q=\(query)") {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        
+        /// 검색 액션을 새로운 메뉴로 추가하기
+        let newMenu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction])
+        builder.insertSibling(newMenu, afterMenu: .standardEdit)
+        
+        /// 모드에 따라 뜨는 메뉴 다르게 설정
+        switch viewModel.toolMode {
+        case .comment, .drawing, .translate:
+            builder.remove(menu: .lookup)
+            builder.remove(menu: .share)
+            builder.remove(menu: newMenu.identifier)
+        default :
+            builder.replaceChildren(ofMenu: .lookup) { elements in
+                return elements.filter { item in
+                    switch (item as? UICommand)?.title.description {
+                        ///translate, lookup 메뉴 들어가게
+                    case "Search Web" :
+                        return true
+                    default:
+                        return false
+                    }
+                }
+            }
+        }
+    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         // 집중모드 데이터 패치
@@ -139,14 +179,7 @@ extension OriginalViewController {
     }
     
     /// 데이터 Binding
-    private func setBinding() {
-        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-        self.viewModel.$toolMode
-            .sink { [weak self] mode in
-                self?.updateGestureRecognizer(for: mode)
-            }
-            .store(in: &cancellable)
-        
+    private func setBinding() {        
         self.pageListViewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
@@ -182,10 +215,18 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
         self.viewModel.$toolMode
             .sink { [weak self] mode in
+                self?.mainPDFView.toolMode = mode
+            }
+            .store(in: &self.cancellable)
+        
+        self.viewModel.$drawingToolMode
+            .sink { [weak self] mode in
+                // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
                 self?.updateGestureRecognizer(for: mode)
+                // toolMode 변경에 따라 canPerformAction 동작하도록
+                self?.mainPDFView.drawingToolMode = mode
             }
             .store(in: &cancellable)
         
@@ -201,21 +242,30 @@ extension OriginalViewController {
         
         // 현재 드래그된 텍스트 가져오는 함수
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
-            .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                
                 switch self.viewModel.toolMode {
-                case .highlight:
-                    DispatchQueue.main.async {
-                        self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+                case .drawing:
+                    switch self.viewModel.drawingToolMode {
+                    case .highlight:
+                        DispatchQueue.main.async {
+                            self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
+                        }
+                    default:
+                        return
                     }
+                    
                 case .translate, .comment:
                     guard let selection = self.mainPDFView.currentSelection else {
                         // 선택된 텍스트가 없을 때 특정 액션
                         self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
-                        self.viewModel.bubbleViewVisible = false                        // 말풍선 뷰 숨김
+                        self.viewModel.isTranslateViewVisible = true                        // 말풍선 뷰 숨김
                         return
                     }
+                    
+                    guard let text = selection.string else { return }
                     
                     self.selectionWorkItem?.cancel()
                     
@@ -245,8 +295,8 @@ extension OriginalViewController {
                             DispatchQueue.main.async {
                                 // ViewModel에 선택된 텍스트와 위치 업데이트
                                 self.viewModel.selectedText = selectedText
-                                self.viewModel.bubbleViewPosition = screenPosition              // 위치 업데이트
-                                self.viewModel.bubbleViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
+                                self.viewModel.translateViewPosition = screenPosition              // 위치 업데이트
+                                self.viewModel.isTranslateViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
                                 
                                 self.viewModel.commentSelection = selection
                                 self.viewModel.commentInputPosition = commentPosition
@@ -258,6 +308,7 @@ extension OriginalViewController {
                     // 텍스트 선택 후 딜레이
                     self.selectionWorkItem = workItem
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+                    
                 default:
                     return
                 }
@@ -296,7 +347,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
     }
     
-    private func updateGestureRecognizer(for mode: ToolMode) {
+    private func updateGestureRecognizer(for mode: DrawingToolMode) {
         // 현재 설정된 제스처 인식기를 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
@@ -304,7 +355,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             }
         }
         
-        // toolMode에 따라 제스처 인식기를 추가
+        // drawingToolMode에 따라 제스처 인식기를 추가
         if mode == .pencil || mode == .eraser {
             let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
             self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
@@ -340,3 +391,32 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
 }
 
+//canPerformAction()으로 menuAction 제한
+class CustomPDFView: PDFView {
+    var toolMode: ToolMode = .none
+    var drawingToolMode: DrawingToolMode = .none
+    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch toolMode {
+        case .comment, .translate:
+            return false
+            
+        case .drawing:
+            switch drawingToolMode {
+            case .highlight:
+                return false
+            default:
+                if action == #selector(copy(_:)) {
+                    return true
+                }
+                return false
+            }
+            
+        default:
+            if action == #selector(copy(_:)) {
+                return true
+            }
+            return false
+        }
+    }
+}

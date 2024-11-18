@@ -50,8 +50,10 @@ extension FocusFigureViewModel {
                 return
             }
             
-            self.figures = result
-            self.figureStatus = .complete
+            DispatchQueue.main.async {
+                self.figures = result
+                self.figureStatus = .complete
+            }
             
         case .failure:
             self.figureStatus = .empty
