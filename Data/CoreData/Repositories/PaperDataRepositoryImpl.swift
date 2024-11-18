@@ -20,7 +20,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         do {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let pdfDataList = fetchedDataList.map { paperData -> PaperInfo in
-                // TODO: - URL 타입 수정
                 
                 return PaperInfo(
                     id: paperData.id,

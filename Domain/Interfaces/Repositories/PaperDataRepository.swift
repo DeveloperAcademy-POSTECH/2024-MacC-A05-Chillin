@@ -9,7 +9,6 @@ import Foundation
 
 protocol PaperDataRepository {
     /// 저장된 PDF 정보를 모두 불러옵니다
-    @discardableResult
     func loadPDFInfo() -> Result<[PaperInfo], Error>
     
     
