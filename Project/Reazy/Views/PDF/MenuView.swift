@@ -20,10 +20,8 @@ struct MenuView: View {
             
             if selectedTab == "개요" {
                 TableView()
-                    .environmentObject(mainPDFViewModel)
             } else {
                 PageView()
-                    .environmentObject(mainPDFViewModel)
             }
         }
     }
