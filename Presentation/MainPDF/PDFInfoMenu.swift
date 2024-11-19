@@ -9,26 +9,27 @@ import SwiftUI
 import PDFKit
 import UIKit
 
+//MARK: - ActivityView
 struct ActivityViewController: UIViewControllerRepresentable {
 
     var activityItems: [Any]
     var applicationActivities: [UIActivity]? = nil
-    let excludedTypes: Array<UIActivity.ActivityType> = [
-        .markupAsPDF
-        ]
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityViewController>) -> UIActivityViewController {
         let controller = UIActivityViewController(
             activityItems: activityItems,
             applicationActivities: applicationActivities
         )
+        
+        // 제외해야할 activityTypes
+        controller.excludedActivityTypes = [.markupAsPDF]
         return controller
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: UIViewControllerRepresentableContext<ActivityViewController>) {}
-
 }
 
+//MARK: - PDFInfoMenu
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
     @State private var isActivityViewPresented = false
@@ -208,17 +209,6 @@ extension PDFInfoMenu {
             dateFormatter.pmSymbol = "오후"
             return dateFormatter.string(from: date)
         }
-    }
-    
-    private func getThumbnail() -> UIImage? {
-        var image: UIImage?
-        if let document = pdfSharedData.document {
-            if let page = document.page(at: 0) {
-                let pageSize = page.bounds(for: .mediaBox).size
-                image = page.thumbnail(of: pageSize, for: .mediaBox)
-            }
-        }
-        return image
     }
 }
 
