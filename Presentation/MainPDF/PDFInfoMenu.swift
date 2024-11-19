@@ -7,55 +7,74 @@
 
 import SwiftUI
 import PDFKit
+import UIKit
+
+struct ActivityViewController: UIViewControllerRepresentable {
+
+    var activityItems: [Any]
+    var applicationActivities: [UIActivity]? = nil
+    let excludedTypes: Array<UIActivity.ActivityType> = [
+        .markupAsPDF
+        ]
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityViewController>) -> UIActivityViewController {
+        let controller = UIActivityViewController(
+            activityItems: activityItems,
+            applicationActivities: applicationActivities
+        )
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: UIViewControllerRepresentableContext<ActivityViewController>) {}
+
+}
 
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
+    @State private var isActivityViewPresented = false
+      
     var body: some View {
         VStack(spacing: 12) {
-            // activity View 뜨는 버튼
             
-            if let document = pdfSharedData.document,
-            let image = getThumbnail() {
-                
-                ShareLink(
-                    item: document,
-                    preview: SharePreview (
-                        "\(pdfSharedData.paperInfo!.title)",
-                        image: image
-                    )
-                ) {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(pdfSharedData.paperInfo!.title)
-                                .multilineTextAlignment(.leading)
-                                .padding(.bottom, 5)
-                                .lineLimit(2)
-                                .reazyFont(.h3)
-                                .foregroundStyle(.gray900)
-                            
-                            Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
-                                .reazyFont(.text2)
-                                .foregroundStyle(.gray600)
-                        }
-                        .padding(.trailing, 10)
+            Button(action: {
+                isActivityViewPresented = true
+            }, label: {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(pdfSharedData.paperInfo!.title)
+                            .multilineTextAlignment(.leading)
+                            .padding(.bottom, 5)
+                            .lineLimit(2)
+                            .reazyFont(.h3)
+                            .foregroundStyle(.gray900)
                         
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 14))
-                            .padding(6)
-                            .foregroundStyle(.gray800)
-                            .background(
-                                Circle()
-                                    .foregroundStyle(.gray300)
-                            )
-                            .padding(6)
+                        Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
+                            .reazyFont(.text2)
+                            .foregroundStyle(.gray600)
                     }
-                    .padding(10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundStyle(.gray100)
-                    )
+                    .padding(.trailing, 10)
+                    
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14))
+                        .padding(6)
+                        .foregroundStyle(.gray800)
+                        .background(
+                            Circle()
+                                .foregroundStyle(.gray300)
+                        )
+                        .padding(6)
                 }
-            }
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .foregroundStyle(.gray100)
+                )
+            })
+            .popover(isPresented: $isActivityViewPresented, content: {
+                if let url = pdfSharedData.document?.documentURL {
+                    ActivityViewController(activityItems: [url])
+                }
+            })
             
             VStack(spacing: 10) {
                 Button(action: {
@@ -169,6 +188,7 @@ struct PDFInfoMenu: View {
 }
 
 extension PDFInfoMenu {
+    // TODO : - 브리 ViewModel 만들때 통합하기
     private func timeAgoString(from date: Date) -> String {
         let calendar = Calendar.current
         
@@ -205,48 +225,4 @@ extension PDFInfoMenu {
 
 #Preview {
     PDFInfoMenu()
-}
-
-extension PDFDocument: @retroactive Transferable {
-    public static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(contentType: .pdf) { pdf in
-            if let data = pdf.dataRepresentation() {
-                return data
-            } else {
-                return Data()
-            }
-        } importing: { data in
-            if let pdf = PDFDocument(data: data) {
-                return pdf
-            } else {
-                return PDFDocument()
-            }
-        }
-        DataRepresentation(exportedContentType: .pdf) { pdf in
-            if let data = pdf.dataRepresentation() {
-                return data
-            } else {
-                return Data()
-            }
-        }
-    }
-}
-
-extension UIImage: @retroactive Transferable {
-    
-    public static var transferRepresentation: some TransferRepresentation {
-        
-        DataRepresentation(exportedContentType: .png) { image in
-            if let pngData = image.pngData() {
-                return pngData
-            } else {
-                // Handle the case where UIImage could not be converted to png.
-                throw ConversionError.failedToConvertToPNG
-            }
-        }
-    }
-    
-    enum ConversionError: Error {
-        case failedToConvertToPNG
-    }
 }
