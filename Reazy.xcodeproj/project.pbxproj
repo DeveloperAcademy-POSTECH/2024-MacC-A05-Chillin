@@ -74,6 +74,7 @@
 		2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */; };
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
+		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -157,6 +158,7 @@
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
+		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -498,6 +500,7 @@
 			children = (
 				2C14741F2CE8FF8E00B35D92 /* ViewModel */,
 				2C1473682CE73B6F00B35D92 /* MainPDFView.swift */,
+				B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */,
 			);
 			path = MainPDF;
 			sourceTree = "<group>";
@@ -767,6 +770,7 @@
 				2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */,
 				2C1473BB2CE73B6F00B35D92 /* SearchView.swift in Sources */,
 				2C1473BC2CE73B6F00B35D92 /* SearchViewModel.swift in Sources */,
+				B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */,
 				2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */,
 				2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */,
 				2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */,
