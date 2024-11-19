@@ -202,7 +202,7 @@ extension CommentViewModel {
             guard let page = convertToPDFPage(pageIndex: selectedComments[0].pages, document: document).first else { return }
             
             var convertedBounds: CGRect = .zero
-            let offset = CGFloat(selectedComments.count) * 50.0
+            let offset = CGFloat(selectedComments.count) * 55.0
             
             if selectedComments.count == 1 {
                 convertedBounds = pdfView.convert(boundForOneComment, from: page)
