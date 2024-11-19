@@ -130,7 +130,6 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isMenuSelected.toggle()
-                                print(isMenuSelected)
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -357,7 +356,6 @@ struct MainPDFView: View {
         .onReceive(publisher) { a in
             if let _ = a.userInfo?["hitted"] as? Bool {
                 isMenuSelected = false
-                print(isMenuSelected)
             }
         }
         

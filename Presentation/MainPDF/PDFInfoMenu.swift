@@ -53,7 +53,8 @@ struct PDFInfoMenu: View {
                             .reazyFont(.text2)
                             .foregroundStyle(.gray600)
                     }
-                    .padding(.trailing, 10)
+                    
+                    Spacer()
                     
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 14))
@@ -65,6 +66,7 @@ struct PDFInfoMenu: View {
                         )
                         .padding(6)
                 }
+                .frame(maxWidth: 266)
                 .padding(10)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
