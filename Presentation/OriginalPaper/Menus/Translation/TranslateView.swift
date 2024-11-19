@@ -73,9 +73,11 @@ struct TranslateView: View {
                     triggerTranslation()
                 }
                 .onChange(of: selectedText) {
-                    isTranslationComplete = false
-                    bubblePositionForScreen(translatePosition, in: geometry.size)
-                    triggerTranslation()
+                    if !selectedText.isEmpty {
+                        isTranslationComplete = false
+                        bubblePositionForScreen(translatePosition, in: geometry.size)
+                        triggerTranslation()
+                    }
                 }
                 .onChange(of: isTranslationComplete) {
                     if isTranslationComplete {
