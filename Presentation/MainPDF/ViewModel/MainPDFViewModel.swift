@@ -17,7 +17,7 @@ final class MainPDFViewModel: ObservableObject {
     @Published var selectedText: String = "" {
         didSet {
             /// 선택된 텍스트가 변경될 때 추가 작업
-            updateBubbleView(selectedText: selectedText, bubblePosition: translateViewPosition)
+            updateTranslationView(selectedText: selectedText, bubblePosition: translateViewPosition)
             
             if isCommentVisible {
                 updateCommentPosition(at: commentInputPosition)
@@ -42,7 +42,6 @@ final class MainPDFViewModel: ObservableObject {
     @Published var isPaperViewFirst: Bool = true
     
     // BubbleView의 상태와 위치
-    @Published var isTranslateViewVisible: Bool = false
     @Published var translateViewPosition: CGRect = .zero
     
     // 하이라이트 색상
@@ -156,23 +155,11 @@ extension MainPDFViewModel {
 // MARK: - 뷰 상호작용 메소드
 
 extension MainPDFViewModel {
-    public var isBubbleViewVisible: Bool {
-        get {
-            self.toolMode == .translate && self.isTranslateViewVisible && !self.selectedText.isEmpty
-        }
-    }
-    
-
-    // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
-    public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
-        
-        // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
+    public func updateTranslationView(selectedText: String, bubblePosition: CGRect) {
+        // 선택된 텍스트가 있을 경우 TranslationView를 보이게 하고 위치를 업데이트
         if !selectedText.isEmpty {
-            isTranslateViewVisible = true
             self.translateViewPosition = bubblePosition
-        } else {
-            isTranslateViewVisible = false
-        }
+        } 
     }
 }
 
