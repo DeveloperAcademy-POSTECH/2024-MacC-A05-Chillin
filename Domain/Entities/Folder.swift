@@ -25,7 +25,7 @@ class Folder {
     var documents: [PaperInfo]?
     
     init(
-        id: UUID = .init(),
+        id: UUID,
         title: String,
         createdAt: Date = Date(),
         color: Color,

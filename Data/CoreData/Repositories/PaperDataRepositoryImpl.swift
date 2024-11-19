@@ -1,5 +1,5 @@
 //
-//  PaperDataService.swift
+//  PaperDataRepositoryImpl.swift
 //  Reazy
 //
 //  Created by 유지수 on 11/6/24.
@@ -107,5 +107,36 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         }
     }
     
-    
+    // 폴더 경로를 변경합니다
+    func moveFolder(pdfID: UUID, folderID: UUID) -> Result<VoidResponse, any Error> {
+        let dataContext = container.viewContext
+        
+        do {
+            let documentFetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+            documentFetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
+            
+            guard let document = try dataContext.fetch(documentFetchRequest).first else {
+                return .failure(NSError(domain: "MoveDocumentError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Document not found"]))
+            }
+            
+            let folderFetchRequest: NSFetchRequest<FolderData> = FolderData.fetchRequest()
+            folderFetchRequest.predicate = NSPredicate(format: "id == %@", folderID as CVarArg)
+            
+            guard let destinationFolder = try dataContext.fetch(folderFetchRequest).first else {
+                return .failure(NSError(domain: "MoveDocumentError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Destination folder not found"]))
+            }
+            
+            if let currentFolder = document.folder {
+                currentFolder.documents?.remove(document)
+            }
+            
+            destinationFolder.documents?.insert(document)
+            document.folder = destinationFolder
+            
+            try dataContext.save()
+            return .success(VoidResponse())
+        } catch {
+            return .failure(error)
+        }
+    }
 }

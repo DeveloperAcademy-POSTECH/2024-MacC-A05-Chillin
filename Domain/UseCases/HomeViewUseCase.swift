@@ -153,6 +153,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     
     public func createFolder(to parentFolder: Folder?, title: String, color: Color) -> Folder {
         let folder = Folder(
+            id: UUID(),
             title: title,
             color: color,
             parentFolder: parentFolder

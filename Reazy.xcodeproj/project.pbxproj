@@ -74,6 +74,7 @@
 		2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */; };
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
+		6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */; };
 		6EBB167B2CEB6005001F9EA0 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB167A2CEB6005001F9EA0 /* Folder.swift */; };
 		6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */; };
 /* End PBXBuildFile section */
@@ -159,6 +160,7 @@
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
+		6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderDataRepository.swift; sourceTree = "<group>"; };
 		6EBB167A2CEB6005001F9EA0 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -170,6 +172,7 @@
 				ButtonGroupDataRepositoryImpl.swift,
 				CommentDataRepositoryImpl.swift,
 				FigureDataRepositoryImpl.swift,
+				FolderDataRepositoryImpl.swift,
 				PaperDataRepositoryImpl.swift,
 			);
 			target = 2C7AE8892CBCF290004098AF /* Reazy */;
@@ -308,6 +311,7 @@
 				2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */,
 				2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */,
 				2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */,
+				6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -762,6 +766,7 @@
 				2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
 				2C1473A42CE73B6F00B35D92 /* PDFInfo.swift in Sources */,
+				6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */,
 				2C1473A62CE73B6F00B35D92 /* TableItem.swift in Sources */,
 				2C1473A72CE73B6F00B35D92 /* NetworkManager + Error.swift in Sources */,
 				2C1473A82CE73B6F00B35D92 /* NetworkManager + Grobid.swift in Sources */,

@@ -1,5 +1,5 @@
 //
-//  CommentDataService.swift
+//  CommentDataRepositoryImpl.swift
 //  Reazy
 //
 //  Created by 유지수 on 11/11/24.
