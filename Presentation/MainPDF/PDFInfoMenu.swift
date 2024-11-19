@@ -8,20 +8,22 @@
 import SwiftUI
 
 struct PDFInfoMenu: View {
+    private let pdfSharedData: PDFSharedData = .shared
     var body: some View {
-        VStack {
+        VStack(spacing: 12) {
             Button(action: {
-                
+                // 공유 액션
             }, label: {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Microplastics impair extracellular \nenzymatic activities and organic \nmatter cycling in oligotrophic sandy marine sediments")
+                        Text(pdfSharedData.paperInfo!.title)
+                            .multilineTextAlignment(.leading)
+                            .padding(.bottom, 5)
                             .lineLimit(2)
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)
-                            .padding(.bottom, 5)
-                        
-                        Text("마지막 수정 : 오늘 오후 07:23")
+                            
+                        Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
                             .reazyFont(.text2)
                             .foregroundStyle(.gray600)
                     }
@@ -155,6 +157,30 @@ struct PDFInfoMenu: View {
         )
     }
 }
+
+extension PDFInfoMenu {
+    private func timeAgoString(from date: Date) -> String {
+        let calendar = Calendar.current
+        
+        if calendar.isDateInToday(date) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "오늘 HH:mm"
+            return dateFormatter.string(from: date)
+        } else if calendar.isDateInYesterday(date) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "어제 HH:mm"
+            return dateFormatter.string(from: date)
+        } else {
+            // 이틀 전 이상의 날짜 포맷으로 반환
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy. MM. dd. a h:mm"
+            dateFormatter.amSymbol = "오전"
+            dateFormatter.pmSymbol = "오후"
+            return dateFormatter.string(from: date)
+        }
+    }
+}
+
 
 #Preview {
     PDFInfoMenu()
