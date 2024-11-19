@@ -6,14 +6,14 @@
 //
 
 import SwiftUI
+import PDFKit
 
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
     var body: some View {
         VStack(spacing: 12) {
-            Button(action: {
-                // 공유 액션
-            }, label: {
+            // activity View 뜨는 버튼
+            ShareLink(item: pdfSharedData.document!, preview: SharePreview("\(pdfSharedData.paperInfo!.title)", image: pdfSharedData.paperInfo!.thumbnail)) {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(pdfSharedData.paperInfo!.title)
@@ -22,7 +22,7 @@ struct PDFInfoMenu: View {
                             .lineLimit(2)
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)
-                            
+                        
                         Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
                             .reazyFont(.text2)
                             .foregroundStyle(.gray600)
@@ -38,14 +38,13 @@ struct PDFInfoMenu: View {
                                 .foregroundStyle(.gray300)
                         )
                         .padding(6)
-
                 }
                 .padding(10)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .foregroundStyle(.gray100)
                 )
-            })
+            }
             
             VStack(spacing: 10) {
                 Button(action: {
@@ -184,4 +183,29 @@ extension PDFInfoMenu {
 
 #Preview {
     PDFInfoMenu()
+}
+
+extension PDFDocument: @retroactive Transferable {
+    public static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(contentType: .pdf) { pdf in
+            if let data = pdf.dataRepresentation() {
+                return data
+            } else {
+                return Data()
+            }
+        } importing: { data in
+            if let pdf = PDFDocument(data: data) {
+                return pdf
+            } else {
+                return PDFDocument()
+            }
+        }
+        DataRepresentation(exportedContentType: .pdf) { pdf in
+            if let data = pdf.dataRepresentation() {
+                return data
+            } else {
+                return Data()
+            }
+        }
+    }
 }
