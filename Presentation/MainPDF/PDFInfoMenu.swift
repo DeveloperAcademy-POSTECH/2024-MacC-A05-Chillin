@@ -13,43 +13,48 @@ struct PDFInfoMenu: View {
     var body: some View {
         VStack(spacing: 12) {
             // activity View 뜨는 버튼
-            ShareLink(
-                item: pdfSharedData.document!,
-                preview: SharePreview (
-                    "\(pdfSharedData.paperInfo!.title)",
-                    image: getThumbnail()!
-                )
-            ) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(pdfSharedData.paperInfo!.title)
-                            .multilineTextAlignment(.leading)
-                            .padding(.bottom, 5)
-                            .lineLimit(2)
-                            .reazyFont(.h3)
-                            .foregroundStyle(.gray900)
+            
+            if let document = pdfSharedData.document,
+            let image = getThumbnail() {
+                
+                ShareLink(
+                    item: document,
+                    preview: SharePreview (
+                        "\(pdfSharedData.paperInfo!.title)",
+                        image: image
+                    )
+                ) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(pdfSharedData.paperInfo!.title)
+                                .multilineTextAlignment(.leading)
+                                .padding(.bottom, 5)
+                                .lineLimit(2)
+                                .reazyFont(.h3)
+                                .foregroundStyle(.gray900)
+                            
+                            Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
+                                .reazyFont(.text2)
+                                .foregroundStyle(.gray600)
+                        }
+                        .padding(.trailing, 10)
                         
-                        Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
-                            .reazyFont(.text2)
-                            .foregroundStyle(.gray600)
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 14))
+                            .padding(6)
+                            .foregroundStyle(.gray800)
+                            .background(
+                                Circle()
+                                    .foregroundStyle(.gray300)
+                            )
+                            .padding(6)
                     }
-                    .padding(.trailing, 10)
-                    
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 14))
-                        .padding(6)
-                        .foregroundStyle(.gray800)
-                        .background(
-                            Circle()
-                                .foregroundStyle(.gray300)
-                        )
-                        .padding(6)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                    )
                 }
-                .padding(10)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .foregroundStyle(.gray100)
-                )
             }
             
             VStack(spacing: 10) {
