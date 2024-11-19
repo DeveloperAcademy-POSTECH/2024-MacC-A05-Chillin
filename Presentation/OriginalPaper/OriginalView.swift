@@ -37,9 +37,7 @@ struct OriginalView: View {
                 // 번역에 사용되는 말풍선뷰
                 if viewModel.toolMode == .translate {
                     if #available(iOS 18.0, *) {
-//                        if viewModel.isTranslateViewVisible {
-                            TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
-//                        }
+                        TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
                     } else {
                         
                     }
