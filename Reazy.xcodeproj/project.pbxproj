@@ -75,7 +75,7 @@
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
 		6EBB167B2CEB6005001F9EA0 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB167A2CEB6005001F9EA0 /* Folder.swift */; };
-		6EBB16812CEB81D9001F9EA0 /* PaperListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB16802CEB81D9001F9EA0 /* PaperListViewModel.swift */; };
+		6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,7 +160,7 @@
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 		6EBB167A2CEB6005001F9EA0 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
-		6EBB16802CEB81D9001F9EA0 /* PaperListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListViewModel.swift; sourceTree = "<group>"; };
+		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -527,6 +527,7 @@
 				2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */,
 				2C14732C2CE73B6F00B35D92 /* TableItem.swift */,
 				6EBB167A2CEB6005001F9EA0 /* Folder.swift */,
+				6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -605,7 +606,6 @@
 			children = (
 				2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */,
 				2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */,
-				6EBB16802CEB81D9001F9EA0 /* PaperListViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -757,7 +757,7 @@
 				2C14739F2CE73B6F00B35D92 /* Comment.swift in Sources */,
 				2C1473A02CE73B6F00B35D92 /* DrawingData.swift in Sources */,
 				2C1473A12CE73B6F00B35D92 /* FigureAnnotation.swift in Sources */,
-				6EBB16812CEB81D9001F9EA0 /* PaperListViewModel.swift in Sources */,
+				6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */,
 				2C1473A22CE73B6F00B35D92 /* FocusAnnotation.swift in Sources */,
 				2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,

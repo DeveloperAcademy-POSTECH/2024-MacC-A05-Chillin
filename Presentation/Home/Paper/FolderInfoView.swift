@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Folder 이미지가 생길 경우 PaperInfoView와 통합할 수 있음
 struct FolderInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
@@ -202,10 +203,9 @@ struct FolderInfoView: View {
     private func actionButton() -> some View {
         Button(action: {
             onNavigate()
-
         }) {
             HStack(spacing: 0) {
-                Text("읽기 ")
+                Text("열기 ")
                 Image(systemName: "arrow.up.right")
             }
             .foregroundStyle(.gray100)

@@ -26,7 +26,7 @@ protocol HomeViewUseCase {
     func uploadSamplePDFFile() -> PaperInfo?
     
     @discardableResult
-    func saveFolder(title: String, color: Color) -> Folder
+    func createFolder(to parentFolder: Folder?, title: String, color: Color) -> Folder
 }
 
 
@@ -151,10 +151,11 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         }
     }
     
-    public func saveFolder(title: String, color: Color) -> Folder {
+    public func createFolder(to parentFolder: Folder?, title: String, color: Color) -> Folder {
         let folder = Folder(
             title: title,
-            color: color
+            color: color,
+            parentFolder: parentFolder
         )
         
         return folder

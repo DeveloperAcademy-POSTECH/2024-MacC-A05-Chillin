@@ -34,7 +34,7 @@ struct HomeView: View {
     @State private var isEditingMemo: Bool = false
     @State private var isEditingFolder: Bool = false
     
-    @State private var isFavoritesSelected: Bool = false
+    @State private var isFavoriteSelected: Bool = false
     
     var body: some View {
         ZStack {
@@ -53,11 +53,11 @@ struct HomeView: View {
                             .padding(.trailing, 36)
                         
                         Button(action: {
-                            isFavoritesSelected = false
+                            isFavoriteSelected = false
                         }) {
                             Text("전체")
-                                .reazyFont(isFavoritesSelected ? .text1 : .button1)
-                                .foregroundStyle(isFavoritesSelected ? .gray600 : .gray100)
+                                .reazyFont(isFavoriteSelected ? .text1 : .button1)
+                                .foregroundStyle(isFavoriteSelected ? .gray600 : .gray100)
                         }
                         
                         Rectangle()
@@ -66,11 +66,11 @@ struct HomeView: View {
                             .padding(.horizontal, 14)
                         
                         Button(action: {
-                            isFavoritesSelected = true
+                            isFavoriteSelected = true
                         }) {
                             Text("즐겨찾기")
-                                .reazyFont(isFavoritesSelected ? .button1 : .text1)
-                                .foregroundStyle(isFavoritesSelected ? .gray100 : .gray600)
+                                .reazyFont(isFavoriteSelected ? .button1 : .text1)
+                                .foregroundStyle(isFavoriteSelected ? .gray100 : .gray600)
                         }
                         
                         Spacer()
@@ -109,7 +109,7 @@ struct HomeView: View {
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText,
-                    isFavoritesSelected: $isFavoritesSelected
+                    isFavoriteSelected: $isFavoriteSelected
                 )
             }
             .blur(radius: isEditingTitle || isEditingMemo || isEditingFolder ? 20 : 0)
@@ -468,7 +468,12 @@ private struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        homeViewModel.saveFolder(title: text, color: selectedColors.color)
+                        // 최상위 단계와 폴더 진입 단계 구분
+                        if homeViewModel.isAtRoot {
+                            homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.color)
+                        } else {
+                            homeViewModel.saveFolder(to: homeViewModel.currentFolder, title: text, color: selectedColors.color)
+                        }
                         isEditingFolder.toggle()
                     }) {
                         RoundedRectangle(cornerRadius: 20)

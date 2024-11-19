@@ -11,7 +11,13 @@ import SwiftUI
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
-    @Published public var folders: [Folder] = []
+    
+    @Published public var rootFolders: [Folder] = []
+    @Published public var currentFolder: Folder? = nil
+    public var isAtRoot: Bool {
+        return currentFolder == nil
+    }
+    
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
     
@@ -136,9 +142,58 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    public func saveFolder(title: String, color: Color) {
+    func filteringList(isFavoriteSelected: Bool) -> [FileSystemItem] {
+        let currentFolders = currentFolder?.subFolders ?? rootFolders
+        return isFavoriteSelected
+        ? sortFavoriteLists(paperInfos: paperInfos, folders: currentFolders)
+        : sortLists(paperInfos: paperInfos, folders: currentFolders)
+    }
+    
+    /// 전체 리스트
+    func sortLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
+        // PaperInfo와 Folder를 FileSystemItem으로 변환
+        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
+        let folderItems = folders.map { FileSystemItem.folder($0) }
+        
+        // 두 리스트를 합치고 날짜 순서대로 정렬
+        let combinedItems = paperItems + folderItems
+        return combinedItems.sorted(by: { $0.date > $1.date })
+    }
+    
+    /// 즐겨찾기 리스트
+    func sortFavoriteLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
+        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
+        let folderItems = folders.map { FileSystemItem.folder($0) }
+        
+        let combinedItems = paperItems + folderItems
+        return combinedItems.filter { $0.isFavorite }.sorted(by: { $0.date > $1.date })
+    }
+}
+
+extension HomeViewModel {
+    public func saveFolder(to parentFolder: Folder?, title: String, color: Color) {
         // TODO: - [브리] CoreData 연결 시 수정 필요
-        let newFolder = self.homeViewUseCase.saveFolder(title: title, color: color)
-        self.folders.append(newFolder)
+        let newFolder = self.homeViewUseCase.createFolder(to: parentFolder, title: title, color: color)
+        
+        if let parent = parentFolder {
+            if parent.subFolders == nil {
+                parent.subFolders = []
+            }
+            parent.subFolders?.append(newFolder)
+        } else {
+            rootFolders.append(newFolder)
+        }
+    }
+    
+    public func navigateToParent() {
+        if let parent = currentFolder?.parentFolder {
+            currentFolder = parent
+        } else {
+            currentFolder = nil
+        }
+    }
+    
+    public func navigateTo(folder: Folder) {
+        currentFolder = folder
     }
 }

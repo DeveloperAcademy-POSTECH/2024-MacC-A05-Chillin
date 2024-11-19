@@ -11,7 +11,6 @@ import Combine
 struct PaperListView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
-    @StateObject private var paperListViewModel: PaperListViewModel = .init()
     
     @Binding var selectedItemID: UUID?
     @Binding var selectedItems: Set<Int>
@@ -22,38 +21,60 @@ struct PaperListView: View {
     @Binding var isEditingTitle: Bool
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
-    
-    @Binding var isFavoritesSelected: Bool
+    @Binding var isFavoriteSelected: Bool
     
     @State private var keyboardHeight: CGFloat = 0
     
     @State private var timerCancellable: Cancellable?
     
-    var filteredLists: [FileSystemItem] {
-        let lists = isFavoritesSelected
-        ? paperListViewModel.sortFavoriteLists(paperInfos: homeViewModel.paperInfos, folders: homeViewModel.folders)
-        : paperListViewModel.sortLists(paperInfos: homeViewModel.paperInfos, folders: homeViewModel.folders)
-        return lists
-    }
-    
     @State private var isIPadMini: Bool = false
     @State private var isVertical = false
     
+    var filteredLists: [FileSystemItem] {
+        return homeViewModel.filteringList(isFavoriteSelected: isFavoriteSelected)
+    }
+    
     var body: some View {
-        // 화면 비율에 따라서 리스트 크기 설정 (반응형 UI)
         GeometryReader { geometry in
             HStack(spacing: 0) {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
+                        // 최상위 폴더가 아닐 경우에 등장
+                        if !homeViewModel.isAtRoot {
+                            Button(action: {
+                                homeViewModel.navigateToParent()
+                            }) {
+                                HStack(spacing: 0) {
+                                    Image(systemName: "chevron.left")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(.primary1)
+                                        .padding(.trailing, 7)
+                                    
+                                    Text(homeViewModel.currentFolder?.parentFolder?.title ?? "전체")
+                                        .reazyFont(.h2)
+                                        .foregroundStyle(.primary1)
+                                }
+                            }
+                        }
                         Spacer()
                         
-                        Text("전체")
+                        Text((homeViewModel.isAtRoot ? "전체" : homeViewModel.currentFolder?.title) ?? "새 폴더")
                             .reazyFont(.text3)
                             .foregroundStyle(.primary1)
                         
                         Spacer()
+                        if !homeViewModel.isAtRoot {
+                            Button(action: {
+                                // TODO: - [브리] 폴더 즐겨찾기 버튼 액션
+                            }) {
+                                Image(systemName: "star")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(.primary1)
+                            }
+                        }
                     }
                     .padding(.vertical, 14)
+                    .padding(.horizontal, 20)
                     
                     Divider()
                     
@@ -76,7 +97,7 @@ struct PaperListView: View {
                                 .scaledToFit()
                                 .frame(height: 146)
                                 .padding(.bottom, 11)
-                            Text(isFavoritesSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
+                            Text(isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray550)
                                 .padding(.bottom, 80)
@@ -134,7 +155,7 @@ struct PaperListView: View {
                                             onSelect: {
                                                 if !isEditing && !isNavigationPushed {
                                                     if selectedItemID == folder.id {
-                                                        // TODO: - 추가 필요
+                                                        homeViewModel.navigateTo(folder: folder)
                                                     } else {
                                                         selectedItemID = folder.id
                                                     }
@@ -217,7 +238,7 @@ struct PaperListView: View {
                                     isEditingTitle: $isEditingTitle,
                                     isEditingMemo: $isEditingMemo,
                                     onNavigate: {
-                                        // TODO: - [브리] Folder navigate 코드 작성
+                                        homeViewModel.navigateTo(folder: folder)
                                     },
                                     onDelete: {
                                         // TODO: - [브리] Folder 삭제 코드 작성

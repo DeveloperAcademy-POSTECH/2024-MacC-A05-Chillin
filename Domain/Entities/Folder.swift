@@ -31,9 +31,9 @@ class Folder {
         color: Color,
         memo: String? = nil,
         isFavorite: Bool = false,
-        parentFolder: Folder? = nil,
-        subFolders: [Folder]? = nil,
-        documents: [PaperInfo]? = nil
+        parentFolder: Folder?,
+        subFolders: [Folder] = [],
+        documents: [PaperInfo] = []
     ) {
         self.id = id
         self.title = title
