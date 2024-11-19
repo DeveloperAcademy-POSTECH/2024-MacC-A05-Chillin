@@ -10,5 +10,5 @@ import Foundation
 
 enum PDFUploadError: Error {
     case failedToAccessingSecurityScope
-    case invalidURL
+    case fileNameDuplication
 }
