@@ -13,7 +13,13 @@ struct PDFInfoMenu: View {
     var body: some View {
         VStack(spacing: 12) {
             // activity View 뜨는 버튼
-            ShareLink(item: pdfSharedData.document!, preview: SharePreview("\(pdfSharedData.paperInfo!.title)", image: pdfSharedData.paperInfo!.thumbnail)) {
+            ShareLink(
+                item: pdfSharedData.document!,
+                preview: SharePreview (
+                    "\(pdfSharedData.paperInfo!.title)",
+                    image: getThumbnail()!
+                )
+            ) {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(pdfSharedData.paperInfo!.title)
@@ -48,7 +54,7 @@ struct PDFInfoMenu: View {
             
             VStack(spacing: 10) {
                 Button(action: {
-                    // 제목 수정 action
+                    // TODO : 제목 수정 action
                     
                 }, label: {
                     HStack{
@@ -68,7 +74,7 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // 논문에 메모 action
+                    // TODO : 논문에 메모 action
                     
                 }, label: {
                     HStack{
@@ -87,7 +93,7 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // 즐겨찾기 action
+                    // TODO : 즐겨찾기 action
                     
                 }, label: {
                     HStack{
@@ -106,7 +112,7 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // 이동 action
+                    // TODO : 이동 action
                     
                 }, label: {
                     HStack{
@@ -125,7 +131,7 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // 삭제 action
+                    // TODO : 삭제 action
                     
                 }, label: {
                     HStack{
@@ -178,6 +184,17 @@ extension PDFInfoMenu {
             return dateFormatter.string(from: date)
         }
     }
+    
+    private func getThumbnail() -> UIImage? {
+        var image: UIImage?
+        if let document = pdfSharedData.document {
+            if let page = document.page(at: 0) {
+                let pageSize = page.bounds(for: .mediaBox).size
+                image = page.thumbnail(of: pageSize, for: .mediaBox)
+            }
+        }
+        return image
+    }
 }
 
 
@@ -207,5 +224,24 @@ extension PDFDocument: @retroactive Transferable {
                 return Data()
             }
         }
+    }
+}
+
+extension UIImage: @retroactive Transferable {
+    
+    public static var transferRepresentation: some TransferRepresentation {
+        
+        DataRepresentation(exportedContentType: .png) { image in
+            if let pngData = image.pngData() {
+                return pngData
+            } else {
+                // Handle the case where UIImage could not be converted to png.
+                throw ConversionError.failedToConvertToPNG
+            }
+        }
+    }
+    
+    enum ConversionError: Error {
+        case failedToConvertToPNG
     }
 }
