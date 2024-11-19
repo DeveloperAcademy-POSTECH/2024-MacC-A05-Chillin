@@ -18,7 +18,7 @@ struct HomeView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State var selectedMenu: Options = .main
-    @State var selectedPaperID: UUID?
+    @State var selectedItemID: UUID?
     
     // 검색 모드 search text
     @State private var searchText: String = ""
@@ -58,7 +58,7 @@ struct HomeView: View {
                                 isSearching: $isSearching,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
-                                selectedPaperID: $selectedPaperID,
+                                selectedItemID: $selectedItemID,
                                 isEditingFolder: $isEditingFolder)
                             
                         case .search:
@@ -78,7 +78,7 @@ struct HomeView: View {
                 .frame(height: 80)
                 
                 PaperListView(
-                    selectedPaperID: $selectedPaperID,
+                    selectedItemID: $selectedItemID,
                     selectedItems: $selectedItems,
                     isEditing: $isEditing,
                     isSearching: $isSearching,
@@ -99,7 +99,7 @@ struct HomeView: View {
                 RenamePaperTitleView(
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
-                    paperInfo: homeViewModel.paperInfos.first { $0.id == selectedPaperID! }!)
+                    paperInfo: homeViewModel.paperInfos.first { $0.id == selectedItemID! }!)
             }
             
             if isEditingFolder {
@@ -133,7 +133,7 @@ private struct MainMenuView: View {
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
     @Binding var selectedItems: Set<Int>
-    @Binding var selectedPaperID: UUID?
+    @Binding var selectedItemID: UUID?
     @Binding var isEditingFolder: Bool
     
     var body: some View {
@@ -216,7 +216,7 @@ private struct MainMenuView: View {
         switch result {
         case .success(let url):
             if let newPaperID = homeViewModel.uploadPDF(url: url) {
-                selectedPaperID = newPaperID
+                selectedItemID = newPaperID
             }
         case .failure(let error):
             print(String(describing: error))
@@ -466,9 +466,10 @@ private struct FolderView: View {
                     .frame(width: 206, height: 206)
                     .foregroundStyle(selectedColors.color)
                     .overlay(
-                        Image(systemName: "folder.fill")
-                            .font(.system(size: 88))
-                            .foregroundStyle(.gray300)
+                        Image("folder")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 105)
                     )
                     .padding(.trailing, 54)
                 

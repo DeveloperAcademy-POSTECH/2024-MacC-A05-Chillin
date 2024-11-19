@@ -13,7 +13,7 @@ struct PaperListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @StateObject private var paperListViewModel: PaperListViewModel = .init()
     
-    @Binding var selectedPaperID: UUID?
+    @Binding var selectedItemID: UUID?
     @Binding var selectedItems: Set<Int>
     @State private var isFavoritesSelected: Bool = false
     @State private var isNavigationPushed: Bool = false
@@ -134,19 +134,21 @@ struct PaperListView: View {
                                         // 논문 추가
                                         case .paper(let paperInfo):
                                             PaperListCell(
+                                                isPaper: true,
                                                 title: paperInfo.title,
                                                 date: timeAgoString(from: paperInfo.lastModifiedDate),
-                                                isSelected: selectedPaperID == paperInfo.id,
+                                                color: .gray500,
+                                                isSelected: selectedItemID == paperInfo.id,
                                                 isEditing: isEditing,
                                                 isEditingSelected: selectedItems.contains(index),
                                                 onSelect: {
                                                     if !isEditing && !isNavigationPushed {
-                                                        if selectedPaperID == paperInfo.id {
+                                                        if selectedItemID == paperInfo.id {
                                                             self.isNavigationPushed = true
                                                             navigateToPaper()
                                                             homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
                                                         } else {
-                                                            selectedPaperID = paperInfo.id
+                                                            selectedItemID = paperInfo.id
                                                         }
                                                     }
                                                 },
@@ -163,15 +165,22 @@ struct PaperListView: View {
                                             
                                         // 폴더 추가
                                         case .folder(let folder):
-                                            FolderListCell(
+                                            PaperListCell(
+                                                isPaper: false,
                                                 title: folder.title,
-                                                createdAt: timeAgoString(from: folder.createdAt),
+                                                date: timeAgoString(from: folder.createdAt),
                                                 color: folder.color,
-                                                isSelected: false, // TODO: - [브리] 수정 필요
+                                                isSelected: selectedItemID == folder.id,
                                                 isEditing: isEditing,
                                                 isEditingSelected: selectedItems.contains(index),
                                                 onSelect: {
-                                                    // TODO: - [브리] 폴더 선택 액션 추가
+                                                    if !isEditing && !isNavigationPushed {
+                                                        if selectedItemID == folder.id {
+                                                            // TODO: - 추가 필요
+                                                        } else {
+                                                            selectedItemID = folder.id
+                                                        }
+                                                    }
                                                 },
                                                 onEditingSelect: {
                                                     if isEditing {
@@ -213,32 +222,80 @@ struct PaperListView: View {
                         .foregroundStyle(.primary3)
                     
                     VStack(spacing: 0) {
-                        if !filteredPaperInfos.isEmpty,
-                           let selectedPaperIndex = filteredPaperInfos.firstIndex(where: { $0.id == selectedPaperID }) {
-                            PaperInfoView(
-                                id: filteredPaperInfos[selectedPaperIndex].id,
-                                image: filteredPaperInfos[selectedPaperIndex].thumbnail,
-                                title: filteredPaperInfos[selectedPaperIndex].title,
-                                memo: filteredPaperInfos[selectedPaperIndex].memo,
-                                isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
-                                isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
-                                isEditingTitle: $isEditingTitle,
-                                isEditingMemo: $isEditingMemo,
-                                onNavigate: {
-                                    if !isEditing && !isNavigationPushed {
-                                        self.isNavigationPushed = true
-                                        navigateToPaper()
+                        if !filteredLists.isEmpty,
+                           let selectedItem = filteredLists.first(where: { $0.id == selectedItemID }) {
+                            switch selectedItem {
+                            case .paper(let paperInfo):
+                                PaperInfoView(
+                                    id: paperInfo.id,
+                                    image: paperInfo.thumbnail,
+                                    title: paperInfo.title,
+                                    memo: paperInfo.memo,
+                                    isFavorite: paperInfo.isFavorite,
+                                    isStarSelected: paperInfo.isFavorite,
+                                    isEditingTitle: $isEditingTitle,
+                                    isEditingMemo: $isEditingMemo,
+                                    onNavigate: {
+                                        if !isEditing && !isNavigationPushed {
+                                            self.isNavigationPushed = true
+                                            navigateToPaper()
+                                        }
+                                    },
+                                    onDelete: {
+                                        if filteredLists.isEmpty {
+                                            selectedItemID = nil
+                                        } else {
+                                            selectedItemID = filteredLists.first?.id
+                                        }
                                     }
-                                },
-                                onDelete: {
-                                    if filteredPaperInfos.isEmpty {
-                                        selectedPaperID = nil
-                                    } else {
-                                        selectedPaperID = filteredPaperInfos.first?.id
+                                )
+                                
+                            case .folder(let folder):
+                                FolderInfoView(
+                                    id: folder.id,
+                                    title: folder.title,
+                                    color: folder.color,
+                                    memo: folder.memo,
+                                    isFavorite: folder.isFavorite,
+                                    isStarSelected: folder.isFavorite,
+                                    isEditingTitle: $isEditingTitle,
+                                    isEditingMemo: $isEditingMemo,
+                                    onNavigate: {
+                                        // TODO: - [브리] Folder navigate 코드 작성
+                                    },
+                                    onDelete: {
+                                        // TODO: - [브리] Folder 삭제 코드 작성
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
+                        
+//                        if !filteredPaperInfos.isEmpty,
+//                           let selectedPaperIndex = filteredPaperInfos.firstIndex(where: { $0.id == selectedItemID }) {
+//                            PaperInfoView(
+//                                id: filteredPaperInfos[selectedPaperIndex].id,
+//                                image: filteredPaperInfos[selectedPaperIndex].thumbnail,
+//                                title: filteredPaperInfos[selectedPaperIndex].title,
+//                                memo: filteredPaperInfos[selectedPaperIndex].memo,
+//                                isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
+//                                isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
+//                                isEditingTitle: $isEditingTitle,
+//                                isEditingMemo: $isEditingMemo,
+//                                onNavigate: {
+//                                    if !isEditing && !isNavigationPushed {
+//                                        self.isNavigationPushed = true
+//                                        navigateToPaper()
+//                                    }
+//                                },
+//                                onDelete: {
+//                                    if filteredPaperInfos.isEmpty {
+//                                        selectedItemID = nil
+//                                    } else {
+//                                        selectedItemID = filteredPaperInfos.first?.id
+//                                    }
+//                                }
+//                            )
+//                        }
                     }
                     .animation(.easeInOut, value: isEditing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -255,7 +312,7 @@ struct PaperListView: View {
                 }
             }
             .onAppear {
-                initializeSelectedPaperID()
+                initializeSelectedItemID()
                 detectIPadMini()
                 updateOrientation(with: geometry)
                 
@@ -279,8 +336,8 @@ struct PaperListView: View {
                 NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
                 self.isNavigationPushed = false
             }
-            .onChange(of: selectedPaperID) {
-                initializeSelectedPaperID()
+            .onChange(of: selectedItemID) {
+                initializeSelectedItemID()
             }
             .onChange(of: geometry.size) {
                 detectIPadMini()
@@ -295,7 +352,7 @@ struct PaperListView: View {
 
 extension PaperListView {
     private func navigateToPaper() {
-        guard let selectedPaperID = selectedPaperID,
+        guard let selectedPaperID = selectedItemID,
               let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == selectedPaperID }) else {
             return
         }
@@ -329,14 +386,14 @@ extension PaperListView {
         }
     }
     
-    private func initializeSelectedPaperID() {
+    private func initializeSelectedItemID() {
         let filteredPaperInfos =
         isFavoritesSelected
         ? homeViewModel.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         : homeViewModel.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         
-        if selectedPaperID == nil, let firstPaper = filteredPaperInfos.first {
-            selectedPaperID = firstPaper.id
+        if selectedItemID == nil, let firstPaper = filteredPaperInfos.first {
+            selectedItemID = firstPaper.id
         }
         
         homeViewModel.paperInfos = filteredPaperInfos

@@ -1,18 +1,18 @@
 //
-//  PaperInfoView.swift
+//  FolderInfoView.swift
 //  Reazy
 //
-//  Created by 유지수 on 10/18/24.
+//  Created by 유지수 on 11/19/24.
 //
 
 import SwiftUI
 
-struct PaperInfoView: View {
+struct FolderInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     let id: UUID
-    let image: Data
     let title: String
+    let color: Color
     @State var memo: String?
     var isFavorite: Bool
     
@@ -28,10 +28,21 @@ struct PaperInfoView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Image(uiImage: .init(data: image) ?? .init(resource: .testThumbnail))
-                .resizable()
-                .scaledToFit()
-                .padding(.horizontal, 30)
+            // TODO: - [브리] 이미지 수정 필요
+            RoundedRectangle(cornerRadius: 12)
+                .frame(width: 295, height: 378)
+                .foregroundStyle(.primary2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 32)
+                        .frame(width: 135, height: 135)
+                        .foregroundStyle(color)
+                        .overlay(
+                            Image("folder")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 69)
+                        )
+                )
             
             HStack(spacing: 0) {
                 Text(title)
@@ -62,7 +73,6 @@ struct PaperInfoView: View {
                 
                 Button(action: {
                     isStarSelected.toggle()
-                    homeViewModel.updateFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -115,7 +125,6 @@ struct PaperInfoView: View {
                             }
                             
                             Button("삭제", systemImage: "trash", role: .destructive) {
-                                self.homeViewModel.deleteMemo(at: id)
                                 self.memo = nil
                             }
                             
@@ -178,27 +187,6 @@ struct PaperInfoView: View {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
         }
-        .onChange(of: self.id) {
-            let paperInfo = homeViewModel.paperInfos.first { $0.id == self.id }!
-            self.memo = paperInfo.memo
-        }
-        .onChange(of: self.homeViewModel.memoText) {
-            self.memo = self.homeViewModel.memoText
-        }
-        .onChange(of: self.isEditingMemo) {
-            self.homeViewModel.memoText = memo!
-        }
-        .alert(isPresented: $isDeleteConfirm) {
-            Alert(
-                title: Text("정말 삭제하시겠습니까?"),
-                message: Text("삭제된 파일은 복구할 수 없습니다."),
-                primaryButton: .destructive(Text("삭제")) {
-                    let ids = [id]
-                    self.homeViewModel.deletePDF(ids: ids)
-                    onDelete()
-                },
-                secondaryButton: .default(Text("취소")))
-        }
     }
     
     @ViewBuilder
@@ -214,7 +202,7 @@ struct PaperInfoView: View {
     private func actionButton() -> some View {
         Button(action: {
             onNavigate()
-            homeViewModel.updateLastModifiedDate(at: id, lastModifiedDate: .init())
+
         }) {
             HStack(spacing: 0) {
                 Text("읽기 ")
@@ -245,10 +233,10 @@ struct PaperInfoView: View {
 
 
 #Preview {
-    PaperInfoView(
+    FolderInfoView(
         id: .init(),
-        image: .init(),
-        title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
+        title: "테스트",
+        color: .primary1,
         memo: "",
         isFavorite: false,
         isStarSelected: false,
