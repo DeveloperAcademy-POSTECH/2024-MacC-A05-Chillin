@@ -34,6 +34,8 @@ struct HomeView: View {
     @State private var isEditingMemo: Bool = false
     @State private var isEditingFolder: Bool = false
     
+    @State private var isFavoritesSelected: Bool = false
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -45,9 +47,31 @@ struct HomeView: View {
                         Image("icon")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 54, height: 50)
+                            .frame(width: 62, height: 50)
                             .padding(.vertical, 31)
                             .padding(.leading, 28)
+                            .padding(.trailing, 36)
+                        
+                        Button(action: {
+                            isFavoritesSelected = false
+                        }) {
+                            Text("전체")
+                                .reazyFont(isFavoritesSelected ? .text1 : .button1)
+                                .foregroundStyle(isFavoritesSelected ? .gray600 : .gray100)
+                        }
+                        
+                        Rectangle()
+                            .frame(width: 1, height: 16)
+                            .foregroundStyle(.gray700)
+                            .padding(.horizontal, 14)
+                        
+                        Button(action: {
+                            isFavoritesSelected = true
+                        }) {
+                            Text("즐겨찾기")
+                                .reazyFont(isFavoritesSelected ? .button1 : .text1)
+                                .foregroundStyle(isFavoritesSelected ? .gray100 : .gray600)
+                        }
                         
                         Spacer()
                         
@@ -84,7 +108,8 @@ struct HomeView: View {
                     isSearching: $isSearching,
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
-                    searchText: $searchText
+                    searchText: $searchText,
+                    isFavoritesSelected: $isFavoritesSelected
                 )
             }
             .blur(radius: isEditingTitle || isEditingMemo || isEditingFolder ? 20 : 0)
@@ -132,6 +157,7 @@ private struct MainMenuView: View {
     @Binding var selectedMenu: Options
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
+    
     @Binding var selectedItems: Set<Int>
     @Binding var selectedItemID: UUID?
     @Binding var isEditingFolder: Bool

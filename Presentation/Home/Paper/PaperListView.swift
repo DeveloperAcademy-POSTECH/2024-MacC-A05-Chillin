@@ -15,7 +15,6 @@ struct PaperListView: View {
     
     @Binding var selectedItemID: UUID?
     @Binding var selectedItems: Set<Int>
-    @State private var isFavoritesSelected: Bool = false
     @State private var isNavigationPushed: Bool = false
     
     @Binding var isEditing: Bool
@@ -24,23 +23,16 @@ struct PaperListView: View {
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
     
+    @Binding var isFavoritesSelected: Bool
+    
     @State private var keyboardHeight: CGFloat = 0
     
     @State private var timerCancellable: Cancellable?
     
-    var filteredPaperInfos: [PaperInfo] {
-        var infos = isFavoritesSelected
-        ? homeViewModel.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-        : homeViewModel.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-        
-        if !searchText.isEmpty {
-            infos = infos.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-        }
-        return infos
-    }
-    
     var filteredLists: [FileSystemItem] {
-        let lists = paperListViewModel.sortLists(paperInfos: homeViewModel.paperInfos, folders: homeViewModel.folders)
+        let lists = isFavoritesSelected
+        ? paperListViewModel.sortFavoriteLists(paperInfos: homeViewModel.paperInfos, folders: homeViewModel.folders)
+        : paperListViewModel.sortLists(paperInfos: homeViewModel.paperInfos, folders: homeViewModel.folders)
         return lists
     }
     
@@ -55,32 +47,13 @@ struct PaperListView: View {
                     HStack(spacing: 0) {
                         Spacer()
                         
-                        Button(action: {
-                            isFavoritesSelected = false
-                        }, label: {
-                            Text("전체 논문")
-                                .reazyFont(isFavoritesSelected ? .h2 : .text3)
-                                .foregroundStyle(isFavoritesSelected ? .primary4 : .primary1)
-                        })
-                        
-                        Rectangle()
-                            .foregroundStyle(.gray500)
-                            .frame(width: 1, height: 20)
-                            .padding(.horizontal, 16)
-                        
-                        Button(action: {
-                            isFavoritesSelected = true
-                            // TODO: - 즐겨찾기 filter 적용 필요
-                        }, label: {
-                            Text("즐겨찾기")
-                                .reazyFont(isFavoritesSelected ? .text3 : .h2)
-                                .foregroundStyle(isFavoritesSelected ? .primary1 : .primary4)
-                        })
+                        Text("전체")
+                            .reazyFont(.text3)
+                            .foregroundStyle(.primary1)
                         
                         Spacer()
                     }
-                    .padding(.leading, 28)
-                    .padding(.vertical, 17)
+                    .padding(.vertical, 14)
                     
                     Divider()
                     
@@ -98,12 +71,12 @@ struct PaperListView: View {
                         } else {
                             Spacer()
                             
-                            Image("empty")
+                            Image(.homePlaceholder)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 146)
                                 .padding(.bottom, 11)
-                            Text("새로운 논문을 가져와주세요")
+                            Text(isFavoritesSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray550)
                                 .padding(.bottom, 80)
@@ -111,93 +84,77 @@ struct PaperListView: View {
                             Spacer()
                         }
                     } else {
-                        // MARK: - CoreData
-                        if filteredLists.isEmpty {
-                            VStack(spacing: 11) {
-                                Spacer()
-                                Image(.homePlaceholder)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 110)
-                                
-                                Text("새로운 논문을 가져와주세요")
-                                    .reazyFont(.h5)
-                                    .foregroundStyle(.gray550.opacity(0.3))
-                                Spacer()
-                            }
-                        } else {
-                            ScrollView {
-                                VStack(spacing: 0) {
-                                    ForEach(filteredLists.indices, id: \.self) { index in
-                                        let item = filteredLists[index]
-                                        switch item {
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                ForEach(filteredLists.indices, id: \.self) { index in
+                                    let item = filteredLists[index]
+                                    switch item {
                                         // 논문 추가
-                                        case .paper(let paperInfo):
-                                            PaperListCell(
-                                                isPaper: true,
-                                                title: paperInfo.title,
-                                                date: timeAgoString(from: paperInfo.lastModifiedDate),
-                                                color: .gray500,
-                                                isSelected: selectedItemID == paperInfo.id,
-                                                isEditing: isEditing,
-                                                isEditingSelected: selectedItems.contains(index),
-                                                onSelect: {
-                                                    if !isEditing && !isNavigationPushed {
-                                                        if selectedItemID == paperInfo.id {
-                                                            self.isNavigationPushed = true
-                                                            navigateToPaper()
-                                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
-                                                        } else {
-                                                            selectedItemID = paperInfo.id
-                                                        }
-                                                    }
-                                                },
-                                                onEditingSelect: {
-                                                    if isEditing {
-                                                        if selectedItems.contains(index) {
-                                                            selectedItems.remove(index)
-                                                        } else {
-                                                            selectedItems.insert(index)
-                                                        }
+                                    case .paper(let paperInfo):
+                                        PaperListCell(
+                                            isPaper: true,
+                                            title: paperInfo.title,
+                                            date: timeAgoString(from: paperInfo.lastModifiedDate),
+                                            color: .gray500,
+                                            isSelected: selectedItemID == paperInfo.id,
+                                            isEditing: isEditing,
+                                            isEditingSelected: selectedItems.contains(index),
+                                            onSelect: {
+                                                if !isEditing && !isNavigationPushed {
+                                                    if selectedItemID == paperInfo.id {
+                                                        self.isNavigationPushed = true
+                                                        navigateToPaper()
+                                                        homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                                    } else {
+                                                        selectedItemID = paperInfo.id
                                                     }
                                                 }
-                                            )
-                                            
-                                        // 폴더 추가
-                                        case .folder(let folder):
-                                            PaperListCell(
-                                                isPaper: false,
-                                                title: folder.title,
-                                                date: timeAgoString(from: folder.createdAt),
-                                                color: folder.color,
-                                                isSelected: selectedItemID == folder.id,
-                                                isEditing: isEditing,
-                                                isEditingSelected: selectedItems.contains(index),
-                                                onSelect: {
-                                                    if !isEditing && !isNavigationPushed {
-                                                        if selectedItemID == folder.id {
-                                                            // TODO: - 추가 필요
-                                                        } else {
-                                                            selectedItemID = folder.id
-                                                        }
-                                                    }
-                                                },
-                                                onEditingSelect: {
-                                                    if isEditing {
-                                                        if selectedItems.contains(index) {
-                                                            selectedItems.remove(index)
-                                                        } else {
-                                                            selectedItems.insert(index)
-                                                        }
+                                            },
+                                            onEditingSelect: {
+                                                if isEditing {
+                                                    if selectedItems.contains(index) {
+                                                        selectedItems.remove(index)
+                                                    } else {
+                                                        selectedItems.insert(index)
                                                     }
                                                 }
-                                            )
-                                        }
+                                            }
+                                        )
                                         
-                                        Rectangle()
-                                            .frame(height: 1)
-                                            .foregroundStyle(.primary3)
+                                        // 폴더 추가
+                                    case .folder(let folder):
+                                        PaperListCell(
+                                            isPaper: false,
+                                            title: folder.title,
+                                            date: timeAgoString(from: folder.createdAt),
+                                            color: folder.color,
+                                            isSelected: selectedItemID == folder.id,
+                                            isEditing: isEditing,
+                                            isEditingSelected: selectedItems.contains(index),
+                                            onSelect: {
+                                                if !isEditing && !isNavigationPushed {
+                                                    if selectedItemID == folder.id {
+                                                        // TODO: - 추가 필요
+                                                    } else {
+                                                        selectedItemID = folder.id
+                                                    }
+                                                }
+                                            },
+                                            onEditingSelect: {
+                                                if isEditing {
+                                                    if selectedItems.contains(index) {
+                                                        selectedItems.remove(index)
+                                                    } else {
+                                                        selectedItems.insert(index)
+                                                    }
+                                                }
+                                            }
+                                        )
                                     }
+                                    
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundStyle(.primary3)
                                 }
                             }
                         }
@@ -214,7 +171,6 @@ struct PaperListView: View {
                 }())
                 .background(.gray300)
                 
-                // TODO: - [브리] 폴더 시스템 추가 필요
                 // 편집 모드 & 검색 모드에서는 문서 정보가 보이지 않아야 함
                 if !isEditing && !isSearching {
                     Rectangle()
@@ -269,33 +225,6 @@ struct PaperListView: View {
                                 )
                             }
                         }
-                        
-//                        if !filteredPaperInfos.isEmpty,
-//                           let selectedPaperIndex = filteredPaperInfos.firstIndex(where: { $0.id == selectedItemID }) {
-//                            PaperInfoView(
-//                                id: filteredPaperInfos[selectedPaperIndex].id,
-//                                image: filteredPaperInfos[selectedPaperIndex].thumbnail,
-//                                title: filteredPaperInfos[selectedPaperIndex].title,
-//                                memo: filteredPaperInfos[selectedPaperIndex].memo,
-//                                isFavorite: filteredPaperInfos[selectedPaperIndex].isFavorite,
-//                                isStarSelected: filteredPaperInfos[selectedPaperIndex].isFavorite,
-//                                isEditingTitle: $isEditingTitle,
-//                                isEditingMemo: $isEditingMemo,
-//                                onNavigate: {
-//                                    if !isEditing && !isNavigationPushed {
-//                                        self.isNavigationPushed = true
-//                                        navigateToPaper()
-//                                    }
-//                                },
-//                                onDelete: {
-//                                    if filteredPaperInfos.isEmpty {
-//                                        selectedItemID = nil
-//                                    } else {
-//                                        selectedItemID = filteredPaperInfos.first?.id
-//                                    }
-//                                }
-//                            )
-//                        }
                     }
                     .animation(.easeInOut, value: isEditing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -387,16 +316,9 @@ extension PaperListView {
     }
     
     private func initializeSelectedItemID() {
-        let filteredPaperInfos =
-        isFavoritesSelected
-        ? homeViewModel.paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-        : homeViewModel.paperInfos.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
-        
-        if selectedItemID == nil, let firstPaper = filteredPaperInfos.first {
+        if selectedItemID == nil, let firstPaper = filteredLists.first {
             selectedItemID = firstPaper.id
         }
-        
-        homeViewModel.paperInfos = filteredPaperInfos
     }
 }
 
