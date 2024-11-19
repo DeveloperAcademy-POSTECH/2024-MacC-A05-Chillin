@@ -24,10 +24,10 @@ struct CommentGroupView: View {
                     CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
                 }
             }
+            .frame(maxWidth: 386, minHeight: 91)
             .background(Color.gray100)
-            .cornerRadius(12)
-            .frame(width: 357)
             .border(.primary2, width: 1)
+            .cornerRadius(16)
             .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
         }
         .onChange(of: viewModel.isEditMode) {
@@ -75,12 +75,16 @@ private struct CommentInputView: View {
     let placeHolder: Text = .init("코멘트 추가")
     
     var body: some View {
-        LazyVStack(alignment: .leading) {
-            TextField("\(placeHolder.foregroundStyle(Color.primary4))", text: $text, axis:.vertical)
-                .lineLimit(5)
-                .reazyFont(.body1)
-                .foregroundStyle(.point2)
-                .padding(.horizontal, 18)
+        VStack(alignment: .leading) {
+            TextField(
+                "\(placeHolder.foregroundStyle(Color.primary4))",
+                text: $text, axis:.vertical
+            )
+            .lineLimit(5)
+            .reazyFont(.text1)
+            .foregroundStyle(.point2)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 5)
             
             HStack{
                 Spacer()
@@ -122,14 +126,13 @@ private struct CommentInputView: View {
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .foregroundStyle(text.isEmpty ? .primary4 : .primary1)
-                        .font(.system(size: 20))
+                        .font(.system(size: 28))
                 })
-                .padding(.trailing, 9)
+                .padding([.trailing,.bottom], 12)
                 .disabled(text.isEmpty)
             }
         }
-        .padding(.top, 16)
-        .padding(.bottom, 9)
+        .padding(.top, 18)
         .onReceive(self.viewModel.$comment) {
             guard let comment = $0 else { return }
             if viewModel.isEditMode {
