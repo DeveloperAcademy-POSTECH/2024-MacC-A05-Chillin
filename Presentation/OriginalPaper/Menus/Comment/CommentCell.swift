@@ -14,25 +14,24 @@ struct CommentCell: View {
     var comment: Comment // 선택된 comment
     
     var body: some View {
-        HStack(alignment: .center){
+        HStack(alignment: .center) {
             
             Divider()
                 .frame(width: 2, height: 14)
                 .background(.point4)
             
             Text(comment.selectedText.replacingOccurrences(of: "\n", with: ""))
-                    .reazyFont(.body3)
+                    .reazyFont(.body1)
                     .foregroundStyle(.point4)
                     .lineLimit(1)
         }
         .padding(.bottom, 8)
-        .padding(.trailing, 16)
-        .padding(.top, 18)
+        .padding(.top, 20)
         
         Text(comment.text)
-            .reazyFont(.body1)
+            .reazyFont(.text1)
             .foregroundStyle(.point2)
-            .padding(.trailing, 16)
+            .padding(0)
         
         HStack{
             Spacer()
@@ -70,9 +69,9 @@ struct CommentCell: View {
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .foregroundStyle(.gray500)
-                    .font(.system(size: 20))
+                    .font(.system(size: 24))
             }
         }
-        .padding([.trailing, .bottom], 9)
+        .padding([.trailing, .bottom], 12)
     }
 }

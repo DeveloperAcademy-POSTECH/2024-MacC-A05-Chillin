@@ -47,7 +47,7 @@ private struct CommentView: View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(selectedComments.indices, id: \.self) { index in
                 CommentCell(viewModel: viewModel, comment: selectedComments[index])
-                    .padding(.leading, 16)
+                    .padding(.leading, 22)
                 
                 if index < selectedComments.count - 1 {
                     Divider()
@@ -57,7 +57,6 @@ private struct CommentView: View {
                 }
             }
         }
-        .frame(minWidth: 357, minHeight: 78)
         .foregroundStyle(.point2)
         
     }
