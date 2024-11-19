@@ -25,18 +25,17 @@ struct PDFInfoMenu: View {
                             .foregroundStyle(.gray600)
                     }
                     .padding(.trailing, 10)
-                    Button(action: {
-                        
-                    }, label: {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 14))
-                            .padding(6)
-                            .foregroundStyle(.gray800)
-                            .background(
-                                Circle()
-                                    .foregroundStyle(.gray300)
-                            )
-                    })
+                    
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14))
+                        .padding(6)
+                        .foregroundStyle(.gray800)
+                        .background(
+                            Circle()
+                                .foregroundStyle(.gray300)
+                        )
+                        .padding(6)
+
                 }
                 .padding(10)
                 .background(
