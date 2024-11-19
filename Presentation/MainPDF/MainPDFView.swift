@@ -42,6 +42,7 @@ struct MainPDFView: View {
     
     @State private var isMenuSelected: Bool = false
     @State private var menuButtonPosition: CGPoint = .zero
+    private let publisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
     var body: some View {
         GeometryReader { geometry in
@@ -129,6 +130,7 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isMenuSelected.toggle()
+                                print(isMenuSelected)
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -271,7 +273,7 @@ struct MainPDFView: View {
                 
                 if isMenuSelected {
                     PDFInfoMenu()
-                        .position(x: menuButtonPosition.x - 130 , y: menuButtonPosition.y + 230 )
+                        .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
                         .transition(.move(edge: .top))
                 }
             }
@@ -350,6 +352,12 @@ struct MainPDFView: View {
                 if mainPDFViewModel.toolMode == .translate {
                     TranslateViewOlderVer()
                 }
+            }
+        }
+        .onReceive(publisher) { a in
+            if let _ = a.userInfo?["hitted"] as? Bool {
+                isMenuSelected = false
+                print(isMenuSelected)
             }
         }
         

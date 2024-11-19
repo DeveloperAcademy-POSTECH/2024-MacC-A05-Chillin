@@ -20,6 +20,7 @@ struct PDFInfoMenu: View {
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)
                             .padding(.bottom, 5)
+                        
                         Text("마지막 수정 : 오늘 오후 07:23")
                             .reazyFont(.text2)
                             .foregroundStyle(.gray600)
@@ -74,7 +75,7 @@ struct PDFInfoMenu: View {
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "pencil")
+                        Image(systemName: "square.and.pencil")
                             .padding(.trailing, 14)
                     }
                 })
@@ -93,7 +94,7 @@ struct PDFInfoMenu: View {
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "pencil")
+                        Image(systemName: "star")
                             .padding(.trailing, 14)
                     }
                 })
@@ -112,7 +113,7 @@ struct PDFInfoMenu: View {
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "pencil")
+                        Image(systemName: "ipad.and.arrow.forward")
                             .padding(.trailing, 14)
                     }
                 })
@@ -124,6 +125,7 @@ struct PDFInfoMenu: View {
                 
                 Button(action: {
                     // 삭제 action
+                    
                 }, label: {
                     HStack{
                         Text("삭제")
