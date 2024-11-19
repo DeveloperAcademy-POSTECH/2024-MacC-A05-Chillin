@@ -142,7 +142,7 @@ struct MainPDFView: View {
                             .background(
                                 GeometryReader { geometry in
                                     Color.clear
-                                    // 버튼의 위치 정보 받아오기
+                                        // 버튼의 위치 정보 받아오기
                                         .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
                                             menuButtonPosition = newValue.origin
                                         }
@@ -265,7 +265,10 @@ struct MainPDFView: View {
                     }
                 }
                 
-                // Menu 버튼 뷰
+                // MARK: - Floating 뷰
+                FloatingViewsContainer(geometry: geometry)
+                    .environmentObject(floatingViewModel)
+                
                 if isMenuSelected {
                     PDFInfoMenu()
                         .position(x: menuButtonPosition.x - 130 , y: menuButtonPosition.y + 230 )
@@ -273,21 +276,17 @@ struct MainPDFView: View {
                 }
             }
             
-            // MARK: - Floating 뷰
-            FloatingViewsContainer(geometry: geometry)
-                .environmentObject(floatingViewModel)
-            
-                .navigationBarHidden(true)
-                .onAppear {
-                    updateOrientation(with: geometry)
-                }
-                .onDisappear {
-                    mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
-                }
-                .onChange(of: geometry.size) {
-                    updateOrientation(with: geometry)
-                }
-                .statusBarHidden()
+            .navigationBarHidden(true)
+            .onAppear {
+                updateOrientation(with: geometry)
+            }
+            .onDisappear {
+                mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+            }
+            .onChange(of: geometry.size) {
+                updateOrientation(with: geometry)
+            }
+            .statusBarHidden()
         }
     }
     
