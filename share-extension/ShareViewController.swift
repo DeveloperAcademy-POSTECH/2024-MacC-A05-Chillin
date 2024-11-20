@@ -7,17 +7,46 @@
 
 import UIKit
 import Social
+import UniformTypeIdentifiers
 
-class ShareViewController: SLComposeServiceViewController {    
+
+class ShareViewController: SLComposeServiceViewController {
     override func viewWillAppear(_ animated: Bool) {
-        if let url = URL(string: "reazy://fffff") {
-            if self.openURL(url) {
-                print("url scheme success")
-            } else {
-                print("url scheme failed!")
+        guard let item = self.extensionContext?.inputItems.first as? NSExtensionItem,
+              let provider = item.attachments?.first,
+              provider.hasItemConformingToTypeIdentifier(UTType.pdf.identifier) else { return }
+        
+        
+        provider.loadFileRepresentation(forTypeIdentifier: UTType.pdf.identifier) { url, error in
+            if let error = error {
+                print(String(describing: error))
             }
             
-            self.extensionContext?.completeRequest(returningItems: nil)
+            if let fileURL = url {
+                print(fileURL)
+                print(FileManager.default.fileExists(atPath: fileURL.path()))
+                let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.chillin.reazy")!.appending(path: fileURL.lastPathComponent)
+                
+                if FileManager.default.fileExists(atPath: path.path()) {
+                    try! FileManager.default.removeItem(at: path)
+                }
+                
+                try! FileManager.default.copyItem(at: fileURL, to: path)
+                print(FileManager.default.fileExists(atPath: path.path()))
+                
+                var components = URLComponents(string: "reazy://pdf")!
+                components.queryItems = [URLQueryItem(name: "file", value: fileURL.lastPathComponent)]
+                
+                if let url = components.url {
+                    if self.openURL(url) {
+                        print("url scheme success")
+                    } else {
+                        print("url scheme failed!")
+                    }
+                    
+                    self.extensionContext?.completeRequest(returningItems: nil)
+                }
+            }
         }
     }
 
