@@ -55,13 +55,13 @@ class PDFDrawer {
         didSet { onHistoryChange?() }
     }
     
-    // 히스토리에 저장
+    // 새로운 주석 히스토리에 저장
     private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
         annotationHistory.append((action: action, annotation: annotation, page: page))
 
-        // 주석 제한 : 10개
+        // 최신 10개만 남기기
         if annotationHistory.count > 10 {
-            annotationHistory.removeFirst()
+            annotationHistory = Array(annotationHistory.suffix(10))
         }
         
         redoStack.removeAll()
@@ -79,7 +79,6 @@ class PDFDrawer {
         case .remove(let annotation):
             lastAction.page.addAnnotation(annotation)
         }
-//        annotationHistory.append(lastAction)
         redoStack.append(lastAction)
     }
     
