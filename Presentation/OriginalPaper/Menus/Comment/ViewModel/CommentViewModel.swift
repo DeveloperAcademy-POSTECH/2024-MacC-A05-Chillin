@@ -39,6 +39,7 @@ class CommentViewModel: ObservableObject {
     @Published var comment: Comment?                    /// 수정, 삭제시 넘겨받은 코멘트 값
     @Published var isMenuTapped: Bool = false
     @Published var commentMenuPosition: CGPoint = .zero /// 메뉴 버튼 탭할 시 넘겨받을 메뉴 뷰의 position
+    @Published var buttonPosition = [UUID : CGPoint]()
     
     
     init(

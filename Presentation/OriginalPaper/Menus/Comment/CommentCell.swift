@@ -47,13 +47,16 @@ struct CommentCell: View {
             .background(
                 GeometryReader { geometry in
                     Color.clear
-                        .onChange(of: viewModel.isMenuTapped) {
-                            print("Menu tapped:", geometry.frame(in: .global))
-                            if let comment = viewModel.comment {
-                                viewModel.commentMenuPosition = geometry.frame(in: .global).origin
-                                print("viewModel: ", viewModel.commentMenuPosition)
-                            }
-                        }
+                    /// 탭했을 때 누른 버튼의 위치 값을 가져와야 함
+                    .onAppear {
+                        let position = geometry.frame(in: .global).origin
+                        /// 버튼 위치를 comment의 id와 함께 저장하기
+                        viewModel.buttonPosition[comment.id] = position
+                    }
+                    .onDisappear {
+                        /// 초기화
+                        viewModel.buttonPosition = [:]
+                    }
                 }
             )
         }

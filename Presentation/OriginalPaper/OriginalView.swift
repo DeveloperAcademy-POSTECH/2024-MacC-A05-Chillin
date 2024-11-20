@@ -49,8 +49,13 @@ struct OriginalView: View {
                 
                 if let comment = commentViewModel.comment {
                     if commentViewModel.isMenuTapped {
+                        let position = commentViewModel.buttonPosition
+                        /// 선택된 comment.id와 같은 id 값을 key 로 가지고 있다면
+                            .filter {$0.key == comment.id}
+                        /// 해당 key의 value를 가져오기 (CGPoint)
+                            .map { $0.value }.first
                         CommentMenuView(viewModel: commentViewModel, comment: comment)
-                            .position(x: commentViewModel.commentMenuPosition.x - 30, y: commentViewModel.commentMenuPosition.y - 110)
+                            .position(x: position!.x - 30, y: position!.y - 110)
                     }
                 }
             }
