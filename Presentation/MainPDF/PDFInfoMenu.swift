@@ -11,10 +11,10 @@ import UIKit
 
 //MARK: - ActivityView
 struct ActivityViewController: UIViewControllerRepresentable {
-
+    
     var activityItems: [Any]
     var applicationActivities: [UIActivity]? = nil
-
+    
     func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityViewController>) -> UIActivityViewController {
         let controller = UIActivityViewController(
             activityItems: activityItems,
@@ -25,7 +25,7 @@ struct ActivityViewController: UIViewControllerRepresentable {
         controller.excludedActivityTypes = [.markupAsPDF]
         return controller
     }
-
+    
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: UIViewControllerRepresentableContext<ActivityViewController>) {}
 }
 
@@ -33,7 +33,8 @@ struct ActivityViewController: UIViewControllerRepresentable {
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
     @State private var isActivityViewPresented = false
-      
+    @EnvironmentObject private var viewModel: PDFInfoMenuViewModel
+    
     var body: some View {
         VStack(spacing: 12) {
             
@@ -49,7 +50,7 @@ struct PDFInfoMenu: View {
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)
                         
-                        Text("마지막 수정 : \(timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
+                        Text("마지막 수정 : \(viewModel.timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
                             .reazyFont(.text2)
                             .foregroundStyle(.gray600)
                     }
@@ -189,31 +190,6 @@ struct PDFInfoMenu: View {
         )
     }
 }
-
-extension PDFInfoMenu {
-    // TODO : - 브리 ViewModel 만들때 통합하기
-    private func timeAgoString(from date: Date) -> String {
-        let calendar = Calendar.current
-        
-        if calendar.isDateInToday(date) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "오늘 HH:mm"
-            return dateFormatter.string(from: date)
-        } else if calendar.isDateInYesterday(date) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "어제 HH:mm"
-            return dateFormatter.string(from: date)
-        } else {
-            // 이틀 전 이상의 날짜 포맷으로 반환
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy. MM. dd. a h:mm"
-            dateFormatter.amSymbol = "오전"
-            dateFormatter.pmSymbol = "오후"
-            return dateFormatter.string(from: date)
-        }
-    }
-}
-
 
 #Preview {
     PDFInfoMenu()
