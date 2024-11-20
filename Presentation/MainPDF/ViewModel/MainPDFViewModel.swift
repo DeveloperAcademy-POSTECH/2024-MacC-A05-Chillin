@@ -55,14 +55,21 @@ final class MainPDFViewModel: ObservableObject {
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
     
-    // for drawing
+    // pencil tool
     public var pdfDrawer: PDFDrawer = .init()
+    // 현재 undo와 redo 가능 여부
+    @Published var canUndo: Bool = false
+    @Published var canRedo: Bool = false
     
     public var pdfSharedData: PDFSharedData = .shared
     
     @Published var isMenuSelected: Bool = false
         
     init() {
+        pdfDrawer.onHistoryChange = { [weak self] in
+            self?.updateUndoRedoState()
+        }
+        
 //        self.paperInfo = paperInfo
 //        
 //        var isStale = false
@@ -165,7 +172,6 @@ extension MainPDFViewModel {
     }
 }
 
-
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
@@ -195,6 +201,7 @@ extension MainPDFViewModel {
             highlight.color = highlightColor
 
             page.addAnnotation(highlight)
+            pdfDrawer.annotationHistory.append((action: .add(highlight), annotation: highlight, page: page))
         }
         
         pdfView.clearSelection()
@@ -258,23 +265,36 @@ extension MainPDFViewModel {
     }
 }
 
+/**
+ 펜슬 툴 바 redo, undo 관련
+ */
+
+extension MainPDFViewModel {
+    func updateUndoRedoState() {
+        canUndo = !pdfDrawer.annotationHistory.isEmpty
+        canRedo = !pdfDrawer.redoStack.isEmpty
+    }
+}
 
 enum ToolMode {
     case none
     case translate
     case comment
     case drawing
+    case lasso
 }
 
+// 드로잉 툴바에 있는 버튼
 enum DrawingToolMode {
-    case none
+    case none // translate, comment, lasso 일 때 이 드로잉 모드
     case pencil
     case eraser
     case highlight
 }
 
+// 펜슬 제스처 인식 모드
 extension MainPDFViewModel {
-    private func updateDrawingTool() {
+    func updateDrawingTool() {
         switch drawingToolMode {
         case .pencil:
             pdfDrawer.drawingTool = .pencil
