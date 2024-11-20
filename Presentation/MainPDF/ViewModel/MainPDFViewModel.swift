@@ -193,7 +193,7 @@ extension MainPDFViewModel {
             var bounds = selection.bounds(for: page)
             
             let originBoundsHeight = bounds.size.height
-            bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
+            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
             bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
 
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
