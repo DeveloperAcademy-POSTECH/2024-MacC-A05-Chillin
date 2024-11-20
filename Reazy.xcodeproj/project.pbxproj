@@ -220,6 +220,13 @@
 			);
 			target = 2C2C38652CECE55200552185 /* share-extension */;
 		};
+		2C6A12C12CEDC4AC00518986 /* Exceptions for "Resources" folder in "action-extension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+			);
+			target = 2C2C378D2CECA6EB00552185 /* action-extension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -255,6 +262,9 @@
 		};
 		2C14744C2CE900C300B35D92 /* Resources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2C6A12C12CEDC4AC00518986 /* Exceptions for "Resources" folder in "action-extension" target */,
+			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
@@ -1035,6 +1045,8 @@
 		2C2C379F2CECA6EC00552185 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Extension";
 				CODE_SIGN_ENTITLEMENTS = "action-extension/action-extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1062,6 +1074,8 @@
 		2C2C37A02CECA6EC00552185 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Extension";
 				CODE_SIGN_ENTITLEMENTS = "action-extension/action-extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
