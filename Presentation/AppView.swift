@@ -39,20 +39,7 @@ struct AppView: App {
             .onAppear {
                 setSample()
             }
-            .onOpenURL {
-                let components = URLComponents(url: $0, resolvingAgainstBaseURL: false)
-                let item = components!.queryItems!.first!
-                print(item.value!)
-                let manager = FileManager.default
-                
-                let containerURL = manager.containerURL(forSecurityApplicationGroupIdentifier: "group.com.chillin.reazy")
-                
-                if let containerFileURL = containerURL?.appending(path: item.value!),
-                   manager.fileExists(atPath: containerFileURL.path()) {
-                    let _ = homeViewModel.uploadPDF(url: [containerFileURL])
-                }
-                
-            }
+            .onOpenURL(perform: openUrlScheme)
         }
     }
 }
@@ -65,11 +52,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         return true
     }
-    
-//    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-//        print(url)
-//        return true
-//    }
 }
 
 
@@ -102,5 +84,22 @@ extension AppView {
         }
         
         UserDefaults.standard.set(true, forKey: "sample")
+    }
+    
+    private func openUrlScheme(_ url: URL) {
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let items = components!.queryItems!
+        let manager = FileManager.default
+        
+        let containerURL = manager.containerURL(forSecurityApplicationGroupIdentifier: "group.com.chillin.reazy")
+        
+        for item in items {
+            if let containerFileURL = containerURL?.appending(path: item.value!),
+               manager.fileExists(atPath: containerFileURL.path()) {
+                let _ = homeViewModel.uploadPDF(url: [containerFileURL])
+                
+                try! manager.removeItem(at: containerFileURL)
+            }
+        }
     }
 }
