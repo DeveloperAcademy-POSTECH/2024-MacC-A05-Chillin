@@ -49,7 +49,7 @@ struct AppView: App {
                 
                 if let containerFileURL = containerURL?.appending(path: item.value!),
                    manager.fileExists(atPath: containerFileURL.path()) {
-                    homeViewModel.uploadPDF(url: [containerFileURL])
+                    let _ = homeViewModel.uploadPDF(url: [containerFileURL])
                 }
                 
             }
