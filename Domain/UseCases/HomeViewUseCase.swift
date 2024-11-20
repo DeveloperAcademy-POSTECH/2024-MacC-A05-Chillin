@@ -195,6 +195,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             }
         }
         return result!
+    }
       
     internal func savePDFIntoDirectory(url: URL) throws -> (Data, URL)? {
         do {
