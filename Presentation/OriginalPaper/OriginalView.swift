@@ -54,8 +54,10 @@ struct OriginalView: View {
                             .filter {$0.key == comment.id}
                         /// 해당 key의 value를 가져오기 (CGPoint)
                             .map { $0.value }.first
-                        CommentMenuView(viewModel: commentViewModel, comment: comment)
-                            .position(x: position!.x - 30, y: position!.y - 110)
+                        if let point = position {
+                            CommentMenuView(viewModel: commentViewModel, comment: comment)
+                                .position(x: point.x - 30, y: point.y - 110)
+                        }
                     }
                 }
             }

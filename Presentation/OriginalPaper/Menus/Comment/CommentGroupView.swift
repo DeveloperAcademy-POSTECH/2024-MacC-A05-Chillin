@@ -153,6 +153,7 @@ struct CommentMenuView: View {
 //                viewModel.comment = comment
                 viewModel.isEditMode = true
                 pdfViewModel.isCommentTapped = false
+                viewModel.isMenuTapped = false
             }, label: {
                 VStack(alignment: .center, spacing: 3) {
                     Image(systemName: "pencil.line")
@@ -172,6 +173,7 @@ struct CommentMenuView: View {
                 viewModel.deleteComment(commentId: comment.id)
                 pdfViewModel.isCommentTapped = false
                 pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
+                viewModel.isMenuTapped = false
             }, label: {
                 VStack(alignment: .center, spacing: 3) {
                     Image(systemName: "trash")
