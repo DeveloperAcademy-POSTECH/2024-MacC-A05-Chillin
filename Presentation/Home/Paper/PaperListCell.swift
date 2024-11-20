@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct PaperListCell: View {
+    let isPaper: Bool
     
     let title: String
     let date: String
+    let color: Color
     let isSelected: Bool
     let isEditing: Bool
     let isEditingSelected: Bool
@@ -41,19 +43,17 @@ struct PaperListCell: View {
                 
                 RoundedRectangle(cornerRadius: 10)
                     .frame(width: 42, height: 42)
-                    .foregroundStyle(.gray500)
+                    .foregroundStyle(isPaper ? .gray500 : color)
                     .overlay(
-                        Image("document")
-                            .renderingMode(.template)
+                        Image(isPaper ? "document" : "folder")
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 21)
-                            .foregroundStyle(.gray100)
+                            .frame(width: 20)
                     )
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text(title)
-                        .lineLimit(2)
+                        .lineLimit(1)
                         .reazyFont(.h2)
                         .foregroundStyle(.gray900)
                         .padding(.bottom, 6)
@@ -82,8 +82,10 @@ struct PaperListCell: View {
 
 #Preview {
     PaperListCell(
+        isPaper: true,
         title: "test",
         date: "1시간 전",
+        color: .gray500,
         isSelected: false,
         isEditing: true,
         isEditingSelected: false,

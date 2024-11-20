@@ -1,5 +1,5 @@
 //
-//  PaperDataService.swift
+//  PaperDataRepositoryImpl.swift
 //  Reazy
 //
 //  Created by 유지수 on 11/6/24.
@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 import UIKit
 
 class PaperDataRepositoryImpl: PaperDataRepository {
@@ -29,7 +30,8 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                     lastModifiedDate: paperData.lastModifiedDate,
                     isFavorite: paperData.isFavorite,
                     memo: paperData.memo ?? nil,
-                    isFigureSaved: paperData.isFigureSaved
+                    isFigureSaved: paperData.isFigureSaved,
+                    folderID: paperData.folderID ?? nil
                 )
             }
             return .success(pdfDataList)
@@ -51,6 +53,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         newPaperData.isFavorite = info.isFavorite
         newPaperData.memo = info.memo
         newPaperData.isFigureSaved = info.isFigureSaved
+        newPaperData.folderID = info.folderID
         
         do {
             try dataContext.save()
@@ -76,6 +79,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 dataToEdit.isFavorite = info.isFavorite
                 dataToEdit.memo = info.memo
                 dataToEdit.isFigureSaved = info.isFigureSaved
+                dataToEdit.folderID = info.folderID
                 
                 try dataContext.save()
                 return .success(VoidResponse())
@@ -106,6 +110,4 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             return .failure(error)
         }
     }
-    
-    
 }

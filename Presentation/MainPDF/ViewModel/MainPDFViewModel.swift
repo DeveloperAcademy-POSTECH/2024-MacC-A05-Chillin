@@ -17,7 +17,7 @@ final class MainPDFViewModel: ObservableObject {
     @Published var selectedText: String = "" {
         didSet {
             /// 선택된 텍스트가 변경될 때 추가 작업
-            updateBubbleView(selectedText: selectedText, bubblePosition: translateViewPosition)
+            updateTranslationView(selectedText: selectedText, bubblePosition: translateViewPosition)
             
             if isCommentVisible {
                 updateCommentPosition(at: commentInputPosition)
@@ -42,7 +42,6 @@ final class MainPDFViewModel: ObservableObject {
     @Published var isPaperViewFirst: Bool = true
     
     // BubbleView의 상태와 위치
-    @Published var isTranslateViewVisible: Bool = false
     @Published var translateViewPosition: CGRect = .zero
     
     // 하이라이트 색상
@@ -156,23 +155,11 @@ extension MainPDFViewModel {
 // MARK: - 뷰 상호작용 메소드
 
 extension MainPDFViewModel {
-    public var isBubbleViewVisible: Bool {
-        get {
-            self.toolMode == .translate && self.isTranslateViewVisible && !self.selectedText.isEmpty
-        }
-    }
-    
-
-    // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트하는 메서드
-    public func updateBubbleView(selectedText: String, bubblePosition: CGRect) {
-        
-        // 선택된 텍스트가 있을 경우 BubbleView를 보이게 하고 위치를 업데이트
+    public func updateTranslationView(selectedText: String, bubblePosition: CGRect) {
+        // 선택된 텍스트가 있을 경우 TranslationView를 보이게 하고 위치를 업데이트
         if !selectedText.isEmpty {
-            isTranslateViewVisible = true
             self.translateViewPosition = bubblePosition
-        } else {
-            isTranslateViewVisible = false
-        }
+        } 
     }
 }
 
@@ -180,8 +167,9 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        // drawingToolMode가 highlight일때 동작
-        guard drawingToolMode == .highlight else { return }
+        
+        // (toolMode == .drawing && drawingToolMode == .highlight) 일때 동작
+        guard toolMode == .drawing, drawingToolMode == .highlight else { return }
 
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
@@ -195,8 +183,9 @@ extension MainPDFViewModel {
 
         selections.forEach { selection in
             var bounds = selection.bounds(for: page)
+            
             let originBoundsHeight = bounds.size.height
-            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
+            bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
             bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
 
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
@@ -209,6 +198,7 @@ extension MainPDFViewModel {
         pdfView.clearSelection()
     }
 }
+
 
 /**
  코멘트 관련

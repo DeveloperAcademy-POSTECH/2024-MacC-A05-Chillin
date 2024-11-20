@@ -118,7 +118,6 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                // MARK: - 부리꺼 : 색상 적용 필요
                                     .foregroundStyle(isFigSelected ? .primary1 : .clear)
                                     .overlay (
                                         Text("Fig")

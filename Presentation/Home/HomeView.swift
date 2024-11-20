@@ -18,7 +18,7 @@ struct HomeView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State var selectedMenu: Options = .main
-    @State var selectedPaperID: UUID?
+    @State var selectedItemID: UUID?
     
     // 검색 모드 search text
     @State private var searchText: String = ""
@@ -32,6 +32,9 @@ struct HomeView: View {
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
+    @State private var isEditingFolder: Bool = false
+    
+    @State private var isFavoriteSelected: Bool = false
     
     var body: some View {
         ZStack {
@@ -44,9 +47,32 @@ struct HomeView: View {
                         Image("icon")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 54, height: 50)
+                            .frame(width: 62, height: 50)
                             .padding(.vertical, 31)
                             .padding(.leading, 28)
+                            .padding(.trailing, 36)
+                        
+                        Button(action: {
+                            isFavoriteSelected = false
+                        }) {
+                            Text("전체")
+                                .reazyFont(isFavoriteSelected ? .text1 : .button1)
+                                .foregroundStyle(isFavoriteSelected ? .gray600 : .gray100)
+                        }
+                        
+                        Rectangle()
+                            .frame(width: 1, height: 16)
+                            .foregroundStyle(.gray700)
+                            .padding(.horizontal, 14)
+                        
+                        Button(action: {
+                            // TODO: - [브리] 즐겨찾기 로직 수정 필요
+                            isFavoriteSelected = true
+                        }) {
+                            Text("즐겨찾기")
+                                .reazyFont(isFavoriteSelected ? .button1 : .text1)
+                                .foregroundStyle(isFavoriteSelected ? .gray100 : .gray600)
+                        }
                         
                         Spacer()
                         
@@ -57,7 +83,8 @@ struct HomeView: View {
                                 isSearching: $isSearching,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
-                                selectedPaperID: $selectedPaperID)
+                                selectedItemID: $selectedItemID,
+                                isEditingFolder: $isEditingFolder)
                             
                         case .search:
                             SearchMenuView(
@@ -76,20 +103,21 @@ struct HomeView: View {
                 .frame(height: 80)
                 
                 PaperListView(
-                    selectedPaperID: $selectedPaperID,
+                    selectedItemID: $selectedItemID,
                     selectedItems: $selectedItems,
                     isEditing: $isEditing,
                     isSearching: $isSearching,
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
-                    searchText: $searchText
+                    searchText: $searchText,
+                    isFavoriteSelected: $isFavoriteSelected
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || isEditingFolder ? 20 : 0)
             
             
             Color.black
-                .opacity( isEditingTitle || isEditingMemo ? 0.5 : 0)
+                .opacity( isEditingTitle || isEditingMemo || isEditingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
             
@@ -97,13 +125,20 @@ struct HomeView: View {
                 RenamePaperTitleView(
                     isEditingTitle: $isEditingTitle,
                     isEditingMemo: $isEditingMemo,
-                    paperInfo: homeViewModel.paperInfos.first { $0.id == selectedPaperID! }!)
+                    paperInfo: homeViewModel.paperInfos.first { $0.id == selectedItemID! }!)
+            }
+            
+            if isEditingFolder {
+                FolderView(
+                    isEditingFolder: $isEditingFolder
+                )
             }
         }
         .background(Color(hex: "F7F7FB"))
         .statusBarHidden()
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
+        .animation(.easeInOut, value: isEditingFolder)
     }
 }
 
@@ -118,26 +153,22 @@ private struct MainMenuView: View {
     
     @State private var isFileImporterPresented: Bool = false
     @State private var errorAlert: Bool = false
-    @State private var errorStatus: ErrorStatus = .etc
     
     @Binding var selectedMenu: Options
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
+    
     @Binding var selectedItems: Set<Int>
-    @Binding var selectedPaperID: UUID?
+    @Binding var selectedItemID: UUID?
+    @Binding var isEditingFolder: Bool
     
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .search
-                }
-                isSearching.toggle()
+                isEditingFolder.toggle()
             }) {
-                Image(systemName: "magnifyingglass")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
+                Image(systemName: "folder.badge.plus")
+                    .font(.system(size: 16))
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -150,9 +181,19 @@ private struct MainMenuView: View {
                 selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
+                    .font(.system(size: 16))
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedMenu = .search
+                }
+                isSearching.toggle()
+            }) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 16))
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -168,20 +209,17 @@ private struct MainMenuView: View {
         }
         .alert(isPresented: $errorAlert) {
             // TODO: 예외 처리 수정 필요
-            switch errorStatus {
-            case .accessError:
+            switch homeViewModel.errorStatus {
+            case .failedToAccessingSecurityScope:
                 Alert(
                     title: Text("파일 접근이 불가능합니다."),
-                    message: Text("다른 파일을 선택해주세요"),
+                    message: Text("다른 파일을 선택해주세요."),
                     dismissButton: .default(Text("Ok")))
-            case .invalidURL:
+            case .fileNameDuplication:
                 Alert(
-                    title: Text("잘못된 파일 경로"),
-                    message: Text("파일이 올바른 경로에 있는지 확인해주세요"),
+                    title: Text("중복된 파일 이름이 있습니다."),
+                    message: Text("파일 이름을 수정해주세요."),
                     dismissButton: .default(Text("Ok")))
-                
-            case .etc:
-                Alert(title: Text("알 수 없는 에러가 발생했습니다."))
             }
         }
         .fileImporter(
@@ -201,11 +239,13 @@ private struct MainMenuView: View {
         switch result {
         case .success(let url):
             if let newPaperID = homeViewModel.uploadPDF(url: url) {
-                selectedPaperID = newPaperID
+                selectedItemID = newPaperID
+            } else {
+                errorAlert.toggle()
             }
         case .failure(let error):
             print(String(describing: error))
-            self.errorStatus = .etc
+            homeViewModel.errorStatus = .failedToAccessingSecurityScope
             self.errorAlert.toggle()
         }
     }
@@ -399,6 +439,120 @@ private struct RenamePaperTitleView: View {
                 self.text = paperInfo.title
             } else {
                 self.text = paperInfo.memo ?? ""
+            }
+        }
+    }
+}
+
+private struct FolderView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @State private var selectedColors: FolderColors = .folder1
+    
+    @Binding var isEditingFolder: Bool
+    @State private var text: String = ""
+    
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        isEditingFolder.toggle()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.gray100)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        // 최상위 단계와 폴더 진입 단계 구분
+                        if homeViewModel.isAtRoot {
+                            homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                        } else {
+                            homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                        }
+                        isEditingFolder.toggle()
+                    }) {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                }
+                .padding(.horizontal, 28)
+                .padding(.top, 28)
+                
+                Spacer()
+            }
+            
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 49)
+                    .frame(width: 206, height: 206)
+                    .foregroundStyle(selectedColors.color)
+                    .overlay(
+                        Image("folder")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 105)
+                    )
+                    .padding(.trailing, 54)
+                
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        ForEach(FolderColors.allCases, id: \.self) { color in
+                            FolderColorButton(
+                                button: $selectedColors,
+                                selectedButton: color,
+                                action: {
+                                    selectedColors = color
+                                }
+                            )
+                            .padding(.trailing, color == .folder7 ? 0 : 20)
+                        }
+                    }
+                    .padding(.bottom, 24)
+                    
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 52)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 52)
+                    }
+                    .frame(width: 400, height: 52)
+                    .overlay(alignment: .leading) {
+                        TextField("폴더 제목을 입력해주세요.", text: $text, axis: .vertical)
+                            .lineLimit(1)
+                            .padding(.horizontal, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    .overlay(alignment: .trailing) {
+                        if !self.text.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                                .padding(.trailing, 10)
+                                .onTapGesture {
+                                    text = ""
+                                }
+                        }
+                    }
+                    .padding(.bottom, 16)
+                    
+                    Text("폴더 제목을 입력해 주세요")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.comment)
+                }
             }
         }
     }

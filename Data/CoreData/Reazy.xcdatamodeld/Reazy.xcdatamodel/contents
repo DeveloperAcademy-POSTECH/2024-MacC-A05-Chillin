@@ -26,7 +26,17 @@
         <attribute name="label" optional="YES" attributeType="String"/>
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="figureData" inverseEntity="PaperData"/>
     </entity>
+    <entity name="FolderData" representedClassName="FolderData" syncable="YES">
+        <attribute name="color" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="memo" optional="YES" attributeType="String"/>
+        <attribute name="parentFolderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="PaperData" representedClassName="PaperData" syncable="YES">
+        <attribute name="folderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isFigureSaved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
