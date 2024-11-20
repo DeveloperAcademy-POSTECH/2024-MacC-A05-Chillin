@@ -153,7 +153,6 @@ private struct MainMenuView: View {
     
     @State private var isFileImporterPresented: Bool = false
     @State private var errorAlert: Bool = false
-    @State private var errorStatus: ErrorStatus = .etc
     
     @Binding var selectedMenu: Options
     @Binding var isSearching: Bool
@@ -210,20 +209,17 @@ private struct MainMenuView: View {
         }
         .alert(isPresented: $errorAlert) {
             // TODO: 예외 처리 수정 필요
-            switch errorStatus {
-            case .accessError:
+            switch homeViewModel.errorStatus {
+            case .failedToAccessingSecurityScope:
                 Alert(
                     title: Text("파일 접근이 불가능합니다."),
-                    message: Text("다른 파일을 선택해주세요"),
+                    message: Text("다른 파일을 선택해주세요."),
                     dismissButton: .default(Text("Ok")))
-            case .invalidURL:
+            case .fileNameDuplication:
                 Alert(
-                    title: Text("잘못된 파일 경로"),
-                    message: Text("파일이 올바른 경로에 있는지 확인해주세요"),
+                    title: Text("중복된 파일 이름이 있습니다."),
+                    message: Text("파일 이름을 수정해주세요."),
                     dismissButton: .default(Text("Ok")))
-                
-            case .etc:
-                Alert(title: Text("알 수 없는 에러가 발생했습니다."))
             }
         }
         .fileImporter(
@@ -244,10 +240,12 @@ private struct MainMenuView: View {
         case .success(let url):
             if let newPaperID = homeViewModel.uploadPDF(url: url) {
                 selectedItemID = newPaperID
+            } else {
+                errorAlert.toggle()
             }
         case .failure(let error):
             print(String(describing: error))
-            self.errorStatus = .etc
+            homeViewModel.errorStatus = .failedToAccessingSecurityScope
             self.errorAlert.toggle()
         }
     }

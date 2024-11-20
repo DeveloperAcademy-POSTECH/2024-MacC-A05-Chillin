@@ -240,81 +240,81 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        // 현재 드래그된 텍스트 가져오는 함수
+        
+        // 하이라이트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
+        
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 
-                switch self.viewModel.toolMode {
-                case .drawing:
-                    switch self.viewModel.drawingToolMode {
-                    case .highlight:
-                        DispatchQueue.main.async {
-                            self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)              // 하이라이트 기능
-                        }
-                    default:
-                        return
-                    }
-                    
-                case .translate, .comment:
-                    guard let selection = self.mainPDFView.currentSelection else {
-                        // 선택된 텍스트가 없을 때 특정 액션
-                        self.viewModel.selectedText = ""                                // 선택된 텍스트 초기화
-                        self.viewModel.isTranslateViewVisible = true                        // 말풍선 뷰 숨김
-                        return
-                    }
-                    
-                    guard let text = selection.string else { return }
-                    
-                    self.selectionWorkItem?.cancel()
-                    
-                    let workItem = DispatchWorkItem { [weak self] in
-                        guard let self = self else { return }
-                        if let page = selection.pages.first {
-                            
-                            // PDFSelection의 bounds 추출(CGRect)
-                            let bound = selection.bounds(for: page)
-                            let convertedBounds = self.mainPDFView.convert(bound, from: page)
-                            
-                            //comment position 설정
-                            let commentPosition = CGPoint(
-                                x: convertedBounds.midX,
-                                y: convertedBounds.maxY + 50
-                            )
-                            
-                            // 선택된 텍스트 가져오기
-                            let selectedText = selection.string ?? ""
-                            
-                            // PDFPage의 좌표를 PDFView의 좌표로 변환
-                            let pagePosition = self.mainPDFView.convert(bound, from: page)
-                            
-                            // PDFView의 좌표를 Screen의 좌표로 변환
-                            let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                            
-                            DispatchQueue.main.async {
-                                // ViewModel에 선택된 텍스트와 위치 업데이트
-                                self.viewModel.selectedText = selectedText
-                                self.viewModel.translateViewPosition = screenPosition              // 위치 업데이트
-                                self.viewModel.isTranslateViewVisible = !selectedText.isEmpty        // 텍스트가 있을 때만 보여줌
-                                
-                                self.viewModel.commentSelection = selection
-                                self.viewModel.commentInputPosition = commentPosition
-                                self.commentViewModel.selectedBounds = bound
-                            }
-                        }
-                    }
-                    
-                    // 텍스트 선택 후 딜레이
-                    self.selectionWorkItem = workItem
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
-                    
-                default:
-                    return
+                DispatchQueue.main.async {
+                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)     // 하이라이트 기능
                 }
             }
             .store(in: &self.cancellable)
+
         
+        // 번역 및 코멘트 기능 실행
+        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                
+                guard let selection = self.mainPDFView.currentSelection else {
+                    // 선택된 텍스트가 없을 때 특정 액션
+                    self.viewModel.selectedText = ""                                                                    // 선택된 텍스트 초기화
+                    self.viewModel.isTranslateViewVisible = true                                                        // 말풍선 뷰 숨김
+                    return
+                }
+                
+                guard let text = selection.string else { return }
+                
+                self.selectionWorkItem?.cancel()
+                
+                let workItem = DispatchWorkItem { [weak self] in
+                    guard let self = self else { return }
+                    if let page = selection.pages.first {
+                        
+                        // PDFSelection의 bounds 추출(CGRect)
+                        let bound = selection.bounds(for: page)
+                        let convertedBounds = self.mainPDFView.convert(bound, from: page)
+                        
+                        //comment position 설정
+                        let commentPosition = CGPoint(
+                            x: convertedBounds.midX,
+                            y: convertedBounds.maxY + 50
+                        )
+                        
+                        // 선택된 텍스트 가져오기
+                        let selectedText = selection.string ?? ""
+                        
+                        // PDFPage의 좌표를 PDFView의 좌표로 변환
+                        let pagePosition = self.mainPDFView.convert(bound, from: page)
+                        
+                        // PDFView의 좌표를 Screen의 좌표로 변환
+                        let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+                        
+                        DispatchQueue.main.async {
+                            // ViewModel에 선택된 텍스트와 위치 업데이트
+                            self.viewModel.selectedText = selectedText
+                            self.viewModel.translateViewPosition = screenPosition                                       // 위치 업데이트
+                            self.viewModel.isTranslateViewVisible = !selectedText.isEmpty                               // 텍스트가 있을 때만 보여줌
+                            
+                            self.viewModel.commentSelection = selection
+                            self.viewModel.commentInputPosition = commentPosition
+                            self.commentViewModel.selectedBounds = bound
+
+                        }
+                    }
+                }
+                
+                // 텍스트 선택 후 딜레이
+                self.selectionWorkItem = workItem
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+            }
+            .store(in: &self.cancellable)
+        
+                
         // 저장하면 currentSelection 해제
         self.viewModel.$isCommentSaved
             .sink { [weak self] isCommentSaved in
@@ -325,6 +325,7 @@ extension OriginalViewController {
             .store(in: &self.cancellable)
     }
 }
+
 
 // MARK: - 탭 제스처 관련
 extension OriginalViewController: UIGestureRecognizerDelegate {
