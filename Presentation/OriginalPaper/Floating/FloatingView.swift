@@ -19,34 +19,56 @@ struct FloatingView: View {
     @Binding var viewWidth: CGFloat
     
     @State private var aspectRatio: CGFloat = 1.0
+    @State private var isSaveImgAlert = false
+    
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Button(action: {
-                    floatingViewModel.setSplitDocument(documentID: documentID)
-                }, label: {
-                    Image(systemName: "rectangle.split.2x1")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.gray600)
-                })
-                
-                Spacer()
+            ZStack {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        floatingViewModel.setSplitDocument(documentID: documentID)
+                    }, label: {
+                        Image(systemName: "rectangle.split.2x1")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.gray600)
+                    })
+                    
+                    Spacer()
+                    
+                    Menu {
+                        Button(action: {
+//                            saveFigImage()
+                            saveFigAlert()
+                            
+                            print("Download Image")
+                            
+                        }, label: {
+                            Text("사진 앱에 저장")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                                .frame(width: 148)
+                        })
+                    } label: {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.gray600)
+                    }
+                    .padding(.trailing, 20)
+                    
+                    Button(action: {
+                        floatingViewModel.deselect(documentID: documentID)
+                    }, label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.gray600)
+                    })
+                }
                 
                 Text(head)
                     .reazyFont(.body3)
                     .foregroundStyle(.gray800)
-                
-                Spacer()
-                
-                Button(action: {
-                    floatingViewModel.deselect(documentID: documentID)
-                }, label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.gray600)
-                })
             }
             .padding(.bottom, 11)
             .padding(.horizontal, 16)
@@ -54,10 +76,27 @@ struct FloatingView: View {
             
             Divider()
             
-            PDFKitView(document: document, isScrollEnabled: true)
-                .frame(width: viewWidth - 36, height: (viewWidth - 36) / aspectRatio)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 14)
+            ZStack {
+                PDFKitView(document: document, isScrollEnabled: true)
+                    .frame(width: viewWidth - 36, height: (viewWidth - 36) / aspectRatio)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 14)
+                
+                if isSaveImgAlert {
+                    VStack {
+                        Text("사진 앱에 저장되었습니다")
+                            .padding()
+                            .frame(width: 190, height: 40)
+                            .reazyFont(.h3)
+                            .background(Color.gray300)
+                            .foregroundStyle(.gray800)
+                            .cornerRadius(12)
+                            .transition(.opacity)                       // 부드러운 전환 효과
+                            .zIndex(1)                                  // ZStack에서의 순서 조정
+                    }
+                    .padding(.bottom, 48)
+                }
+            }
         }
         .frame(width: viewWidth)
         .padding(.vertical, 11)
@@ -88,6 +127,19 @@ struct FloatingView: View {
                 let pageRect = page.bounds(for: .mediaBox)
                 self.aspectRatio = pageRect.width / pageRect.height
                 self.viewWidth = pageRect.width
+            }
+        }
+    }
+    
+    // Fig 이미지 저장 Alert 함수
+    private func saveFigAlert() {
+        withAnimation {
+            isSaveImgAlert = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                isSaveImgAlert = false
             }
         }
     }
