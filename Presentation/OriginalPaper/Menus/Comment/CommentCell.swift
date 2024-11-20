@@ -21,9 +21,9 @@ struct CommentCell: View {
                 .background(.point4)
             
             Text(comment.selectedText.replacingOccurrences(of: "\n", with: ""))
-                    .reazyFont(.body1)
-                    .foregroundStyle(.point4)
-                    .lineLimit(1)
+                .reazyFont(.body1)
+                .foregroundStyle(.point4)
+                .lineLimit(1)
         }
         .padding(.bottom, 8)
         .padding(.top, 20)
@@ -37,12 +37,12 @@ struct CommentCell: View {
             Spacer()
             Menu {
                 ControlGroup {
-                    Button(action: {
+                    Button {
                         //수정 액션
                         viewModel.comment = comment
                         viewModel.isEditMode = true
                         pdfViewModel.isCommentTapped = false
-                    }, label: {
+                    } label: {
                         VStack(alignment: .center, spacing: 3) {
                             Image(systemName: "pencil.line")
                                 .font(.system(size: 14))
@@ -50,15 +50,15 @@ struct CommentCell: View {
                             Text("수정")
                                 .reazyFont(.h3)
                         }
-                    })
+                    }
                     .foregroundStyle(.gray600)
                     
-                    Button(action: {
+                    Button {
                         // 삭제 액션
                         viewModel.deleteComment(commentId: comment.id)
                         pdfViewModel.isCommentTapped = false
                         pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
-                    }, label: {
+                    } label: {
                         VStack(alignment: .center, spacing: 3) {
                             Image(systemName: "trash")
                                 .font(.system(size: 14))
@@ -66,11 +66,11 @@ struct CommentCell: View {
                             Text("삭제")
                                 .reazyFont(.h3)
                         }
-                    })
+                    }
                     .foregroundStyle(.gray600)
                 }
-                .foregroundStyle(.gray100)
-                .border(.primary2, width: 1)
+                .controlGroupStyle(.menu)
+                
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .foregroundStyle(.gray500)
@@ -89,50 +89,50 @@ struct CommentMenuView: View {
     
     var body: some View {
         HStack{
-                Button(action: {
-                    //수정 액션
-                    viewModel.comment = comment
-                    viewModel.isEditMode = true
-                    pdfViewModel.isCommentTapped = false
-                }, label: {
-                    VStack(alignment: .center, spacing: 3) {
-                        Image(systemName: "pencil.line")
-                            .font(.system(size: 14))
-                        
-                        Text("수정")
-                            .reazyFont(.h3)
-                    }
-                })
-                .foregroundStyle(.gray600)
+            Button(action: {
+                //수정 액션
+                viewModel.comment = comment
+                viewModel.isEditMode = true
+                pdfViewModel.isCommentTapped = false
+            }, label: {
+                VStack(alignment: .center, spacing: 3) {
+                    Image(systemName: "pencil.line")
+                        .font(.system(size: 14))
+                    
+                    Text("수정")
+                        .reazyFont(.h3)
+                }
+            })
+            .foregroundStyle(.gray600)
             
             Divider().frame(width: 1, height: 43)
                 .tint(.primary2)
                 .padding(.horizontal, 33)
-                
-                Button(action: {
-                    viewModel.deleteComment(commentId: comment.id)
-                    pdfViewModel.isCommentTapped = false
-                    pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
-                }, label: {
-                    VStack(alignment: .center, spacing: 3) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 14))
-                        
-                        Text("삭제")
-                            .reazyFont(.h3)
-                    }
-                })
-                .foregroundStyle(.gray600)
-            }
-            .padding(.horizontal, 32)
-            .padding(.vertical, 15)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(.gray100)
-                    .border(.primary2, width: 1)
-            )
-            .frame(minWidth: 130)
-            .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
+            
+            Button(action: {
+                viewModel.deleteComment(commentId: comment.id)
+                pdfViewModel.isCommentTapped = false
+                pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
+            }, label: {
+                VStack(alignment: .center, spacing: 3) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 14))
+                    
+                    Text("삭제")
+                        .reazyFont(.h3)
+                }
+            })
+            .foregroundStyle(.gray600)
         }
+        .padding(.horizontal, 32)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .foregroundStyle(.gray100)
+                .border(.primary2, width: 1)
+        )
+        .frame(minWidth: 130)
+        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
+}
 
