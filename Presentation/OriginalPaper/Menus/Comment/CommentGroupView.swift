@@ -44,8 +44,6 @@ private struct CommentView: View {
     var selectedComments: [Comment]
     
     var body: some View {
-        ZStack {
-            
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(selectedComments.indices, id: \.self) { index in
                     CommentCell(viewModel: viewModel, comment: selectedComments[index])
@@ -59,16 +57,7 @@ private struct CommentView: View {
                     }
                 }
             }
-            .foregroundStyle(.point2)
-            
-//            if let comment = viewModel.comment {
-//                if isMenuTapped {
-//                    CommentMenuView(viewModel: viewModel, comment: comment)
-//                        .position(x: commentMenuPosition.x, y: commentMenuPosition.y)
-//                }
-//            }
-        }
-        
+            .foregroundStyle(.point2)        
     }
 }
 

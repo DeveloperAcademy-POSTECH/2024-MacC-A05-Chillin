@@ -47,9 +47,14 @@ struct CommentCell: View {
             .background(
                 GeometryReader { geometry in
                     Color.clear
-                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
-                            viewModel.commentMenuPosition = newValue.origin
+                        .onAppear {
+                            print("Initial frame:", geometry.frame(in: .global))
+                            viewModel.commentMenuPosition = geometry.frame(in: .global).origin
                         }
+//                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
+//                            viewModel.commentMenuPosition = newValue.origin
+//                            print(viewModel.commentMenuPosition)
+//                        }
                 }
             )
         }
