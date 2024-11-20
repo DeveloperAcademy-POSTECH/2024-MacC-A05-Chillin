@@ -18,27 +18,21 @@ struct SearchView: View {
     @State private var searchTimer: Timer?
     @State private var selectedIndex: Int?
     @State private var isTapGesture: Bool = false
-    @State private var isSearchViewHidden: Bool = false
+    @State private var isPortrait: Bool = false
     
-    @FocusState private var focus: Bool
-    
-    let publisher = NotificationCenter.default.publisher(for: .isSearchViewHidden)
+    let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         VStack {
             ZStack {
                 VStack {
-                    SearchTextFieldView(
-                        viewModel: viewModel,
-                        isSearchViewHidden: $isSearchViewHidden,
-                        focus: $focus)
+                    SearchTextFieldView(viewModel: viewModel)
                     
                     if !viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
                         SearchTopView(
                             viewModel: viewModel,
                             isTapGesture: $isTapGesture,
-                            selectedIndex: $selectedIndex,
-                            focus: $focus)
+                            selectedIndex: $selectedIndex)
                     }
                     
                     
@@ -59,15 +53,14 @@ struct SearchView: View {
                         SearchListView(
                             viewModel: viewModel,
                             isTapGesture: $isTapGesture,
-                            selectedIndex: $selectedIndex,
-                            focus: $focus)
+                            selectedIndex: $selectedIndex)
                     } else {
                         Spacer()
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, isPortrait ? 11 : 16)
             }
-            .frame(width: 252)
+            .frame(width: isPortrait ? 184 : 252)
             .onChange(of: viewModel.searchText) {
                 viewModel.isSearched = false
                 fetchSearchResult()
@@ -81,10 +74,20 @@ struct SearchView: View {
             }
             .onAppear {
                 UITextField.appearance().clearButtonMode = .whileEditing
+                if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+                    self.isPortrait = true
+                }
             }
-            .onReceive(publisher) { a in
-                if let _ = a.userInfo?["hitted"] as? Bool {
-                    self.isSearchViewHidden = true
+            .onReceive(orientationPublisher) { noti in
+                let currentOrientation = UIDevice.current.orientation
+                
+                switch currentOrientation {
+                case .portrait, .portraitUpsideDown:
+                    self.isPortrait = true
+                case .landscapeLeft, .landscapeRight:
+                    self.isPortrait = false
+                default:
+                    break
                 }
             }
         }
@@ -103,14 +106,11 @@ struct SearchView: View {
 private struct SearchTextFieldView: View {
     @ObservedObject var viewModel: SearchViewModel
     
-    @Binding var isSearchViewHidden: Bool
-    
-    var focus: FocusState<Bool>.Binding
+    @FocusState private var focus: Bool
     
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-//                .frame(width: 220, height: 33)
                 .foregroundStyle(.gray200)
             
             HStack(spacing: 0) {
@@ -119,20 +119,12 @@ private struct SearchTextFieldView: View {
                     .padding(.leading, 8)
                     .foregroundStyle(Color(hex: "9092A9"))
                 
-                TextField("검색", text: $viewModel.searchText) {
-                    if $0 {
-                        isSearchViewHidden = false
-                    }
-                }
-                .padding(.leading, 4)
-                .padding(.trailing, 10)
-                .foregroundStyle(.gray800)
-                .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
-                .focused(focus)
-                .onAppear {
-                    focus.wrappedValue = true
-                }
-                    
+                TextField("검색", text: $viewModel.searchText)
+                    .padding(.leading, 4)
+                    .padding(.trailing, 10)
+                    .foregroundStyle(.gray800)
+                    .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
+                    .focused($focus)
             }
         }
         .frame(height: 33)
@@ -149,8 +141,6 @@ private struct SearchTopView: View {
     
     @Binding var isTapGesture: Bool
     @Binding var selectedIndex: Int?
-    
-    var focus: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
@@ -185,7 +175,6 @@ private struct SearchTopView: View {
     
     private func nextResult() {
         self.isTapGesture = false
-        self.focus.wrappedValue = false
         if self.selectedIndex == nil { return }
         
         let count = self.viewModel.searchResults.count
@@ -200,7 +189,6 @@ private struct SearchTopView: View {
     
     private func previousResult() {
         self.isTapGesture = false
-        self.focus.wrappedValue = false
         if self.selectedIndex == nil { return }
         
         if self.selectedIndex! == 0 {
@@ -223,8 +211,6 @@ private struct SearchListView: View {
     @Binding var isTapGesture: Bool
     @Binding var selectedIndex: Int?
     
-    var focus: FocusState<Bool>.Binding
-    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -235,7 +221,6 @@ private struct SearchListView: View {
                                 .onTapGesture {
                                     self.isTapGesture = true
                                     self.selectedIndex = index
-                                    focus.wrappedValue = false
                                 }
                                 .background {
                                     RoundedRectangle(cornerRadius: 8)
