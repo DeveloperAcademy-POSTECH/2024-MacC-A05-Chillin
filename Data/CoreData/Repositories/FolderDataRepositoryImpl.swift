@@ -17,13 +17,23 @@ class FolderDataRepositoryImpl: FolderDataRepository {
         let dataContext = container.viewContext
         let fetchRequest: NSFetchRequest<FolderData> = FolderData.fetchRequest()
         
-        var folderCache: [UUID: Folder] = [:]
-        
         do {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
-            let folderList = fetchedDataList.map { folderData in
-                convertToFolder(folderData: folderData, cache: &folderCache)
+            let folderList = fetchedDataList.map { folderData -> Folder in
+                let subFolderUUIDs = decodeStringToUUIDs(folderData.subFolderIDs)
+                
+                return Folder(
+                    id: folderData.id,
+                    title: folderData.title,
+                    createdAt: folderData.createdAt,
+                    color: folderData.color,
+                    memo: folderData.memo,
+                    isFavorite: folderData.isFavorite,
+                    parentFolderID: folderData.parentFolderID ?? nil,
+                    subFolderIDs: subFolderUUIDs
+                )
             }
+            
             return .success(folderList)
         } catch {
             return .failure(error)
@@ -38,23 +48,11 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             folderData.id = folder.id
             folderData.title = folder.title
             folderData.createdAt = folder.createdAt
-            folderData.color = UIColor(folder.color)
+            folderData.color = folder.color
             folderData.memo = folder.memo
             folderData.isFavorite = folder.isFavorite
-            
-            if let parentFolder = folder.parentFolder {
-                let fetchRequest: NSFetchRequest<FolderData> = FolderData.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "id == %@", parentFolder.id as CVarArg)
-                
-                if let parentFolderData = try dataContext.fetch(fetchRequest).first {
-                    if parentFolderData.subFolders == nil {
-                        parentFolderData.subFolders = []
-                    }
-                    
-                    parentFolderData.subFolders?.insert(folderData)
-                    folderData.parentFolder = parentFolderData
-                }
-            }
+            folderData.parentFolderID = folder.parentFolderID
+            folderData.subFolderIDs = encodeUUIDsToString(folder.subFolderIDs)
             
             try dataContext.save()
             return .success(VoidResponse())
@@ -74,7 +72,7 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             }
             
             folderData.title = folder.title
-            folderData.color = UIColor(folder.color)
+            folderData.color = folder.color
             folderData.memo = folder.memo
             folder.isFavorite = folderData.isFavorite
             
@@ -106,62 +104,22 @@ class FolderDataRepositoryImpl: FolderDataRepository {
 }
 
 extension FolderDataRepositoryImpl {
-    private func convertToFolder(folderData: FolderData, cache: inout [UUID: Folder]) -> Folder {
-        // 이미 변환된 폴더가 있다면 반환
-        if let cachedFolder = cache[folderData.id] {
-            return cachedFolder
+    // [UUID] -> JSON 문자열
+    func encodeUUIDsToString(_ uuids: [UUID]) -> String {
+        let uuidStrings = uuids.map { $0.uuidString }
+        if let jsonData = try? JSONSerialization.data(withJSONObject: uuidStrings),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            return jsonString
         }
-        
-        // 상위 폴더 처리
-        let parentFolder = folderData.parentFolder.flatMap { parentData in
-            convertToFolder(folderData: parentData, cache: &cache)
-        }
-        
-        // 하위 폴더 처리
-        let subFolders = convertSubFolders(subFoldersData: folderData.subFolders, cache: &cache)
-        
-        let documents = convertDocuments(documentsData: folderData.documents)
-        
-        let folder = Folder(
-            id: folderData.id,
-            title: folderData.title,
-            color: Color(uiColor: folderData.color),
-            parentFolder: parentFolder,
-            subFolders: subFolders,
-            documents: documents
-        )
-        
-        cache[folderData.id] = folder
-        return folder
+        return "[]"
     }
     
-    private func convertSubFolders(subFoldersData: Set<FolderData>?, cache: inout [UUID: Folder]) -> [Folder] {
-        guard let subFoldersDataSet = subFoldersData else {
+    // JSON 문자열 -> [UUID]
+    func decodeStringToUUIDs(_ jsonString: String) -> [UUID] {
+        guard let jsonData = jsonString.data(using: .utf8),
+              let uuidStrings = try? JSONSerialization.jsonObject(with: jsonData) as? [String] else {
             return []
         }
-        
-        return subFoldersDataSet.map { subFolderData in
-            convertToFolder(folderData: subFolderData, cache: &cache)
-        }
-    }
-    
-    private func convertDocuments(documentsData: Set<PaperData>?) -> [PaperInfo] {
-        guard let documentsDataSet = documentsData else {
-            return []
-        }
-        
-        return documentsDataSet.map { paperData in
-            PaperInfo(
-                id: paperData.id,
-                title: paperData.title,
-                thumbnail: paperData.thumbnail,
-                url: paperData.url,
-                lastModifiedDate: paperData.lastModifiedDate,
-                isFavorite: paperData.isFavorite,
-                memo: paperData.memo,
-                isFigureSaved: paperData.isFigureSaved
-            )
-        }
+        return uuidStrings.compactMap { UUID(uuidString: $0) }
     }
 }
-

@@ -50,7 +50,7 @@ struct PaperListView: View {
                                         .foregroundStyle(.primary1)
                                         .padding(.trailing, 7)
                                     
-                                    Text(homeViewModel.currentFolder?.parentFolder?.title ?? "전체")
+                                    Text(homeViewModel.parentFolderTitle ?? "전체")
                                         .reazyFont(.h2)
                                         .foregroundStyle(.primary1)
                                 }
@@ -148,7 +148,7 @@ struct PaperListView: View {
                                             isPaper: false,
                                             title: folder.title,
                                             date: timeAgoString(from: folder.createdAt),
-                                            color: folder.color,
+                                            color: FolderColors.color(for: folder.color),
                                             isSelected: selectedItemID == folder.id,
                                             isEditing: isEditing,
                                             isEditingSelected: selectedItems.contains(index),
@@ -231,7 +231,7 @@ struct PaperListView: View {
                                 FolderInfoView(
                                     id: folder.id,
                                     title: folder.title,
-                                    color: folder.color,
+                                    color: FolderColors.color(for: folder.color),
                                     memo: folder.memo,
                                     isFavorite: folder.isFavorite,
                                     isStarSelected: folder.isFavorite,

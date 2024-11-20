@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 import UIKit
 
 class PaperDataRepositoryImpl: PaperDataRepository {
@@ -29,7 +30,8 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                     lastModifiedDate: paperData.lastModifiedDate,
                     isFavorite: paperData.isFavorite,
                     memo: paperData.memo ?? nil,
-                    isFigureSaved: paperData.isFigureSaved
+                    isFigureSaved: paperData.isFigureSaved,
+                    folderID: paperData.folderID ?? nil
                 )
             }
             return .success(pdfDataList)
@@ -51,6 +53,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         newPaperData.isFavorite = info.isFavorite
         newPaperData.memo = info.memo
         newPaperData.isFigureSaved = info.isFigureSaved
+        newPaperData.folderID = info.folderID
         
         do {
             try dataContext.save()
@@ -76,6 +79,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 dataToEdit.isFavorite = info.isFavorite
                 dataToEdit.memo = info.memo
                 dataToEdit.isFigureSaved = info.isFigureSaved
+                dataToEdit.folderID = info.folderID
                 
                 try dataContext.save()
                 return .success(VoidResponse())
@@ -102,39 +106,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             } else {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
             }
-        } catch {
-            return .failure(error)
-        }
-    }
-    
-    // 폴더 경로를 변경합니다
-    func moveFolder(pdfID: UUID, folderID: UUID) -> Result<VoidResponse, any Error> {
-        let dataContext = container.viewContext
-        
-        do {
-            let documentFetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
-            documentFetchRequest.predicate = NSPredicate(format: "id == %@", pdfID as CVarArg)
-            
-            guard let document = try dataContext.fetch(documentFetchRequest).first else {
-                return .failure(NSError(domain: "MoveDocumentError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Document not found"]))
-            }
-            
-            let folderFetchRequest: NSFetchRequest<FolderData> = FolderData.fetchRequest()
-            folderFetchRequest.predicate = NSPredicate(format: "id == %@", folderID as CVarArg)
-            
-            guard let destinationFolder = try dataContext.fetch(folderFetchRequest).first else {
-                return .failure(NSError(domain: "MoveDocumentError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Destination folder not found"]))
-            }
-            
-            if let currentFolder = document.folder {
-                currentFolder.documents?.remove(document)
-            }
-            
-            destinationFolder.documents?.insert(document)
-            document.folder = destinationFolder
-            
-            try dataContext.save()
-            return .success(VoidResponse())
         } catch {
             return .failure(error)
         }

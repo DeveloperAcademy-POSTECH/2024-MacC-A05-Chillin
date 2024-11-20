@@ -470,9 +470,9 @@ private struct FolderView: View {
                     Button(action: {
                         // 최상위 단계와 폴더 진입 단계 구분
                         if homeViewModel.isAtRoot {
-                            homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.color)
+                            homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
                         } else {
-                            homeViewModel.saveFolder(to: homeViewModel.currentFolder, title: text, color: selectedColors.color)
+                            homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
                         }
                         isEditingFolder.toggle()
                     }) {

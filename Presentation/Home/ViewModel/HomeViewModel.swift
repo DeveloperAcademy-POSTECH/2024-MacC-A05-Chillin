@@ -33,6 +33,15 @@ class HomeViewModel: ObservableObject {
             print(error)
             return
         }
+        
+        switch homeViewUseCase.loadFolders() {
+        case .success(let folders):
+            print(folders)
+            self.rootFolders = folders
+        case .failure(let error):
+            print(error)
+            return
+        }
     }
 }
 
@@ -40,7 +49,9 @@ class HomeViewModel: ObservableObject {
 extension HomeViewModel {
     public func uploadPDF(url: [URL]) -> UUID? {
         do {
-            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url)
+            let currentFolderID = currentFolder?.id
+            
+            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: currentFolderID)
             if paperInfo != nil {
                 self.paperInfos.append(paperInfo!)
             }
@@ -136,17 +147,31 @@ extension HomeViewModel {
             url: try! Data(contentsOf: sampleUrl),
             isFavorite: false,
             memo: "test",
-            isFigureSaved: false
+            isFigureSaved: false,
+            folderID: nil
         ))
     }
 }
 
 extension HomeViewModel {
     func filteringList(isFavoriteSelected: Bool) -> [FileSystemItem] {
-        let currentFolders = currentFolder?.subFolders ?? rootFolders
+        var currentFolders: [Folder] {
+            guard let folder = currentFolder else {
+                return rootFolders.filter { $0.parentFolderID == nil }
+            }
+            return rootFolders.filter { $0.parentFolderID == folder.id }
+        }
+        
+        var currentDocuments: [PaperInfo] {
+            guard let folder = currentFolder else {
+                return paperInfos.filter { $0.folderID == nil }
+            }
+            return paperInfos.filter { $0.folderID == folder.id }
+        }
+        
         return isFavoriteSelected
-        ? sortFavoriteLists(paperInfos: paperInfos, folders: currentFolders)
-        : sortLists(paperInfos: paperInfos, folders: currentFolders)
+        ? sortFavoriteLists(paperInfos: currentDocuments, folders: currentFolders)
+        : sortLists(paperInfos: currentDocuments, folders: currentFolders)
     }
     
     /// 전체 리스트
@@ -171,23 +196,39 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    public func saveFolder(to parentFolder: Folder?, title: String, color: Color) {
-        // TODO: - [브리] CoreData 연결 시 수정 필요
-        let newFolder = self.homeViewUseCase.createFolder(to: parentFolder, title: title, color: color)
+    public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
+        let folder = Folder(
+            id: UUID(),
+            title: title,
+            color: color,
+            parentFolderID: parentFolderID
+        )
         
-        if let parent = parentFolder {
-            if parent.subFolders == nil {
-                parent.subFolders = []
+        return folder
+    }
+    
+    public func saveFolder(to parentFolderID: UUID?, title: String, color: String) {
+        let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
+        
+        self.homeViewUseCase.saveFolder(newFolder)
+        
+        if let parentID = parentFolderID {
+            if let parentIndex = rootFolders.firstIndex(where: { $0.id == parentID }) {
+                rootFolders[parentIndex].subFolderIDs.append(newFolder.id)
+                
+                if currentFolder?.id == parentID {
+                    currentFolder?.subFolderIDs.append(newFolder.id)
+                }
             }
-            parent.subFolders?.append(newFolder)
         } else {
             rootFolders.append(newFolder)
         }
+
     }
     
     public func navigateToParent() {
-        if let parent = currentFolder?.parentFolder {
-            currentFolder = parent
+        if let parentID = currentFolder?.parentFolderID {
+            currentFolder = rootFolders.first { $0.id == parentID }
         } else {
             currentFolder = nil
         }
@@ -195,5 +236,12 @@ extension HomeViewModel {
     
     public func navigateTo(folder: Folder) {
         currentFolder = folder
+    }
+    
+    var parentFolderTitle: String? {
+        guard let parentID = currentFolder?.parentFolderID else {
+            return nil
+        }
+        return rootFolders.first { $0.id == parentID }?.title
     }
 }

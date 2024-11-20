@@ -23,9 +23,4 @@ protocol PaperDataRepository {
     /// PDF 정보를 삭제합니다
     @discardableResult
     func deletePDFInfo(id: UUID) -> Result<VoidResponse, Error>
-    
-    
-    /// 폴더 경로를 변경합니다
-    @discardableResult
-    func moveFolder(pdfID: UUID, folderID: UUID) -> Result<VoidResponse, Error>
 }

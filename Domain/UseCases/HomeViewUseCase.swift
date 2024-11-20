@@ -22,19 +22,29 @@ protocol HomeViewUseCase {
     @discardableResult
     func deletePDFs(id: [UUID]) -> Result<VoidResponse, any Error>
     
-    func uploadPDFFile(url: [URL]) throws -> PaperInfo?
+    func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
     func uploadSamplePDFFile() -> PaperInfo?
     
+    func loadFolders() -> Result<[Folder], any Error>
+    
     @discardableResult
-    func createFolder(to parentFolder: Folder?, title: String, color: Color) -> Folder
+    func saveFolder(_ folder: Folder) -> Result<VoidResponse, any Error>
+    
+    @discardableResult
+    func editFolder(_ folder: Folder) -> Result<VoidResponse, any Error>
+    
+    @discardableResult
+    func deleteFolders(id: [UUID]) -> Result<VoidResponse, any Error>
 }
 
 
 class DefaultHomeViewUseCase: HomeViewUseCase {
     private let paperDataRepository: PaperDataRepository
+    private let folderDataRepository: FolderDataRepository
     
-    init(paperDataRepository: PaperDataRepository) {
+    init(paperDataRepository: PaperDataRepository, folderDataRepository: FolderDataRepository) {
         self.paperDataRepository = paperDataRepository
+        self.folderDataRepository = folderDataRepository
     }
     
     public func loadPDFs() -> Result<[PaperInfo], any Error> {
@@ -63,7 +73,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         return result!
     }
     
-    public func uploadPDFFile(url: [URL]) throws -> PaperInfo? {
+    public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
         
         guard url.startAccessingSecurityScopedResource() else {
@@ -94,7 +104,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: thumbnailData!,
-                url: urlData
+                url: urlData,
+                folderID: folderID
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -104,7 +115,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
-                url: urlData
+                url: urlData,
+                folderID: folderID
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -151,14 +163,29 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         }
     }
     
-    public func createFolder(to parentFolder: Folder?, title: String, color: Color) -> Folder {
-        let folder = Folder(
-            id: UUID(),
-            title: title,
-            color: color,
-            parentFolder: parentFolder
-        )
-        
-        return folder
+    public func loadFolders() -> Result<[Folder], any Error> {
+        self.folderDataRepository.loadFolders()
+    }
+    
+    public func saveFolder(_ folder: Folder) -> Result<VoidResponse, any Error> {
+        self.folderDataRepository.saveFolder(folder)
+    }
+    
+    public func editFolder(_ folder: Folder) -> Result<VoidResponse, any Error> {
+        self.folderDataRepository.editFolder(folder)
+    }
+    
+    public func deleteFolders(id: [UUID]) -> Result<VoidResponse, any Error> {
+        var result: Result<VoidResponse, any Error>? = nil
+        id.forEach {
+            switch self.folderDataRepository.deleteFolder(id: $0) {
+            case .success(let success):
+                result = .success(success)
+            case .failure(let error):
+                result = .failure(error)
+                break
+            }
+        }
+        return result!
     }
 }

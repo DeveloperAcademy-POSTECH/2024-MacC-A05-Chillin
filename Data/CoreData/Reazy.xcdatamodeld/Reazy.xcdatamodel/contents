@@ -27,17 +27,17 @@
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="figureData" inverseEntity="PaperData"/>
     </entity>
     <entity name="FolderData" representedClassName="FolderData" syncable="YES">
-        <attribute name="color" optional="YES" attributeType="Transformable"/>
+        <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="memo" optional="YES" attributeType="String"/>
+        <attribute name="parentFolderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="subFolderIDs" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <relationship name="documents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PaperData" inverseName="folder" inverseEntity="PaperData"/>
-        <relationship name="parentFolder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FolderData" inverseName="subFolder" inverseEntity="FolderData"/>
-        <relationship name="subFolder" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FolderData" inverseName="parentFolder" inverseEntity="FolderData"/>
     </entity>
     <entity name="PaperData" representedClassName="PaperData" syncable="YES">
+        <attribute name="folderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isFigureSaved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -49,7 +49,6 @@
         <relationship name="buttonGroup" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ButtonGroupData" inverseName="paperData" inverseEntity="ButtonGroupData"/>
         <relationship name="commentData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentData" inverseName="paperData" inverseEntity="CommentData"/>
         <relationship name="figureData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FigureData" inverseName="paperData" inverseEntity="FigureData"/>
-        <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FolderData" inverseName="documents" inverseEntity="FolderData"/>
     </entity>
     <entity name="SelectionByLine" representedClassName="SelectionByLine" syncable="YES">
         <attribute name="bounds" optional="YES" attributeType="Binary" valueTransformerName="CGRectValueTransformer"/>

@@ -200,6 +200,10 @@ enum FolderColors: String, CaseIterable {
             return Color(hex: "EE7EAF")
         }
     }
+    
+    static func color(for rawValue: String) -> Color {
+        return FolderColors(rawValue: rawValue)?.color ?? .primary1
+    }
 }
 
 struct FolderColorButton: View {

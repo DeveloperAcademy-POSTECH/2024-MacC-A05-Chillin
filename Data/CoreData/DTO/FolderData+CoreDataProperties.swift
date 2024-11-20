@@ -18,11 +18,9 @@ extension FolderData {
     @NSManaged public var id: UUID
     @NSManaged public var title: String
     @NSManaged public var createdAt: Date
-    @NSManaged public var color: UIColor
+    @NSManaged public var color: String
     @NSManaged public var memo: String?
     @NSManaged public var isFavorite: Bool
-    
-    @NSManaged public var parentFolder: FolderData?
-    @NSManaged public var subFolders: Set<FolderData>?
-    @NSManaged public var documents: Set<PaperData>?
+    @NSManaged public var parentFolderID: UUID?
+    @NSManaged public var subFolderIDs: String
 }
