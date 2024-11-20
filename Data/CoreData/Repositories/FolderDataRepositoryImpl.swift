@@ -20,7 +20,6 @@ class FolderDataRepositoryImpl: FolderDataRepository {
         do {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let folderList = fetchedDataList.map { folderData -> Folder in
-                let subFolderUUIDs = decodeStringToUUIDs(folderData.subFolderIDs)
                 
                 return Folder(
                     id: folderData.id,
@@ -29,8 +28,7 @@ class FolderDataRepositoryImpl: FolderDataRepository {
                     color: folderData.color,
                     memo: folderData.memo,
                     isFavorite: folderData.isFavorite,
-                    parentFolderID: folderData.parentFolderID ?? nil,
-                    subFolderIDs: subFolderUUIDs
+                    parentFolderID: folderData.parentFolderID ?? nil
                 )
             }
             
@@ -52,7 +50,6 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             folderData.memo = folder.memo
             folderData.isFavorite = folder.isFavorite
             folderData.parentFolderID = folder.parentFolderID
-            folderData.subFolderIDs = encodeUUIDsToString(folder.subFolderIDs)
             
             try dataContext.save()
             return .success(VoidResponse())
@@ -92,6 +89,7 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             let results = try dataContext.fetch(fetchRequest)
             if let folderToDelete = results.first {
                 dataContext.delete(folderToDelete)
+                
                 try dataContext.save()
                 return .success(VoidResponse())
             } else {
@@ -100,26 +98,5 @@ class FolderDataRepositoryImpl: FolderDataRepository {
         } catch {
             return .failure(error)
         }
-    }
-}
-
-extension FolderDataRepositoryImpl {
-    // [UUID] -> JSON 문자열
-    func encodeUUIDsToString(_ uuids: [UUID]) -> String {
-        let uuidStrings = uuids.map { $0.uuidString }
-        if let jsonData = try? JSONSerialization.data(withJSONObject: uuidStrings),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            return jsonString
-        }
-        return "[]"
-    }
-    
-    // JSON 문자열 -> [UUID]
-    func decodeStringToUUIDs(_ jsonString: String) -> [UUID] {
-        guard let jsonData = jsonString.data(using: .utf8),
-              let uuidStrings = try? JSONSerialization.jsonObject(with: jsonData) as? [String] else {
-            return []
-        }
-        return uuidStrings.compactMap { UUID(uuidString: $0) }
     }
 }

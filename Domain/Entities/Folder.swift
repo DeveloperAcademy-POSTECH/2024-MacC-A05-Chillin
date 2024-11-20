@@ -21,7 +21,6 @@ class Folder: CustomStringConvertible {
     var isFavorite: Bool
     
     var parentFolderID: UUID?
-    var subFolderIDs: [UUID]
     
     init(
         id: UUID,
@@ -30,8 +29,7 @@ class Folder: CustomStringConvertible {
         color: String,
         memo: String? = nil,
         isFavorite: Bool = false,
-        parentFolderID: UUID?,
-        subFolderIDs: [UUID] = []
+        parentFolderID: UUID?
     ) {
         self.id = id
         self.title = title
@@ -40,9 +38,9 @@ class Folder: CustomStringConvertible {
         self.memo = memo
         self.isFavorite = isFavorite
         self.parentFolderID = parentFolderID
-        self.subFolderIDs = subFolderIDs
     }
     
+    /// class 내부 값 확인을 위한 custom description
     var description: String {
             """
             Folder:
@@ -53,7 +51,6 @@ class Folder: CustomStringConvertible {
             - Memo: \(memo ?? "None")
             - Is Favorite: \(isFavorite)
             - Parent Folder ID: \(parentFolderID?.uuidString ?? "None")
-            - Sub Folder IDs: \(subFolderIDs.map { $0.uuidString }.joined(separator: ", "))
             """
     }
 }

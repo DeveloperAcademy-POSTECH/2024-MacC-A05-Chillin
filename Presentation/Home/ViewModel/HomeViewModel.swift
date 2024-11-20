@@ -12,7 +12,9 @@ import SwiftUI
 class HomeViewModel: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
     
-    @Published public var rootFolders: [Folder] = []
+    // 전체 폴더 배열
+    @Published public var folders: [Folder] = []
+    // 현재 위치한 폴더
     @Published public var currentFolder: Folder? = nil
     public var isAtRoot: Bool {
         return currentFolder == nil
@@ -37,7 +39,7 @@ class HomeViewModel: ObservableObject {
         switch homeViewUseCase.loadFolders() {
         case .success(let folders):
             print(folders)
-            self.rootFolders = folders
+            self.folders = folders
         case .failure(let error):
             print(error)
             return
@@ -157,9 +159,9 @@ extension HomeViewModel {
     func filteringList(isFavoriteSelected: Bool) -> [FileSystemItem] {
         var currentFolders: [Folder] {
             guard let folder = currentFolder else {
-                return rootFolders.filter { $0.parentFolderID == nil }
+                return folders.filter { $0.parentFolderID == nil }
             }
-            return rootFolders.filter { $0.parentFolderID == folder.id }
+            return folders.filter { $0.parentFolderID == folder.id }
         }
         
         var currentDocuments: [PaperInfo] {
@@ -211,22 +213,12 @@ extension HomeViewModel {
         let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
         
         self.homeViewUseCase.saveFolder(newFolder)
-        rootFolders.append(newFolder)
-        
-        if let parentID = parentFolderID {
-            if let parentIndex = rootFolders.firstIndex(where: { $0.id == parentID }) {
-                rootFolders[parentIndex].subFolderIDs.append(newFolder.id)
-                
-                if currentFolder?.id == parentID {
-                    currentFolder?.subFolderIDs.append(newFolder.id)
-                }
-            }
-        }
+        folders.append(newFolder)
     }
     
     public func navigateToParent() {
         if let parentID = currentFolder?.parentFolderID {
-            currentFolder = rootFolders.first { $0.id == parentID }
+            currentFolder = folders.first { $0.id == parentID }
         } else {
             currentFolder = nil
         }
@@ -240,6 +232,6 @@ extension HomeViewModel {
         guard let parentID = currentFolder?.parentFolderID else {
             return nil
         }
-        return rootFolders.first { $0.id == parentID }?.title
+        return folders.first { $0.id == parentID }?.title
     }
 }

@@ -22,5 +22,4 @@ extension FolderData {
     @NSManaged public var memo: String?
     @NSManaged public var isFavorite: Bool
     @NSManaged public var parentFolderID: UUID?
-    @NSManaged public var subFolderIDs: String
 }

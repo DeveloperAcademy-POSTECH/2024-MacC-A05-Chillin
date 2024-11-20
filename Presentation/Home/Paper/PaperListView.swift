@@ -42,7 +42,9 @@ struct PaperListView: View {
                         // 최상위 폴더가 아닐 경우에 등장
                         if !homeViewModel.isAtRoot {
                             Button(action: {
-                                homeViewModel.navigateToParent()
+                                withAnimation(nil) {
+                                    homeViewModel.navigateToParent()
+                                }
                             }) {
                                 HStack(spacing: 0) {
                                     Image(systemName: "chevron.left")
@@ -55,6 +57,7 @@ struct PaperListView: View {
                                         .foregroundStyle(.primary1)
                                 }
                             }
+                            .transition(.identity)
                         }
                         Spacer()
                         

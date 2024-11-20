@@ -33,7 +33,6 @@
         <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="memo" optional="YES" attributeType="String"/>
         <attribute name="parentFolderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="subFolderIDs" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
     </entity>
     <entity name="PaperData" representedClassName="PaperData" syncable="YES">
