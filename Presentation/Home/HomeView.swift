@@ -116,11 +116,11 @@ struct HomeView: View {
                     isFavoriteSelected: $isFavoriteSelected
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo || isEditingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder ? 20 : 0)
             
             
             Color.black
-                .opacity( isEditingTitle || isEditingMemo || isEditingFolder ? 0.5 : 0)
+                .opacity( isEditingTitle || isEditingMemo || createFolder || isEditingFolder햣  ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
             
@@ -131,7 +131,7 @@ struct HomeView: View {
                     paperInfo: homeViewModel.paperInfos.first { $0.id == selectedItemID! }!)
             }
             
-            if isEditingFolder {
+            if createFolder || isEditingFolder {
                 FolderView(
                     createFolder: $createFolder,
                     isEditingFolder: $isEditingFolder,
