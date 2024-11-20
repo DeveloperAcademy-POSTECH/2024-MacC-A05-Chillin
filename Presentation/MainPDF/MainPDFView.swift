@@ -40,7 +40,6 @@ struct MainPDFView: View {
     @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
     
-    @State private var isMenuSelected: Bool = false
     @State private var menuButtonPosition: CGPoint = .zero
     private let publisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
@@ -129,7 +128,7 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 withAnimation {
-                                    isMenuSelected.toggle()
+                                    mainPDFViewModel.isMenuSelected.toggle()
                                 }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
@@ -271,12 +270,12 @@ struct MainPDFView: View {
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
                 
-                if isMenuSelected {
+                if mainPDFViewModel.isMenuSelected {
                     PDFInfoMenu()
                         .environmentObject(pdfInfoMenuViewModel)
                         .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
                         .transition(.opacity)
-                        .animation(.easeInOut, value: isMenuSelected) // 애니메이션 설정
+                        .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected) // 애니메이션 설정
                 }
             }
             
@@ -358,7 +357,7 @@ struct MainPDFView: View {
         }
         .onReceive(publisher) { a in
             if let _ = a.userInfo?["hitted"] as? Bool {
-                isMenuSelected = false
+                mainPDFViewModel.isMenuSelected = false
             }
         }
         

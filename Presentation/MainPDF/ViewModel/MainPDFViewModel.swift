@@ -59,6 +59,8 @@ final class MainPDFViewModel: ObservableObject {
     public var pdfDrawer: PDFDrawer = .init()
     
     public var pdfSharedData: PDFSharedData = .shared
+    
+    @Published var isMenuSelected: Bool = false
         
     init() {
 //        self.paperInfo = paperInfo
