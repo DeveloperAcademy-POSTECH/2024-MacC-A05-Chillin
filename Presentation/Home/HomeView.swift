@@ -120,7 +120,7 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity( isEditingTitle || isEditingMemo || createFolder || isEditingFolder햣  ? 0.5 : 0)
+                .opacity( isEditingTitle || isEditingMemo || createFolder || isEditingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
             
