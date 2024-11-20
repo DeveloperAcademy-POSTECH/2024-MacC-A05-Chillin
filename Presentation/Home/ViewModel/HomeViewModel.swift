@@ -228,6 +228,13 @@ extension HomeViewModel {
         }
     }
     
+    public func deleteFolder(ids: [UUID]) {
+        self.homeViewUseCase.deleteFolders(id: ids)
+        ids.forEach { id in
+            self.folders.removeAll(where: { $0.id == id })
+        }
+    }
+    
     public func navigateToParent() {
         if let parentID = currentFolder?.parentFolderID {
             currentFolder = folders.first { $0.id == parentID }

@@ -245,7 +245,11 @@ struct PaperListView: View {
                                         homeViewModel.navigateTo(folder: folder)
                                     },
                                     onDelete: {
-                                        // TODO: - [브리] Folder 삭제 코드 작성
+                                        if filteredLists.isEmpty {
+                                            selectedItemID = nil
+                                        } else {
+                                            selectedItemID = filteredLists.first?.id
+                                        }
                                     }
                                 )
                             }

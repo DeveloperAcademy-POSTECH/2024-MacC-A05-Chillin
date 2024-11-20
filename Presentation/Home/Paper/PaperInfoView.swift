@@ -205,12 +205,13 @@ struct PaperInfoView: View {
             Alert(
                 title: Text("정말 삭제하시겠습니까?"),
                 message: Text("삭제된 파일은 복구할 수 없습니다."),
-                primaryButton: .destructive(Text("삭제")) {
+                primaryButton: .default(Text("취소")),
+                secondaryButton: .destructive(Text("삭제")) {
                     let ids = [id]
                     self.homeViewModel.deletePDF(ids: ids)
                     onDelete()
-                },
-                secondaryButton: .default(Text("취소")))
+                }
+            )
         }
     }
     
