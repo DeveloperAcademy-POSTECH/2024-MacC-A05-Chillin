@@ -18,6 +18,8 @@ struct PaperInfo {
     var memo: String?
     var isFigureSaved: Bool
     
+    var folderID: UUID?
+    
     init(
         id: UUID = .init(),
         title: String,
@@ -26,7 +28,8 @@ struct PaperInfo {
         lastModifiedDate: Date = .init(),
         isFavorite: Bool = false,
         memo: String? = nil,
-        isFigureSaved: Bool = false
+        isFigureSaved: Bool = false,
+        folderID: UUID? = nil
     ) {
         self.id = id
         self.title = title
@@ -36,5 +39,6 @@ struct PaperInfo {
         self.isFavorite = isFavorite
         self.memo = memo
         self.isFigureSaved = isFigureSaved
+        self.folderID = folderID
     }
 }
