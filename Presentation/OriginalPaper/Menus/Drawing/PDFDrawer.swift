@@ -30,24 +30,88 @@ enum DrawingTool: Int {
     }
 }
 
+enum PDFAction {
+    case add(PDFAnnotation)
+    case remove(PDFAnnotation)
+}
+
 class PDFDrawer {
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
     private var currentPage: PDFPage?
-    var color = UIColor(hex: "#5F5CAB")
+    var penColor: PenColors = .black
     var drawingTool = DrawingTool.none
     private var eraserLayer: CAShapeLayer? = nil
     
-    private func saveAndAddnnotation(_ path: UIBezierPath, on page: PDFPage) {
-        let finalAnnotation = createFinalAnnotation(path: path, page: page)
-        page.addAnnotation(finalAnnotation)
+    var onHistoryChange: (() -> Void)?
+
+    var annotationHistory: [(action: PDFAction, annotation: PDFAnnotation, page: PDFPage)] = [] {
+        didSet { onHistoryChange?() }
+    }
+    
+    var redoStack: [(action: PDFAction, annotation: PDFAnnotation, page: PDFPage)] = [] {
+        didSet { onHistoryChange?() }
+    }
+    
+    // 히스토리에 저장
+    private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
+        annotationHistory.append((action: action, annotation: annotation, page: page))
+
+        // 주석 제한 : 10개
+        if annotationHistory.count > 10 {
+            annotationHistory.removeFirst()
+        }
+        
+        redoStack.removeAll()
+    }
+    
+    func undo() {
+        guard !annotationHistory.isEmpty else { return }
+        
+        let lastAction = annotationHistory.removeLast()
+        
+        switch lastAction.action {
+        case .add(let annotation):
+            lastAction.page.removeAnnotation(annotation)
+
+        case .remove(let annotation):
+            lastAction.page.addAnnotation(annotation)
+        }
+//        annotationHistory.append(lastAction)
+        redoStack.append(lastAction)
+    }
+    
+    func redo() {
+        guard !redoStack.isEmpty else { return }
+        
+        let lastAction = redoStack.removeLast()
+        
+        switch lastAction.action {
+        case .add(let annotation):
+            lastAction.page.addAnnotation(annotation)
+        case .remove(let annotation):
+            lastAction.page.removeAnnotation(annotation)
+        }
+        annotationHistory.append(lastAction)
+    }
+    
+    // 주석 추가
+    func addAnnotation(_ annotation: PDFAnnotation, page: PDFPage) {
+        page.addAnnotation(annotation)
+        annotationHistory.append((action: .add(annotation), annotation: annotation, page: page))
+    }
+    
+    // 주석 삭제
+    func removeAnnotation(_ annotation: PDFAnnotation, page: PDFPage) {
+        page.removeAnnotation(annotation)
+        redoStack.append((action: .remove(annotation), annotation: annotation, page: page))
     }
 }
 
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
-    // MARK: -제스처 최초 시작 시 한 번 실행되는 함수
+    // MARK: - 제스처 최초 시작 시 한 번 실행되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
@@ -61,7 +125,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         }
     }
     
-    // MARK: -제스처 움직이는 동안 실행되는 함수
+    // MARK: - 제스처 움직이는 동안 실행되는 함수
     func gestureRecognizerMoved(_ location: CGPoint) {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
@@ -141,7 +205,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         border.lineWidth = drawingTool.width
         
         let annotation = DrawingAnnotation(bounds: page.bounds(for: pdfView.displayBox), forType: .ink, withProperties: nil)
-        annotation.color = color.withAlphaComponent(drawingTool.alpha)
+        // 펜 디자인 설정
+        annotation.color = penColor.uiColor.withAlphaComponent(drawingTool.alpha)
         annotation.border = border
         return annotation
     }
@@ -163,18 +228,20 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         border.lineWidth = drawingTool.width
         
         let bounds = CGRect(x: path.bounds.origin.x - 5,
-                              y: path.bounds.origin.y - 5,
-                              width: path.bounds.size.width + 10,
-                              height: path.bounds.size.height + 10)
+                            y: path.bounds.origin.y - 5,
+                            width: path.bounds.size.width + 10,
+                            height: path.bounds.size.height + 10)
         let signingPathCentered = UIBezierPath()
         signingPathCentered.cgPath = path.cgPath
         let _ = signingPathCentered.moveCenter(to: bounds.center)
         
         let annotation = PDFAnnotation(bounds: bounds, forType: .ink, withProperties: nil)
-        annotation.color = color.withAlphaComponent(drawingTool.alpha)
+        annotation.color = penColor.uiColor.withAlphaComponent(drawingTool.alpha)
         annotation.border = border
         annotation.add(signingPathCentered)
         page.addAnnotation(annotation)
+        
+        addToHistory(action: PDFAction.add(annotation), annotation: annotation, on: page)
         
         return annotation
     }
@@ -195,7 +262,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 // 하이라이트랑 드로잉만 지우기
                 if annotation.type == "Ink" || (annotation.type == "Highlight" && annotation.value(forAnnotationKey: .contents) == nil) {
                     _ = annotation.bounds
-                
+                    
+                    annotationHistory.append((action: .remove(annotation), annotation: annotation, page: page))
                     page.removeAnnotation(annotation)
                 }
             }

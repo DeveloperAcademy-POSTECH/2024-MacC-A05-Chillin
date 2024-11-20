@@ -97,8 +97,7 @@ struct DrawingView: View {
                     isPencil = true
                     selectedPenColor = color
                     mainPDFViewModel.drawingToolMode = .pencil
-                    // TODO: - 펜 색깔 추가 필요
-                    // mainPDFViewModel.selectedPenColor = color
+                    mainPDFViewModel.pdfDrawer.penColor = selectedPenColor!
 
                     isHighlight = false
                     selectedHighlightColor = nil
@@ -138,9 +137,8 @@ struct DrawingView: View {
                 .foregroundStyle(.primary3)
                 .padding(.bottom, 12)
 
-            // TODO: - 뒤로가기 버튼
             Button(action: {
-                // 뒤로가기 액션 추가 필요
+                mainPDFViewModel.pdfDrawer.undo()
             }) {
                 RoundedRectangle(cornerRadius: 6)
                     .foregroundStyle(.clear)
@@ -151,10 +149,12 @@ struct DrawingView: View {
                             .foregroundStyle(.gray800)
                     )
             }
+            .disabled(!mainPDFViewModel.canUndo) // 비활성화
             .padding(.bottom, 9)
+            .opacity(mainPDFViewModel.canUndo ? 1.0 : 0.5) 
 
             Button(action: {
-                // 앞으로 가기 액션 추가 필요
+                mainPDFViewModel.pdfDrawer.redo()
             }) {
                 RoundedRectangle(cornerRadius: 6)
                     .foregroundStyle(.clear)
@@ -165,7 +165,10 @@ struct DrawingView: View {
                             .foregroundStyle(.gray800)
                     )
             }
+            .disabled(!mainPDFViewModel.canRedo) // 비활성화
+            .opacity(mainPDFViewModel.canRedo ? 1.0 : 0.5)
         }
+        .shadow(color: Color(hex: "3C3D4B").opacity(0.08), radius: 16, x: 0, y: 6)
         .padding(.vertical, 16)
         .padding(.horizontal, 10)
     }

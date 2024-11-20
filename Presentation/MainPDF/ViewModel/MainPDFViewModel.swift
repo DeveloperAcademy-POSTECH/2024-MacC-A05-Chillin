@@ -55,12 +55,19 @@ final class MainPDFViewModel: ObservableObject {
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
     
-    // for drawing
+    // pencil tool
     public var pdfDrawer: PDFDrawer = .init()
+    // 현재 undo와 redo 가능 여부
+    @Published var canUndo: Bool = false
+    @Published var canRedo: Bool = false
     
     public var pdfSharedData: PDFSharedData = .shared
         
     init() {
+        pdfDrawer.onHistoryChange = { [weak self] in
+            self?.updateUndoRedoState()
+        }
+        
 //        self.paperInfo = paperInfo
 //        
 //        var isStale = false
@@ -163,7 +170,6 @@ extension MainPDFViewModel {
     }
 }
 
-
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
@@ -256,7 +262,17 @@ extension MainPDFViewModel {
     }
 }
 
-// 상단바 메뉴 버튼
+/**
+ 펜슬 툴 바 redo, undo 관련
+ */
+
+extension MainPDFViewModel {
+    func updateUndoRedoState() {
+        canUndo = !pdfDrawer.annotationHistory.isEmpty
+        canRedo = !pdfDrawer.redoStack.isEmpty
+    }
+}
+
 enum ToolMode {
     case none
     case translate
