@@ -23,6 +23,7 @@ struct FolderInfoView: View {
     
     @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
+    @Binding var isMovingFolder: Bool
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
@@ -62,7 +63,7 @@ struct FolderInfoView: View {
                     }
                     
                     Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
-                        // TODO: - [브리] 폴더 이동 구현
+                        self.isMovingFolder.toggle()
                     }
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
@@ -264,6 +265,7 @@ struct FolderInfoView: View {
         isStarSelected: false,
         isEditingFolder: .constant(false),
         isEditingMemo: .constant(false),
+        isMovingFolder: .constant(false),
         onNavigate: {},
         onDelete: {}
     )

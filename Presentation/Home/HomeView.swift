@@ -38,6 +38,8 @@ struct HomeView: View {
     
     @State private var isFavoriteSelected: Bool = false
     
+    @State private var isMovingFolder: Bool = false
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -113,14 +115,15 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText,
-                    isFavoriteSelected: $isFavoriteSelected
+                    isFavoriteSelected: $isFavoriteSelected,
+                    isMovingFolder: $isMovingFolder
                 )
             }
             .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder ? 20 : 0)
             
             
             Color.black
-                .opacity( isEditingTitle || isEditingMemo || createFolder || isEditingFolder ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
             
@@ -137,6 +140,17 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
                 )
+            }
+            
+            if isMovingFolder {
+                if let selectedItemID = selectedItemID {
+                    MoveFolderView(
+                        isMovingFolder: $isMovingFolder,
+                        id:selectedItemID
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .frame(width: 740, height: 550)
+                }
             }
         }
         .background(Color(hex: "F7F7FB"))

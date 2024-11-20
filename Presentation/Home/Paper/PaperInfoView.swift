@@ -22,6 +22,7 @@ struct PaperInfoView: View {
     
     @Binding var isEditingTitle: Bool
     @Binding var isEditingMemo: Bool
+    @Binding var isMovingFolder: Bool
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
@@ -268,6 +269,7 @@ struct PaperInfoView: View {
         isStarSelected: false,
         isEditingTitle: .constant(false),
         isEditingMemo: .constant(false),
+        isMovingFolder: .constant(false),
         onNavigate: {},
         onDelete: {}
     )

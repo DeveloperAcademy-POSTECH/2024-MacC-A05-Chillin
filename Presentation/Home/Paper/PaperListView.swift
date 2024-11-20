@@ -23,6 +23,7 @@ struct PaperListView: View {
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
     @Binding var isFavoriteSelected: Bool
+    @Binding var isMovingFolder: Bool
     
     @State private var keyboardHeight: CGFloat = 0
     
@@ -216,6 +217,7 @@ struct PaperListView: View {
                                     isStarSelected: paperInfo.isFavorite,
                                     isEditingTitle: $isEditingTitle,
                                     isEditingMemo: $isEditingMemo,
+                                    isMovingFolder: $isMovingFolder,
                                     onNavigate: {
                                         if !isEditing && !isNavigationPushed {
                                             self.isNavigationPushed = true
@@ -241,6 +243,7 @@ struct PaperListView: View {
                                     isStarSelected: folder.isFavorite,
                                     isEditingFolder: $isEditingFolder,
                                     isEditingMemo: $isEditingMemo,
+                                    isMovingFolder: $isMovingFolder,
                                     onNavigate: {
                                         homeViewModel.navigateTo(folder: folder)
                                     },
