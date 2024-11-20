@@ -6,11 +6,20 @@
 //
 
 import Foundation
-
+import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published public var paperInfos: [PaperInfo] = []
+    
+    // 전체 폴더 배열
+    @Published public var folders: [Folder] = []
+    // 현재 위치한 폴더
+    @Published public var currentFolder: Folder? = nil
+    public var isAtRoot: Bool {
+        return currentFolder == nil
+    }
+    
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
@@ -27,6 +36,15 @@ class HomeViewModel: ObservableObject {
             print(error)
             return
         }
+        
+        switch homeViewUseCase.loadFolders() {
+        case .success(let folders):
+            print(folders)
+            self.folders = folders
+        case .failure(let error):
+            print(error)
+            return
+        }
     }
 }
 
@@ -34,7 +52,9 @@ class HomeViewModel: ObservableObject {
 extension HomeViewModel {
     public func uploadPDF(url: [URL]) -> UUID? {
         do {
-            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url)
+            let currentFolderID = currentFolder?.id
+            
+            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: currentFolderID)
             if paperInfo != nil {
                 self.paperInfos.append(paperInfo!)
             }
@@ -133,9 +153,89 @@ extension HomeViewModel {
             url: try! Data(contentsOf: sampleUrl),
             isFavorite: false,
             memo: "test",
-            isFigureSaved: false
+            isFigureSaved: false,
+            folderID: nil
         ))
     }
 }
 
+extension HomeViewModel {
+    func filteringList(isFavoriteSelected: Bool) -> [FileSystemItem] {
+        var currentFolders: [Folder] {
+            guard let folder = currentFolder else {
+                return folders.filter { $0.parentFolderID == nil }
+            }
+            return folders.filter { $0.parentFolderID == folder.id }
+        }
+        
+        var currentDocuments: [PaperInfo] {
+            guard let folder = currentFolder else {
+                return paperInfos.filter { $0.folderID == nil }
+            }
+            return paperInfos.filter { $0.folderID == folder.id }
+        }
+        
+        return isFavoriteSelected
+        ? sortFavoriteLists(paperInfos: currentDocuments, folders: currentFolders)
+        : sortLists(paperInfos: currentDocuments, folders: currentFolders)
+    }
+    
+    /// 전체 리스트
+    func sortLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
+        // PaperInfo와 Folder를 FileSystemItem으로 변환
+        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
+        let folderItems = folders.map { FileSystemItem.folder($0) }
+        
+        // 두 리스트를 합치고 날짜 순서대로 정렬
+        let combinedItems = paperItems + folderItems
+        return combinedItems.sorted(by: { $0.date > $1.date })
+    }
+    
+    /// 즐겨찾기 리스트
+    func sortFavoriteLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
+        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
+        let folderItems = folders.map { FileSystemItem.folder($0) }
+        
+        let combinedItems = paperItems + folderItems
+        return combinedItems.filter { $0.isFavorite }.sorted(by: { $0.date > $1.date })
+    }
+}
 
+extension HomeViewModel {
+    public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
+        let folder = Folder(
+            id: UUID(),
+            title: title,
+            color: color,
+            parentFolderID: parentFolderID
+        )
+        
+        return folder
+    }
+    
+    public func saveFolder(to parentFolderID: UUID?, title: String, color: String) {
+        let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
+        
+        self.homeViewUseCase.saveFolder(newFolder)
+        folders.append(newFolder)
+    }
+    
+    public func navigateToParent() {
+        if let parentID = currentFolder?.parentFolderID {
+            currentFolder = folders.first { $0.id == parentID }
+        } else {
+            currentFolder = nil
+        }
+    }
+    
+    public func navigateTo(folder: Folder) {
+        currentFolder = folder
+    }
+    
+    var parentFolderTitle: String? {
+        guard let parentID = currentFolder?.parentFolderID else {
+            return nil
+        }
+        return folders.first { $0.id == parentID }?.title
+    }
+}

@@ -16,7 +16,8 @@ struct AppView: App {
     @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
     @StateObject private var homeViewModel: HomeViewModel = .init(
         homeViewUseCase: DefaultHomeViewUseCase(
-            paperDataRepository: PaperDataRepositoryImpl()
+            paperDataRepository: PaperDataRepositoryImpl(),
+            folderDataRepository: FolderDataRepositoryImpl()
         )
     )
     

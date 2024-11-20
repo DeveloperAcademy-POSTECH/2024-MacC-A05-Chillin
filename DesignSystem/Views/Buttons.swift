@@ -7,31 +7,50 @@
 
 import SwiftUI
 
-enum WriteButton: String, CaseIterable {
+/// MainPDFView navigation bar 버튼
+enum Buttons: String, CaseIterable {
+    case drawing
     case comment
-    case highlight
-    case pencil
-    case eraser
     case translate
-    
+    case lasso
+
     var icon: Image {
         switch self {
+        case .drawing:
+            return Image(systemName: "pencil.tip.crop.circle")
         case .comment:
             return Image(systemName: "text.bubble")
-        case .highlight:
-            return Image("Highlight")
-                .renderingMode(.template)
-        case .pencil:
-            return Image("Pencil")
-                .renderingMode(.template)
-        case .eraser:
-            return Image(systemName: "eraser")
         case .translate:
             return Image(systemName: "globe")
+        case .lasso:
+            return Image(systemName: "square.dashed")
         }
     }
 }
 
+struct ButtonsView: View {
+    @Binding var button: Buttons?
+
+    let selectedButton: Buttons
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            RoundedRectangle(cornerRadius: 6)
+                .foregroundStyle(button == selectedButton ? .primary1 : .clear)
+                .frame(width: 26, height: 26)
+                .overlay(
+                    selectedButton.icon
+                        .font(.system(size: 16))
+                        .foregroundStyle(button == selectedButton ? .gray100 : .gray800)
+                )
+        }
+    }
+}
+
+/// Highlight 관련 색상 선택 버튼
 enum HighlightColors: String, CaseIterable {
     case yellow
     case pink
@@ -92,66 +111,7 @@ struct HighlightColorButton: View {
     }
 }
 
-struct WriteViewButton: View {
-    @Binding var button: WriteButton?
-    @Binding var HighlightColors: HighlightColors
-    
-    let buttonOwner: WriteButton
-    let action: () -> Void
-    
-    var body: some View {
-        let foregroundColor: Color = {
-            if buttonOwner == .highlight {
-                return button == .highlight ? HighlightColors.color : .gray800
-            } else {
-                return button == buttonOwner ? .gray100 : .gray800
-            }
-        }()
-        
-        Button(action: {
-            action()
-        }) {
-            RoundedRectangle(cornerRadius: 6)
-                .frame(width: 26, height: 26)
-                .foregroundStyle(button == buttonOwner ? .primary1 : .clear)
-                .overlay(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.clear)
-                            .frame(width: 26, height: 26)
-                        
-                        buttonOwner.icon
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(foregroundColor)
-                            .frame(height: 18)
-                    }
-                )
-        }
-    }
-}
-
-// MARK: - Ver.2 Buttons
-enum Buttons: String, CaseIterable {
-    case drawing
-    case comment
-    case translate
-    case lasso
-
-    var icon: Image {
-        switch self {
-        case .drawing:
-            return Image(systemName: "pencil.tip.crop.circle")
-        case .comment:
-            return Image(systemName: "text.bubble")
-        case .translate:
-            return Image(systemName: "globe")
-        case .lasso:
-            return Image(systemName: "square.dashed")
-        }
-    }
-}
-
+/// Pencil 관련 색상 선택 버튼
 enum PenColors: String, CaseIterable {
     case black
     case red
@@ -173,28 +133,6 @@ enum PenColors: String, CaseIterable {
 
     var uiColor: UIColor {
         return UIColor(self.color)
-    }
-}
-
-struct ButtonsView: View {
-    @Binding var button: Buttons?
-
-    let selectedButton: Buttons
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: {
-            action()
-        }) {
-            RoundedRectangle(cornerRadius: 6)
-                .foregroundStyle(button == selectedButton ? .primary1 : .clear)
-                .frame(width: 26, height: 26)
-                .overlay(
-                    selectedButton.icon
-                        .font(.system(size: 16))
-                        .foregroundStyle(button == selectedButton ? .gray100 : .gray800)
-                )
-        }
     }
 }
 
@@ -227,6 +165,69 @@ struct PenColorButton: View {
                             Circle()
                                 .stroke(.primary4, lineWidth: 1)
                                 .frame(width: 18, height: 18)
+                        }
+                    }
+            }
+        }
+    }
+}
+
+/// 폴더 색상 선택 버튼
+enum FolderColors: String, CaseIterable {
+    case folder1
+    case folder2
+    case folder3
+    case folder4
+    case folder5
+    case folder6
+    case folder7
+    
+    var color: Color {
+        switch self {
+        case .folder1:
+            return Color(hex: "FB8F8F")
+        case .folder2:
+            return Color(hex: "EBCD7A")
+        case .folder3:
+            return Color(hex: "6CC3AF")
+        case .folder4:
+            return Color(hex: "4B9EC2")
+        case .folder5:
+            return Color(hex: "7C98E0")
+        case .folder6:
+            return Color(hex: "5F5DAA")
+        case .folder7:
+            return Color(hex: "EE7EAF")
+        }
+    }
+    
+    static func color(for rawValue: String) -> Color {
+        return FolderColors(rawValue: rawValue)?.color ?? .primary1
+    }
+}
+
+struct FolderColorButton: View {
+    @Binding var button: FolderColors
+    
+    let selectedButton: FolderColors
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.clear)
+                    .frame(width: 30, height: 30)
+                
+                Circle()
+                    .frame(width: 30, height: 30)
+                    .foregroundStyle(selectedButton.color)
+                    .overlay {
+                        if button == selectedButton {
+                            Circle()
+                                .stroke(.gray100, lineWidth: 1.6)
                         }
                     }
             }
