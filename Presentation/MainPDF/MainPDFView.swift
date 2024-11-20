@@ -17,7 +17,7 @@ struct MainPDFView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    
+    @StateObject public var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
@@ -39,6 +39,9 @@ struct MainPDFView: View {
     @State private var isVertical = false
     @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
+    
+    @State private var menuButtonPosition: CGPoint = .zero
+    private let publisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
     var body: some View {
         GeometryReader { geometry in
@@ -106,7 +109,6 @@ struct MainPDFView: View {
                                             .foregroundStyle( isReadMode ? .gray100 : .gray800 )
                                     }
                             }
-
                             
                             Spacer()
                             
@@ -125,7 +127,9 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                // TODO: - [브리] 설정 액션 추가
+                                withAnimation {
+                                    mainPDFViewModel.isMenuSelected.toggle()
+                                }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -136,8 +140,16 @@ struct MainPDFView: View {
                                             .foregroundStyle(.gray800)
                                     )
                             }
+                            .background(
+                                GeometryReader { geometry in
+                                    Color.clear
+                                        // 버튼의 위치 정보 받아오기
+                                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
+                                            menuButtonPosition = newValue.origin
+                                        }
+                                }
+                            )
                         }
-
                         
                         HStack(spacing: 0) {
                             Spacer()
@@ -257,7 +269,16 @@ struct MainPDFView: View {
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
+                
+                if mainPDFViewModel.isMenuSelected {
+                    PDFInfoMenu()
+                        .environmentObject(pdfInfoMenuViewModel)
+                        .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
+                        .transition(.opacity)
+                        .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected) // 애니메이션 설정
+                }
             }
+            
             .navigationBarHidden(true)
             .onAppear {
                 updateOrientation(with: geometry)
@@ -332,6 +353,11 @@ struct MainPDFView: View {
                 if mainPDFViewModel.toolMode == .translate {
                     TranslateViewOlderVer()
                 }
+            }
+        }
+        .onReceive(publisher) { a in
+            if let _ = a.userInfo?["hitted"] as? Bool {
+                mainPDFViewModel.isMenuSelected = false
             }
         }
         
