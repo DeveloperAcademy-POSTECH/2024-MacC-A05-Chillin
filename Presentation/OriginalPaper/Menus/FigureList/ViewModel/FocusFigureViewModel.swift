@@ -12,10 +12,10 @@ import PDFKit
 
 @MainActor
 class FocusFigureViewModel: ObservableObject {
+    
     @Published public var figures: [FigureAnnotation] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
-    
     
     private var focusFigureUseCase: FocusFigureUseCase
     
@@ -25,10 +25,9 @@ class FocusFigureViewModel: ObservableObject {
 }
 
 
-
-
 extension FocusFigureViewModel {
     public func fetchAnnotations() {
+        
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
         
@@ -41,8 +40,8 @@ extension FocusFigureViewModel {
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
-            let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             
+            let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
             
             if result.isEmpty {
@@ -63,7 +62,6 @@ extension FocusFigureViewModel {
     public var getDocument: PDFDocument? {
         self.focusFigureUseCase.pdfSharedData.document
     }
-    
     
     
     private func downloadFocusFigure() {
@@ -93,6 +91,7 @@ extension FocusFigureViewModel {
             }
             
             Task.init {
+                
                 let height = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
                 
@@ -122,18 +121,17 @@ extension FocusFigureViewModel {
     
     public func setFigureDocument(for index: Int) -> PDFDocument? {
         
-        // 인덱스가 유효한지 확인
-        guard index >= 0 && index < self.figures.count else {
+        guard index >= 0 && index < self.figures.count else {           // 인덱스가 유효한지 확인
             print("Invalid index")
             return nil
         }
         
         DispatchQueue.main.async {
-            self.figures.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+            self.figures.sort { $0.page < $1.page }                     // figure와 table 페이지 순서 정렬
         }
         
         let document = PDFDocument()                                    // 새 PDFDocument 생성
-        let annotation = self.figures[index]                  // 주어진 인덱스의 annotation 가져오기
+        let annotation = self.figures[index]                            // 주어진 인덱스의 annotation 가져오기
         
         // 해당 페이지 가져오기
         guard let page = self.focusFigureUseCase.pdfSharedData.document?.page(at: annotation.page - 1)?.copy()
@@ -154,9 +152,11 @@ extension FocusFigureViewModel {
         return document                                                 // 생성된 PDFDocument 변환
     }
     
+    
     private func saveFigures(figures: [Figure]) {
         figures.forEach { self.focusFigureUseCase.saveFigures(with: $0) }
     }
+    
     
     enum FigureStatus {
         case networkDisconnection
