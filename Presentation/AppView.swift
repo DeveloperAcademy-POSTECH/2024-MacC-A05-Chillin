@@ -40,6 +40,7 @@ struct AppView: App {
             .onAppear {
                 setSample()
             }
+            .onOpenURL(perform: openUrlScheme)
         }
     }
 }
@@ -84,5 +85,22 @@ extension AppView {
         }
         
         UserDefaults.standard.set(true, forKey: "sample")
+    }
+    
+    private func openUrlScheme(_ url: URL) {
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let items = components!.queryItems!
+        let manager = FileManager.default
+        
+        let containerURL = manager.containerURL(forSecurityApplicationGroupIdentifier: "group.com.chillin.reazy")
+        
+        for item in items {
+            if let containerFileURL = containerURL?.appending(path: item.value!),
+               manager.fileExists(atPath: containerFileURL.path()) {
+                let _ = homeViewModel.uploadPDF(url: [containerFileURL])
+                
+                try! manager.removeItem(at: containerFileURL)
+            }
+        }
     }
 }

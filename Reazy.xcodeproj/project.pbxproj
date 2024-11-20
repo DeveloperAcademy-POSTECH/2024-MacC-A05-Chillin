@@ -67,6 +67,9 @@
 		2C1474422CE900A700B35D92 /* UIBezierPath+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14743D2CE900A700B35D92 /* UIBezierPath+.swift */; };
 		2C2C35882CEB1DCB00552185 /* DrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2C35872CEB1DCB00552185 /* DrawingView.swift */; };
 		2C2C358A2CEB24D800552185 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2C35892CEB24D800552185 /* MenuView.swift */; };
+		2C2C37912CECA6EB00552185 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C2C37902CECA6EB00552185 /* UniformTypeIdentifiers.framework */; };
+		2C2C379D2CECA6EC00552185 /* action-extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2C2C378E2CECA6EB00552185 /* action-extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2C2C38702CECE55200552185 /* share-extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2C2C38662CECE55200552185 /* share-extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C5C240D2CE9D1EF00C37A1B /* ConcentrateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */; };
 		2C5C240E2CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */; };
 		2C5C240F2CE9D1EF00C37A1B /* ConcentrateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */; };
@@ -74,6 +77,8 @@
 		2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */; };
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
+		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
+		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */; };
 		6EBB167B2CEB6005001F9EA0 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB167A2CEB6005001F9EA0 /* Folder.swift */; };
 		6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */; };
@@ -87,7 +92,36 @@
 			remoteGlobalIDString = 2C7AE8892CBCF290004098AF;
 			remoteInfo = Reazy;
 		};
+		2C2C379B2CECA6EC00552185 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C7AE8822CBCF290004098AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C2C378D2CECA6EB00552185;
+			remoteInfo = "action-extension";
+		};
+		2C2C386E2CECE55200552185 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C7AE8822CBCF290004098AF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C2C38652CECE55200552185;
+			remoteInfo = "share-extension";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2C2C36D02CEC2EBC00552185 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2C2C38702CECE55200552185 /* share-extension.appex in Embed Foundation Extensions */,
+				2C2C379D2CECA6EC00552185 /* action-extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
@@ -151,6 +185,10 @@
 		2C14743D2CE900A700B35D92 /* UIBezierPath+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBezierPath+.swift"; sourceTree = "<group>"; };
 		2C2C35872CEB1DCB00552185 /* DrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingView.swift; sourceTree = "<group>"; };
 		2C2C35892CEB24D800552185 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		2C2C37882CEC6EC700552185 /* Reazy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reazy.entitlements; sourceTree = "<group>"; };
+		2C2C378E2CECA6EB00552185 /* action-extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "action-extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C2C37902CECA6EB00552185 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
+		2C2C38662CECE55200552185 /* share-extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "share-extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateViewController.swift; sourceTree = "<group>"; };
 		2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateViewControllerRepresent.swift; sourceTree = "<group>"; };
 		2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateView.swift; sourceTree = "<group>"; };
@@ -160,6 +198,8 @@
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
+		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
+		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderDataRepository.swift; sourceTree = "<group>"; };
 		6EBB167A2CEB6005001F9EA0 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
@@ -176,6 +216,27 @@
 				PaperDataRepositoryImpl.swift,
 			);
 			target = 2C7AE8892CBCF290004098AF /* Reazy */;
+		};
+		2C2C37A12CECA6EC00552185 /* Exceptions for "action-extension" folder in "action-extension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2C2C378D2CECA6EB00552185 /* action-extension */;
+		};
+		2C2C38742CECE55200552185 /* Exceptions for "share-extension" folder in "share-extension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2C2C38652CECE55200552185 /* share-extension */;
+		};
+		2C6A12C12CEDC4AC00518986 /* Exceptions for "Resources" folder in "action-extension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+			);
+			target = 2C2C378D2CECA6EB00552185 /* action-extension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -212,6 +273,9 @@
 		};
 		2C14744C2CE900C300B35D92 /* Resources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2C6A12C12CEDC4AC00518986 /* Exceptions for "Resources" folder in "action-extension" target */,
+			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
@@ -228,6 +292,22 @@
 			path = Repositories;
 			sourceTree = "<group>";
 		};
+		2C2C37922CECA6EB00552185 /* action-extension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2C2C37A12CECA6EC00552185 /* Exceptions for "action-extension" folder in "action-extension" target */,
+			);
+			path = "action-extension";
+			sourceTree = "<group>";
+		};
+		2C2C38672CECE55200552185 /* share-extension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2C2C38742CECE55200552185 /* Exceptions for "share-extension" folder in "share-extension" target */,
+			);
+			path = "share-extension";
+			sourceTree = "<group>";
+		};
 		2C5C24142CE9DB6A00C37A1B /* Preview Content */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Preview Content";
@@ -237,6 +317,21 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		2C1458912CD7D09800B35D92 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C2C378B2CECA6EB00552185 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C2C37912CECA6EB00552185 /* UniformTypeIdentifiers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C2C38632CECE55200552185 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -320,6 +415,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */,
+				B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */,
 				2C1473F32CE8828800B35D92 /* PageListUseCase.swift */,
 				2C1474112CE8EC6E00B35D92 /* IndexUseCase.swift */,
 				2C1474192CE8F52200B35D92 /* TranslationUseCase.swift */,
@@ -506,6 +602,7 @@
 			children = (
 				2C14741F2CE8FF8E00B35D92 /* ViewModel */,
 				2C1473682CE73B6F00B35D92 /* MainPDFView.swift */,
+				B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */,
 			);
 			path = MainPDF;
 			sourceTree = "<group>";
@@ -570,6 +667,14 @@
 			path = NetworkManager;
 			sourceTree = "<group>";
 		};
+		2C2C378F2CECA6EB00552185 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2C2C37902CECA6EB00552185 /* UniformTypeIdentifiers.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2C5C24182CE9DBCE00C37A1B /* ConcentratePaper */ = {
 			isa = PBXGroup;
 			children = (
@@ -583,6 +688,7 @@
 		2C7AE8812CBCF290004098AF = {
 			isa = PBXGroup;
 			children = (
+				2C2C37882CEC6EC700552185 /* Reazy.entitlements */,
 				2C14588E2CD769FB00B35D92 /* Server.xcconfig */,
 				2C1473D92CE73C3E00B35D92 /* Data */,
 				2C1473D82CE73C2900B35D92 /* Domain */,
@@ -590,6 +696,9 @@
 				2C1474322CE9007700B35D92 /* DesignSystem */,
 				2C14744C2CE900C300B35D92 /* Resources */,
 				2C1458952CD7D09800B35D92 /* NetworkUnitTest */,
+				2C2C37922CECA6EB00552185 /* action-extension */,
+				2C2C38672CECE55200552185 /* share-extension */,
+				2C2C378F2CECA6EB00552185 /* Frameworks */,
 				2C7AE88B2CBCF290004098AF /* Products */,
 				6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */,
 				2C14693F2CE25B7600B35D92 /* Settings.bundle */,
@@ -601,6 +710,8 @@
 			children = (
 				2C7AE88A2CBCF290004098AF /* Reazy.app */,
 				2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */,
+				2C2C378E2CECA6EB00552185 /* action-extension.appex */,
+				2C2C38662CECE55200552185 /* share-extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -640,6 +751,50 @@
 			productReference = 2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		2C2C378D2CECA6EB00552185 /* action-extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C2C379E2CECA6EC00552185 /* Build configuration list for PBXNativeTarget "action-extension" */;
+			buildPhases = (
+				2C2C378A2CECA6EB00552185 /* Sources */,
+				2C2C378B2CECA6EB00552185 /* Frameworks */,
+				2C2C378C2CECA6EB00552185 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2C2C37922CECA6EB00552185 /* action-extension */,
+			);
+			name = "action-extension";
+			packageProductDependencies = (
+			);
+			productName = "action-extension";
+			productReference = 2C2C378E2CECA6EB00552185 /* action-extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		2C2C38652CECE55200552185 /* share-extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C2C38732CECE55200552185 /* Build configuration list for PBXNativeTarget "share-extension" */;
+			buildPhases = (
+				2C2C38622CECE55200552185 /* Sources */,
+				2C2C38632CECE55200552185 /* Frameworks */,
+				2C2C38642CECE55200552185 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2C2C38672CECE55200552185 /* share-extension */,
+			);
+			name = "share-extension";
+			packageProductDependencies = (
+			);
+			productName = "share-extension";
+			productReference = 2C2C38662CECE55200552185 /* share-extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		2C7AE8892CBCF290004098AF /* Reazy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C7AE8982CBCF291004098AF /* Build configuration list for PBXNativeTarget "Reazy" */;
@@ -647,10 +802,13 @@
 				2C7AE8862CBCF290004098AF /* Sources */,
 				2C7AE8872CBCF290004098AF /* Frameworks */,
 				2C7AE8882CBCF290004098AF /* Resources */,
+				2C2C36D02CEC2EBC00552185 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2C2C379C2CECA6EC00552185 /* PBXTargetDependency */,
+				2C2C386F2CECE55200552185 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2C1474002CE895D300B35D92 /* Components */,
@@ -683,6 +841,12 @@
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 2C7AE8892CBCF290004098AF;
 					};
+					2C2C378D2CECA6EB00552185 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					2C2C38652CECE55200552185 = {
+						CreatedOnToolsVersion = 16.0;
+					};
 					2C7AE8892CBCF290004098AF = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -704,12 +868,28 @@
 			targets = (
 				2C7AE8892CBCF290004098AF /* Reazy */,
 				2C1458932CD7D09800B35D92 /* NetworkUnitTest */,
+				2C2C378D2CECA6EB00552185 /* action-extension */,
+				2C2C38652CECE55200552185 /* share-extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2C1458922CD7D09800B35D92 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C2C378C2CECA6EB00552185 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C2C38642CECE55200552185 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -729,6 +909,20 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		2C1458902CD7D09800B35D92 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C2C378A2CECA6EB00552185 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C2C38622CECE55200552185 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -765,6 +959,7 @@
 				2C1473A22CE73B6F00B35D92 /* FocusAnnotation.swift in Sources */,
 				2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
+				B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */,
 				2C1473A42CE73B6F00B35D92 /* PDFInfo.swift in Sources */,
 				6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */,
 				2C1473A62CE73B6F00B35D92 /* TableItem.swift in Sources */,
@@ -779,6 +974,7 @@
 				2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */,
 				2C1473BB2CE73B6F00B35D92 /* SearchView.swift in Sources */,
 				2C1473BC2CE73B6F00B35D92 /* SearchViewModel.swift in Sources */,
+				B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */,
 				2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */,
 				2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */,
 				2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */,
@@ -818,6 +1014,16 @@
 			target = 2C7AE8892CBCF290004098AF /* Reazy */;
 			targetProxy = 2C1458982CD7D09800B35D92 /* PBXContainerItemProxy */;
 		};
+		2C2C379C2CECA6EC00552185 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C2C378D2CECA6EB00552185 /* action-extension */;
+			targetProxy = 2C2C379B2CECA6EC00552185 /* PBXContainerItemProxy */;
+		};
+		2C2C386F2CECE55200552185 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C2C38652CECE55200552185 /* share-extension */;
+			targetProxy = 2C2C386E2CECE55200552185 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -854,6 +1060,118 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Reazy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Reazy";
+			};
+			name = Release;
+		};
+		2C2C379F2CECA6EC00552185 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Extension";
+				CODE_SIGN_ENTITLEMENTS = "action-extension/action-extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MT99YM3KLX;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "action-extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Reazy에서 불러오기";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.chillin.reazy.action-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2C2C37A02CECA6EC00552185 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Extension";
+				CODE_SIGN_ENTITLEMENTS = "action-extension/action-extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MT99YM3KLX;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "action-extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Reazy에서 불러오기";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.chillin.reazy.action-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2C2C38712CECE55200552185 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "share-extension/share-extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MT99YM3KLX;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "share-extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "share-extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.chillin.reazy.share-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2C2C38722CECE55200552185 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "share-extension/share-extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MT99YM3KLX;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "share-extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "share-extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.chillin.reazy.share-extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -982,6 +1300,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
@@ -1018,6 +1337,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
@@ -1056,6 +1376,24 @@
 			buildConfigurations = (
 				2C14589B2CD7D09800B35D92 /* Debug */,
 				2C14589C2CD7D09800B35D92 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C2C379E2CECA6EC00552185 /* Build configuration list for PBXNativeTarget "action-extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C2C379F2CECA6EC00552185 /* Debug */,
+				2C2C37A02CECA6EC00552185 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C2C38732CECE55200552185 /* Build configuration list for PBXNativeTarget "share-extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C2C38712CECE55200552185 /* Debug */,
+				2C2C38722CECE55200552185 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

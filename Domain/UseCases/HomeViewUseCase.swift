@@ -79,15 +79,6 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
         
-        guard url.startAccessingSecurityScopedResource() else {
-            throw PDFUploadError.failedToAccessingSecurityScope
-        }
-        
-        defer {
-            url.stopAccessingSecurityScopedResource()
-        }
-        
-        
         let tempDoc = PDFDocument(url: url)
 
         

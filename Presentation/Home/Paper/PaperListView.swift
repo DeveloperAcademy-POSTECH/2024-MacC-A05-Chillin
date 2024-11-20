@@ -304,6 +304,8 @@ struct PaperListView: View {
 
 
 extension PaperListView {
+    
+    // TODO: URL 분리 필요
     private func navigateToPaper() {
         guard let selectedPaperID = selectedItemID,
               let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == selectedPaperID }) else {

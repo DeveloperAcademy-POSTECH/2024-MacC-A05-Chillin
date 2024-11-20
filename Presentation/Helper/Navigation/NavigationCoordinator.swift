@@ -56,7 +56,7 @@ final class NavigationCoordinator: CoordinatorProtocol {
             let _ = PDFSharedData.shared.makeDocument(from: paperInfo)
             
             MainPDFView(
-                mainPDFViewModel: .init(),
+                pdfInfoMenuViewModel: .init(pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(paperDataRepository: PaperDataRepositoryImpl())), mainPDFViewModel: .init(),
                 commentViewModel: .init(
                     commentService: CommentDataRepositoryImpl(),
                     buttonGroupService: ButtonGroupDataRepositoryImpl()
