@@ -41,23 +41,32 @@ struct CommentGroupView: View {
 // 저장된 코멘트
 private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
+    @State var isMenuTapped: Bool = false
     var selectedComments: [Comment]
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(selectedComments.indices, id: \.self) { index in
-                CommentCell(viewModel: viewModel, comment: selectedComments[index])
-                    .padding(.leading, 22)
-                
-                if index < selectedComments.count - 1 {
-                    Divider()
-                        .frame(height: 1)
-                        .foregroundStyle(.primary2)
-                        .padding(0)
+        ZStack {
+            
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(selectedComments.indices, id: \.self) { index in
+                    CommentCell(viewModel: viewModel, comment: selectedComments[index], isMenuTapped: $isMenuTapped)
+                        .padding(.leading, 22)
+                    
+                    if index < selectedComments.count - 1 {
+                        Divider()
+                            .frame(height: 1)
+                            .foregroundStyle(.primary2)
+                            .padding(0)
+                    }
+                }
+            }
+            .foregroundStyle(.point2)
+            
+            if let comment = viewModel.comment {
+                if isMenuTapped {
+                    CommentMenuView(viewModel: viewModel, comment: comment)
                 }
             }
         }
-        .foregroundStyle(.point2)
         
     }
 }
@@ -140,3 +149,59 @@ private struct CommentInputView: View {
         }
     }
 }
+
+// 수정,삭제 뷰
+struct CommentMenuView: View {
+    @EnvironmentObject var pdfViewModel: MainPDFViewModel
+    @StateObject var viewModel: CommentViewModel
+    var comment: Comment // 선택된 comment
+    
+    var body: some View {
+        HStack{
+            Button(action: {
+                //수정 액션
+//                viewModel.comment = comment
+                viewModel.isEditMode = true
+                pdfViewModel.isCommentTapped = false
+            }, label: {
+                VStack(alignment: .center, spacing: 3) {
+                    Image(systemName: "pencil.line")
+                        .font(.system(size: 14))
+                    
+                    Text("수정")
+                        .reazyFont(.h3)
+                }
+            })
+            .foregroundStyle(.gray600)
+            
+            Divider().frame(width: 1, height: 43)
+                .tint(.primary2)
+                .padding(.horizontal, 33)
+            
+            Button(action: {
+                viewModel.deleteComment(commentId: comment.id)
+                pdfViewModel.isCommentTapped = false
+                pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
+            }, label: {
+                VStack(alignment: .center, spacing: 3) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 14))
+                    
+                    Text("삭제")
+                        .reazyFont(.h3)
+                }
+            })
+            .foregroundStyle(.gray600)
+        }
+        .padding(.horizontal, 32)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .foregroundStyle(.gray100)
+                .border(.primary2, width: 1)
+        )
+        .frame(minWidth: 180, minHeight: 67)
+        .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
+    }
+}
+
