@@ -211,6 +211,7 @@ extension HomeViewModel {
         let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
         
         self.homeViewUseCase.saveFolder(newFolder)
+        rootFolders.append(newFolder)
         
         if let parentID = parentFolderID {
             if let parentIndex = rootFolders.firstIndex(where: { $0.id == parentID }) {
@@ -220,10 +221,7 @@ extension HomeViewModel {
                     currentFolder?.subFolderIDs.append(newFolder.id)
                 }
             }
-        } else {
-            rootFolders.append(newFolder)
         }
-
     }
     
     public func navigateToParent() {
