@@ -17,7 +17,7 @@ struct MainPDFView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    
+    @StateObject public var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
@@ -129,7 +129,9 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                isMenuSelected.toggle()
+                                withAnimation {
+                                    isMenuSelected.toggle()
+                                }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -272,8 +274,10 @@ struct MainPDFView: View {
                 
                 if isMenuSelected {
                     PDFInfoMenu()
+                        .environmentObject(pdfInfoMenuViewModel)
                         .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
-                        .transition(.move(edge: .top))
+                        .transition(.opacity)
+                        .animation(.easeInOut, value: isMenuSelected) // 애니메이션 설정
                 }
             }
             

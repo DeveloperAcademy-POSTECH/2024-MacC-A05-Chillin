@@ -9,13 +9,13 @@ import Foundation
 
 @MainActor
 class PDFInfoMenuViewModel: ObservableObject {
-    private let PDFInfoMenuUseCase: PDFInfoMenuUseCase
+    private let pdfInfoMenuUsecase: PDFInfoMenuUseCase
     
-    init(PDFInfoMenuUseCase: PDFInfoMenuUseCase) {
-        self.PDFInfoMenuUseCase = PDFInfoMenuUseCase
+    init(pdfInfoMenuUsecase: PDFInfoMenuUseCase) {
+        self.pdfInfoMenuUsecase = pdfInfoMenuUsecase
     }
     
-    func timeAgoString(from date: Date) -> String {
+    public func timeAgoString(from date: Date) -> String {
         let calendar = Calendar.current
         
         if calendar.isDateInToday(date) {

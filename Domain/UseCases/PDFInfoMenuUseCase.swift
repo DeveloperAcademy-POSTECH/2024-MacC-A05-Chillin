@@ -9,7 +9,6 @@ import Foundation
 import PDFKit
 
 protocol PDFInfoMenuUseCase {
-    var pdfSharedData: PDFSharedData { get set }
     
     @discardableResult
     func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
@@ -20,8 +19,6 @@ protocol PDFInfoMenuUseCase {
 
 
 class DefaultPDFInfoMenuUseCase: PDFInfoMenuUseCase {
-    
-    var pdfSharedData: PDFSharedData = .shared
     
     private let paperDataRepository: PaperDataRepository
     

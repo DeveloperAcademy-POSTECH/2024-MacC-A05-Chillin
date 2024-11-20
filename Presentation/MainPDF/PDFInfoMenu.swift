@@ -33,7 +33,7 @@ struct ActivityViewController: UIViewControllerRepresentable {
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
     @State private var isActivityViewPresented = false
-    @EnvironmentObject private var viewModel: PDFInfoMenuViewModel
+    @EnvironmentObject private var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     
     var body: some View {
         VStack(spacing: 12) {
@@ -50,7 +50,7 @@ struct PDFInfoMenu: View {
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)
                         
-                        Text("마지막 수정 : \(viewModel.timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
+                        Text("마지막 수정 : \(pdfInfoMenuViewModel.timeAgoString(from: pdfSharedData.paperInfo!.lastModifiedDate))")
                             .reazyFont(.text2)
                             .foregroundStyle(.gray600)
                     }
