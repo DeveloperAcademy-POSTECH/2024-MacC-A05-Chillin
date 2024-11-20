@@ -40,6 +40,9 @@ struct MainPDFView: View {
     @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
     
+    @State private var dragAmount: CGPoint?
+    @State private var dragOffset: CGSize = .zero
+    
     @State private var menuButtonPosition: CGPoint = .zero
     private let publisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
@@ -255,17 +258,40 @@ struct MainPDFView: View {
                 }
                 
                 if mainPDFViewModel.toolMode == .drawing {
-                    // TODO: -[브리] 위치 이동 필요
-                    HStack(spacing: 0) {
-                        DrawingView()
-                            .environmentObject(mainPDFViewModel)
-                            .background {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(.gray100)
+                    GeometryReader { gp in
+                        ZStack {
+                            HStack(spacing: 0) {
+                                DrawingView()
+                                    .environmentObject(mainPDFViewModel)
+                                    .background {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(.gray100)
+                                    }
+                                    .shadow(color: Color(hex: "3C3D4B").opacity(0.08), radius: 16, x: 0, y: 6)
+                                    .position(
+                                        CGPoint(
+                                            x: max(0, min(gp.size.width, (self.dragAmount?.x ?? 24) + dragOffset.width)),
+                                            y: max(0, min(gp.size.height, (self.dragAmount?.y ?? gp.size.height / 2) + dragOffset.height))
+                                        )
+                                    )
+                                    .highPriorityGesture(
+                                        DragGesture()
+                                            .onChanged { value in
+                                                self.dragOffset = value.translation
+                                            }
+                                            .onEnded { value in
+                                                self.dragAmount = CGPoint(
+                                                    x: (self.dragAmount?.x ?? 24) + value.translation.width,
+                                                    y: (self.dragAmount?.y ?? gp.size.height / 2) + value.translation.height
+                                                )
+                                                self.dragOffset = .zero
+                                            }
+                                    )
+                                Spacer()
                             }
-                            .padding(.leading, 24)
-                        
-                        Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(20)
                     }
                 }
                 
