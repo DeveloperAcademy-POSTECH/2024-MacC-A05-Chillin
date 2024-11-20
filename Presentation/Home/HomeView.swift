@@ -32,6 +32,8 @@ struct HomeView: View {
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
+    
+    @State private var createFolder: Bool = false
     @State private var isEditingFolder: Bool = false
     
     @State private var isFavoriteSelected: Bool = false
@@ -84,7 +86,7 @@ struct HomeView: View {
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
                                 selectedItemID: $selectedItemID,
-                                isEditingFolder: $isEditingFolder)
+                                createFolder: $createFolder)
                             
                         case .search:
                             SearchMenuView(
@@ -108,6 +110,7 @@ struct HomeView: View {
                     isEditing: $isEditing,
                     isSearching: $isSearching,
                     isEditingTitle: $isEditingTitle,
+                    isEditingFolder: $isEditingFolder,
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText,
                     isFavoriteSelected: $isFavoriteSelected
@@ -130,7 +133,9 @@ struct HomeView: View {
             
             if isEditingFolder {
                 FolderView(
-                    isEditingFolder: $isEditingFolder
+                    createFolder: $createFolder,
+                    isEditingFolder: $isEditingFolder,
+                    folder: homeViewModel.folders.first { $0.id == selectedItemID! }!
                 )
             }
         }
@@ -160,12 +165,12 @@ private struct MainMenuView: View {
     
     @Binding var selectedItems: Set<Int>
     @Binding var selectedItemID: UUID?
-    @Binding var isEditingFolder: Bool
+    @Binding var createFolder: Bool
     
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
-                isEditingFolder.toggle()
+                createFolder.toggle()
             }) {
                 Image(systemName: "folder.badge.plus")
                     .font(.system(size: 16))
@@ -449,15 +454,23 @@ private struct FolderView: View {
     
     @State private var selectedColors: FolderColors = .folder1
     
+    @Binding var createFolder: Bool
     @Binding var isEditingFolder: Bool
+    
     @State private var text: String = ""
+    
+    let folder: Folder
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        isEditingFolder.toggle()
+                        if isEditingFolder {
+                            isEditingFolder.toggle()
+                        } else {
+                            createFolder.toggle()
+                        }
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -467,13 +480,18 @@ private struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        // 최상위 단계와 폴더 진입 단계 구분
-                        if homeViewModel.isAtRoot {
-                            homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                        if isEditingFolder {
+                            homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
+                            isEditingFolder.toggle()
                         } else {
-                            homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                            // 최상위 단계와 폴더 진입 단계 구분
+                            if homeViewModel.isAtRoot {
+                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                            } else {
+                                homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                            }
+                            createFolder.toggle()
                         }
-                        isEditingFolder.toggle()
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -553,6 +571,12 @@ private struct FolderView: View {
                         .reazyFont(.button1)
                         .foregroundStyle(.comment)
                 }
+            }
+        }
+        .onAppear {
+            if isEditingFolder {
+                text = folder.title
+                selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
             }
         }
     }

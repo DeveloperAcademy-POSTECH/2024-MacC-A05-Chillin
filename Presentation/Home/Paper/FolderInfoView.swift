@@ -21,7 +21,7 @@ struct FolderInfoView: View {
     
     @State private var isDeleteConfirm: Bool = false
     
-    @Binding var isEditingTitle: Bool
+    @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
     
     let onNavigate: () -> Void
@@ -57,9 +57,18 @@ struct FolderInfoView: View {
             
             HStack(spacing: 0) {
                 Menu {
-                    Button("제목 수정", systemImage: "pencil") {
-                        self.isEditingTitle = true
+                    Button("이름 및 색상 변경", systemImage: "pencil") {
+                        self.isEditingFolder = true
                     }
+                    
+                    Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
+                        // TODO: - [브리] 폴더 이동 구현
+                    }
+                    
+                    Button("삭제", systemImage: "trash", role: .destructive) {
+                        self.isDeleteConfirm.toggle()
+                    }
+                    
                 } label: {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -87,13 +96,13 @@ struct FolderInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    self.isDeleteConfirm.toggle()
+                    // TODO: - 내보내기 버튼 구현
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "trash")
+                            Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )
@@ -240,7 +249,7 @@ struct FolderInfoView: View {
         memo: "",
         isFavorite: false,
         isStarSelected: false,
-        isEditingTitle: .constant(false),
+        isEditingFolder: .constant(false),
         isEditingMemo: .constant(false),
         onNavigate: {},
         onDelete: {}

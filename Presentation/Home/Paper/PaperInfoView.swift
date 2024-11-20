@@ -48,6 +48,19 @@ struct PaperInfoView: View {
                     Button("제목 수정", systemImage: "pencil") {
                         self.isEditingTitle = true
                     }
+                    
+                    Button("복제", systemImage: "square.on.square") {
+                        // TODO: - 문서 복제 구현
+                    }
+                    
+                    Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
+                        // TODO: - [브리] 폴더 이동 구현
+                    }
+                    
+                    Button("삭제", systemImage: "trash", role: .destructive) {
+                        self.isDeleteConfirm.toggle()
+                    }
+                    
                 } label: {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -76,13 +89,13 @@ struct PaperInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    self.isDeleteConfirm.toggle()
+                    // TODO: - 내보내기 버튼 구현
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "trash")
+                            Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )

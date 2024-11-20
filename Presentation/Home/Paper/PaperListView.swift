@@ -19,6 +19,7 @@ struct PaperListView: View {
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
     @Binding var isEditingTitle: Bool
+    @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
     @Binding var isFavoriteSelected: Bool
@@ -238,7 +239,7 @@ struct PaperListView: View {
                                     memo: folder.memo,
                                     isFavorite: folder.isFavorite,
                                     isStarSelected: folder.isFavorite,
-                                    isEditingTitle: $isEditingTitle,
+                                    isEditingFolder: $isEditingFolder,
                                     isEditingMemo: $isEditingMemo,
                                     onNavigate: {
                                         homeViewModel.navigateTo(folder: folder)

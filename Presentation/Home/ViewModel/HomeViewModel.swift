@@ -220,6 +220,14 @@ extension HomeViewModel {
         folders.append(newFolder)
     }
     
+    public func updateFolderInfo(at id: UUID, title: String, color: String) {
+        if let index = folders.firstIndex(where: { $0.id == id }) {
+            folders[index].title = title
+            folders[index].color = color
+            self.homeViewUseCase.editFolder(folders[index])
+        }
+    }
+    
     public func navigateToParent() {
         if let parentID = currentFolder?.parentFolderID {
             currentFolder = folders.first { $0.id == parentID }
