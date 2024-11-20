@@ -287,6 +287,7 @@ struct MainPDFView: View {
                                                 self.dragOffset = .zero
                                             }
                                     )
+                                    .animation(.bouncy(duration: 0.5), value: dragOffset)
                                 Spacer()
                             }
                         }
