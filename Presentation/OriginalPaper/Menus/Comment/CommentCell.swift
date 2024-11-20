@@ -47,14 +47,13 @@ struct CommentCell: View {
             .background(
                 GeometryReader { geometry in
                     Color.clear
-                        .onAppear {
-                            print("Initial frame:", geometry.frame(in: .global))
-                            viewModel.commentMenuPosition = geometry.frame(in: .global).origin
+                        .onChange(of: viewModel.isMenuTapped) {
+                            print("Menu tapped:", geometry.frame(in: .global))
+                            if let comment = viewModel.comment {
+                                viewModel.commentMenuPosition = geometry.frame(in: .global).origin
+                                print("viewModel: ", viewModel.commentMenuPosition)
+                            }
                         }
-//                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
-//                            viewModel.commentMenuPosition = newValue.origin
-//                            print(viewModel.commentMenuPosition)
-//                        }
                 }
             )
         }

@@ -50,7 +50,7 @@ struct OriginalView: View {
                 if let comment = commentViewModel.comment {
                     if commentViewModel.isMenuTapped {
                         CommentMenuView(viewModel: commentViewModel, comment: comment)
-                            .position(x: commentViewModel.commentMenuPosition.x, y: commentViewModel.commentMenuPosition.y)
+                            .position(x: commentViewModel.commentMenuPosition.x - 30, y: commentViewModel.commentMenuPosition.y - 110)
                     }
                 }
             }
