@@ -199,6 +199,7 @@ extension MainPDFViewModel {
             highlight.color = highlightColor
 
             page.addAnnotation(highlight)
+            pdfDrawer.annotationHistory.append((action: .add(highlight), annotation: highlight, page: page))
         }
         
         pdfView.clearSelection()
