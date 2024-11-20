@@ -12,7 +12,7 @@ import SwiftUI
  폴더 구조
  : 계층 구조 구현 및 폴더 탐색기를 위한 class 구현
  */
-class Folder: CustomStringConvertible {
+struct Folder {
     let id: UUID
     var title: String
     var createdAt: Date
@@ -38,19 +38,5 @@ class Folder: CustomStringConvertible {
         self.memo = memo
         self.isFavorite = isFavorite
         self.parentFolderID = parentFolderID
-    }
-    
-    /// class 내부 값 확인을 위한 custom description
-    var description: String {
-            """
-            Folder:
-            - ID: \(id)
-            - Title: \(title)
-            - Created At: \(createdAt)
-            - Color: \(color)
-            - Memo: \(memo ?? "None")
-            - Is Favorite: \(isFavorite)
-            - Parent Folder ID: \(parentFolderID?.uuidString ?? "None")
-            """
     }
 }

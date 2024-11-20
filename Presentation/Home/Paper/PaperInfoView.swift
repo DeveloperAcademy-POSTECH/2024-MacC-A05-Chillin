@@ -75,7 +75,7 @@ struct PaperInfoView: View {
                 
                 Button(action: {
                     isStarSelected.toggle()
-                    homeViewModel.updateFavorite(at: id, isFavorite: isStarSelected)
+                    homeViewModel.updatePaperFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)

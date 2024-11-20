@@ -135,7 +135,7 @@ struct HomeView: View {
                 FolderView(
                     createFolder: $createFolder,
                     isEditingFolder: $isEditingFolder,
-                    folder: homeViewModel.folders.first { $0.id == selectedItemID! }!
+                    folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
                 )
             }
         }
@@ -303,7 +303,7 @@ private struct EditMenuView: View {
             
             Button(action: {
                 isStarSelected.toggle()
-                homeViewModel.updateFavorites(at: selectedIDs)
+                homeViewModel.updatePaperFavorites(at: selectedIDs)
             }, label : {
                 Image(systemName: isStarSelected ? "star.fill" : "star")
                     .resizable()
@@ -459,7 +459,7 @@ private struct FolderView: View {
     
     @State private var text: String = ""
     
-    let folder: Folder
+    let folder: Folder?
     
     var body: some View {
         ZStack {
@@ -481,8 +481,10 @@ private struct FolderView: View {
                     
                     Button(action: {
                         if isEditingFolder {
-                            homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
-                            isEditingFolder.toggle()
+                            if let folder = folder {
+                                homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
+                                isEditingFolder.toggle()
+                            }
                         } else {
                             // 최상위 단계와 폴더 진입 단계 구분
                             if homeViewModel.isAtRoot {
@@ -575,8 +577,10 @@ private struct FolderView: View {
         }
         .onAppear {
             if isEditingFolder {
-                text = folder.title
-                selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
+                if let folder = folder {
+                    text = folder.title
+                    selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
+                }
             }
         }
     }

@@ -83,6 +83,7 @@ struct FolderInfoView: View {
                 
                 Button(action: {
                     isStarSelected.toggle()
+                    homeViewModel.updateFolderFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
