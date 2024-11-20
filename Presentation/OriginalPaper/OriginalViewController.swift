@@ -262,7 +262,7 @@ extension OriginalViewController {
                 
                 guard let selection = self.mainPDFView.currentSelection else {
                     // 선택된 텍스트가 없을 때 특정 액션
-                    self.viewModel.selectedText = ""                                                                    // 선택된 텍스트 초기화
+                    self.viewModel.selectedText = ""
                     return
                 }
                 
@@ -296,8 +296,7 @@ extension OriginalViewController {
                         DispatchQueue.main.async {
                             // ViewModel에 선택된 텍스트와 위치 업데이트
                             self.viewModel.selectedText = selectedText
-                            self.viewModel.translateViewPosition = screenPosition                                       // 위치 업데이트
-                            
+                            self.viewModel.translateViewPosition = screenPosition
                             self.viewModel.commentSelection = selection
                             self.viewModel.commentInputPosition = commentPosition
                             self.commentViewModel.selectedBounds = bound

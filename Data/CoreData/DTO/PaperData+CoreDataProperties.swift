@@ -23,6 +23,8 @@ extension PaperData {
     @NSManaged public var memo: String?
     @NSManaged public var isFigureSaved: Bool
     
+    @NSManaged public var folderID: UUID?
+    
     @NSManaged public var figureData: Set<FigureData>?
     @NSManaged public var commentData: Set<CommentData>?
 }
