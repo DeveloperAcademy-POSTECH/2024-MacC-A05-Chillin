@@ -127,6 +127,41 @@ extension SearchViewModel {
 //        let paragraphStyle: NSMutableParagraphStyle = .init()
 //        paragraphStyle.lineSpacing = -10
         
+        // 찾으려는 String 배열이 10보다 작을 경우
+        if textArray.count < 10 {
+            for i in 0 ..< textArray.count {
+                let text = textArray[i].replacingOccurrences(of: "\n", with: " ")
+                if i == index {
+                    var attributedText = AttributedString(text)
+                    
+                    let attributes: AttributeContainer = .init([
+                        .foregroundColor: UIColor.gray800,
+                        .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                    ])
+                    
+                    attributedText.setAttributes(attributes)
+                    
+                    let range = attributedText.range(of: keyword, options: .caseInsensitive)
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
+                    
+                    resultText.append(attributedText + " ")
+                    continue
+                }
+                
+                var attributedText = AttributedString(text)
+                
+                let attributes: AttributeContainer = .init([
+                    .foregroundColor: UIColor.gray800,
+                    .font: UIFont.init(name: ReazyFontType.pretendardRegularFont, size: 12)!,
+                ])
+                
+                attributedText.setAttributes(attributes)
+                
+                resultText.append(attributedText + " ")
+            }
+            return resultText
+        }
+        
         // 찾은 키워드의 인덱스가 5보다 작을 경우
         // 0-10 까지의 string을 들고옴
         if index < 5 {

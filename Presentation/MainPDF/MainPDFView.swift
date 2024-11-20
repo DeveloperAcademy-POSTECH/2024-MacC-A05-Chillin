@@ -200,7 +200,8 @@ struct MainPDFView: View {
                                     }
                                     
                                     if isSearchSelected {
-                                        // TODO: - [무니] SearchView 추가 필요
+                                        OverlaySearchView(isSearchSelected: $isSearchSelected)
+                                            .environmentObject(searchViewModel)
                                     }
                                     
                                 }
@@ -380,16 +381,7 @@ private struct OverlaySearchView: View {
     @Binding var isSearchSelected: Bool
     
     var body: some View {
-        if isSearchSelected {
-            HStack {
-                VStack(spacing: 0) {
-                    SearchView()
-                        .padding(EdgeInsets(top: 60, leading: 20, bottom: 0, trailing: 0))
-                    Spacer()
-                }
-                Spacer()
-            }
-        }
+        SearchView()
     }
 }
 

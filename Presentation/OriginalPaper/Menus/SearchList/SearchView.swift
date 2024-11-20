@@ -27,52 +27,47 @@ struct SearchView: View {
     var body: some View {
         VStack {
             ZStack {
-                SearchBoxView()
-                
                 VStack {
                     SearchTextFieldView(
                         viewModel: viewModel,
                         isSearchViewHidden: $isSearchViewHidden,
                         focus: $focus)
-                        .padding(.bottom, isSearchViewHidden ? 21 : 0)
                     
-                    if !self.isSearchViewHidden {
-                        if !viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
-                            SearchTopView(
-                                viewModel: viewModel,
-                                isTapGesture: $isTapGesture,
-                                selectedIndex: $selectedIndex,
-                                focus: $focus)
-                        }
-                        
-                        
-                        if viewModel.isNoMatchTextVisible {
-                            Spacer()
-                            Text("일치하는 결과 없음")
-                                .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
-                                .foregroundStyle(.gray800)
-                        }
-                        
-                        if viewModel.isLoading {
-                            Spacer()
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                        }
-                        
-                        if !viewModel.searchResults.isEmpty {
-                            SearchListView(
-                                viewModel: viewModel,
-                                isTapGesture: $isTapGesture,
-                                selectedIndex: $selectedIndex,
-                                focus: $focus)
-                        } else {
-                            Spacer()
-                        }
+                    if !viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
+                        SearchTopView(
+                            viewModel: viewModel,
+                            isTapGesture: $isTapGesture,
+                            selectedIndex: $selectedIndex,
+                            focus: $focus)
                     }
                     
+                    
+                    if viewModel.isNoMatchTextVisible {
+                        Spacer()
+                        Text("일치하는 결과 없음")
+                            .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
+                            .foregroundStyle(.gray800)
+                    }
+                    
+                    if viewModel.isLoading {
+                        Spacer()
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    }
+                    
+                    if !viewModel.searchResults.isEmpty {
+                        SearchListView(
+                            viewModel: viewModel,
+                            isTapGesture: $isTapGesture,
+                            selectedIndex: $selectedIndex,
+                            focus: $focus)
+                    } else {
+                        Spacer()
+                    }
                 }
+                .padding(.horizontal, 16)
             }
-            .frame(width: 252, height: (viewModel.searchText.isEmpty || isSearchViewHidden) ? 79 : nil)
+            .frame(width: 252)
             .onChange(of: viewModel.searchText) {
                 viewModel.isSearched = false
                 fetchSearchResult()
@@ -92,11 +87,11 @@ struct SearchView: View {
                     self.isSearchViewHidden = true
                 }
             }
-            .animation(.spring, value: isSearchViewHidden)
         }
         .onDisappear {
             viewModel.removeAllAnnotations()
         }
+        .background(Color.list)
     }
     
     
@@ -115,15 +110,13 @@ private struct SearchTextFieldView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-                .frame(width: 232, height: 33)
+//                .frame(width: 220, height: 33)
                 .foregroundStyle(.gray200)
             
-            HStack {
+            HStack(spacing: 0) {
                 Image(systemName: "magnifyingglass")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 14)
-                    .padding(.leading, 18)
+                    .font(.system(size: 14))
+                    .padding(.leading, 8)
                     .foregroundStyle(Color(hex: "9092A9"))
                 
                 TextField("검색", text: $viewModel.searchText) {
@@ -131,18 +124,19 @@ private struct SearchTextFieldView: View {
                         isSearchViewHidden = false
                     }
                 }
-                    .padding(.trailing, 10)
-                    .foregroundStyle(.gray800)
-                    .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
-                    .focused(focus)
-                    .onAppear {
-                        focus.wrappedValue = true
-                    }
+                .padding(.leading, 4)
+                .padding(.trailing, 10)
+                .foregroundStyle(.gray800)
+                .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
+                .focused(focus)
+                .onAppear {
+                    focus.wrappedValue = true
+                }
                     
             }
-            .frame(width: 252, height: 33)
         }
-        .padding(.top, 25)
+        .frame(height: 33)
+        .padding(.top, 20)
     }
 }
 
@@ -186,9 +180,7 @@ private struct SearchTopView: View {
                     .frame(width: 9)
                     .foregroundStyle(.gray700)
             }
-            
         }
-        .padding(12)
     }
     
     private func nextResult() {
