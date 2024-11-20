@@ -39,6 +39,20 @@ struct AppView: App {
             .onAppear {
                 setSample()
             }
+            .onOpenURL {
+                let components = URLComponents(url: $0, resolvingAgainstBaseURL: false)
+                let item = components!.queryItems!.first!
+                print(item.value!)
+                let manager = FileManager.default
+                
+                let containerURL = manager.containerURL(forSecurityApplicationGroupIdentifier: "group.com.chillin.reazy")
+                
+                if let containerFileURL = containerURL?.appending(path: item.value!),
+                   manager.fileExists(atPath: containerFileURL.path()) {
+                    homeViewModel.uploadPDF(url: [containerFileURL])
+                }
+                
+            }
         }
     }
 }
@@ -51,6 +65,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         return true
     }
+    
+//    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+//        print(url)
+//        return true
+//    }
 }
 
 

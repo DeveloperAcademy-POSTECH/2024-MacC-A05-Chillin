@@ -64,13 +64,13 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     public func uploadPDFFile(url: [URL]) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
         
-        guard url.startAccessingSecurityScopedResource() else {
-            throw PDFUploadError.failedToAccessingSecurityScope
-        }
+//        guard url.startAccessingSecurityScopedResource() else {
+//            throw PDFUploadError.failedToAccessingSecurityScope
+//        }
         
-        defer {
-            url.stopAccessingSecurityScopedResource()
-        }
+//        defer {
+//            url.stopAccessingSecurityScopedResource()
+//        }
         
         
         let tempDoc = PDFDocument(url: url)
