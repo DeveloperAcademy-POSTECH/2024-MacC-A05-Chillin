@@ -7,6 +7,8 @@
 
 import SwiftUI
 import PDFKit
+import AVFoundation
+import Photos
 
 struct SplitDocumentDetails {
     let documentID: String
@@ -15,10 +17,13 @@ struct SplitDocumentDetails {
 }
 
 struct FloatingSplitView: View {
+    
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @ObservedObject var observableDocument: ObservableDocument
+    
+    @State private var isSaveImgAlert = false
     
     let documentID: String
     let document: PDFDocument
@@ -62,6 +67,25 @@ struct FloatingSplitView: View {
                         
                         Spacer()
                         
+                        Menu {
+                            Button(action: {
+                                saveFigImage()
+                                saveFigAlert()
+                                
+                                print("Download Image")
+                                
+                            }, label: {
+                                Text("사진 앱에 저장")
+                                    .reazyFont(.body1)
+                                    .foregroundStyle(.gray800)
+                                    .frame(width: 148)
+                            })
+                        } label: {
+                            Image(systemName: "square.and.arrow.down")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.gray600)
+                        }
+                        
                         Button(action: {
                             floatingViewModel.deselect(documentID: documentID)
                         }, label: {
@@ -69,11 +93,12 @@ struct FloatingSplitView: View {
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
-                        .padding(.trailing, 20)
+                        .padding(.horizontal, 20)
                     }
                     
                     HStack(spacing: 0) {
                         Spacer()
+                        
                         Button(action: {
                             floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
@@ -81,10 +106,12 @@ struct FloatingSplitView: View {
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
+                        
                         Text(head)
                             .reazyFont(.h3)
                             .foregroundStyle(.gray800)
                             .padding(.horizontal, 24)
+                        
                         Button(action: {
                             floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
@@ -92,6 +119,7 @@ struct FloatingSplitView: View {
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
+                        
                         Spacer()
                     }
                 }
@@ -101,10 +129,29 @@ struct FloatingSplitView: View {
                     .frame(height: 1)
                     .foregroundStyle(.gray300)
                 
-                PDFKitView(document: observableDocument.document, isScrollEnabled: true)
-                    .id(observableDocument.document)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 14)
+                ZStack {
+                    PDFKitView(document: observableDocument.document, isScrollEnabled: true)
+                        .id(observableDocument.document)
+                        .padding(.horizontal, 30)
+                        .padding(.vertical, 14)
+                    
+                    if isSaveImgAlert {
+                        VStack {
+                            Text("사진 앱에 저장되었습니다")
+                                .padding()
+                                .frame(width: 190, height: 40)
+                                .reazyFont(.h3)
+                                .background(Color.gray300)
+                                .foregroundStyle(.gray800)
+                                .cornerRadius(12)
+                                .transition(.opacity)                       // 부드러운 전환 효과
+                                .zIndex(1)                                  // ZStack에서의 순서 조정
+                                .padding(.top, 20)
+                            
+                            Spacer()
+                        }
+                    }
+                }
                 
                 
                 if isFigSelected {
@@ -168,5 +215,41 @@ struct FloatingSplitView: View {
     // 기기의 방향에 따라 isVertical 상태를 업데이트하는 함수
     private func updateOrientation(with geometry: GeometryProxy) {
         isVertical = geometry.size.height > geometry.size.width
+    }
+    
+    // Fig 이미지 저장 함수
+    private func saveFigImage() {
+        let pdfDocument = observableDocument.document
+        guard let pdfPage = pdfDocument.page(at: 0) else { return }
+        
+        // PDF 페이지를 UIImage로 변환
+        let pdfPageBounds = pdfPage.bounds(for: .mediaBox)
+        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size)
+        
+        let image = renderer.image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: pdfPageBounds.size))
+            context.cgContext.saveGState()
+            context.cgContext.translateBy(x: 0, y: pdfPageBounds.height)
+            context.cgContext.scaleBy(x: 1.0, y: -1.0)
+            pdfPage.draw(with: .mediaBox, to: context.cgContext)
+            context.cgContext.restoreGState()
+        }
+        
+        // 이미지 저장
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+    }
+    
+    // Fig 이미지 저장 Alert 함수
+    private func saveFigAlert() {
+        withAnimation {
+            isSaveImgAlert = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                isSaveImgAlert = false
+            }
+        }
     }
 }
