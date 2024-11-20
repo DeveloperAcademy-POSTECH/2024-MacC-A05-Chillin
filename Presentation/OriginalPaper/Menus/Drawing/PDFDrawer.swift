@@ -12,6 +12,7 @@ enum DrawingTool: Int {
     case none = 0
     case eraser = 1
     case pencil = 2
+    //TODO: - 올가미 (lasso)관련 설정 추가 
     
     var width: CGFloat {
         switch self {

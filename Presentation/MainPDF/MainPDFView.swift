@@ -148,24 +148,27 @@ struct MainPDFView: View {
                                     if selectedButton == btn {
                                         selectedButton = nil
                                         mainPDFViewModel.toolMode = .none
+                                        mainPDFViewModel.drawingToolMode = .none
                                     } else {
                                         selectedButton = btn
                                     }
-                                    
                                     
                                     switch selectedButton {
                                     case .drawing:
                                         mainPDFViewModel.toolMode = .drawing
                                     case .comment:
                                         mainPDFViewModel.toolMode = .comment
+                                        mainPDFViewModel.drawingToolMode = .none
                                     case .translate:
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                         mainPDFViewModel.toolMode = .translate
+                                        mainPDFViewModel.drawingToolMode = .none
                                     case .lasso:
-                                        // TODO: - toolMode에 올가미 추가
-                                        print("올가미 모드 선택")
+                                        mainPDFViewModel.toolMode = .lasso
+                                        mainPDFViewModel.drawingToolMode = .none
                                     default:
                                         mainPDFViewModel.toolMode = .none
+                                        mainPDFViewModel.drawingToolMode = .none
                                     }
                                 }
                                 .padding(.trailing, btn == .lasso ? 0 : 30 )

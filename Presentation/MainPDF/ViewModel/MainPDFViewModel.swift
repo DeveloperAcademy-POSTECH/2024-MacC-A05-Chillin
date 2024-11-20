@@ -256,23 +256,26 @@ extension MainPDFViewModel {
     }
 }
 
-
+// 상단바 메뉴 버튼
 enum ToolMode {
     case none
     case translate
     case comment
     case drawing
+    case lasso
 }
 
+// 드로잉 툴바에 있는 버튼
 enum DrawingToolMode {
-    case none
+    case none // translate, comment, lasso 일 때 이 드로잉 모드
     case pencil
     case eraser
     case highlight
 }
 
+// 펜슬 제스처 인식 모드
 extension MainPDFViewModel {
-    private func updateDrawingTool() {
+    func updateDrawingTool() {
         switch drawingToolMode {
         case .pencil:
             pdfDrawer.drawingTool = .pencil

@@ -67,6 +67,7 @@ struct DrawingView: View {
             Button(action: {
                 isPencil.toggle()
                 mainPDFViewModel.drawingToolMode = .pencil
+                mainPDFViewModel.updateDrawingTool()
                 if selectedPenColor == nil {
                     selectedPenColor = .black
                 } else {
