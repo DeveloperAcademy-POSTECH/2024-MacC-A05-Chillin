@@ -36,19 +36,19 @@ struct CommentGroupView: View {
     }
 }
 
-// MARK: - CommentGrouopView 분리
 
-// 저장된 코멘트
+// MARK: - 저장된 코멘트 뷰
 private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
-    @State var isMenuTapped: Bool = false
+    
     var selectedComments: [Comment]
+    
     var body: some View {
         ZStack {
             
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(selectedComments.indices, id: \.self) { index in
-                    CommentCell(viewModel: viewModel, comment: selectedComments[index], isMenuTapped: $isMenuTapped)
+                    CommentCell(viewModel: viewModel, comment: selectedComments[index])
                         .padding(.leading, 22)
                     
                     if index < selectedComments.count - 1 {
@@ -61,17 +61,18 @@ private struct CommentView: View {
             }
             .foregroundStyle(.point2)
             
-            if let comment = viewModel.comment {
-                if isMenuTapped {
-                    CommentMenuView(viewModel: viewModel, comment: comment)
-                }
-            }
+//            if let comment = viewModel.comment {
+//                if isMenuTapped {
+//                    CommentMenuView(viewModel: viewModel, comment: comment)
+//                        .position(x: commentMenuPosition.x, y: commentMenuPosition.y)
+//                }
+//            }
         }
         
     }
 }
 
-// 코멘트 입력 창
+// MARK: -  코멘트 입력 창
 private struct CommentInputView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
@@ -150,7 +151,7 @@ private struct CommentInputView: View {
     }
 }
 
-// 수정,삭제 뷰
+// MARK: - 수정,삭제 뷰
 struct CommentMenuView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel

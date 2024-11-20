@@ -16,26 +16,30 @@ class CommentViewModel: ObservableObject {
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
     
-    @Published var comments: [Comment] = [] // 전체 코멘트 배열
-    @Published var buttonGroup: [ButtonGroup] = [] // 전체 버튼 배열
+    @Published var comments: [Comment] = []             /// 전체 코멘트 배열
+    @Published var buttonGroup: [ButtonGroup] = []      /// 전체 버튼 배열
     var tempCommentArray: [Comment] = []
     
     var commentService: CommentDataRepositoryImpl
     private var buttonGroupService: ButtonGroupDataRepositoryImpl
     
     // 해당 줄의 첫 코멘트를 생성하는 상황에 사용되는 변수
-    private var newButtonId = UUID() // 새로 추가되는 버튼의 id
-    private var isNewButton: Bool = true // 해당 줄의 첫 코멘트인지 확인
+    private var newButtonId = UUID()                    /// 새로 추가되는 버튼의 id
+    private var isNewButton: Bool = true                /// 해당 줄의 첫 코멘트인지 확인
     
-    @Published var commentPosition: CGPoint = .zero  /// 저장된 comment.bounds로부터 얻은 position
+    @Published var commentPosition: CGPoint = .zero     /// 저장된 comment.bounds로부터 얻은 position
     
-    //Comment Model
+    // Comment Model
     @Published var selectedText: String = ""
     @Published var pages: [Int] = []
     @Published var selectedBounds: CGRect = .zero
     
-    @Published var isEditMode = false
-    @Published var comment: Comment?
+    // 수정, 삭제 관련
+    @Published var isEditMode: Bool = false
+    @Published var comment: Comment?                    /// 수정, 삭제시 넘겨받은 코멘트 값
+    @Published var isMenuTapped: Bool = false
+    @Published var commentMenuPosition: CGPoint = .zero /// 메뉴 버튼 탭할 시 넘겨받을 메뉴 뷰의 position
+    
     
     init(
         commentService: CommentDataRepositoryImpl,

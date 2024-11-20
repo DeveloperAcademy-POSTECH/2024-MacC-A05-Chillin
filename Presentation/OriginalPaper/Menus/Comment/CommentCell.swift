@@ -12,7 +12,6 @@ struct CommentCell: View {
     @StateObject var viewModel: CommentViewModel
     
     var comment: Comment // 선택된 comment
-    @Binding var isMenuTapped: Bool
     
     var body: some View {
         HStack(alignment: .center) {
@@ -39,53 +38,20 @@ struct CommentCell: View {
             
             Button(action: {
                 viewModel.comment = comment
-                isMenuTapped.toggle()
+                viewModel.isMenuTapped.toggle()
             }, label: {
                 Image(systemName: "ellipsis.circle")
                     .foregroundStyle(.gray500)
                     .font(.system(size: 24))
             })
-//            Menu {
-//                ControlGroup {
-//                    Button {
-//                        //수정 액션
-//                        viewModel.comment = comment
-//                        viewModel.isEditMode = true
-//                        pdfViewModel.isCommentTapped = false
-//                    } label: {
-//                        VStack(alignment: .center, spacing: 3) {
-//                            Image(systemName: "pencil.line")
-//                                .font(.system(size: 14))
-//                            
-//                            Text("수정")
-//                                .reazyFont(.h3)
-//                        }
-//                    }
-//                    .foregroundStyle(.gray600)
-//                    
-//                    Button {
-//                        // 삭제 액션
-//                        viewModel.deleteComment(commentId: comment.id)
-//                        pdfViewModel.isCommentTapped = false
-//                        pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
-//                    } label: {
-//                        VStack(alignment: .center, spacing: 3) {
-//                            Image(systemName: "trash")
-//                                .font(.system(size: 14))
-//                            
-//                            Text("삭제")
-//                                .reazyFont(.h3)
-//                        }
-//                    }
-//                    .foregroundStyle(.gray600)
-//                }
-//                .controlGroupStyle(.menu)
-//                
-//            } label: {
-//                Image(systemName: "ellipsis.circle")
-//                    .foregroundStyle(.gray500)
-//                    .font(.system(size: 24))
-//            }
+            .background(
+                GeometryReader { geometry in
+                    Color.clear
+                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
+                            viewModel.commentMenuPosition = newValue.origin
+                        }
+                }
+            )
         }
         .padding([.trailing, .bottom], 12)
     }

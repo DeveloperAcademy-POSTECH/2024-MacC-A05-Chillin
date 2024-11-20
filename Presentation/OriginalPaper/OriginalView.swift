@@ -46,6 +46,13 @@ struct OriginalView: View {
                     CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
                         .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
                 }
+                
+                if let comment = commentViewModel.comment {
+                    if commentViewModel.isMenuTapped {
+                        CommentMenuView(viewModel: commentViewModel, comment: comment)
+                            .position(x: commentViewModel.commentMenuPosition.x, y: commentViewModel.commentMenuPosition.y)
+                    }
+                }
             }
             .offset(y: -keyboardOffset)
             .onAppear {
