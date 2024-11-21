@@ -58,8 +58,8 @@ struct HomeView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 62, height: 50)
-                            .padding(.vertical, 31)
-                            .padding(.leading, 28)
+//                            .padding(.top, 46)
+//                            .padding([.leading, .bottom], 28)
                             .padding(.trailing, 36)
                         
                         Button(action: {
@@ -109,6 +109,8 @@ struct HomeView: View {
                                 isEditing: $isEditing)
                         }
                     }
+                    .padding(.top, 46)
+                    .padding([.leading, .bottom], 28)
                 }
                 .frame(height: 80)
                 
@@ -194,10 +196,12 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: folder
                 )
+                .frame(width: .infinity, height: .infinity)
             }
         }
         .background(Color(hex: "F7F7FB"))
-        .statusBarHidden()
+        .ignoresSafeArea(edges: .top)
+//        .statusBarHidden()
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
         .animation(.easeInOut, value: isEditingFolder)

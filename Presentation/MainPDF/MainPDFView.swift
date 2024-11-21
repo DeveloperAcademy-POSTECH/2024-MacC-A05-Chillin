@@ -174,10 +174,10 @@ struct MainPDFView: View {
                         }
                         
                     }
-                    .padding(.top, 26)
+                    .padding(.top, 10)
                     .padding(.bottom, 11)
                     .padding(.horizontal, 20)
-                    .background(.primary3)
+                    .background(.primary3)ㅎ
                     .zIndex(1)
                     
                     Rectangle()
@@ -268,7 +268,7 @@ struct MainPDFView: View {
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
             }
-            .statusBarHidden()
+//            .statusBarHidden()
         }
     }
     
