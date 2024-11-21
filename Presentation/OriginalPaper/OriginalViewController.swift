@@ -341,7 +341,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     
     @objc
     func postScreenTouch() {
-        NotificationCenter.default.post(name: .isSearchViewHidden, object: self, userInfo: ["hitted": true])
         NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
         NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
     }

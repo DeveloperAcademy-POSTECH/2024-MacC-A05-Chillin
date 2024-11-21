@@ -139,6 +139,21 @@ struct HomeView: View {
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
         .animation(.easeInOut, value: isEditingFolder)
+        .alert(isPresented: $homeViewModel.isErrorOccured) {
+            // TODO: 예외 처리 수정 필요
+            switch homeViewModel.errorStatus {
+            case .failedToAccessingSecurityScope:
+                Alert(
+                    title: Text("파일 접근이 불가능합니다."),
+                    message: Text("다른 파일을 선택해주세요."),
+                    dismissButton: .default(Text("Ok")))
+            case .fileNameDuplication:
+                Alert(
+                    title: Text("중복된 파일 이름이 있습니다."),
+                    message: Text("파일 이름을 수정해주세요."),
+                    dismissButton: .default(Text("Ok")))
+            }
+        }
     }
 }
 
@@ -207,21 +222,6 @@ private struct MainMenuView: View {
             }
             .padding(.trailing, 28)
         }
-        .alert(isPresented: $errorAlert) {
-            // TODO: 예외 처리 수정 필요
-            switch homeViewModel.errorStatus {
-            case .failedToAccessingSecurityScope:
-                Alert(
-                    title: Text("파일 접근이 불가능합니다."),
-                    message: Text("다른 파일을 선택해주세요."),
-                    dismissButton: .default(Text("Ok")))
-            case .fileNameDuplication:
-                Alert(
-                    title: Text("중복된 파일 이름이 있습니다."),
-                    message: Text("파일 이름을 수정해주세요."),
-                    dismissButton: .default(Text("Ok")))
-            }
-        }
         .fileImporter(
             isPresented: $isFileImporterPresented,
             allowedContentTypes: [.pdf],
@@ -241,12 +241,13 @@ private struct MainMenuView: View {
             if let newPaperID = homeViewModel.uploadPDF(url: url) {
                 selectedItemID = newPaperID
             } else {
-                errorAlert.toggle()
+                homeViewModel.errorStatus = .fileNameDuplication
+                homeViewModel.isErrorOccured.toggle()
             }
         case .failure(let error):
             print(String(describing: error))
             homeViewModel.errorStatus = .failedToAccessingSecurityScope
-            self.errorAlert.toggle()
+            homeViewModel.isErrorOccured.toggle()
         }
     }
 }
