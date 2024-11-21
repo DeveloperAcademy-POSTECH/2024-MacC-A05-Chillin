@@ -38,8 +38,10 @@ struct HomeView: View {
     
     @State private var isFavoriteSelected: Bool = false
     
+    @State private var createMovingFolder: Bool = false
     @State private var isMovingFolder: Bool = false
     @State private var isPaper: Bool = false
+    @State private var moveToFolderID: UUID? = nil
     
     var body: some View {
         ZStack {
@@ -121,7 +123,7 @@ struct HomeView: View {
                     isPaper: $isPaper
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
             
             
             Color.black
@@ -139,6 +141,7 @@ struct HomeView: View {
             if createFolder || isEditingFolder {
                 FolderView(
                     createFolder: $createFolder,
+                    createMovingFolder: $createMovingFolder,
                     isEditingFolder: $isEditingFolder,
                     folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
                 )
@@ -147,13 +150,30 @@ struct HomeView: View {
             if isMovingFolder {
                 if let selectedItemID = selectedItemID {
                     MoveFolderView(
+                        createMovingFolder: $createMovingFolder,
                         isMovingFolder: $isMovingFolder,
                         isPaper: isPaper,
-                        id:selectedItemID
+                        id:selectedItemID,
+                        selectedID: $moveToFolderID
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .frame(width: 740, height: 550)
+                    .blur(radius: createMovingFolder ? 20 : 0)
                 }
+            }
+            
+            Color.black
+                .opacity(createMovingFolder ? 0.5 : 0)
+                .ignoresSafeArea(edges: .bottom)
+            
+            if createMovingFolder {
+                let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
+                FolderView(
+                    createFolder: $createFolder,
+                    createMovingFolder: $createMovingFolder,
+                    isEditingFolder: $isEditingFolder,
+                    folder: folder
+                )
             }
         }
         .background(Color(hex: "F7F7FB"))
@@ -472,6 +492,7 @@ private struct FolderView: View {
     @State private var selectedColors: FolderColors = .folder1
     
     @Binding var createFolder: Bool
+    @Binding var createMovingFolder: Bool
     @Binding var isEditingFolder: Bool
     
     @State private var text: String = ""
@@ -485,8 +506,10 @@ private struct FolderView: View {
                     Button(action: {
                         if isEditingFolder {
                             isEditingFolder.toggle()
-                        } else {
+                        } else if createFolder {
                             createFolder.toggle()
+                        } else {
+                            createMovingFolder.toggle()
                         }
                     }) {
                         Image(systemName: "xmark")
@@ -497,12 +520,14 @@ private struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
+                        if text.isEmpty { text = "새 폴더" }
+                        
                         if isEditingFolder {
                             if let folder = folder {
                                 homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
                                 isEditingFolder.toggle()
                             }
-                        } else {
+                        } else if createFolder {
                             // 최상위 단계와 폴더 진입 단계 구분
                             if homeViewModel.isAtRoot {
                                 homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
@@ -510,6 +535,13 @@ private struct FolderView: View {
                                 homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
                             }
                             createFolder.toggle()
+                        } else {
+                            if let folder = folder {
+                                homeViewModel.saveFolder(to: folder.id, title: text, color: selectedColors.rawValue)
+                            } else {
+                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                            }
+                            createMovingFolder.toggle()
                         }
                     }) {
                         RoundedRectangle(cornerRadius: 20)

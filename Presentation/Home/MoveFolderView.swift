@@ -10,12 +10,14 @@ import SwiftUI
 struct MoveFolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @State private var expandedFolders: Set<UUID> = []
-    @State private var isTopLevelExpanded: Bool = false
+    @State private var isTopLevelExpanded: Bool = true
+    
+    @Binding var createMovingFolder: Bool
     @Binding var isMovingFolder: Bool
     
     let isPaper: Bool
     let id: UUID
-    @State var selectedID: UUID? = nil
+    @Binding var selectedID: UUID?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -32,7 +34,7 @@ struct MoveFolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        // TODO: - [브리] 폴더 추가 로직
+                        self.createMovingFolder.toggle()
                     }) {
                         Image(systemName: "folder.badge.plus")
                             .resizable()
@@ -228,5 +230,5 @@ struct FolderCell: View {
 }
 
 #Preview {
-    MoveFolderView(isMovingFolder: .constant(false), isPaper: false, id: UUID())
+    MoveFolderView(createMovingFolder: .constant(false), isMovingFolder: .constant(false), isPaper: false, id: UUID(), selectedID: .constant(UUID()))
 }
