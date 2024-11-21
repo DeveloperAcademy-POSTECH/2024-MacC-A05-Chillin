@@ -22,7 +22,9 @@ struct PaperListView: View {
     @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
+    
     @Binding var isFavoriteSelected: Bool
+    @State var isFavorite: Bool = false
     
     @Binding var isMovingFolder: Bool
     @Binding var isPaper: Bool
@@ -72,9 +74,12 @@ struct PaperListView: View {
                         Spacer()
                         if !homeViewModel.isAtRoot {
                             Button(action: {
-                                // TODO: - [브리] 폴더 즐겨찾기 버튼 액션
+                                isFavorite.toggle()
+                                if let folder = homeViewModel.currentFolder {
+                                    homeViewModel.updateFolderFavorite(at: folder.id, isFavorite: isFavorite)
+                                }
                             }) {
-                                Image(systemName: "star")
+                                Image(systemName: isFavorite ? "star.fill" : "star")
                                     .font(.system(size: 18))
                                     .foregroundStyle(.primary1)
                             }
@@ -281,6 +286,10 @@ struct PaperListView: View {
                 detectIPadMini()
                 updateOrientation(with: geometry)
                 
+                if let folder = homeViewModel.currentFolder {
+                    isFavorite = folder.isFavorite
+                }
+                
                 // 키보드 높이에 맞게 검색 Text 위치 조정
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
@@ -307,6 +316,11 @@ struct PaperListView: View {
             .onChange(of: geometry.size) {
                 detectIPadMini()
                 updateOrientation(with: geometry)
+            }
+            .onChange(of: homeViewModel.currentFolder) {
+                if let folder = homeViewModel.currentFolder {
+                    isFavorite = folder.isFavorite
+                }
             }
             .background(.gray200)
             .ignoresSafeArea()

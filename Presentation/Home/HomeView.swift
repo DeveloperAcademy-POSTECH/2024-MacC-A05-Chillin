@@ -33,12 +33,15 @@ struct HomeView: View {
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
     
+    // 폴더 추가 페이지 변수
     @State private var createFolder: Bool = false
+    @State private var createMovingFolder: Bool = false
     @State private var isEditingFolder: Bool = false
     
+    // 전체 홈뷰 즐겨찾기 변수
     @State private var isFavoriteSelected: Bool = false
     
-    @State private var createMovingFolder: Bool = false
+    // 폴더 이동 변수
     @State private var isMovingFolder: Bool = false
     @State private var isPaper: Bool = false
     @State private var moveToFolderID: UUID? = nil

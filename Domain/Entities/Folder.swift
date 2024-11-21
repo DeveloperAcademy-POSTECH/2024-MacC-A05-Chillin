@@ -12,7 +12,7 @@ import SwiftUI
  폴더 구조
  : 계층 구조 구현 및 폴더 탐색기를 위한 class 구현
  */
-struct Folder {
+struct Folder: Equatable {
     let id: UUID
     var title: String
     var createdAt: Date
