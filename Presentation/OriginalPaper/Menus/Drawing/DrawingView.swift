@@ -168,7 +168,6 @@ struct DrawingView: View {
             .disabled(!mainPDFViewModel.canRedo) // 비활성화
             .opacity(mainPDFViewModel.canRedo ? 1.0 : 0.5)
         }
-        .shadow(color: Color(hex: "3C3D4B").opacity(0.08), radius: 16, x: 0, y: 6)
         .padding(.vertical, 16)
         .padding(.horizontal, 10)
     }
