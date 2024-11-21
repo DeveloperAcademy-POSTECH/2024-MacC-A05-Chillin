@@ -5,7 +5,6 @@
 //  Created by 문인범 on 10/17/24.
 //
 
-import SwiftUI
 import UIKit
 import PDFKit
 import Combine
@@ -40,6 +39,37 @@ final class OriginalViewController: UIViewController {
         view.usePageViewController(false)
         return view
     }()
+    
+    let testPDFView: PDFView = {
+        let view = PDFView()
+        view.backgroundColor = .gray200
+        view.autoScales = false
+        view.pageShadowsEnabled = false
+        return view
+    }()
+    
+    let labelBackgroundView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .gray300
+        view.layer.cornerRadius = 12
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.primary3.cgColor
+        view.alpha = 0
+        return view
+    }()
+    
+    let pageLabelView: UILabel = {
+        let view = UILabel()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.text = "1 / \(PDFSharedData.shared.document!.pageCount)"
+        view.font = UIFont(name: ReazyFontType.pretendardMediumFont, size: 16)
+        view.textColor = .gray700
+        view.alpha = 0
+        return view
+    }()
+    
+    var pageLabelTimer: Timer?
     
     // for drawing
     var shouldUpdatePDFScrollPosition = true
@@ -139,13 +169,26 @@ extension OriginalViewController {
             self.mainPDFView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.mainPDFView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
+        
+        self.mainPDFView.addSubview(self.labelBackgroundView)
+        NSLayoutConstraint.activate([
+            self.labelBackgroundView.topAnchor.constraint(equalTo: self.mainPDFView.topAnchor, constant: 28),
+            self.labelBackgroundView.trailingAnchor.constraint(equalTo: self.mainPDFView.trailingAnchor, constant: -28),
+            self.labelBackgroundView.widthAnchor.constraint(equalToConstant: 72),
+            self.labelBackgroundView.heightAnchor.constraint(equalToConstant: 32),
+        ])
+        
+        self.labelBackgroundView.addSubview(self.pageLabelView)
+        NSLayoutConstraint.activate([
+            self.pageLabelView.centerXAnchor.constraint(equalTo: self.labelBackgroundView.centerXAnchor),
+            self.pageLabelView.centerYAnchor.constraint(equalTo: self.labelBackgroundView.centerYAnchor)
+        ])
     }
     
     /// ViewModel 설정
     private func setData() {
         self.commentViewModel.document = PDFSharedData.shared.document
         self.mainPDFView.document = self.focusFigureViewModel.getDocument
-        
         
         // pdfView midX 가져오기
         self.commentViewModel.getPDFCoordinates(pdfView: mainPDFView)
@@ -235,6 +278,9 @@ extension OriginalViewController {
             .sink { [weak self] _ in
                 guard let page = self?.mainPDFView.currentPage else { return }
                 guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
+                
+                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
+                
                 self?.pageListViewModel.changedPageNumber = num
                 self?.focusFigureViewModel.changedPageNumber = num
             }
@@ -266,7 +312,7 @@ extension OriginalViewController {
                     return
                 }
                 
-                guard let text = selection.string else { return }
+                guard let _ = selection.string else { return }
                 
                 self.selectionWorkItem?.cancel()
                 
@@ -320,6 +366,30 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
+        
+        if let scrollView = self.mainPDFView.scrollView {
+            scrollView.publisher(for: \.contentOffset)
+                .sink { [weak self] offset in
+                    if offset.x == 0 , offset.y == 0 {
+                        return
+                    }
+                    
+                    if self?.pageLabelTimer != nil {
+                        self?.pageLabelTimer?.invalidate()
+                    }
+                    
+                    self?.pageLabelView.alpha = 1
+                    self?.labelBackgroundView.alpha = 1
+                    
+                    self?.pageLabelTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
+                        UIView.animate(withDuration: 0.5) {
+                            self?.pageLabelView.alpha = 0
+                            self?.labelBackgroundView.alpha = 0
+                        }
+                    }
+                }
+                .store(in: &self.cancellable)
+        }
     }
 }
 
@@ -393,6 +463,9 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
 class CustomPDFView: PDFView {
     var toolMode: ToolMode = .none
     var drawingToolMode: DrawingToolMode = .none
+    var scrollView: UIScrollView? {
+        self.subviews.first as? UIScrollView
+    }
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         switch toolMode {
