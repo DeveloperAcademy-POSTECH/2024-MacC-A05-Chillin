@@ -249,7 +249,7 @@ extension OriginalViewController {
                 guard let self = self else { return }
                 
                 DispatchQueue.main.async {
-                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)     // 하이라이트 기능
+                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)
                 }
             }
             .store(in: &self.cancellable)

@@ -7,6 +7,8 @@
 
 import SwiftUI
 import PDFKit
+import AVFoundation
+import Photos
 
 struct SplitDocumentDetails {
     let documentID: String
@@ -15,6 +17,7 @@ struct SplitDocumentDetails {
 }
 
 struct FloatingSplitView: View {
+    
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
@@ -47,20 +50,40 @@ struct FloatingSplitView: View {
                             floatingViewModel.setFloatingDocument(documentID: documentID)
                         }, label: {
                             Image(systemName: "rectangle")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
-                        .padding(.horizontal, 20)
+                        .padding(.leading, 20)
+                        .padding(.trailing, 24)
                         
                         Button(action: {
                             onSelect()
                         }, label: {
                             Image(systemName: isVertical ? "arrow.left.arrow.right" : "arrow.up.arrow.down")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
                         
                         Spacer()
+                        
+                        Menu {
+                            Button(action: {
+                                floatingViewModel.saveFigImage(document: observableDocument)
+                                floatingViewModel.saveFigAlert()
+                                
+                                print("Download Image")
+                                
+                            }, label: {
+                                Text("사진 앱에 저장")
+                                    .reazyFont(.body1)
+                                    .foregroundStyle(.gray800)
+                                    .frame(width: 148)
+                            })
+                        } label: {
+                            Image(systemName: "square.and.arrow.down")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.gray600)
+                        }
                         
                         Button(action: {
                             floatingViewModel.deselect(documentID: documentID)
@@ -69,42 +92,70 @@ struct FloatingSplitView: View {
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
+                        .padding(.leading, 24)
                         .padding(.trailing, 20)
                     }
                     
                     HStack(spacing: 0) {
                         Spacer()
+                        
                         Button(action: {
                             floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
+                        
                         Text(head)
-                            .reazyFont(.h3)
+                            .reazyFont(.text1)
                             .foregroundStyle(.gray800)
                             .padding(.horizontal, 24)
+                        
                         Button(action: {
-                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+                            floatingViewModel.saveFigImage(document: observableDocument)
+                            floatingViewModel.saveFigAlert()
+                            
+                            print("Download Image")
+                            
                         }, label: {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
+                        
                         Spacer()
                     }
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
                 
                 Rectangle()
                     .frame(height: 1)
                     .foregroundStyle(.gray300)
                 
-                PDFKitView(document: observableDocument.document, isScrollEnabled: true)
-                    .id(observableDocument.document)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 14)
+                ZStack {
+                    PDFKitView(document: observableDocument.document, isScrollEnabled: true)
+                        .id(observableDocument.document)
+                        .padding(.horizontal, 30)
+                        .padding(.vertical, 14)
+                    
+                    if floatingViewModel.isSaveImgAlert {
+                        VStack {
+                            Text("사진 앱에 저장되었습니다")
+                                .padding()
+                                .frame(width: 190, height: 40)
+                                .reazyFont(.h3)
+                                .background(Color.gray300)
+                                .foregroundStyle(.gray800)
+                                .cornerRadius(12)
+                                .transition(.opacity)                       // 부드러운 전환 효과
+                                .zIndex(1)                                  // ZStack에서의 순서 조정
+                                .padding(.top, 20)
+                            
+                            Spacer()
+                        }
+                    }
+                }
                 
                 
                 if isFigSelected {
