@@ -11,14 +11,16 @@ import PDFKit
 class FloatingViewModel: ObservableObject {
     @Published var droppedFigures: [(documentID: String, document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat, isInSplitMode: Bool)] = []
     @Published var topmostIndex: Int? = nil
-    
     @Published var selectedFigureCellID: String? = nil
     @Published var selectedFigureIndex: Int = 0
+    
     @Published var splitMode: Bool = false
+    @Published var isSaveImgAlert: Bool = false
     
     func toggleSelection(for documentID: String, document: PDFDocument, head: String) {
         if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
             droppedFigures[index].isSelected.toggle()
+            
             if droppedFigures[index].isSelected {
                 topmostIndex = index
             }
@@ -33,8 +35,10 @@ class FloatingViewModel: ObservableObject {
                 viewWidth: 300,
                 isInSplitMode: false
             ))
+            
             topmostIndex = droppedFigures.count - 1
         }
+        
         droppedFigures = droppedFigures.map { $0 }
     }
     
@@ -105,11 +109,50 @@ class FloatingViewModel: ObservableObject {
                     if let index = Int(documentID.components(separatedBy: "-").last ?? "") {
                         selectedFigureIndex = index
                     }
+                    
                     droppedFigures = droppedFigures.map { $0 }
                 }
             }
         }
     }
+    
+    // Fig 이미지 저장 함수
+    func saveFigImage(document: ObservableDocument) {
+        let pdfDocument = document.document
+        guard let pdfPage = pdfDocument.page(at: 0) else { return }
+        
+        // PDF 페이지를 UIImage로 변환
+        let pdfPageBounds = pdfPage.bounds(for: .mediaBox)
+        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size)
+        
+        let image = renderer.image { context in
+            UIColor.white.setFill()
+            
+            context.fill(CGRect(origin: .zero, size: pdfPageBounds.size))
+            context.cgContext.saveGState()
+            context.cgContext.translateBy(x: 0, y: pdfPageBounds.height)
+            context.cgContext.scaleBy(x: 1.0, y: -1.0)
+            pdfPage.draw(with: .mediaBox, to: context.cgContext)
+            context.cgContext.restoreGState()
+        }
+        
+        // 이미지 저장
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+    }
+    
+    // Fig 이미지 저장 Alert 함수
+    func saveFigAlert() {
+        withAnimation {
+            isSaveImgAlert = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                self.isSaveImgAlert = false
+            }
+        }
+    }
+
     
     @MainActor
     func moveToNextFigure(focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {

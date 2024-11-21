@@ -22,6 +22,7 @@ class HomeViewModel: ObservableObject {
     
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
+    @Published public var isErrorOccured: Bool = false
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     private let homeViewUseCase: HomeViewUseCase
@@ -39,7 +40,6 @@ class HomeViewModel: ObservableObject {
         
         switch homeViewUseCase.loadFolders() {
         case .success(let folders):
-            print(folders)
             self.folders = folders
         case .failure(let error):
             print(error)
@@ -105,19 +105,26 @@ extension HomeViewModel {
 
 
 extension HomeViewModel {
-    public func updateFavorite(at id: UUID, isFavorite: Bool) {
+    public func updatePaperFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite
             self.homeViewUseCase.editPDF(paperInfos[index])
         }
     }
     
-    public func updateFavorites(at ids: [UUID]) {
+    public func updatePaperFavorites(at ids: [UUID]) {
         ids.forEach { id in
             if let index = paperInfos.firstIndex(where: { $0.id == id }) {
                 paperInfos[index].isFavorite = true
                 self.homeViewUseCase.editPDF(paperInfos[index])
             }
+        }
+    }
+    
+    public func updatePaperLocation(at id: UUID, folderID: UUID?) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].folderID = folderID
+            self.homeViewUseCase.editPDF(paperInfos[index])
         }
     }
     
@@ -137,8 +144,19 @@ extension HomeViewModel {
     
     public func updateTitle(at id: UUID, title: String) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            paperInfos[index].title = title
-            self.homeViewUseCase.editPDF(paperInfos[index])
+            var changablePaper = paperInfos[index]
+            changablePaper.title = title
+            let result = self.homeViewUseCase.editPDF(changablePaper)
+            
+            switch result {
+            case .success:
+                paperInfos[index].title = title
+            case .failure(let error):
+                print(error)
+                self.errorStatus = .fileNameDuplication
+                self.isErrorOccured.toggle()
+                break
+            }
         }
     }
 }
@@ -220,6 +238,46 @@ extension HomeViewModel {
         folders.append(newFolder)
     }
     
+    public func updateFolderInfo(at id: UUID, title: String, color: String) {
+        if let index = folders.firstIndex(where: { $0.id == id }) {
+            folders[index].title = title
+            folders[index].color = color
+            self.homeViewUseCase.editFolder(folders[index])
+        }
+    }
+    
+    public func updateFolderFavorite(at id: UUID, isFavorite: Bool) {
+        if let index = folders.firstIndex(where: { $0.id == id }) {
+            folders[index].isFavorite = isFavorite
+            self.homeViewUseCase.editFolder(folders[index])
+        }
+    }
+    
+    public func updateFolderFavorites(at ids: [UUID]) {
+        ids.forEach { id in
+            if let index = folders.firstIndex(where: { $0.id == id }) {
+                folders[index].isFavorite = true
+                self.homeViewUseCase.editFolder(folders[index])
+            }
+        }
+    }
+    
+    public func updateFolderLocation(at id: UUID, folderID: UUID?) {
+        if let index = folders.firstIndex(where: { $0.id == id }) {
+            folders[index].parentFolderID = folderID
+            self.homeViewUseCase.editFolder(folders[index])
+        }
+    }
+    
+    public func deleteFolder(ids: [UUID]) {
+        self.homeViewUseCase.deleteFolders(id: ids)
+        ids.forEach { id in
+            self.folders.removeAll(where: { $0.id == id })
+        }
+    }
+}
+
+extension HomeViewModel {
     public func navigateToParent() {
         if let parentID = currentFolder?.parentFolderID {
             currentFolder = folders.first { $0.id == parentID }

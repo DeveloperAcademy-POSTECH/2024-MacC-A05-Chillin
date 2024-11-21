@@ -19,9 +19,15 @@ struct PaperListView: View {
     @Binding var isEditing: Bool
     @Binding var isSearching: Bool
     @Binding var isEditingTitle: Bool
+    @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
+    
     @Binding var isFavoriteSelected: Bool
+    @State var isFavorite: Bool = false
+    
+    @Binding var isMovingFolder: Bool
+    @Binding var isPaper: Bool
     
     @State private var keyboardHeight: CGFloat = 0
     
@@ -68,9 +74,12 @@ struct PaperListView: View {
                         Spacer()
                         if !homeViewModel.isAtRoot {
                             Button(action: {
-                                // TODO: - [브리] 폴더 즐겨찾기 버튼 액션
+                                isFavorite.toggle()
+                                if let folder = homeViewModel.currentFolder {
+                                    homeViewModel.updateFolderFavorite(at: folder.id, isFavorite: isFavorite)
+                                }
                             }) {
-                                Image(systemName: "star")
+                                Image(systemName: isFavorite ? "star.fill" : "star")
                                     .font(.system(size: 18))
                                     .foregroundStyle(.primary1)
                             }
@@ -207,6 +216,7 @@ struct PaperListView: View {
                             switch selectedItem {
                             case .paper(let paperInfo):
                                 PaperInfoView(
+                                    isPaper: $isPaper,
                                     id: paperInfo.id,
                                     image: paperInfo.thumbnail,
                                     title: paperInfo.title,
@@ -215,6 +225,7 @@ struct PaperListView: View {
                                     isStarSelected: paperInfo.isFavorite,
                                     isEditingTitle: $isEditingTitle,
                                     isEditingMemo: $isEditingMemo,
+                                    isMovingFolder: $isMovingFolder,
                                     onNavigate: {
                                         if !isEditing && !isNavigationPushed {
                                             self.isNavigationPushed = true
@@ -232,19 +243,25 @@ struct PaperListView: View {
                                 
                             case .folder(let folder):
                                 FolderInfoView(
+                                    isPaper: $isPaper,
                                     id: folder.id,
                                     title: folder.title,
                                     color: FolderColors.color(for: folder.color),
                                     memo: folder.memo,
                                     isFavorite: folder.isFavorite,
                                     isStarSelected: folder.isFavorite,
-                                    isEditingTitle: $isEditingTitle,
+                                    isEditingFolder: $isEditingFolder,
                                     isEditingMemo: $isEditingMemo,
+                                    isMovingFolder: $isMovingFolder,
                                     onNavigate: {
                                         homeViewModel.navigateTo(folder: folder)
                                     },
                                     onDelete: {
-                                        // TODO: - [브리] Folder 삭제 코드 작성
+                                        if filteredLists.isEmpty {
+                                            selectedItemID = nil
+                                        } else {
+                                            selectedItemID = filteredLists.first?.id
+                                        }
                                     }
                                 )
                             }
@@ -268,6 +285,10 @@ struct PaperListView: View {
                 initializeSelectedItemID()
                 detectIPadMini()
                 updateOrientation(with: geometry)
+                
+                if let folder = homeViewModel.currentFolder {
+                    isFavorite = folder.isFavorite
+                }
                 
                 // 키보드 높이에 맞게 검색 Text 위치 조정
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
@@ -295,6 +316,11 @@ struct PaperListView: View {
             .onChange(of: geometry.size) {
                 detectIPadMini()
                 updateOrientation(with: geometry)
+            }
+            .onChange(of: homeViewModel.currentFolder) {
+                if let folder = homeViewModel.currentFolder {
+                    isFavorite = folder.isFavorite
+                }
             }
             .background(.gray200)
             .ignoresSafeArea()

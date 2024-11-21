@@ -12,10 +12,10 @@ import PDFKit
 
 @MainActor
 class FocusFigureViewModel: ObservableObject {
+    @Published public var focusPages: [FocusAnnotation] = []
     @Published public var figures: [FigureAnnotation] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
-    
     
     private var focusFigureUseCase: FocusFigureUseCase
     
@@ -25,10 +25,9 @@ class FocusFigureViewModel: ObservableObject {
 }
 
 
-
-
 extension FocusFigureViewModel {
     public func fetchAnnotations() {
+        
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
         
@@ -41,8 +40,8 @@ extension FocusFigureViewModel {
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
-            let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             
+            let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
             
             if result.isEmpty {
@@ -63,7 +62,6 @@ extension FocusFigureViewModel {
     public var getDocument: PDFDocument? {
         self.focusFigureUseCase.pdfSharedData.document
     }
-    
     
     
     private func downloadFocusFigure() {
@@ -93,6 +91,7 @@ extension FocusFigureViewModel {
             }
             
             Task.init {
+                
                 let height = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
                 
@@ -100,7 +99,8 @@ extension FocusFigureViewModel {
                     switch $0 {
                     case .success(let layout):
                         DispatchQueue.main.async {
-                            self.figures = layout.toEntities(pageHeight: height)
+                            self.figures = layout.toFigureEntities(pageHeight: height)
+                            self.focusPages = layout.toFocusEntities(pageHeight: height)
                             self.figureStatus = .complete
                             
                             self.saveFigures(figures: layout.toCoreData())
@@ -122,18 +122,17 @@ extension FocusFigureViewModel {
     
     public func setFigureDocument(for index: Int) -> PDFDocument? {
         
-        // 인덱스가 유효한지 확인
-        guard index >= 0 && index < self.figures.count else {
+        guard index >= 0 && index < self.figures.count else {           // 인덱스가 유효한지 확인
             print("Invalid index")
             return nil
         }
         
         DispatchQueue.main.async {
-            self.figures.sort { $0.page < $1.page }                    // figure와 table 페이지 순서 정렬
+            self.figures.sort { $0.page < $1.page }                     // figure와 table 페이지 순서 정렬
         }
         
         let document = PDFDocument()                                    // 새 PDFDocument 생성
-        let annotation = self.figures[index]                  // 주어진 인덱스의 annotation 가져오기
+        let annotation = self.figures[index]                            // 주어진 인덱스의 annotation 가져오기
         
         // 해당 페이지 가져오기
         guard let page = self.focusFigureUseCase.pdfSharedData.document?.page(at: annotation.page - 1)?.copy()
@@ -154,14 +153,73 @@ extension FocusFigureViewModel {
         return document                                                 // 생성된 PDFDocument 변환
     }
     
+    
     private func saveFigures(figures: [Figure]) {
         figures.forEach { self.focusFigureUseCase.saveFigures(with: $0) }
     }
+    
     
     enum FigureStatus {
         case networkDisconnection
         case loading
         case empty
         case complete
+    }
+}
+
+
+
+
+extension FocusFigureViewModel {
+    public func setFocusDocument() -> PDFDocument {
+        
+        let document = PDFDocument()
+        
+        var pageIndex = 0
+        
+        self.focusPages.forEach { annotation in
+            guard let page = self.focusFigureUseCase.pdfSharedData.document?
+                .page(at: annotation.page - 1)?.copy() as? PDFPage else {
+                return
+            }
+            page.displaysAnnotations = false
+            
+            let original = page.bounds(for: .mediaBox)
+            let croppedRect = original.intersection(annotation.position)
+            
+            page.setBounds(croppedRect, for: .mediaBox)
+            document.insert(page, at: pageIndex)
+            pageIndex += 1
+        }
+        
+        // TODO: 밑 주석 추후에 수정 예정
+        /*
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "test.pdf")
+
+        let renderer = UIGraphicsPDFRenderer(bounds: .zero)
+        try! renderer.writePDF(to: url) { context in
+            let pdfContext = context.cgContext
+            
+            self.focusPages.forEach { annotation in
+                guard let page = self.focusFigureUseCase.pdfSharedData.document?
+                    .page(at: annotation.page - 1)?.copy() as? PDFPage else {
+                    return
+                }
+                page.displaysAnnotations = false
+                
+                guard let pdfRef = page.pageRef else { return }
+                
+                var mediaBox = pdfRef.getBoxRect(.mediaBox)
+                pdfContext.beginPage(mediaBox: &mediaBox)
+                pdfContext.drawPDFPage(pdfRef)
+            }
+            
+            pdfContext.endPage()
+        }
+        
+        let resultDocument = PDFDocument(url: url)!
+         */
+        
+        return document
     }
 }

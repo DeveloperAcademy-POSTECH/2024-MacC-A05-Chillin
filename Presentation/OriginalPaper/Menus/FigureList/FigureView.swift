@@ -15,6 +15,7 @@ struct FigureView: View {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @State private var scrollToIndex: Int? = nil
+    
     let onSelect: (String, PDFDocument, String) -> Void
     
     var body: some View {
@@ -27,6 +28,7 @@ struct FigureView: View {
                 case .networkDisconnection:
                     VStack(spacing: 12) {
                         Text("Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다.")
+                            .multilineTextAlignment(.center)
                             .reazyFont(.body3)
                             .foregroundStyle(.gray600)
                         
@@ -55,6 +57,7 @@ struct FigureView: View {
                         .padding(.bottom, 16)
                     
                     Text("Figure와 Table을 불러오는 중입니다")
+                        .multilineTextAlignment(.center)
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
                 case .empty:
@@ -102,6 +105,7 @@ struct FigureView: View {
     }
     
     private func updateScrollIndex(for pageNumber: Int) {
+        
         let pageCount = focusFigureViewModel.figures.count
         var foundIndex: Int? = nil
         
