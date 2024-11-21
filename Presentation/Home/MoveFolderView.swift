@@ -16,8 +16,8 @@ struct MoveFolderView: View {
     @Binding var isMovingFolder: Bool
     
     let isPaper: Bool
-    let id: UUID
-    @Binding var selectedID: UUID?
+    let id: UUID // 이동하고자 하는 Item ID
+    @Binding var selectedID: UUID? // Item의 이동 목적지 ID
     
     var body: some View {
         VStack(spacing: 0) {
@@ -96,9 +96,9 @@ struct MoveFolderView: View {
         .background(Color(hex: "F7F7FC"))
     }
     
+    // 존재하지 않는 <전체> 임의 폴더 생성
     private var topLevelFolder: Folder {
         Folder(
-            // 존재하지 않는 <전체> 임의 폴더 생성
             id: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
             title: "전체",
             color: ".primary1",

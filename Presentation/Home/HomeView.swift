@@ -130,6 +130,21 @@ struct HomeView: View {
                 .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
+            // 폴더 이동 View
+            if isMovingFolder {
+                if let selectedItemID = selectedItemID {
+                    MoveFolderView(
+                        createMovingFolder: $createMovingFolder,
+                        isMovingFolder: $isMovingFolder,
+                        isPaper: isPaper,
+                        id:selectedItemID,
+                        selectedID: $moveToFolderID
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .frame(width: 740, height: 550)
+                    .blur(radius: createMovingFolder ? 20 : 0)
+                }
+            }
             
             if isEditingTitle || isEditingMemo {
                 RenamePaperTitleView(
@@ -147,6 +162,7 @@ struct HomeView: View {
                 )
             }
             
+            // 폴더 이동 View
             if isMovingFolder {
                 if let selectedItemID = selectedItemID {
                     MoveFolderView(
@@ -166,6 +182,7 @@ struct HomeView: View {
                 .opacity(createMovingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
+            // 폴더 이동 시 새 폴더 생성
             if createMovingFolder {
                 let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
                 FolderView(
@@ -491,6 +508,11 @@ private struct FolderView: View {
     
     @State private var selectedColors: FolderColors = .folder1
     
+    /* [세 가지 케이스 분리]
+     - createFolder: 메인 화면에서 폴더 생성
+     - createMovingFolder: 폴더 이동 시 새로운 폴더 생성
+     - isEditingFolder: 폴더 정보 수정
+     */
     @Binding var createFolder: Bool
     @Binding var createMovingFolder: Bool
     @Binding var isEditingFolder: Bool
