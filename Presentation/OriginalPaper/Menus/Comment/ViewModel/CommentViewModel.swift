@@ -243,9 +243,9 @@ extension CommentViewModel {
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 10, height: 10)
+            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 12, height: 12)
         } else if isRight || isAcross {
-            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 10, height: 10)
+            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 12, height: 12)
         }
         return iconPosition
     }
@@ -275,17 +275,16 @@ extension CommentViewModel {
 //MARK: - PDF Anootation관련
 extension CommentViewModel {
     
-    /// 버튼 추가
+    // 버튼 추가
     func drawCommentIcon(button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
         
-        let image = UIImage(systemName: "text.bubble")
-        image?.withTintColor(UIColor.point4, renderingMode: .alwaysOriginal)
+        /// asset 이미지 사용
+        let image = UIImage(resource: .coment)
         
         let commentIcon = ImageAnnotation(imageBounds: button.buttonPosition, image: image)
         
         commentIcon.widgetFieldType = .button
-        commentIcon.color = .point4
         
         /// 버튼에 코멘트 정보 참조
         commentIcon.setValue(button.id.uuidString, forAnnotationKey: .contents)
@@ -295,33 +294,28 @@ extension CommentViewModel {
     public class ImageAnnotation: PDFAnnotation {
         
         private var _image: UIImage?
-        
-        // 초기화 시 이미지와 바운드 값을 받음
-        public init(imageBounds: CGRect, image: UIImage?) {
-            self._image = image
-            super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
-        }
-        
-        required public init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
+
+            public init(imageBounds: CGRect, image: UIImage?) {
+                self._image = image
+                
+                image?.withTintColor(.point4, renderingMode: .alwaysOriginal)
+                super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
+            }
+
+            required public init?(coder aDecoder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
         
         // 이미지를 그릴 때 사용하는 메서드
         override public func draw(with box: PDFDisplayBox, in context: CGContext) {
-            guard (self._image?.cgImage) != nil else {
-                return
-            }
+                guard let cgImage = self._image?.cgImage else {
+                    return
+                }
             
-            let tintedImage = self._image?.withTintColor(UIColor.point4, renderingMode: .alwaysTemplate)
-            
-            // PDF 페이지에 이미지 그리기
-            if let drawingBox = self.page?.bounds(for: box),
-               let cgTintedImage = tintedImage?.cgImage {
-                context.draw(cgTintedImage, in: self.bounds.applying(CGAffineTransform(
-                    translationX: (drawingBox.origin.x) * -1.0,
-                    y: (drawingBox.origin.y) * -1.0
-                )))
-            }
+            let drawingBox = self.page?.bounds(for: box)
+                   context.draw(cgImage, in: self.bounds.applying(CGAffineTransform(
+                   translationX: (drawingBox?.origin.x)! * -1.0,
+                              y: (drawingBox?.origin.y)! * -1.0)))
         }
     }
     
@@ -345,8 +339,8 @@ extension CommentViewModel {
         if count > 1 {
             commentCount.contents = "\(count)"
             commentCount.color = .clear
-            commentCount.font = .reazyFont(.text5)
             commentCount.fontColor = .point4
+            commentCount.font = .reazyFont(.text5)
             // id 값 저장
             commentCount.setValue(button.id.uuidString, forAnnotationKey: .name)
             PDFPage?.addAnnotation(commentCount)
@@ -379,6 +373,19 @@ extension CommentViewModel {
         }
     }
     
+    func deleteCommentCount(comment:Comment, button: ButtonGroup) {
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
+            for annotation in page.annotations {
+                if let annotationID = annotation.value(forAnnotationKey: .name) as? String {
+                    if annotationID == comment.buttonId.uuidString && annotation.type == "FreeText" {
+                        page.removeAnnotation(annotation)
+                    }
+                }
+            }
+        }
+    }
+    
     func deleteCommentAnnotation(comment: Comment, currentButtonId: UUID, buttonList: [Comment]) {
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
@@ -394,19 +401,6 @@ extension CommentViewModel {
                         }
                     } else if buttonList.count > 1, annotationID == comment.id.uuidString {
                         // 버튼에 연결된 남은 코멘트 존재하면 버튼은 두고 밑줄만 삭제
-                        page.removeAnnotation(annotation)
-                    }
-                }
-            }
-        }
-    }
-    
-    func deleteCommentCount(comment:Comment, button: ButtonGroup) {
-        if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
-            for annotation in page.annotations {
-                if let annotationID = annotation.value(forAnnotationKey: .name) as? String {
-                    if annotationID == comment.buttonId.uuidString && annotation.type == "FreeText" {
                         page.removeAnnotation(annotation)
                     }
                 }
