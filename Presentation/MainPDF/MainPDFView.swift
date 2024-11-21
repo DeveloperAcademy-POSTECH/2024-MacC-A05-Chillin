@@ -262,13 +262,13 @@ struct MainPDFView: View {
                     GeometryReader { gp in
                         ZStack {
                             HStack(spacing: 0) {
-                                DrawingView()
+                                DrawingView(selectedButton: $selectedButton)
                                     .environmentObject(mainPDFViewModel)
                                     .background {
                                         RoundedRectangle(cornerRadius: 12)
                                             .fill(.gray100)
                                     }
-                                    .shadow(color: Color(hex: "3C3D4B").opacity(0.08), radius: 16, x: 0, y: 6)
+                                    .shadow(color: Color(hex: "05043E").opacity(0.1), radius: 20, x: 0, y: 4)
                                     .position(
                                         CGPoint(
                                             x: max(0, min(gp.size.width, (self.dragAmount?.x ?? 24) + dragOffset.width)),

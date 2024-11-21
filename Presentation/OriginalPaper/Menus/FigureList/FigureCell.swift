@@ -19,6 +19,7 @@ struct PDFKitView: UIViewRepresentable {
     
     // PDFView 생성 후 반환
     func makeUIView(context: Context) -> PDFView {
+        
         let pdfView = PDFView()
         
         pdfView.autoScales = true       // PDF가 뷰에 맞춰서 스케일 조정
@@ -72,9 +73,9 @@ struct FigureCell: View {
                             .aspectRatio(aspectRatio, contentMode: .fit)
                             .simultaneousGesture(
                                 TapGesture().onEnded {
-                                  if floatingViewModel.selectedFigureCellID != documentID {
-                                      onSelect(documentID, document, head)
-                                  }
+                                    if floatingViewModel.selectedFigureCellID != documentID {
+                                        onSelect(documentID, document, head)
+                                    }
                                 }
                             )
                         
