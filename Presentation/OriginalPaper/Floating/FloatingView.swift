@@ -45,6 +45,7 @@ struct FloatingView: View {
                             .font(.system(size: 14))
                             .foregroundStyle(.gray600)
                     })
+                    .padding(.leading, 20)
                     
                     Spacer()
                     
@@ -66,7 +67,6 @@ struct FloatingView: View {
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(.gray600)
                     }
-                    .padding(.trailing, 20)
                     
                     Button(action: {
                         floatingViewModel.deselect(documentID: documentID)
@@ -75,14 +75,14 @@ struct FloatingView: View {
                             .font(.system(size: 14))
                             .foregroundStyle(.gray600)
                     })
+                    .padding(.horizontal, 20)
                 }
                 
                 Text(head)
-                    .reazyFont(.body3)
+                    .reazyFont(.body1)
                     .foregroundStyle(.gray800)
             }
-            .padding(.bottom, 11)
-            .padding(.horizontal, 16)
+            .padding(.bottom, 10)
             .frame(height: 40)
             
             Divider()
