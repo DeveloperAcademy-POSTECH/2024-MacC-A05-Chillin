@@ -19,9 +19,20 @@ struct FloatingView: View {
     @Binding var viewWidth: CGFloat
     
     @State private var aspectRatio: CGFloat = 1.0
-    @State private var isSaveImgAlert = false
     
     @EnvironmentObject var floatingViewModel: FloatingViewModel
+    @ObservedObject var observableDocument: ObservableDocument
+    
+    init(documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
+        self.document = document
+        _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
+        
+        self.documentID = documentID
+        self.head = head
+        self._isSelected = isSelected
+        self._viewOffset = viewOffset
+        self._viewWidth = viewWidth
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -39,8 +50,8 @@ struct FloatingView: View {
                     
                     Menu {
                         Button(action: {
-//                            saveFigImage()
-                            saveFigAlert()
+                            saveFigImage()
+                            floatingViewModel.saveFigAlert()
                             
                             print("Download Image")
                             
@@ -77,12 +88,13 @@ struct FloatingView: View {
             Divider()
             
             ZStack {
-                PDFKitView(document: document, isScrollEnabled: true)
+                PDFKitView(document: observableDocument.document, isScrollEnabled: true)
+                    .id(observableDocument.document)
                     .frame(width: viewWidth - 36, height: (viewWidth - 36) / aspectRatio)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 14)
                 
-                if isSaveImgAlert {
+                if floatingViewModel.isSaveImgAlert {
                     VStack {
                         Text("사진 앱에 저장되었습니다")
                             .padding()
@@ -131,16 +143,25 @@ struct FloatingView: View {
         }
     }
     
-    // Fig 이미지 저장 Alert 함수
-    private func saveFigAlert() {
-        withAnimation {
-            isSaveImgAlert = true
+    func saveFigImage() {
+        let pdfDocument = observableDocument.document
+        guard let pdfPage = pdfDocument.page(at: 0) else { return }
+        
+        // PDF 페이지를 UIImage로 변환
+        let pdfPageBounds = pdfPage.bounds(for: .mediaBox)
+        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size)
+        
+        let image = renderer.image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: pdfPageBounds.size))
+            context.cgContext.saveGState()
+            context.cgContext.translateBy(x: 0, y: pdfPageBounds.height)
+            context.cgContext.scaleBy(x: 1.0, y: -1.0)
+            pdfPage.draw(with: .mediaBox, to: context.cgContext)
+            context.cgContext.restoreGState()
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
-                isSaveImgAlert = false
-            }
-        }
+        // 이미지 저장
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
     }
 }

@@ -23,8 +23,6 @@ struct FloatingSplitView: View {
     
     @ObservedObject var observableDocument: ObservableDocument
     
-    @State private var isSaveImgAlert = false
-    
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -70,7 +68,7 @@ struct FloatingSplitView: View {
                         Menu {
                             Button(action: {
                                 saveFigImage()
-                                saveFigAlert()
+                                floatingViewModel.saveFigAlert()
                                 
                                 print("Download Image")
                                 
@@ -135,7 +133,7 @@ struct FloatingSplitView: View {
                         .padding(.horizontal, 30)
                         .padding(.vertical, 14)
                     
-                    if isSaveImgAlert {
+                    if floatingViewModel.isSaveImgAlert {
                         VStack {
                             Text("사진 앱에 저장되었습니다")
                                 .padding()
@@ -238,18 +236,5 @@ struct FloatingSplitView: View {
         
         // 이미지 저장
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-    }
-    
-    // Fig 이미지 저장 Alert 함수
-    private func saveFigAlert() {
-        withAnimation {
-            isSaveImgAlert = true
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
-                isSaveImgAlert = false
-            }
-        }
     }
 }
