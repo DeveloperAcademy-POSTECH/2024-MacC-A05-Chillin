@@ -39,6 +39,7 @@ struct HomeView: View {
     @State private var isFavoriteSelected: Bool = false
     
     @State private var isMovingFolder: Bool = false
+    @State private var isPaper: Bool = false
     
     var body: some View {
         ZStack {
@@ -116,7 +117,8 @@ struct HomeView: View {
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText,
                     isFavoriteSelected: $isFavoriteSelected,
-                    isMovingFolder: $isMovingFolder
+                    isMovingFolder: $isMovingFolder,
+                    isPaper: $isPaper
                 )
             }
             .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder ? 20 : 0)
@@ -146,6 +148,7 @@ struct HomeView: View {
                 if let selectedItemID = selectedItemID {
                     MoveFolderView(
                         isMovingFolder: $isMovingFolder,
+                        isPaper: isPaper,
                         id:selectedItemID
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 20))

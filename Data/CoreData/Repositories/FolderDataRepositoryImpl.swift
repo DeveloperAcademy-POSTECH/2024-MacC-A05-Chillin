@@ -72,6 +72,7 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             folderData.color = folder.color
             folderData.memo = folder.memo
             folderData.isFavorite = folder.isFavorite
+            folderData.parentFolderID = folder.parentFolderID
             
             try dataContext.save()
             return .success(VoidResponse())

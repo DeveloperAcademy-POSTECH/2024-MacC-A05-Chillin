@@ -13,7 +13,9 @@ struct MoveFolderView: View {
     @State private var isTopLevelExpanded: Bool = false
     @Binding var isMovingFolder: Bool
     
+    let isPaper: Bool
     let id: UUID
+    @State var selectedID: UUID? = nil
     
     var body: some View {
         VStack(spacing: 0) {
@@ -41,12 +43,20 @@ struct MoveFolderView: View {
                     .padding(.trailing, 26)
                     
                     Button(action: {
-                        // TODO: - [브리] 이동 확인 버튼
+                        if let selectedID = selectedID {
+                            if isPaper {
+                                homeViewModel.updatePaperLocation(at: id, folderID: selectedID)
+                            } else {
+                                homeViewModel.updateFolderLocation(at: id, folderID: selectedID)
+                            }
+                        }
+                        self.isMovingFolder.toggle()
                     }) {
                         Text("이동")
                             .reazyFont(.text1)
-                            .foregroundStyle(.primary1)
+                            .foregroundStyle(selectedID == nil ? .gray550 : .primary1)
                     }
+                    .disabled(selectedID == nil)
                 }
                 .padding(.horizontal, 20)
                 
@@ -76,7 +86,8 @@ struct MoveFolderView: View {
                         childFolders: childFolders(of:),
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
-                        isTopLevelExpanded: $isTopLevelExpanded
+                        isTopLevelExpanded: $isTopLevelExpanded,
+                        selectedID: $selectedID
                     )
                 }
             }
@@ -123,6 +134,8 @@ struct FolderCell: View {
     let toggleExpansion: (Folder) -> Void
     let hasChildren: (Folder) -> Bool
     @Binding var isTopLevelExpanded: Bool
+    
+    @Binding var selectedID: UUID?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -180,7 +193,11 @@ struct FolderCell: View {
                 }
             }
             .padding(.leading, CGFloat(20 + (level * 21)))
-            .background(.clear)
+            .background(selectedID == folder.id ? .primary2 : .clear)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTap()
+            }
             
             if (isTopLevel && isTopLevelExpanded) || expandedFolders.contains(folder.id) {
                 ForEach(childFolders(folder.id), id: \.id) { subFolder in
@@ -192,7 +209,8 @@ struct FolderCell: View {
                         childFolders: childFolders,
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
-                        isTopLevelExpanded: $isTopLevelExpanded
+                        isTopLevelExpanded: $isTopLevelExpanded,
+                        selectedID: $selectedID
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
@@ -201,8 +219,14 @@ struct FolderCell: View {
             }
         }
     }
+    
+    private func onTap() {
+        if selectedID != folder.id {
+            selectedID = folder.id
+        }
+    }
 }
 
 #Preview {
-    MoveFolderView(isMovingFolder: .constant(false), id: UUID())
+    MoveFolderView(isMovingFolder: .constant(false), isPaper: false, id: UUID())
 }

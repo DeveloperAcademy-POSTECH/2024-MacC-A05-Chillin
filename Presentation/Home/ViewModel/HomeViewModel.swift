@@ -121,6 +121,13 @@ extension HomeViewModel {
         }
     }
     
+    public func updatePaperLocation(at id: UUID, folderID: UUID) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].folderID = folderID
+            self.homeViewUseCase.editPDF(paperInfos[index])
+        }
+    }
+    
     public func updateLastModifiedDate(at id: UUID, lastModifiedDate: Date) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].lastModifiedDate = lastModifiedDate
@@ -241,6 +248,13 @@ extension HomeViewModel {
                 folders[index].isFavorite = true
                 self.homeViewUseCase.editFolder(folders[index])
             }
+        }
+    }
+    
+    public func updateFolderLocation(at id: UUID, folderID: UUID) {
+        if let index = folders.firstIndex(where: { $0.id == id }) {
+            folders[index].parentFolderID = folderID
+            self.homeViewUseCase.editFolder(folders[index])
         }
     }
     
