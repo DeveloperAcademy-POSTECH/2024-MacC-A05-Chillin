@@ -32,7 +32,6 @@ class HomeViewModel: ObservableObject {
         
         switch homeViewUseCase.loadPDFs() {
         case .success(let paperInfos):
-            print(paperInfos)
             self.paperInfos = paperInfos
         case .failure(let error):
             print(error)
@@ -41,7 +40,6 @@ class HomeViewModel: ObservableObject {
         
         switch homeViewUseCase.loadFolders() {
         case .success(let folders):
-            print(folders)
             self.folders = folders
         case .failure(let error):
             print(error)

@@ -58,8 +58,6 @@ struct HomeView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 62, height: 50)
-//                            .padding(.top, 46)
-//                            .padding([.leading, .bottom], 28)
                             .padding(.trailing, 36)
                         
                         Button(action: {
@@ -136,19 +134,17 @@ struct HomeView: View {
                 .ignoresSafeArea(edges: .bottom)
 
             // 폴더 이동 View
-            if isMovingFolder {
-                if let selectedItemID = selectedItemID {
-                    MoveFolderView(
-                        createMovingFolder: $createMovingFolder,
-                        isMovingFolder: $isMovingFolder,
-                        isPaper: isPaper,
-                        id:selectedItemID,
-                        selectedID: $moveToFolderID
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .frame(width: 740, height: 550)
-                    .blur(radius: createMovingFolder ? 20 : 0)
-                }
+            if isMovingFolder, let selectedItemID = selectedItemID {
+                MoveFolderView(
+                    createMovingFolder: $createMovingFolder,
+                    isMovingFolder: $isMovingFolder,
+                    isPaper: isPaper,
+                    id:selectedItemID,
+                    selectedID: $moveToFolderID
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 740, height: 550)
+                .blur(radius: createMovingFolder ? 20 : 0)
             }
             
             if isEditingTitle || isEditingMemo {
@@ -168,19 +164,17 @@ struct HomeView: View {
             }
             
             // 폴더 이동 View
-            if isMovingFolder {
-                if let selectedItemID = selectedItemID {
-                    MoveFolderView(
-                        createMovingFolder: $createMovingFolder,
-                        isMovingFolder: $isMovingFolder,
-                        isPaper: isPaper,
-                        id:selectedItemID,
-                        selectedID: $moveToFolderID
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .frame(width: 740, height: 550)
-                    .blur(radius: createMovingFolder ? 20 : 0)
-                }
+            if isMovingFolder, let selectedItemID = selectedItemID {
+                MoveFolderView(
+                    createMovingFolder: $createMovingFolder,
+                    isMovingFolder: $isMovingFolder,
+                    isPaper: isPaper,
+                    id:selectedItemID,
+                    selectedID: $moveToFolderID
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 740, height: 550)
+                .blur(radius: createMovingFolder ? 20 : 0)
             }
             
             Color.black
