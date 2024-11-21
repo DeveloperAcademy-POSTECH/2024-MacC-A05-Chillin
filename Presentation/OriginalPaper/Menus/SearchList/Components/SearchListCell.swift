@@ -23,7 +23,6 @@ struct SearchListCell: View {
             
             Spacer()
         }
-        .frame(width: 232)
     }
 }
 

@@ -13,6 +13,6 @@ import Foundation
  */
 extension Notification.Name {
     static let didSelectThumbnail = Notification.Name("didSelectThumbnail")
-    static let isSearchViewHidden = Notification.Name("isSearchViewHidden")
     static let isCommentTapped = Notification.Name("isCommentTapped")
+    static let isPDFInfoMenuHidden = Notification.Name("isPDFInfoMenuHidden")
 }

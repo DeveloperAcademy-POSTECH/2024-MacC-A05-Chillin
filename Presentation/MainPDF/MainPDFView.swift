@@ -17,7 +17,7 @@ struct MainPDFView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    
+    @StateObject public var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     @StateObject public var mainPDFViewModel: MainPDFViewModel
     @StateObject private var floatingViewModel: FloatingViewModel = .init()
     @StateObject public var commentViewModel: CommentViewModel
@@ -39,6 +39,12 @@ struct MainPDFView: View {
     @State private var isVertical = false
     @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
+    
+    @State private var dragAmount: CGPoint?
+    @State private var dragOffset: CGSize = .zero
+    
+    @State private var menuButtonPosition: CGPoint = .zero
+    private let publisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
     var body: some View {
         GeometryReader { geometry in
@@ -106,7 +112,6 @@ struct MainPDFView: View {
                                             .foregroundStyle( isReadMode ? .gray100 : .gray800 )
                                     }
                             }
-
                             
                             Spacer()
                             
@@ -125,7 +130,9 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                // TODO: - [브리] 설정 액션 추가
+                                withAnimation {
+                                    mainPDFViewModel.isMenuSelected.toggle()
+                                }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -136,8 +143,16 @@ struct MainPDFView: View {
                                             .foregroundStyle(.gray800)
                                     )
                             }
+                            .background(
+                                GeometryReader { geometry in
+                                    Color.clear
+                                        // 버튼의 위치 정보 받아오기
+                                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
+                                            menuButtonPosition = newValue.origin
+                                        }
+                                }
+                            )
                         }
-
                         
                         HStack(spacing: 0) {
                             Spacer()
@@ -147,24 +162,27 @@ struct MainPDFView: View {
                                     if selectedButton == btn {
                                         selectedButton = nil
                                         mainPDFViewModel.toolMode = .none
+                                        mainPDFViewModel.drawingToolMode = .none
                                     } else {
                                         selectedButton = btn
                                     }
-                                    
                                     
                                     switch selectedButton {
                                     case .drawing:
                                         mainPDFViewModel.toolMode = .drawing
                                     case .comment:
                                         mainPDFViewModel.toolMode = .comment
+                                        mainPDFViewModel.drawingToolMode = .none
                                     case .translate:
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                         mainPDFViewModel.toolMode = .translate
+                                        mainPDFViewModel.drawingToolMode = .none
                                     case .lasso:
-                                        // TODO: - toolMode에 올가미 추가
-                                        print("올가미 모드 선택")
+                                        mainPDFViewModel.toolMode = .lasso
+                                        mainPDFViewModel.drawingToolMode = .none
                                     default:
                                         mainPDFViewModel.toolMode = .none
+                                        mainPDFViewModel.drawingToolMode = .none
                                     }
                                 }
                                 .padding(.trailing, btn == .lasso ? 0 : 30 )
@@ -200,7 +218,8 @@ struct MainPDFView: View {
                                     }
                                     
                                     if isSearchSelected {
-                                        // TODO: - [무니] SearchView 추가 필요
+                                        OverlaySearchView(isSearchSelected: $isSearchSelected)
+                                            .environmentObject(searchViewModel)
                                     }
                                     
                                 }
@@ -240,24 +259,57 @@ struct MainPDFView: View {
                 }
                 
                 if mainPDFViewModel.toolMode == .drawing {
-                    // TODO: -[브리] 위치 이동 필요
-                    HStack(spacing: 0) {
-                        DrawingView()
-                            .environmentObject(mainPDFViewModel)
-                            .background {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(.gray100)
+                    GeometryReader { gp in
+                        ZStack {
+                            HStack(spacing: 0) {
+                                DrawingView()
+                                    .environmentObject(mainPDFViewModel)
+                                    .background {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(.gray100)
+                                    }
+                                    .shadow(color: Color(hex: "3C3D4B").opacity(0.08), radius: 16, x: 0, y: 6)
+                                    .position(
+                                        CGPoint(
+                                            x: max(0, min(gp.size.width, (self.dragAmount?.x ?? 24) + dragOffset.width)),
+                                            y: max(0, min(gp.size.height, (self.dragAmount?.y ?? gp.size.height / 2) + dragOffset.height))
+                                        )
+                                    )
+                                    .highPriorityGesture(
+                                        DragGesture()
+                                            .onChanged { value in
+                                                self.dragOffset = value.translation
+                                            }
+                                            .onEnded { value in
+                                                self.dragAmount = CGPoint(
+                                                    x: (self.dragAmount?.x ?? 24) + value.translation.width,
+                                                    y: (self.dragAmount?.y ?? gp.size.height / 2) + value.translation.height
+                                                )
+                                                self.dragOffset = .zero
+                                            }
+                                    )
+                                    .animation(.bouncy(duration: 0.5), value: dragOffset)
+                                Spacer()
                             }
-                            .padding(.leading, 24)
-                        
-                        Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(20)
                     }
                 }
                 
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
+                
+                if mainPDFViewModel.isMenuSelected {
+                    PDFInfoMenu()
+                        .environmentObject(pdfInfoMenuViewModel)
+                        .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
+                        .transition(.opacity)
+                        .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected) // 애니메이션 설정
+                }
             }
+            
             .navigationBarHidden(true)
             .onAppear {
                 updateOrientation(with: geometry)
@@ -275,9 +327,8 @@ struct MainPDFView: View {
     @ViewBuilder
     private func mainView(isReadMode: Bool) -> some View {
         if isReadMode {
-            // TODO: - [무니] 집중모드 수정
             ConcentrateView()
-                .environmentObject(mainPDFViewModel)
+                .environmentObject(focusFigureViewModel)
         } else {
             OriginalView()
                 .environmentObject(mainPDFViewModel)
@@ -334,6 +385,11 @@ struct MainPDFView: View {
                 }
             }
         }
+        .onReceive(publisher) { a in
+            if let _ = a.userInfo?["hitted"] as? Bool {
+                mainPDFViewModel.isMenuSelected = false
+            }
+        }
         
         if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
@@ -380,16 +436,7 @@ private struct OverlaySearchView: View {
     @Binding var isSearchSelected: Bool
     
     var body: some View {
-        if isSearchSelected {
-            HStack {
-                VStack(spacing: 0) {
-                    SearchView()
-                        .padding(EdgeInsets(top: 60, leading: 20, bottom: 0, trailing: 0))
-                    Spacer()
-                }
-                Spacer()
-            }
-        }
+        SearchView()
     }
 }
 

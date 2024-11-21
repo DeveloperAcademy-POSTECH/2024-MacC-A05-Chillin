@@ -9,10 +9,10 @@ import UIKit
 import PDFKit
 import Combine
 
-/*
+
 final class ConcentrateViewController: UIViewController {
     
-    let viewModel: MainPDFViewModel
+    let viewModel: FocusFigureViewModel
     
     var cancellables: Set<AnyCancellable> = []
     
@@ -29,11 +29,11 @@ final class ConcentrateViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        let focusPageNum = self.viewModel.focusAnnotations.firstIndex { $0.page == self.viewModel.changedPageNumber + 1}
+        // TODO: 추후 수정 예정
+//        let focusPageNum = self.viewModel.focusAnnotations.firstIndex { $0.page == self.viewModel.changedPageNumber + 1}
+//        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum ?? 0) else { return }
+//        self.pdfView.go(to: page)
         
-        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum ?? 0) else { return }
-        
-        self.pdfView.go(to: page)
     }
     
     lazy var pdfView: PDFView = {
@@ -50,7 +50,7 @@ final class ConcentrateViewController: UIViewController {
     
     
     
-    init(viewModel: MainPDFViewModel) {
+    init(viewModel: FocusFigureViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -68,13 +68,12 @@ final class ConcentrateViewController: UIViewController {
 extension ConcentrateViewController {
     /// filter 된 document 불러오기
     private func setData() {
-        if self.viewModel.focusAnnotations.isEmpty {
+        if self.viewModel.focusPages.isEmpty {
             print("empty!!")
             return
         }
         
-        self.viewModel.setFocusDocument()
-        self.pdfView.document = self.viewModel.focusDocument
+        self.pdfView.document = self.viewModel.setFocusDocument()
     }
     
     /// UI 설정
@@ -93,6 +92,8 @@ extension ConcentrateViewController {
     
     /// 데이터 바인딩
     private func setBinding() {
+        // TODO: 추후 수정 예정
+        /*
         self.viewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
@@ -107,6 +108,7 @@ extension ConcentrateViewController {
                 self?.isPageDestinationWorking = false
             }
             .store(in: &cancellables)
+         */
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .sink { [weak self] _ in
@@ -119,6 +121,7 @@ extension ConcentrateViewController {
                 
                 self.isHandlingPageChange = true // 이벤트 처리 시작
                 
+                /*
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     defer { self.isHandlingPageChange = false } // 처리 후 플래그 초기화
                     
@@ -142,9 +145,8 @@ extension ConcentrateViewController {
                         print("Warning: currentPageNum is out of focusAnnotations range")
                     }
                 }
+                 */
             }
             .store(in: &self.cancellables)
     }
 }
-
-*/

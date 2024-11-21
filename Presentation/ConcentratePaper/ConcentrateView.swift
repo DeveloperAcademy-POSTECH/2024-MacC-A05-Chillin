@@ -11,7 +11,7 @@ import SwiftUI
 struct ConcentrateView: View {
     var body: some View {
         VStack(spacing: 0) {
-//            ConcentrateViewControllerRepresent()
+            ConcentrateViewControllerRepresent()
         }
     }
 }
