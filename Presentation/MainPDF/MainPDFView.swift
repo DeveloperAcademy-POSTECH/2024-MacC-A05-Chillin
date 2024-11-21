@@ -276,9 +276,8 @@ struct MainPDFView: View {
     @ViewBuilder
     private func mainView(isReadMode: Bool) -> some View {
         if isReadMode {
-            // TODO: - [무니] 집중모드 수정
             ConcentrateView()
-                .environmentObject(mainPDFViewModel)
+                .environmentObject(focusFigureViewModel)
         } else {
             OriginalView()
                 .environmentObject(mainPDFViewModel)

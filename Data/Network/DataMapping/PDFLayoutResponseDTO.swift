@@ -12,10 +12,21 @@ import Foundation
  Grobid 모델에서 PDF 분석 결과를 받아오는 구조체
  */
 struct PDFLayoutResponseDTO: Codable {
+    let div: [Division]
     let fig: [Figure]
     let table: [Figure]?
     
-    public func toEntities(pageHeight: CGFloat) -> [FigureAnnotation] {
+    struct Division: Codable {
+        let header: String
+        let coords: [String]
+        
+        enum CodingKeys: String, CodingKey {
+            case header
+            case coords = "@coords"
+        }
+    }
+    
+    public func toFigureEntities(pageHeight: CGFloat) -> [FigureAnnotation] {
         var result = [FigureAnnotation]()
         
         for coords in self.fig {
@@ -58,6 +69,36 @@ struct PDFLayoutResponseDTO: Codable {
                     y: pageHeight - y1,
                     width: x1 - x0,
                     height: y1 - y0)))
+        }
+        
+        return result
+    }
+    
+    public func toFocusEntities(pageHeight: CGFloat) -> [FocusAnnotation] {
+        var result = [FocusAnnotation]()
+        
+        for division in self.div {
+            let head = division.header
+            var page = -1
+            
+            for coord in division.coords {
+                let array = coord.split(separator: ",")
+                
+                page = Int(array[0])!
+                let tempX0 = Double(array[1])!
+                let tempX1 = Double(array[1])! + Double(array[3])!
+                let tempY0 = Double(array[2])!
+                let tempY1 = Double(array[2])! + Double(array[4])!
+                
+                result.append(.init(
+                    page: page,
+                    header: head,
+                    position: .init(
+                        x: tempX0,
+                        y: pageHeight - tempY1,
+                        width: tempX1 - tempX0,
+                        height: tempY1 - tempY0)))
+            }
         }
         
         return result
