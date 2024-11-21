@@ -50,7 +50,7 @@ struct FloatingView: View {
                     
                     Menu {
                         Button(action: {
-                            saveFigImage()
+                            floatingViewModel.saveFigImage(document: observableDocument)
                             floatingViewModel.saveFigAlert()
                             
                             print("Download Image")
@@ -141,27 +141,5 @@ struct FloatingView: View {
                 self.viewWidth = pageRect.width
             }
         }
-    }
-    
-    func saveFigImage() {
-        let pdfDocument = observableDocument.document
-        guard let pdfPage = pdfDocument.page(at: 0) else { return }
-        
-        // PDF 페이지를 UIImage로 변환
-        let pdfPageBounds = pdfPage.bounds(for: .mediaBox)
-        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size)
-        
-        let image = renderer.image { context in
-            UIColor.white.setFill()
-            context.fill(CGRect(origin: .zero, size: pdfPageBounds.size))
-            context.cgContext.saveGState()
-            context.cgContext.translateBy(x: 0, y: pdfPageBounds.height)
-            context.cgContext.scaleBy(x: 1.0, y: -1.0)
-            pdfPage.draw(with: .mediaBox, to: context.cgContext)
-            context.cgContext.restoreGState()
-        }
-        
-        // 이미지 저장
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
     }
 }
