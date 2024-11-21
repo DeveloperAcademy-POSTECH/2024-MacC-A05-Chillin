@@ -43,13 +43,12 @@ struct MoveFolderView: View {
                     .padding(.trailing, 26)
                     
                     Button(action: {
-                        if let selectedID = selectedID {
-                            if isPaper {
-                                homeViewModel.updatePaperLocation(at: id, folderID: selectedID)
-                            } else {
-                                homeViewModel.updateFolderLocation(at: id, folderID: selectedID)
-                            }
+                        if selectedID == topLevelFolder.id {
+                            selectedID = nil
                         }
+                        
+                        let updateAction = isPaper ? homeViewModel.updatePaperLocation : homeViewModel.updateFolderLocation
+                        updateAction(id, selectedID)
                         self.isMovingFolder.toggle()
                     }) {
                         Text("이동")
@@ -97,6 +96,7 @@ struct MoveFolderView: View {
     
     private var topLevelFolder: Folder {
         Folder(
+            // 존재하지 않는 <전체> 임의 폴더 생성
             id: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
             title: "전체",
             color: ".primary1",

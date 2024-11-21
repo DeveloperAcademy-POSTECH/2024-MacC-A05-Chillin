@@ -31,6 +31,7 @@ class HomeViewModel: ObservableObject {
         
         switch homeViewUseCase.loadPDFs() {
         case .success(let paperInfos):
+            print(paperInfos)
             self.paperInfos = paperInfos
         case .failure(let error):
             print(error)
@@ -121,7 +122,7 @@ extension HomeViewModel {
         }
     }
     
-    public func updatePaperLocation(at id: UUID, folderID: UUID) {
+    public func updatePaperLocation(at id: UUID, folderID: UUID?) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].folderID = folderID
             self.homeViewUseCase.editPDF(paperInfos[index])
@@ -251,7 +252,7 @@ extension HomeViewModel {
         }
     }
     
-    public func updateFolderLocation(at id: UUID, folderID: UUID) {
+    public func updateFolderLocation(at id: UUID, folderID: UUID?) {
         if let index = folders.firstIndex(where: { $0.id == id }) {
             folders[index].parentFolderID = folderID
             self.homeViewUseCase.editFolder(folders[index])
