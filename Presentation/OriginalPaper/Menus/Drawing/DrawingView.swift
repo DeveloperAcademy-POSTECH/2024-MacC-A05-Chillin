@@ -192,7 +192,3 @@ struct DrawingView: View {
         .padding(.horizontal, 10)
     }
 }
-//
-//#Preview {
-//    DrawingView()
-//}
