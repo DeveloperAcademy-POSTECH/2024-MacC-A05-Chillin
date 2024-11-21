@@ -10,6 +10,8 @@ import SwiftUI
 struct PaperInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
+    @Binding var isPaper: Bool
+    
     let id: UUID
     let image: Data
     let title: String
@@ -22,6 +24,7 @@ struct PaperInfoView: View {
     
     @Binding var isEditingTitle: Bool
     @Binding var isEditingMemo: Bool
+    @Binding var isMovingFolder: Bool
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
@@ -48,6 +51,20 @@ struct PaperInfoView: View {
                     Button("제목 수정", systemImage: "pencil") {
                         self.isEditingTitle = true
                     }
+                    
+                    Button("복제", systemImage: "square.on.square") {
+                        // TODO: - 문서 복제 구현
+                    }
+                    
+                    Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
+                        self.isMovingFolder.toggle()
+                        isPaper = true
+                    }
+                    
+                    Button("삭제", systemImage: "trash", role: .destructive) {
+                        self.isDeleteConfirm.toggle()
+                    }
+                    
                 } label: {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -62,7 +79,7 @@ struct PaperInfoView: View {
                 
                 Button(action: {
                     isStarSelected.toggle()
-                    homeViewModel.updateFavorite(at: id, isFavorite: isStarSelected)
+                    homeViewModel.updatePaperFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -76,13 +93,13 @@ struct PaperInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    self.isDeleteConfirm.toggle()
+                    // TODO: - 내보내기 버튼 구현
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "trash")
+                            Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )
@@ -192,12 +209,13 @@ struct PaperInfoView: View {
             Alert(
                 title: Text("정말 삭제하시겠습니까?"),
                 message: Text("삭제된 파일은 복구할 수 없습니다."),
-                primaryButton: .destructive(Text("삭제")) {
+                primaryButton: .default(Text("취소")),
+                secondaryButton: .destructive(Text("삭제")) {
                     let ids = [id]
                     self.homeViewModel.deletePDF(ids: ids)
                     onDelete()
-                },
-                secondaryButton: .default(Text("취소")))
+                }
+            )
         }
     }
     
@@ -246,6 +264,7 @@ struct PaperInfoView: View {
 
 #Preview {
     PaperInfoView(
+        isPaper: .constant(true),
         id: .init(),
         image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
@@ -254,6 +273,7 @@ struct PaperInfoView: View {
         isStarSelected: false,
         isEditingTitle: .constant(false),
         isEditingMemo: .constant(false),
+        isMovingFolder: .constant(false),
         onNavigate: {},
         onDelete: {}
     )

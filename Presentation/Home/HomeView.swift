@@ -32,9 +32,19 @@ struct HomeView: View {
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
+    
+    // 폴더 추가 페이지 변수
+    @State private var createFolder: Bool = false
+    @State private var createMovingFolder: Bool = false
     @State private var isEditingFolder: Bool = false
     
+    // 전체 홈뷰 즐겨찾기 변수
     @State private var isFavoriteSelected: Bool = false
+    
+    // 폴더 이동 변수
+    @State private var isMovingFolder: Bool = false
+    @State private var isPaper: Bool = false
+    @State private var moveToFolderID: UUID? = nil
     
     var body: some View {
         ZStack {
@@ -48,8 +58,6 @@ struct HomeView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 62, height: 50)
-                            .padding(.vertical, 31)
-                            .padding(.leading, 28)
                             .padding(.trailing, 36)
                         
                         Button(action: {
@@ -84,7 +92,7 @@ struct HomeView: View {
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
                                 selectedItemID: $selectedItemID,
-                                isEditingFolder: $isEditingFolder)
+                                createFolder: $createFolder)
                             
                         case .search:
                             SearchMenuView(
@@ -99,6 +107,8 @@ struct HomeView: View {
                                 isEditing: $isEditing)
                         }
                     }
+                    .padding(.top, 46)
+                    .padding([.leading, .bottom], 28)
                 }
                 .frame(height: 80)
                 
@@ -108,18 +118,34 @@ struct HomeView: View {
                     isEditing: $isEditing,
                     isSearching: $isSearching,
                     isEditingTitle: $isEditingTitle,
+                    isEditingFolder: $isEditingFolder,
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText,
-                    isFavoriteSelected: $isFavoriteSelected
+                    isFavoriteSelected: $isFavoriteSelected,
+                    isMovingFolder: $isMovingFolder,
+                    isPaper: $isPaper
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo || isEditingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
             
             
             Color.black
-                .opacity( isEditingTitle || isEditingMemo || isEditingFolder ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
 
+            // 폴더 이동 View
+            if isMovingFolder, let selectedItemID = selectedItemID {
+                MoveFolderView(
+                    createMovingFolder: $createMovingFolder,
+                    isMovingFolder: $isMovingFolder,
+                    isPaper: isPaper,
+                    id:selectedItemID,
+                    selectedID: $moveToFolderID
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 740, height: 550)
+                .blur(radius: createMovingFolder ? 20 : 0)
+            }
             
             if isEditingTitle || isEditingMemo {
                 RenamePaperTitleView(
@@ -128,14 +154,46 @@ struct HomeView: View {
                     paperInfo: homeViewModel.paperInfos.first { $0.id == selectedItemID! }!)
             }
             
-            if isEditingFolder {
+            if createFolder || isEditingFolder {
                 FolderView(
-                    isEditingFolder: $isEditingFolder
+                    createFolder: $createFolder,
+                    createMovingFolder: $createMovingFolder,
+                    isEditingFolder: $isEditingFolder,
+                    folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
+                )
+            }
+            
+            // 폴더 이동 View
+            if isMovingFolder, let selectedItemID = selectedItemID {
+                MoveFolderView(
+                    createMovingFolder: $createMovingFolder,
+                    isMovingFolder: $isMovingFolder,
+                    isPaper: isPaper,
+                    id:selectedItemID,
+                    selectedID: $moveToFolderID
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 740, height: 550)
+                .blur(radius: createMovingFolder ? 20 : 0)
+            }
+            
+            Color.black
+                .opacity(createMovingFolder ? 0.5 : 0)
+                .ignoresSafeArea(edges: .bottom)
+            
+            // 폴더 이동 시 새 폴더 생성
+            if createMovingFolder {
+                let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
+                FolderView(
+                    createFolder: $createFolder,
+                    createMovingFolder: $createMovingFolder,
+                    isEditingFolder: $isEditingFolder,
+                    folder: folder
                 )
             }
         }
         .background(Color(hex: "F7F7FB"))
-        .statusBarHidden()
+        .ignoresSafeArea(edges: .top)
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
         .animation(.easeInOut, value: isEditingFolder)
@@ -175,12 +233,12 @@ private struct MainMenuView: View {
     
     @Binding var selectedItems: Set<Int>
     @Binding var selectedItemID: UUID?
-    @Binding var isEditingFolder: Bool
+    @Binding var createFolder: Bool
     
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
-                isEditingFolder.toggle()
+                createFolder.toggle()
             }) {
                 Image(systemName: "folder.badge.plus")
                     .font(.system(size: 16))
@@ -299,7 +357,7 @@ private struct EditMenuView: View {
             
             Button(action: {
                 isStarSelected.toggle()
-                homeViewModel.updateFavorites(at: selectedIDs)
+                homeViewModel.updatePaperFavorites(at: selectedIDs)
             }, label : {
                 Image(systemName: isStarSelected ? "star.fill" : "star")
                     .resizable()
@@ -450,15 +508,31 @@ private struct FolderView: View {
     
     @State private var selectedColors: FolderColors = .folder1
     
+    /* [세 가지 케이스 분리]
+     - createFolder: 메인 화면에서 폴더 생성
+     - createMovingFolder: 폴더 이동 시 새로운 폴더 생성
+     - isEditingFolder: 폴더 정보 수정
+     */
+    @Binding var createFolder: Bool
+    @Binding var createMovingFolder: Bool
     @Binding var isEditingFolder: Bool
+    
     @State private var text: String = ""
+    
+    let folder: Folder?
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        isEditingFolder.toggle()
+                        if isEditingFolder {
+                            isEditingFolder.toggle()
+                        } else if createFolder {
+                            createFolder.toggle()
+                        } else {
+                            createMovingFolder.toggle()
+                        }
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -468,13 +542,29 @@ private struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        // 최상위 단계와 폴더 진입 단계 구분
-                        if homeViewModel.isAtRoot {
-                            homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                        if text.isEmpty { text = "새 폴더" }
+                        
+                        if isEditingFolder {
+                            if let folder = folder {
+                                homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
+                                isEditingFolder.toggle()
+                            }
+                        } else if createFolder {
+                            // 최상위 단계와 폴더 진입 단계 구분
+                            if homeViewModel.isAtRoot {
+                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                            } else {
+                                homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                            }
+                            createFolder.toggle()
                         } else {
-                            homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                            if let folder = folder {
+                                homeViewModel.saveFolder(to: folder.id, title: text, color: selectedColors.rawValue)
+                            } else {
+                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                            }
+                            createMovingFolder.toggle()
                         }
-                        isEditingFolder.toggle()
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -553,6 +643,14 @@ private struct FolderView: View {
                     Text("폴더 제목을 입력해 주세요")
                         .reazyFont(.button1)
                         .foregroundStyle(.comment)
+                }
+            }
+        }
+        .onAppear {
+            if isEditingFolder {
+                if let folder = folder {
+                    text = folder.title
+                    selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
                 }
             }
         }

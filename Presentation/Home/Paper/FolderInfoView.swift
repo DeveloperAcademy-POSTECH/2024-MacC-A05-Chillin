@@ -11,6 +11,8 @@ import SwiftUI
 struct FolderInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
+    @Binding var isPaper: Bool
+    
     let id: UUID
     let title: String
     let color: Color
@@ -21,8 +23,9 @@ struct FolderInfoView: View {
     
     @State private var isDeleteConfirm: Bool = false
     
-    @Binding var isEditingTitle: Bool
+    @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
+    @Binding var isMovingFolder: Bool
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
@@ -57,9 +60,19 @@ struct FolderInfoView: View {
             
             HStack(spacing: 0) {
                 Menu {
-                    Button("제목 수정", systemImage: "pencil") {
-                        self.isEditingTitle = true
+                    Button("이름 및 색상 변경", systemImage: "pencil") {
+                        self.isEditingFolder = true
                     }
+                    
+                    Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
+                        self.isMovingFolder.toggle()
+                        isPaper = false
+                    }
+                    
+                    Button("삭제", systemImage: "trash", role: .destructive) {
+                        self.isDeleteConfirm.toggle()
+                    }
+                    
                 } label: {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -74,6 +87,7 @@ struct FolderInfoView: View {
                 
                 Button(action: {
                     isStarSelected.toggle()
+                    homeViewModel.updateFolderFavorite(at: id, isFavorite: isStarSelected)
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -87,13 +101,13 @@ struct FolderInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    self.isDeleteConfirm.toggle()
+                    // TODO: - 내보내기 버튼 구현
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "trash")
+                            Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 14))
                                 .foregroundStyle(.gray600)
                         )
@@ -188,6 +202,18 @@ struct FolderInfoView: View {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
         }
+        .alert(isPresented: $isDeleteConfirm) {
+            Alert(
+                title: Text("정말 삭제하시겠습니까?"),
+                message: Text("삭제된 파일은 복구할 수 없습니다."),
+                primaryButton: .default(Text("취소")),
+                secondaryButton: .destructive(Text("삭제")) {
+                    let ids = [id]
+                    self.homeViewModel.deleteFolder(ids: ids)
+                    onDelete()
+                }
+            )
+        }
     }
     
     @ViewBuilder
@@ -234,14 +260,16 @@ struct FolderInfoView: View {
 
 #Preview {
     FolderInfoView(
+        isPaper: .constant(false),
         id: .init(),
         title: "테스트",
         color: .primary1,
         memo: "",
         isFavorite: false,
         isStarSelected: false,
-        isEditingTitle: .constant(false),
+        isEditingFolder: .constant(false),
         isEditingMemo: .constant(false),
+        isMovingFolder: .constant(false),
         onNavigate: {},
         onDelete: {}
     )
