@@ -196,12 +196,10 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: folder
                 )
-                .frame(width: .infinity, height: .infinity)
             }
         }
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
-//        .statusBarHidden()
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: isEditingMemo)
         .animation(.easeInOut, value: isEditingFolder)

@@ -177,7 +177,7 @@ struct MainPDFView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 11)
                     .padding(.horizontal, 20)
-                    .background(.primary3)ㅎ
+                    .background(.primary3)
                     .zIndex(1)
                     
                     Rectangle()
