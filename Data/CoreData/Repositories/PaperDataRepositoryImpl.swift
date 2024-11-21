@@ -69,9 +69,21 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", info.id as CVarArg)
         
+        var isStale = false
+        
         do {
             let results = try dataContext.fetch(fetchRequest)
             if let dataToEdit = results.first {
+                if info.title != dataToEdit.title {
+                    if let url = try? URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale) {
+                        // 실제 파일 이름 변경
+                        if !FileManager.default.renameFile(fileURL: url, to: info.title) {
+                            print("Failed to rename file")
+                            return .failure(PDFUploadError.fileNameDuplication)
+                        }
+                    }
+                }
+                
                 // 기존 데이터 수정
                 dataToEdit.title = info.title
                 dataToEdit.url = info.url
@@ -97,9 +109,18 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
+        var isStale: Bool = false
+        
         do {
             let results = try dataContext.fetch(fetchRequest)
+            
             if let dataToDelete = results.first {
+                // 실제 파일 삭제
+                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStale),
+                   FileManager.default.fileExists(atPath: url.path()) {
+                    try FileManager.default.removeItem(at: url)
+                }
+                
                 dataContext.delete(dataToDelete)
                 try dataContext.save()
                 return .success(VoidResponse())

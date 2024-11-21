@@ -22,6 +22,7 @@ class HomeViewModel: ObservableObject {
     
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
+    @Published public var isErrorOccured: Bool = false
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     private let homeViewUseCase: HomeViewUseCase
@@ -137,8 +138,19 @@ extension HomeViewModel {
     
     public func updateTitle(at id: UUID, title: String) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            paperInfos[index].title = title
-            self.homeViewUseCase.editPDF(paperInfos[index])
+            var changablePaper = paperInfos[index]
+            changablePaper.title = title
+            let result = self.homeViewUseCase.editPDF(changablePaper)
+            
+            switch result {
+            case .success:
+                paperInfos[index].title = title
+            case .failure(let error):
+                print(error)
+                self.errorStatus = .fileNameDuplication
+                self.isErrorOccured.toggle()
+                break
+            }
         }
     }
 }

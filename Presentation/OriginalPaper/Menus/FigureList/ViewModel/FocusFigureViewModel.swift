@@ -12,6 +12,7 @@ import PDFKit
 
 @MainActor
 class FocusFigureViewModel: ObservableObject {
+    @Published public var focusPages: [FocusAnnotation] = []
     @Published public var figures: [FigureAnnotation] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
@@ -100,7 +101,8 @@ extension FocusFigureViewModel {
                     switch $0 {
                     case .success(let layout):
                         DispatchQueue.main.async {
-                            self.figures = layout.toEntities(pageHeight: height)
+                            self.figures = layout.toFigureEntities(pageHeight: height)
+                            self.focusPages = layout.toFocusEntities(pageHeight: height)
                             self.figureStatus = .complete
                             
                             self.saveFigures(figures: layout.toCoreData())
@@ -163,5 +165,62 @@ extension FocusFigureViewModel {
         case loading
         case empty
         case complete
+    }
+}
+
+
+
+
+extension FocusFigureViewModel {
+    public func setFocusDocument() -> PDFDocument {
+        
+        let document = PDFDocument()
+        
+        var pageIndex = 0
+        
+        self.focusPages.forEach { annotation in
+            guard let page = self.focusFigureUseCase.pdfSharedData.document?
+                .page(at: annotation.page - 1)?.copy() as? PDFPage else {
+                return
+            }
+            page.displaysAnnotations = false
+            
+            let original = page.bounds(for: .mediaBox)
+            let croppedRect = original.intersection(annotation.position)
+            
+            page.setBounds(croppedRect, for: .mediaBox)
+            document.insert(page, at: pageIndex)
+            pageIndex += 1
+        }
+        
+        // TODO: 밑 주석 추후에 수정 예정
+        /*
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "test.pdf")
+
+        let renderer = UIGraphicsPDFRenderer(bounds: .zero)
+        try! renderer.writePDF(to: url) { context in
+            let pdfContext = context.cgContext
+            
+            self.focusPages.forEach { annotation in
+                guard let page = self.focusFigureUseCase.pdfSharedData.document?
+                    .page(at: annotation.page - 1)?.copy() as? PDFPage else {
+                    return
+                }
+                page.displaysAnnotations = false
+                
+                guard let pdfRef = page.pageRef else { return }
+                
+                var mediaBox = pdfRef.getBoxRect(.mediaBox)
+                pdfContext.beginPage(mediaBox: &mediaBox)
+                pdfContext.drawPDFPage(pdfRef)
+            }
+            
+            pdfContext.endPage()
+        }
+        
+        let resultDocument = PDFDocument(url: url)!
+         */
+        
+        return document
     }
 }

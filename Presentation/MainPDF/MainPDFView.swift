@@ -218,7 +218,8 @@ struct MainPDFView: View {
                                     }
                                     
                                     if isSearchSelected {
-                                        // TODO: - [무니] SearchView 추가 필요
+                                        OverlaySearchView(isSearchSelected: $isSearchSelected)
+                                            .environmentObject(searchViewModel)
                                     }
                                     
                                 }
@@ -326,9 +327,8 @@ struct MainPDFView: View {
     @ViewBuilder
     private func mainView(isReadMode: Bool) -> some View {
         if isReadMode {
-            // TODO: - [무니] 집중모드 수정
             ConcentrateView()
-                .environmentObject(mainPDFViewModel)
+                .environmentObject(focusFigureViewModel)
         } else {
             OriginalView()
                 .environmentObject(mainPDFViewModel)
@@ -436,16 +436,7 @@ private struct OverlaySearchView: View {
     @Binding var isSearchSelected: Bool
     
     var body: some View {
-        if isSearchSelected {
-            HStack {
-                VStack(spacing: 0) {
-                    SearchView()
-                        .padding(EdgeInsets(top: 60, leading: 20, bottom: 0, trailing: 0))
-                    Spacer()
-                }
-                Spacer()
-            }
-        }
+        SearchView()
     }
 }
 
