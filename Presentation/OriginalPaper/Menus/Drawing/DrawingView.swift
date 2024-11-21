@@ -15,6 +15,7 @@ struct DrawingView: View {
     @State var isHighlight: Bool = false
     @State var isPencil: Bool = false
     @State var isEraser: Bool = false
+    @Binding var selectedButton: Buttons? 
 
     var body: some View {
         VStack(spacing: 0) {
@@ -167,12 +168,27 @@ struct DrawingView: View {
             }
             .disabled(!mainPDFViewModel.canRedo) // 비활성화
             .opacity(mainPDFViewModel.canRedo ? 1.0 : 0.5)
+            
+            Button(action: {
+                selectedButton = nil
+                mainPDFViewModel.toolMode = .none
+                mainPDFViewModel.drawingToolMode = .none
+            }) {
+                RoundedRectangle(cornerRadius: 6)
+                    .foregroundStyle(.clear)
+                    .frame(width: 26, height: 26)
+                    .overlay(
+                        Image("close")
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 12)
+                            .foregroundStyle(.gray700)
+                    )
+            }
+            .padding(.top, 18)
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 10)
     }
-}
-
-#Preview {
-    DrawingView()
 }
