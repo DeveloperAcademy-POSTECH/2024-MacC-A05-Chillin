@@ -30,6 +30,7 @@ struct OriginalView: View {
                 }
                 .onReceive(publisher) { a in
                     if let _ = a.userInfo?["hitted"] as? Bool {
+                        commentViewModel.isMenuTapped = false
                         viewModel.isCommentTapped = false
                         viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                     }

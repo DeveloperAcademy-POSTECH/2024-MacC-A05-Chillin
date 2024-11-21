@@ -114,13 +114,31 @@ class CommentViewModel: ObservableObject {
                                  pages: pages,
                                  bounds: selectedBounds
         )
-        
         _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         comments.append(newComment)
+        
         drawUnderline(newComment: newComment)
+        
         if isNewButton{
             // 방금 추가된 버튼의 아이콘을 그림
             drawCommentIcon(button: buttonGroup.last!)
+        }
+        // 새로운 코멘트가 들어왔을 때, -> 해당 같은 id 값을 가진 button 옆에 주석 추가하기
+        if let button = buttonGroup.filter({$0.id == newComment.buttonId}).first {
+            
+            // 기존에 존재했던 주석을 아예 지워야 함
+            if let document = self.document {
+                guard let page = convertToPDFPage(pageIndex: newComment.pages, document: document).first else { return }
+                for annotation in page.annotations {
+                    if let annotationID = annotation.value(forAnnotationKey: .name) as? String {
+                        if annotationID == newComment.buttonId.uuidString && annotation.type == "FreeText" {
+                            page.removeAnnotation(annotation)
+                        }
+                    }
+                }
+            }
+            // 지우고 나서 주석 추가
+            drawCommentCount(newComment: newComment, button: button)
         }
     }
     
@@ -132,24 +150,26 @@ class CommentViewModel: ObservableObject {
         _ = commentService.deleteCommentData(for: paperInfo.id, id: commentId)
         comments.removeAll(where: { $0.id == commentId }) //전체 코멘트 그룹에서 코멘트 삭제
         
-        if let document = self.document {
-            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
-            for annotation in page.annotations {
-                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
-                    
-                    // 마지막 버튼이었을 경우 버튼 아이콘, 밑줄 삭제
-                    if buttonList.count == 1 {
-                        if annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString {
-                            _ = buttonGroupService.deleteButtonGroup(for: paperInfo.id, id: currentButtonId)
-                            buttonGroup.removeAll(where: { $0.id ==  currentButtonId})
+        // annotation 삭제
+        deleteCommentAnnotation(comment: comment, currentButtonId: currentButtonId, buttonList: buttonList)
+        
+        // 삭제할 때, 마찬가지로 기존에 존재했던 주석 지우고 다시 그려주기
+        // 새로운 코멘트가 들어왔을 때, -> 해당 같은 id 값을 가진 button 옆에 주석 추가하기
+        if let button = buttonGroup.filter({$0.id == comment.buttonId}).first {
+            
+            // 기존에 존재했던 주석을 아예 지워야 함
+            if let document = self.document {
+                guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
+                for annotation in page.annotations {
+                    if let annotationID = annotation.value(forAnnotationKey: .name) as? String {
+                        if annotationID == comment.buttonId.uuidString && annotation.type == "FreeText" {
                             page.removeAnnotation(annotation)
                         }
-                    } else if buttonList.count > 1, annotationID == comment.id.uuidString {
-                        // 버튼에 연결된 남은 코멘트 존재하면 버튼은 두고 밑줄만 삭제
-                        page.removeAnnotation(annotation)
                     }
                 }
             }
+            // 지우고 나서 주석 추가
+            drawCommentCount(newComment: comment, button: button)
         }
     }
 }
@@ -323,6 +343,56 @@ extension CommentViewModel {
                     translationX: (drawingBox.origin.x) * -1.0,
                     y: (drawingBox.origin.y) * -1.0
                 )))
+            }
+        }
+    }
+    
+    func drawCommentCount(newComment: Comment, button: ButtonGroup) {
+        let PDFPage = document?.page(at: button.page)
+        let bound = CGRect(
+            x: button.buttonPosition.midX + 6,
+            y: button.buttonPosition.midY - 9,
+            width: 20,
+            height: 20
+        )
+        let commentCount = PDFAnnotation(
+            bounds: bound,
+            forType: .freeText,
+            withProperties: nil
+        )
+        
+        // 새로 생긴 comment와 같은 buttonGroup에 속해있는 comment 개수 반환
+        let count = comments.filter { $0.buttonId == newComment.buttonId }.count
+        // count가 1보다 클 때만 개수 표시
+        if count > 1 {
+            commentCount.contents = "\(count)"
+            commentCount.color = .clear
+            commentCount.font = .reazyFont(.text5)
+            commentCount.fontColor = .point4
+            // id 값 저장
+            commentCount.setValue(button.id.uuidString, forAnnotationKey: .name)
+            PDFPage?.addAnnotation(commentCount)
+        }
+    }
+    
+    func deleteCommentAnnotation(comment: Comment, currentButtonId: UUID, buttonList: [Comment]) {
+        if let document = self.document {
+            guard let page = convertToPDFPage(pageIndex: comment.pages, document: document).first else { return }
+            for annotation in page.annotations {
+                if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
+                    
+                    // 마지막 버튼이었을 경우 버튼 아이콘, 밑줄 삭제
+                    if buttonList.count == 1 {
+                        if annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString {
+                            _ = buttonGroupService.deleteButtonGroup(for: paperInfo.id, id: currentButtonId)
+                            buttonGroup.removeAll(where: { $0.id ==  currentButtonId})
+                            page.removeAnnotation(annotation)
+                        }
+                    } else if buttonList.count > 1, annotationID == comment.id.uuidString {
+                        // 버튼에 연결된 남은 코멘트 존재하면 버튼은 두고 밑줄만 삭제
+                        page.removeAnnotation(annotation)
+                    }
+                }
             }
         }
     }
