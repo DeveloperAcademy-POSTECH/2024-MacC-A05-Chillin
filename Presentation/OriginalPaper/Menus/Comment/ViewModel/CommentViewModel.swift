@@ -321,7 +321,7 @@ extension CommentViewModel {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
             x: button.buttonPosition.midX + 6,
-            y: button.buttonPosition.midY - 9,
+            y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
         )
@@ -350,7 +350,7 @@ extension CommentViewModel {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
             x: button.buttonPosition.midX + 6,
-            y: button.buttonPosition.midY - 9,
+            y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
         )
