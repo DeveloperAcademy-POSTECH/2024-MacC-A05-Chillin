@@ -16,11 +16,11 @@ enum Buttons: String, CaseIterable {
     var icon: Image {
         switch self {
         case .drawing:
-            return Image("drawing")
+            return Image(.drawing)
         case .comment:
-            return Image("tempComment")
+            return Image(.tempComment)
         case .translate:
-            return Image("globe")
+            return Image(.globe)
         }
     }
 }

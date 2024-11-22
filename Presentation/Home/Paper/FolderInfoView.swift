@@ -41,7 +41,7 @@ struct FolderInfoView: View {
                         .frame(width: 135, height: 135)
                         .foregroundStyle(color)
                         .overlay(
-                            Image("folder")
+                            Image(.folder)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 69)

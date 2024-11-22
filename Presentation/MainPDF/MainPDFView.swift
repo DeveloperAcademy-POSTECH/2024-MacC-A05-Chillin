@@ -75,7 +75,7 @@ struct MainPDFView: View {
                                     .foregroundStyle(isListSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
-                                        Image("index")
+                                        Image(.index)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
@@ -93,7 +93,7 @@ struct MainPDFView: View {
                                     .foregroundStyle( isSearchSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
-                                        Image("search")
+                                        Image(.search)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
@@ -114,7 +114,7 @@ struct MainPDFView: View {
                                     .foregroundStyle( isReadMode ? .primary1 : .clear )
                                     .frame(width: 26, height: 26)
                                     .overlay (
-                                        Image("focus")
+                                        Image(.focus)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
@@ -148,7 +148,7 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .foregroundStyle(isBoardSelected ? .primary1 : .clear)
                                     .overlay (
-                                        Image("window")
+                                        Image(.window)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
