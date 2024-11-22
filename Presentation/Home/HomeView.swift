@@ -498,6 +498,7 @@ private struct RenamePaperTitleView: View {
     }
 }
 
+/// 폴더 생성 뷰
 private struct FolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
@@ -652,6 +653,7 @@ private struct FolderView: View {
     }
 }
 
+/// 폴더 메모 생성 & 수정 뷰
 private struct FolderMemoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
