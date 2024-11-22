@@ -74,8 +74,10 @@ struct MainPDFView: View {
                                     .foregroundStyle(isListSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
-                                        Image(systemName: "list.bullet")
-                                            .font(.system(size: 14))
+                                        Image("index")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 18)
                                             .foregroundStyle(isListSelected ? .gray100 : .gray800)
                                     )
                             }
@@ -88,11 +90,13 @@ struct MainPDFView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .foregroundStyle( isSearchSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
-                                    .overlay {
-                                        Image(systemName: "magnifyingglass")
-                                            .font(.system(size: 16))
-                                            .foregroundStyle( isSearchSelected ? .gray100 : .gray800 )
-                                    }
+                                    .overlay (
+                                        Image("search")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 22)
+                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                    )
                             }
                             
                             Rectangle()
@@ -106,11 +110,13 @@ struct MainPDFView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .foregroundStyle( isReadMode ? .primary1 : .clear )
                                     .frame(width: 26, height: 26)
-                                    .overlay {
-                                        Image(systemName: "text.justify")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle( isReadMode ? .gray100 : .gray800 )
-                                    }
+                                    .overlay (
+                                        Image("focus")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 18)
+                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                    )
                             }
                             
                             Spacer()
@@ -125,6 +131,22 @@ struct MainPDFView: View {
                                         Text("Fig")
                                             .font(.system(size: 14))
                                             .foregroundStyle( isFigSelected ? .gray100 : .gray800 )
+                                    )
+                            }
+                            .padding(.trailing, 24)
+                            
+                            Button(action: {
+                                print("모아보기 On")
+                            }) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .frame(width: 26, height: 26)
+                                    .foregroundStyle(isFigSelected ? .primary1 : .clear)
+                                    .overlay (
+                                        Image("window")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 16)
+                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
@@ -177,15 +199,12 @@ struct MainPDFView: View {
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                         mainPDFViewModel.toolMode = .translate
                                         mainPDFViewModel.drawingToolMode = .none
-                                    case .lasso:
-                                        mainPDFViewModel.toolMode = .lasso
-                                        mainPDFViewModel.drawingToolMode = .none
                                     default:
                                         mainPDFViewModel.toolMode = .none
                                         mainPDFViewModel.drawingToolMode = .none
                                     }
                                 }
-                                .padding(.trailing, btn == .lasso ? 0 : 30 )
+                                .padding(.horizontal, 18)
                             }
                             
                             Spacer()
