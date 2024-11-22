@@ -59,6 +59,7 @@ struct PaperInfoView: View {
                     }
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
+                        // TODO: - Alert 오류 추후 수정 필요
 //                        self.isDeleteConfirm.toggle()
                         self.homeViewModel.deletePDF(at: id)
                         onDelete()

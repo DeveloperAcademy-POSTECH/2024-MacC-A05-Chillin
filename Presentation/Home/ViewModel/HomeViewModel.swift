@@ -29,11 +29,15 @@ class HomeViewModel: ObservableObject {
             updateFilteredList()
         }
     }
+    
+    // 폴더 이동 화면에서 새 폴더 생성했을 경우 Focus하기 위한 변수
     @Published public var newFolderParentID: UUID?
     @Published public var newFolderID: UUID?
+    
     public var isAtRoot: Bool {
         return currentFolder == nil
     }
+    
     @Published var filteredLists: [FileSystemItem] = []
     
     @Published public var isFavoriteSelected: Bool = false {

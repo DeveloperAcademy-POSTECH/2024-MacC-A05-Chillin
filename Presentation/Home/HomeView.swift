@@ -73,7 +73,6 @@ struct HomeView: View {
                             .padding(.horizontal, 14)
                         
                         Button(action: {
-                            // TODO: - [브리] 즐겨찾기 로직 수정 필요
                             homeViewModel.isFavoriteSelected = true
                         }) {
                             Text("즐겨찾기")
