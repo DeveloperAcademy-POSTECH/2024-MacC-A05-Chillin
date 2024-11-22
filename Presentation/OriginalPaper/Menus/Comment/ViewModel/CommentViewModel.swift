@@ -280,7 +280,7 @@ extension CommentViewModel {
         let PDFPage = document?.page(at: button.page)
         
         /// asset 이미지 사용
-        let image = UIImage(resource: .coment)
+        let image = UIImage(resource: .comment)
         
         let commentIcon = ImageAnnotation(imageBounds: button.buttonPosition, image: image)
         
@@ -297,8 +297,6 @@ extension CommentViewModel {
 
             public init(imageBounds: CGRect, image: UIImage?) {
                 self._image = image
-                
-                image?.withTintColor(.point4, renderingMode: .alwaysOriginal)
                 super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
             }
 
