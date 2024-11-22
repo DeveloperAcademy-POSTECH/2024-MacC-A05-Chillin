@@ -15,13 +15,20 @@ class HomeViewModel: ObservableObject {
     // 전체 폴더 배열
     @Published public var folders: [Folder] = []
     // 현재 위치한 폴더
-    @Published public var currentFolder: Folder? = nil
+    @Published public var currentFolder: Folder? = nil {
+        didSet {
+            updateFilteredList()
+        }
+    }
     public var isAtRoot: Bool {
         return currentFolder == nil
     }
+    @Published var filteredLists: [FileSystemItem] = []
+    
     @Published public var isFavoriteSelected: Bool = false {
         didSet {
             resetToRoot()
+            updateFilteredList()
         }
     }
     
@@ -53,6 +60,8 @@ class HomeViewModel: ObservableObject {
             print(error)
             return
         }
+        
+        updateFilteredList()
     }
 }
 
@@ -186,6 +195,14 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
+    func updateFilteredList() {
+        if isFavoriteSelected {
+            filteredLists = filteringFavList()
+        } else {
+            filteredLists = filteringList()
+        }
+    }
+        
     func filteringList() -> [FileSystemItem] {
         var currentFolders: [Folder] {
             guard let folder = currentFolder else {

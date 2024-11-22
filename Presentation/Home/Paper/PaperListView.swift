@@ -35,14 +35,6 @@ struct PaperListView: View {
     @State private var isIPadMini: Bool = false
     @State private var isVertical = false
     
-    var filteredLists: [FileSystemItem] {
-        if homeViewModel.isFavoriteSelected {
-            return homeViewModel.filteringFavList()
-        } else {
-            return homeViewModel.filteringList()
-        }
-    }
-    
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 0) {
@@ -94,7 +86,7 @@ struct PaperListView: View {
                     
                     Divider()
                     
-                    if filteredLists.isEmpty {
+                    if homeViewModel.filteredLists.isEmpty {
                         if isSearching {
                             Spacer()
                             
@@ -123,8 +115,8 @@ struct PaperListView: View {
                     } else {
                         ScrollView {
                             VStack(spacing: 0) {
-                                ForEach(filteredLists.indices, id: \.self) { index in
-                                    let item = filteredLists[index]
+                                ForEach(homeViewModel.filteredLists.indices, id: \.self) { index in
+                                    let item = homeViewModel.filteredLists[index]
                                     switch item {
                                         // 논문 추가
                                     case .paper(let paperInfo):
@@ -215,8 +207,8 @@ struct PaperListView: View {
                         .foregroundStyle(.primary3)
                     
                     VStack(spacing: 0) {
-                        if !filteredLists.isEmpty,
-                           let selectedItem = filteredLists.first(where: { $0.id == selectedItemID }) {
+                        if !homeViewModel.filteredLists.isEmpty,
+                           let selectedItem = homeViewModel.filteredLists.first(where: { $0.id == selectedItemID }) {
                             switch selectedItem {
                             case .paper(let paperInfo):
                                 PaperInfoView(
@@ -237,10 +229,10 @@ struct PaperListView: View {
                                         }
                                     },
                                     onDelete: {
-                                        if filteredLists.isEmpty {
+                                        if homeViewModel.filteredLists.isEmpty {
                                             selectedItemID = nil
                                         } else {
-                                            selectedItemID = filteredLists.first?.id
+                                            selectedItemID = homeViewModel.filteredLists.first?.id
                                         }
                                     }
                                 )
@@ -261,10 +253,10 @@ struct PaperListView: View {
                                         homeViewModel.navigateTo(folder: folder)
                                     },
                                     onDelete: {
-                                        if filteredLists.isEmpty {
+                                        if homeViewModel.filteredLists.isEmpty {
                                             selectedItemID = nil
                                         } else {
-                                            selectedItemID = filteredLists.first?.id
+                                            selectedItemID = homeViewModel.filteredLists.first?.id
                                         }
                                     }
                                 )
@@ -366,7 +358,7 @@ extension PaperListView {
     }
     
     private func initializeSelectedItemID() {
-        if selectedItemID == nil, let firstPaper = filteredLists.first {
+        if selectedItemID == nil, let firstPaper = homeViewModel.filteredLists.first {
             selectedItemID = firstPaper.id
         }
     }
