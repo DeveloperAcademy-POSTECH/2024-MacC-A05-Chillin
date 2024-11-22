@@ -101,7 +101,8 @@ struct HomeView: View {
                             EditMenuView(
                                 selectedMenu: $selectedMenu,
                                 selectedItems: $selectedItems,
-                                isEditing: $isEditing)
+                                isEditing: $isEditing,
+                                isMovingFolder: $isMovingFolder)
                         }
                     }
                     .padding(.top, 46)
@@ -128,20 +129,6 @@ struct HomeView: View {
             Color.black
                 .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
-
-            // 폴더 이동 View
-            if isMovingFolder, let selectedItemID = selectedItemID {
-                MoveFolderView(
-                    createMovingFolder: $createMovingFolder,
-                    isMovingFolder: $isMovingFolder,
-                    isPaper: isPaper,
-                    id:selectedItemID,
-                    selectedID: $moveToFolderID
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .frame(width: 740, height: 550)
-                .blur(radius: createMovingFolder ? 20 : 0)
-            }
             
             if isEditingTitle || isEditingMemo {
                 RenamePaperTitleView(
@@ -340,6 +327,7 @@ private struct EditMenuView: View {
     @Binding var selectedMenu: Options
     @Binding var selectedItems: Set<Int>
     @Binding var isEditing: Bool
+    @Binding var isMovingFolder: Bool
     
     
     var body: some View {
@@ -350,16 +338,28 @@ private struct EditMenuView: View {
             }
             
             Button(action: {
+                // TODO: - 문서 선택 시 모든 폴더 이동 가능, 폴더 포함 시 선택된 폴더는 disable 처리 [케이스 분리 필요]
+                self.isMovingFolder.toggle()
+            }, label: {
+                Image(systemName: "rectangle.portrait.and.arrow.right")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 17, height: 17)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 homeViewModel.deleteFiles(items)
                 selectedItems.removeAll()
             }, label: {
                 Image(systemName: "trash")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 19)
+                    .frame(width: 17, height: 17)
                     .foregroundStyle(.gray100)
             })
-            .padding(.trailing, 28)        
+            .padding(.trailing, 28)
             
             Button(action: {
                 selectedMenu = .main

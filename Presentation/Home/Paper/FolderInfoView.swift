@@ -71,7 +71,6 @@ struct FolderInfoView: View {
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
 //                        self.isDeleteConfirm.toggle()
-                        let ids = [id]
                         self.homeViewModel.deleteFolder(at: id)
                         onDelete()
                     }
