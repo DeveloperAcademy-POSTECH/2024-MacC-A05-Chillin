@@ -34,7 +34,6 @@ struct TemporaryAlertView: View {
         .onAppear {
             isPresented = true
         }
-        .animation(.easeInOut(duration: 0.5), value: isPresented)
         .offset(y: 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }

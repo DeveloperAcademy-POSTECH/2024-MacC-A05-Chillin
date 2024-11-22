@@ -127,6 +127,7 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isFigSelected.toggle()
+                                isBoardSelected = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -141,7 +142,7 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isBoardSelected.toggle()
-                                print("모아보기 On")
+                                isFigSelected = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -278,19 +279,11 @@ struct MainPDFView: View {
                                     .frame(width: geometry.size.width * 0.22)
                                 }
                                 
+                                // TODO: - 모아보기
                                 if isBoardSelected && !floatingViewModel.splitMode {
                                     Rectangle()
                                         .frame(width: 1)
                                         .foregroundStyle(Color(hex: "CCCEE1"))
-                                    
-                                    FigureView(onSelect: { documentID, document, head in
-                                        floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
-                                    })
-                                    .environmentObject(mainPDFViewModel)
-                                    .environmentObject(floatingViewModel)
-                                    .environmentObject(focusFigureViewModel)
-                                    .background(.white)
-                                    .frame(width: geometry.size.width * 0.22)
                                 }
                             }
                         }
