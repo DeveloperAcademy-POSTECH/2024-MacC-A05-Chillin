@@ -43,6 +43,9 @@ struct HomeView: View {
     @State private var isPaper: Bool = false
     @State private var moveToFolderID: UUID? = nil
     
+    // 폴더 메모 추가 변수
+    @State private var isEditingFolderMemo: Bool = false
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -118,16 +121,17 @@ struct HomeView: View {
                     isEditingTitle: $isEditingTitle,
                     isEditingFolder: $isEditingFolder,
                     isEditingMemo: $isEditingMemo,
+                    isEditingFolderMemo: $isEditingFolderMemo,
                     searchText: $searchText,
                     isMovingFolder: $isMovingFolder,
                     isPaper: $isPaper
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             if isEditingTitle || isEditingMemo {
@@ -144,6 +148,15 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
                 )
+            }
+            
+            if isEditingFolderMemo {
+                if let folder = homeViewModel.folders.first(where: { $0.id == selectedItemID! }) {
+                    FolderMemoView(
+                        isEditingFolderMemo: $isEditingFolderMemo,
+                        folder: folder
+                    )
+                }
             }
             
             // 폴더 이동 View
@@ -634,6 +647,122 @@ private struct FolderView: View {
                     text = folder.title
                     selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
                 }
+            }
+        }
+    }
+}
+
+private struct FolderMemoView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @State private var selectedColors: FolderColors
+    
+    @Binding var isEditingFolderMemo: Bool
+    
+    @State private var text: String = ""
+    
+    let folder: Folder
+    
+    init(
+        isEditingFolderMemo: Binding<Bool>,
+        folder: Folder
+    ) {
+        self._isEditingFolderMemo = isEditingFolderMemo
+        self.folder = folder
+        selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
+    }
+    
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        self.isEditingFolderMemo.toggle()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.gray100)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        self.homeViewModel.updateFolderMemo(at: folder.id, memo: text)
+                        self.homeViewModel.memoText = text
+                        self.isEditingFolderMemo.toggle()
+                    }) {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                }
+                .padding(.horizontal, 28)
+                .padding(.top, 28)
+                
+                Spacer()
+            }
+            
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 49)
+                    .frame(width: 206, height: 206)
+                    .foregroundStyle(selectedColors.color)
+                    .overlay(
+                        Image("folder")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 105)
+                    )
+                    .padding(.trailing, 54)
+                    .padding(.bottom, 26)
+                
+                VStack(spacing: 0) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 180)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 180)
+                    }
+                    .frame(width: 400, height: 180)
+                    .overlay(alignment: .topLeading) {
+                        TextField("폴더에 대한 메모를 남겨주세요.", text: $text, axis: .vertical)
+                            .lineLimit(6)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    .overlay(alignment: .bottomTrailing) {
+                        if !self.text.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                                .padding(.bottom, 15)
+                                .padding(.trailing, 15)
+                                .onTapGesture {
+                                    text = ""
+                                }
+                        }
+                    }
+                    .padding(.bottom, 16)
+                    
+                    Text("폴더 제목을 입력해 주세요")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.comment)
+                }
+            }
+        }
+        .onAppear {
+            if isEditingFolderMemo {
+                self.text = folder.memo ?? ""
             }
         }
     }

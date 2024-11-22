@@ -306,6 +306,13 @@ extension HomeViewModel {
         }
     }
     
+    public func updateFolderMemo(at id: UUID, memo: String?) {
+        if let index = folders.firstIndex(where: { $0.id == id }) {
+            folders[index].memo = memo
+            self.homeViewUseCase.editFolder(folders[index])
+        }
+    }
+    
     public func deleteFolder(at id: UUID) {
         self.homeViewUseCase.deleteFolder(id: id)
         self.folders.removeAll(where: { $0.id == id })

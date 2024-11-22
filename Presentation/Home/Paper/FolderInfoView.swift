@@ -24,7 +24,7 @@ struct FolderInfoView: View {
     @State private var isDeleteConfirm: Bool = false
     
     @Binding var isEditingFolder: Bool
-    @Binding var isEditingMemo: Bool
+    @Binding var isEditingFolderMemo: Bool
     @Binding var isMovingFolder: Bool
     
     let onNavigate: () -> Void
@@ -138,11 +138,12 @@ struct FolderInfoView: View {
                     if !(self.memo == nil) {
                         Menu {
                             Button("수정", systemImage: "pencil") {
-                                self.isEditingMemo = true
+                                self.isEditingFolderMemo = true
                             }
                             
                             Button("삭제", systemImage: "trash", role: .destructive) {
                                 self.memo = nil
+                                self.homeViewModel.updateFolderMemo(at: id, memo: nil)
                             }
                             
                         } label: {
@@ -155,7 +156,7 @@ struct FolderInfoView: View {
                     } else {
                         Button {
                             self.memo = ""
-                            self.isEditingMemo = true
+                            self.isEditingFolderMemo = true
                         } label: {
                             Image(systemName: "plus")
                                 .resizable()
@@ -203,6 +204,16 @@ struct FolderInfoView: View {
         .background(alignment: .bottom) {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
+        }
+        .onChange(of: self.id) {
+            let folder = homeViewModel.folders.first { $0.id == self.id }!
+            self.memo = folder.memo
+        }
+        .onChange(of: self.homeViewModel.memoText) {
+            self.memo = self.homeViewModel.memoText
+        }
+        .onChange(of: self.isEditingFolderMemo) {
+            self.homeViewModel.memoText = memo!
         }
         // TODO: - Alert 수정 필요
 //        .alert(isPresented: $isDeleteConfirm) {
@@ -271,7 +282,7 @@ struct FolderInfoView: View {
         isFavorite: false,
         isStarSelected: false,
         isEditingFolder: .constant(false),
-        isEditingMemo: .constant(false),
+        isEditingFolderMemo: .constant(false),
         isMovingFolder: .constant(false),
         onNavigate: {},
         onDelete: {}
