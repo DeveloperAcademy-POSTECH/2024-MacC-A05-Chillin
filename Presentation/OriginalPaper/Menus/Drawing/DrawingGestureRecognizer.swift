@@ -19,7 +19,7 @@ class DrawingGestureRecognizer: UIGestureRecognizer {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first,
-           touch.type == .pencil || touch.type == .direct, // 시뮬레이터에서 펜슬 없이 테스트할 때는 이 줄 주석 해야함!
+           touch.type == .pencil,// 시뮬레이터에서 펜슬 없이 테스트할 때는 이 줄 주석 해야함!
             let numberOfTouches = event?.allTouches?.count,
             numberOfTouches == 1 {
             state = .began
