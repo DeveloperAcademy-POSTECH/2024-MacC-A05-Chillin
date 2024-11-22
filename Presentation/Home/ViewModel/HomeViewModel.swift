@@ -313,10 +313,9 @@ extension HomeViewModel {
     }
     
     public func navigateTo(folder: Folder) {
-        // 현재 상태를 스택에 저장
-        navigationStack.append((isFavoriteSelected: isFavoriteSelected, folder: currentFolder))
-        
-        // 폴더로 이동
+        if isFavoriteSelected {
+            navigationStack.append((isFavoriteSelected: isFavoriteSelected, folder: currentFolder))
+        }
         currentFolder = folder
     }
     
