@@ -10,10 +10,19 @@ import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published public var paperInfos: [PaperInfo] = []
+    @Published public var paperInfos: [PaperInfo] = [] {
+        didSet {
+            updateFilteredList()
+        }
+    }
     
     // 전체 폴더 배열
-    @Published public var folders: [Folder] = []
+    @Published public var folders: [Folder] = [] {
+        didSet {
+            updateFilteredList()
+        }
+    }
+    
     // 현재 위치한 폴더
     @Published public var currentFolder: Folder? = nil {
         didSet {
