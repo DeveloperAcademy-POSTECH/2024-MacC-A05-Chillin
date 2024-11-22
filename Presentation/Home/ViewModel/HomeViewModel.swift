@@ -19,6 +19,14 @@ class HomeViewModel: ObservableObject {
     public var isAtRoot: Bool {
         return currentFolder == nil
     }
+    @Published public var isFavoriteSelected: Bool = false {
+        didSet {
+            resetToRoot()
+        }
+    }
+    
+    // 진입 경로 추적 스택
+    private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
     
     @Published public var isLoading: Bool = false
     @Published public var memoText: String = ""
@@ -178,7 +186,7 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    func filteringList(isFavoriteSelected: Bool) -> [FileSystemItem] {
+    func filteringList() -> [FileSystemItem] {
         var currentFolders: [Folder] {
             guard let folder = currentFolder else {
                 return folders.filter { $0.parentFolderID == nil }
@@ -193,9 +201,23 @@ extension HomeViewModel {
             return paperInfos.filter { $0.folderID == folder.id }
         }
         
-        return isFavoriteSelected
-        ? sortFavoriteLists(paperInfos: currentDocuments, folders: currentFolders)
-        : sortLists(paperInfos: currentDocuments, folders: currentFolders)
+        return sortLists(paperInfos: currentDocuments, folders: currentFolders)
+    }
+    
+    func filteringFavList() -> [FileSystemItem] {
+        if let folder = currentFolder {
+            // 현재 선택된 폴더가 있을 경우, 해당 폴더의 모든 문서를 반환
+            let folderDocuments = paperInfos.filter { $0.folderID == folder.id }
+            let folders = folders.filter { $0.parentFolderID == folder.id }
+            return sortLists(paperInfos: folderDocuments, folders: folders)
+        } else {
+            // 즐겨찾기 필터
+            let paperItems = paperInfos.map { FileSystemItem.paper($0) }
+            let folderItems = folders.map { FileSystemItem.folder($0) }
+            
+            let combinedItems = paperItems + folderItems
+            return combinedItems.filter { $0.isFavorite }.sorted(by: { $0.date > $1.date })
+        }
     }
     
     /// 전체 리스트
@@ -207,15 +229,6 @@ extension HomeViewModel {
         // 두 리스트를 합치고 날짜 순서대로 정렬
         let combinedItems = paperItems + folderItems
         return combinedItems.sorted(by: { $0.date > $1.date })
-    }
-    
-    /// 즐겨찾기 리스트
-    func sortFavoriteLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
-        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
-        let folderItems = folders.map { FileSystemItem.folder($0) }
-        
-        let combinedItems = paperItems + folderItems
-        return combinedItems.filter { $0.isFavorite }.sorted(by: { $0.date > $1.date })
     }
 }
 
@@ -279,21 +292,50 @@ extension HomeViewModel {
 
 extension HomeViewModel {
     public func navigateToParent() {
-        if let parentID = currentFolder?.parentFolderID {
-            currentFolder = folders.first { $0.id == parentID }
+        if isFavoriteSelected {
+            // 즐겨찾기 경로를 스택에서 복원
+            if let lastState = navigationStack.popLast() {
+                isFavoriteSelected = lastState.isFavoriteSelected
+                currentFolder = lastState.folder
+            } else {
+                // 기본 상태로 복원
+                isFavoriteSelected = true
+                currentFolder = nil
+            }
         } else {
-            currentFolder = nil
+            // 전체 탭에서는 부모 폴더로 이동
+            if let parentID = currentFolder?.parentFolderID {
+                currentFolder = folders.first { $0.id == parentID }
+            } else {
+                currentFolder = nil
+            }
         }
     }
     
     public func navigateTo(folder: Folder) {
+        // 현재 상태를 스택에 저장
+        navigationStack.append((isFavoriteSelected: isFavoriteSelected, folder: currentFolder))
+        
+        // 폴더로 이동
         currentFolder = folder
     }
     
+    // 탭 변경 시 최초 상태로 초기화
+    private func resetToRoot() {
+        currentFolder = nil
+        navigationStack.removeAll()
+    }
+    
     var parentFolderTitle: String? {
-        guard let parentID = currentFolder?.parentFolderID else {
-            return nil
+        if isFavoriteSelected {
+            // 즐겨찾기 경로에서는 스택의 마지막 폴더를 확인
+            return navigationStack.last?.folder?.title
+        } else {
+            // 전체 경로에서는 현재 폴더의 부모 폴더를 확인
+            guard let parentID = currentFolder?.parentFolderID else {
+                return nil
+            }
+            return folders.first { $0.id == parentID }?.title
         }
-        return folders.first { $0.id == parentID }?.title
     }
 }

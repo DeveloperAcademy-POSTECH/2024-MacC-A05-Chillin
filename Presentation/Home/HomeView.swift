@@ -38,9 +38,6 @@ struct HomeView: View {
     @State private var createMovingFolder: Bool = false
     @State private var isEditingFolder: Bool = false
     
-    // 전체 홈뷰 즐겨찾기 변수
-    @State private var isFavoriteSelected: Bool = false
-    
     // 폴더 이동 변수
     @State private var isMovingFolder: Bool = false
     @State private var isPaper: Bool = false
@@ -61,11 +58,11 @@ struct HomeView: View {
                             .padding(.trailing, 36)
                         
                         Button(action: {
-                            isFavoriteSelected = false
+                            homeViewModel.isFavoriteSelected = false
                         }) {
                             Text("전체")
-                                .reazyFont(isFavoriteSelected ? .text1 : .button1)
-                                .foregroundStyle(isFavoriteSelected ? .gray600 : .gray100)
+                                .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
+                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
                         }
                         
                         Rectangle()
@@ -75,11 +72,11 @@ struct HomeView: View {
                         
                         Button(action: {
                             // TODO: - [브리] 즐겨찾기 로직 수정 필요
-                            isFavoriteSelected = true
+                            homeViewModel.isFavoriteSelected = true
                         }) {
                             Text("즐겨찾기")
-                                .reazyFont(isFavoriteSelected ? .button1 : .text1)
-                                .foregroundStyle(isFavoriteSelected ? .gray100 : .gray600)
+                                .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
+                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
                         }
                         
                         Spacer()
@@ -121,7 +118,6 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     isEditingMemo: $isEditingMemo,
                     searchText: $searchText,
-                    isFavoriteSelected: $isFavoriteSelected,
                     isMovingFolder: $isMovingFolder,
                     isPaper: $isPaper
                 )

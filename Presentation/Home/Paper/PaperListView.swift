@@ -23,7 +23,6 @@ struct PaperListView: View {
     @Binding var isEditingMemo: Bool
     @Binding var searchText: String
     
-    @Binding var isFavoriteSelected: Bool
     @State var isFavorite: Bool = false
     
     @Binding var isMovingFolder: Bool
@@ -37,7 +36,11 @@ struct PaperListView: View {
     @State private var isVertical = false
     
     var filteredLists: [FileSystemItem] {
-        return homeViewModel.filteringList(isFavoriteSelected: isFavoriteSelected)
+        if homeViewModel.isFavoriteSelected {
+            return homeViewModel.filteringFavList()
+        } else {
+            return homeViewModel.filteringList()
+        }
     }
     
     var body: some View {
@@ -58,7 +61,7 @@ struct PaperListView: View {
                                         .foregroundStyle(.primary1)
                                         .padding(.trailing, 7)
                                     
-                                    Text(homeViewModel.parentFolderTitle ?? "전체")
+                                    Text(homeViewModel.parentFolderTitle ?? (homeViewModel.isFavoriteSelected ? "즐겨찾기" : "전체"))
                                         .reazyFont(.h2)
                                         .foregroundStyle(.primary1)
                                 }
@@ -67,7 +70,8 @@ struct PaperListView: View {
                         }
                         Spacer()
                         
-                        Text((homeViewModel.isAtRoot ? "전체" : homeViewModel.currentFolder?.title) ?? "새 폴더")
+                        Text((homeViewModel.isAtRoot ? (homeViewModel.isFavoriteSelected ?
+                                                        "즐겨찾기" : "전체") : homeViewModel.currentFolder?.title) ?? "새 폴더")
                             .reazyFont(.text3)
                             .foregroundStyle(.primary1)
                         
@@ -109,7 +113,7 @@ struct PaperListView: View {
                                 .scaledToFit()
                                 .frame(height: 146)
                                 .padding(.bottom, 11)
-                            Text(isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
+                            Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray550)
                                 .padding(.bottom, 80)
