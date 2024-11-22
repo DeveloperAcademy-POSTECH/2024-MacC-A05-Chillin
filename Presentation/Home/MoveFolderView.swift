@@ -45,6 +45,8 @@ struct MoveFolderView: View {
                     
                     Button(action: {
                         items.forEach { item in
+                            if selectedID == topLevelFolder.id { selectedID = nil }
+                            
                             switch item {
                             case .paper(let paperInfo):
                                 homeViewModel.updatePaperLocation(at: paperInfo.id, folderID: selectedID)

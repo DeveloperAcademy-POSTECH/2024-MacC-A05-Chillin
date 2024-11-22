@@ -27,7 +27,7 @@ struct HomeView: View {
     @State private var isFolderSelected: Bool = false
     
     @State private var isEditing: Bool = false
-    @State private var selectedItems: Set<Int> = []
+    @State private var selectedItems: Set<UUID> = []
     
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
@@ -163,8 +163,8 @@ struct HomeView: View {
                 ? (selectedItemID.flatMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }).map { [$0] } ?? []
-                : selectedItems.compactMap { index in
-                    homeViewModel.filteredLists[index]
+                : selectedItems.compactMap { id in
+                    homeViewModel.filteredLists.first(where: { $0.id == id })
                 }
                 
                 MoveFolderView(
@@ -235,7 +235,7 @@ private struct MainMenuView: View {
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
     
-    @Binding var selectedItems: Set<Int>
+    @Binding var selectedItems: Set<UUID>
     @Binding var selectedItemID: UUID?
     @Binding var createFolder: Bool
     
@@ -346,20 +346,49 @@ private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @Binding var selectedMenu: Options
-    @Binding var selectedItems: Set<Int>
+    @Binding var selectedItems: Set<UUID>
     @Binding var isEditing: Bool
     @Binding var isMovingFolder: Bool
     
     
     var body: some View {
         HStack(spacing: 0) {
-            let items: [FileSystemItem] = selectedItems.compactMap { index in
-                guard index < homeViewModel.filteredLists.count else { return nil }
-                return homeViewModel.filteredLists[index]
+            let items: [FileSystemItem] = selectedItems.compactMap { id in
+                homeViewModel.filteredLists.first(where: { $0.id == id })
+            }
+            
+            let containsFolder = items.contains { file in
+                if case .folder = file {
+                    return true
+                }
+                return false
             }
             
             Button(action: {
-                // TODO: - 문서 선택 시 모든 폴더 이동 가능, 폴더 포함 시 선택된 폴더는 disable 처리 [케이스 분리 필요]
+                // TODO: - 공유 버튼 활성화 필요
+            }, label: {
+                Image(systemName: "square.and.arrow.up")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
+            })
+            .padding(.trailing, 28)
+            .disabled(containsFolder)
+            
+            Button(action: {
+                // TODO: - 복제 버튼 활성화 필요
+            }, label: {
+                Image(systemName: "square.on.square")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 17, height: 17)
+                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
+            })
+            .padding(.trailing, 28)
+            .disabled(containsFolder)
+            
+            Button(action: {
                 self.isMovingFolder.toggle()
             }, label: {
                 Image(systemName: "rectangle.portrait.and.arrow.right")
