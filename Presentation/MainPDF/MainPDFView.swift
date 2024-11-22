@@ -33,6 +33,7 @@ struct MainPDFView: View {
     
     @State private var isListSelected: Bool = false
     @State private var isFigSelected: Bool = false
+    @State private var isBoardSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isReadMode: Bool = false
     
@@ -75,6 +76,7 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image("index")
+                                            .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
@@ -92,10 +94,11 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image("search")
+                                            .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 22)
-                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(isSearchSelected ? .gray100 : .gray800)
                                     )
                             }
                             
@@ -112,10 +115,11 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image("focus")
+                                            .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(isReadMode ? .gray100 : .gray800)
                                     )
                             }
                             
@@ -136,17 +140,19 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
+                                isBoardSelected.toggle()
                                 print("모아보기 On")
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(isFigSelected ? .primary1 : .clear)
+                                    .foregroundStyle(isBoardSelected ? .primary1 : .clear)
                                     .overlay (
                                         Image("window")
+                                            .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 16)
-                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(isBoardSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
@@ -258,6 +264,21 @@ struct MainPDFView: View {
                                 Spacer()
                                 
                                 if isFigSelected && !floatingViewModel.splitMode {
+                                    Rectangle()
+                                        .frame(width: 1)
+                                        .foregroundStyle(Color(hex: "CCCEE1"))
+                                    
+                                    FigureView(onSelect: { documentID, document, head in
+                                        floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                                    })
+                                    .environmentObject(mainPDFViewModel)
+                                    .environmentObject(floatingViewModel)
+                                    .environmentObject(focusFigureViewModel)
+                                    .background(.white)
+                                    .frame(width: geometry.size.width * 0.22)
+                                }
+                                
+                                if isBoardSelected && !floatingViewModel.splitMode {
                                     Rectangle()
                                         .frame(width: 1)
                                         .foregroundStyle(Color(hex: "CCCEE1"))
@@ -401,6 +422,14 @@ struct MainPDFView: View {
                 if mainPDFViewModel.toolMode == .translate {
                     TranslateViewOlderVer()
                 }
+            } else {
+                // 드래그 전까지 selected Text 없으면 말풍선
+                if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
+                    TemporaryAlertView(mode: "translate")
+                }
+            }
+            if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
+                TemporaryAlertView(mode: "comment")
             }
         }
         .onReceive(publisher) { a in

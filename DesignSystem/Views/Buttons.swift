@@ -18,7 +18,7 @@ enum Buttons: String, CaseIterable {
         case .drawing:
             return Image("drawing")
         case .comment:
-            return Image("drawing")
+            return Image("tempComment")
         case .translate:
             return Image("globe")
         }
@@ -40,6 +40,7 @@ struct ButtonsView: View {
                 .frame(width: 26, height: 26)
                 .overlay(
                     selectedButton.icon
+                        .renderingMode(.template)
                         .resizable()
                         .scaledToFit()
                         .frame(height: 18)

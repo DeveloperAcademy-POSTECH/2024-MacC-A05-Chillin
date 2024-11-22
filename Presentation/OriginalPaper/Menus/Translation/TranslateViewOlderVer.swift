@@ -33,7 +33,7 @@ struct TranslateViewOlderVer: View {
             
             VStack(alignment: .center) {
                 Text("해당 번역 기능은 iPadOS 18.0 이상에서만 사용 가능합니다.\niPadOS 18.0 미만 버전에서는 소프트웨어 업데이트가 필요합니다.")
-                    .font(.system(size: 14, weight: .regular))
+                    .reazyFont(.body2)
                     .foregroundColor(.point2)
                     .lineSpacing(3)
             }
