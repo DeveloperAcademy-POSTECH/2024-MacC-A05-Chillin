@@ -27,11 +27,13 @@ struct CommentCell: View {
         }
         .padding(.bottom, 8)
         .padding(.top, 20)
+        .padding(.trailing, 16)
         
         Text(comment.text)
             .reazyFont(.text1)
             .foregroundStyle(.point2)
             .padding(0)
+            .padding(.trailing, 16)
         
         HStack{
             Spacer()
@@ -60,6 +62,6 @@ struct CommentCell: View {
                 }
             )
         }
-        .padding([.trailing, .bottom], 12)
+        .padding(.bottom, 12)
     }
 }

@@ -48,6 +48,7 @@ private struct CommentView: View {
                 ForEach(selectedComments.indices, id: \.self) { index in
                     CommentCell(viewModel: viewModel, comment: selectedComments[index])
                         .padding(.leading, 22)
+                        .padding(.trailing, 12)
                     
                     if index < selectedComments.count - 1 {
                         Divider()
