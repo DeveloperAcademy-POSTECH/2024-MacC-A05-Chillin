@@ -11,8 +11,6 @@ import SwiftUI
 struct FolderInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var isPaper: Bool
-    
     let id: UUID
     let title: String
     let color: Color
@@ -66,7 +64,6 @@ struct FolderInfoView: View {
                     
                     Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
                         self.isMovingFolder.toggle()
-                        isPaper = false
                     }
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
@@ -274,7 +271,6 @@ struct FolderInfoView: View {
 
 #Preview {
     FolderInfoView(
-        isPaper: .constant(false),
         id: .init(),
         title: "테스트",
         color: .primary1,

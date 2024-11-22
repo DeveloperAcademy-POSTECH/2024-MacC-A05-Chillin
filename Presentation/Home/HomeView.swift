@@ -40,7 +40,6 @@ struct HomeView: View {
     
     // 폴더 이동 변수
     @State private var isMovingFolder: Bool = false
-    @State private var isPaper: Bool = false
     @State private var moveToFolderID: UUID? = nil
     
     // 폴더 메모 추가 변수
@@ -123,8 +122,7 @@ struct HomeView: View {
                     isEditingMemo: $isEditingMemo,
                     isEditingFolderMemo: $isEditingFolderMemo,
                     searchText: $searchText,
-                    isMovingFolder: $isMovingFolder,
-                    isPaper: $isPaper
+                    isMovingFolder: $isMovingFolder
                 )
             }
             .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
@@ -160,17 +158,27 @@ struct HomeView: View {
             }
             
             // 폴더 이동 View
-            if isMovingFolder, let selectedItemID = selectedItemID {
+            if isMovingFolder {
+                let itemsToMove: [FileSystemItem] = selectedItems.isEmpty
+                ? (selectedItemID.flatMap { id in
+                    homeViewModel.filteredLists.first(where: { $0.id == id })
+                }).map { [$0] } ?? []
+                : selectedItems.compactMap { index in
+                    homeViewModel.filteredLists[index]
+                }
+                
                 MoveFolderView(
                     createMovingFolder: $createMovingFolder,
                     isMovingFolder: $isMovingFolder,
-                    isPaper: isPaper,
-                    id:selectedItemID,
+                    items: itemsToMove,
                     selectedID: $moveToFolderID
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: 740, height: 550)
                 .blur(radius: createMovingFolder ? 20 : 0)
+                .onDisappear {
+                    selectedItems.removeAll()
+                }
             }
             
             Color.black

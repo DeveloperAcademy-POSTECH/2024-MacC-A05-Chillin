@@ -27,7 +27,7 @@ struct PaperListView: View {
     @State var isFavorite: Bool = false
     
     @Binding var isMovingFolder: Bool
-    @Binding var isPaper: Bool
+    @State var isPaper: Bool = false
     
     @State private var keyboardHeight: CGFloat = 0
     
@@ -213,7 +213,6 @@ struct PaperListView: View {
                             switch selectedItem {
                             case .paper(let paperInfo):
                                 PaperInfoView(
-                                    isPaper: $isPaper,
                                     id: paperInfo.id,
                                     image: paperInfo.thumbnail,
                                     title: paperInfo.title,
@@ -240,7 +239,6 @@ struct PaperListView: View {
                                 
                             case .folder(let folder):
                                 FolderInfoView(
-                                    isPaper: $isPaper,
                                     id: folder.id,
                                     title: folder.title,
                                     color: FolderColors.color(for: folder.color),

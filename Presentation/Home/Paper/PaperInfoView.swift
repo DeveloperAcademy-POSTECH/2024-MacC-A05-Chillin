@@ -10,8 +10,6 @@ import SwiftUI
 struct PaperInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var isPaper: Bool
-    
     let id: UUID
     let image: Data
     let title: String
@@ -58,7 +56,6 @@ struct PaperInfoView: View {
                     
                     Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
                         self.isMovingFolder.toggle()
-                        isPaper = true
                     }
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
@@ -267,7 +264,6 @@ struct PaperInfoView: View {
 
 #Preview {
     PaperInfoView(
-        isPaper: .constant(true),
         id: .init(),
         image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
