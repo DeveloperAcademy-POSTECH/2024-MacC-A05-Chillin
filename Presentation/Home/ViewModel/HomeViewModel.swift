@@ -104,11 +104,9 @@ extension HomeViewModel {
         return paperInfo?.id
     }
     
-    public func deletePDF(ids: [UUID]) {
-        self.homeViewUseCase.deletePDFs(id: ids)
-        ids.forEach { id in
-            self.paperInfos.removeAll(where: { $0.id == id })
-        }
+    public func deletePDF(at id: UUID) {
+        self.homeViewUseCase.deletePDF(id: id)
+        self.paperInfos.removeAll(where: { $0.id == id })
     }
 }
 
@@ -308,11 +306,9 @@ extension HomeViewModel {
         }
     }
     
-    public func deleteFolder(ids: [UUID]) {
-        self.homeViewUseCase.deleteFolders(id: ids)
-        ids.forEach { id in
-            self.folders.removeAll(where: { $0.id == id })
-        }
+    public func deleteFolder(at id: UUID) {
+        self.homeViewUseCase.deleteFolder(id: id)
+        self.folders.removeAll(where: { $0.id == id })
     }
 }
 
@@ -361,6 +357,21 @@ extension HomeViewModel {
                 return nil
             }
             return folders.first { $0.id == parentID }?.title
+        }
+    }
+}
+
+extension HomeViewModel {
+    public func deleteFiles(_ items: [FileSystemItem]) {
+        for item in items {
+            switch item {
+            case .paper(let paperInfo):
+                self.homeViewUseCase.deletePDF(id: paperInfo.id)
+                self.paperInfos.removeAll(where: { $0.id == paperInfo.id })
+            case .folder(let folder):
+                self.homeViewUseCase.deleteFolder(id: folder.id)
+                self.folders.removeAll(where: { $0.id == folder.id })
+            }
         }
     }
 }

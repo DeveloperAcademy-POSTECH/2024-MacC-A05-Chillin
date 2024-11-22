@@ -62,7 +62,9 @@ struct PaperInfoView: View {
                     }
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
-                        self.isDeleteConfirm.toggle()
+//                        self.isDeleteConfirm.toggle()
+                        self.homeViewModel.deletePDF(at: id)
+                        onDelete()
                     }
                     
                 } label: {
@@ -205,18 +207,19 @@ struct PaperInfoView: View {
         .onChange(of: self.isEditingMemo) {
             self.homeViewModel.memoText = memo!
         }
-        .alert(isPresented: $isDeleteConfirm) {
-            Alert(
-                title: Text("정말 삭제하시겠습니까?"),
-                message: Text("삭제된 파일은 복구할 수 없습니다."),
-                primaryButton: .default(Text("취소")),
-                secondaryButton: .destructive(Text("삭제")) {
-                    let ids = [id]
-                    self.homeViewModel.deletePDF(ids: ids)
-                    onDelete()
-                }
-            )
-        }
+        // TODO: - Alert 수정 필요
+//        .alert(isPresented: $isDeleteConfirm) {
+//            Alert(
+//                title: Text("정말 삭제하시겠습니까?"),
+//                message: Text("삭제된 파일은 복구할 수 없습니다."),
+//                primaryButton: .default(Text("취소")),
+//                secondaryButton: .destructive(Text("삭제")) {
+//                    let ids = [id]
+//                    self.homeViewModel.deletePDF(ids: ids)
+//                    onDelete()
+//                }
+//            )
+//        }
     }
     
     @ViewBuilder

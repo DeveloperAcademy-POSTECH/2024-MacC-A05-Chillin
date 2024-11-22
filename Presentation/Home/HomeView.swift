@@ -337,8 +337,6 @@ private struct SearchMenuView: View {
 private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State private var isStarSelected: Bool = false
-    
     @Binding var selectedMenu: Options
     @Binding var selectedItems: Set<Int>
     @Binding var isEditing: Bool
@@ -346,25 +344,14 @@ private struct EditMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            let selectedIDs: [UUID] = selectedItems.compactMap { index in
-                guard index < homeViewModel.paperInfos.count else { return nil }
-                return homeViewModel.paperInfos[index].id
+            let items: [FileSystemItem] = selectedItems.compactMap { index in
+                guard index < homeViewModel.filteredLists.count else { return nil }
+                return homeViewModel.filteredLists[index]
             }
             
             Button(action: {
-                isStarSelected.toggle()
-                homeViewModel.updatePaperFavorites(at: selectedIDs)
-            }, label : {
-                Image(systemName: isStarSelected ? "star.fill" : "star")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 19)
-                    .foregroundStyle(.gray100)
-            })
-            .padding(.trailing, 28)
-            
-            Button(action: {
-                homeViewModel.deletePDF(ids: selectedIDs)
+                homeViewModel.deleteFiles(items)
+                selectedItems.removeAll()
             }, label: {
                 Image(systemName: "trash")
                     .resizable()
@@ -378,7 +365,6 @@ private struct EditMenuView: View {
                 selectedMenu = .main
                 isEditing = false
                 selectedItems.removeAll()
-                isStarSelected = false
             }, label: {
                 Text("취소")
                     .reazyFont(.button1)
