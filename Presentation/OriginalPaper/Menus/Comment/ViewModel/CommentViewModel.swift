@@ -336,9 +336,10 @@ extension CommentViewModel {
         // count가 1보다 클 때만 개수 표시
         if count > 1 {
             commentCount.contents = "\(count)"
-            commentCount.color = .clear
+            commentCount.font = .reazyFont(.text5).withSize(10)
             commentCount.fontColor = .point4
-            commentCount.font = .reazyFont(.text5)
+            commentCount.color = .clear
+            
             // id 값 저장
             commentCount.setValue(button.id.uuidString, forAnnotationKey: .name)
             PDFPage?.addAnnotation(commentCount)
@@ -362,9 +363,9 @@ extension CommentViewModel {
         let count = tempCommentArray.filter { $0.buttonId == button.id }.count
         if count > 1 {
             commentCount.contents = "\(count)"
-            commentCount.color = .clear
-            commentCount.font = .reazyFont(.text5)
+            commentCount.font = .reazyFont(.text5).withSize(10)
             commentCount.fontColor = .point4
+            commentCount.color = .clear
             // id 값 저장
             commentCount.setValue(button.id.uuidString, forAnnotationKey: .name)
             PDFPage?.addAnnotation(commentCount)
