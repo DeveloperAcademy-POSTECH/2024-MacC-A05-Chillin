@@ -203,7 +203,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 
                 
                 while dupNum < 100 {
-                    let tempURL = documentURL.appending(path: lastComponent.joined() + "(\(dupNum)).pdf")
+                    let tempURL = documentURL.appending(path: lastComponent.joined() + " (\(dupNum)).pdf")
                     
                     if !manager.fileExists(atPath: tempURL.path()) {
                         try manager.copyItem(at: url, to: tempURL)
