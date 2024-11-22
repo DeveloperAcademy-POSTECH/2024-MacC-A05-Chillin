@@ -97,6 +97,16 @@ struct MoveFolderView: View {
             }
         }
         .background(Color(hex: "F7F7FC"))
+        .onChange(of: homeViewModel.newFolderID) { _ , newFolderID in
+            selectedID = newFolderID
+        }
+        .onChange(of: homeViewModel.newFolderParentID) { _ , parentID in
+            if let parentID = parentID {
+                expandedFolders.insert(parentID)
+            } else {
+                isTopLevelExpanded = true
+            }
+        }
     }
     
     // 존재하지 않는 <전체> 임의 폴더 생성

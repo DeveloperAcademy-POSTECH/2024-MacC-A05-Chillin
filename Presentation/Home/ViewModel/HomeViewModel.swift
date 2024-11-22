@@ -29,6 +29,8 @@ class HomeViewModel: ObservableObject {
             updateFilteredList()
         }
     }
+    @Published public var newFolderParentID: UUID?
+    @Published public var newFolderID: UUID?
     public var isAtRoot: Bool {
         return currentFolder == nil
     }
@@ -273,6 +275,9 @@ extension HomeViewModel {
         
         self.homeViewUseCase.saveFolder(newFolder)
         folders.append(newFolder)
+        
+        newFolderParentID = parentFolderID
+        newFolderID = newFolder.id
     }
     
     public func updateFolderInfo(at id: UUID, title: String, color: String) {
