@@ -12,18 +12,15 @@ enum Buttons: String, CaseIterable {
     case drawing
     case comment
     case translate
-    case lasso
 
     var icon: Image {
         switch self {
         case .drawing:
-            return Image(systemName: "pencil.tip.crop.circle")
+            return Image(.drawing)
         case .comment:
-            return Image(systemName: "text.bubble")
+            return Image(.tempComment)
         case .translate:
-            return Image(systemName: "globe")
-        case .lasso:
-            return Image(systemName: "square.dashed")
+            return Image(.globe)
         }
     }
 }
@@ -43,8 +40,12 @@ struct ButtonsView: View {
                 .frame(width: 26, height: 26)
                 .overlay(
                     selectedButton.icon
-                        .font(.system(size: 16))
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 18)
                         .foregroundStyle(button == selectedButton ? .gray100 : .gray800)
+
                 )
         }
     }

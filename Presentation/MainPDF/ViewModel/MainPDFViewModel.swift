@@ -283,12 +283,11 @@ enum ToolMode {
     case translate
     case comment
     case drawing
-    case lasso
 }
 
 // 드로잉 툴바에 있는 버튼
 enum DrawingToolMode {
-    case none // translate, comment, lasso 일 때 이 드로잉 모드
+    case none // translate, comment 일 때 이 드로잉 모드
     case pencil
     case eraser
     case highlight

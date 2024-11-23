@@ -27,7 +27,7 @@ struct HomeView: View {
     @State private var isFolderSelected: Bool = false
     
     @State private var isEditing: Bool = false
-    @State private var selectedItems: Set<Int> = []
+    @State private var selectedItems: Set<UUID> = []
     
     @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
@@ -38,13 +38,12 @@ struct HomeView: View {
     @State private var createMovingFolder: Bool = false
     @State private var isEditingFolder: Bool = false
     
-    // 전체 홈뷰 즐겨찾기 변수
-    @State private var isFavoriteSelected: Bool = false
-    
     // 폴더 이동 변수
     @State private var isMovingFolder: Bool = false
-    @State private var isPaper: Bool = false
     @State private var moveToFolderID: UUID? = nil
+    
+    // 폴더 메모 추가 변수
+    @State private var isEditingFolderMemo: Bool = false
     
     var body: some View {
         ZStack {
@@ -54,18 +53,18 @@ struct HomeView: View {
                         .foregroundStyle(.point1)
                     
                     HStack(spacing: 0) {
-                        Image("icon")
+                        Image(.icon)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 62, height: 50)
                             .padding(.trailing, 36)
                         
                         Button(action: {
-                            isFavoriteSelected = false
+                            homeViewModel.isFavoriteSelected = false
                         }) {
                             Text("전체")
-                                .reazyFont(isFavoriteSelected ? .text1 : .button1)
-                                .foregroundStyle(isFavoriteSelected ? .gray600 : .gray100)
+                                .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
+                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
                         }
                         
                         Rectangle()
@@ -74,12 +73,11 @@ struct HomeView: View {
                             .padding(.horizontal, 14)
                         
                         Button(action: {
-                            // TODO: - [브리] 즐겨찾기 로직 수정 필요
-                            isFavoriteSelected = true
+                            homeViewModel.isFavoriteSelected = true
                         }) {
                             Text("즐겨찾기")
-                                .reazyFont(isFavoriteSelected ? .button1 : .text1)
-                                .foregroundStyle(isFavoriteSelected ? .gray100 : .gray600)
+                                .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
+                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
                         }
                         
                         Spacer()
@@ -104,7 +102,8 @@ struct HomeView: View {
                             EditMenuView(
                                 selectedMenu: $selectedMenu,
                                 selectedItems: $selectedItems,
-                                isEditing: $isEditing)
+                                isEditing: $isEditing,
+                                isMovingFolder: $isMovingFolder)
                         }
                     }
                     .padding(.top, 46)
@@ -120,32 +119,17 @@ struct HomeView: View {
                     isEditingTitle: $isEditingTitle,
                     isEditingFolder: $isEditingFolder,
                     isEditingMemo: $isEditingMemo,
+                    isEditingFolderMemo: $isEditingFolderMemo,
                     searchText: $searchText,
-                    isFavoriteSelected: $isFavoriteSelected,
-                    isMovingFolder: $isMovingFolder,
-                    isPaper: $isPaper
+                    isMovingFolder: $isMovingFolder
                 )
             }
-            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
-
-            // 폴더 이동 View
-            if isMovingFolder, let selectedItemID = selectedItemID {
-                MoveFolderView(
-                    createMovingFolder: $createMovingFolder,
-                    isMovingFolder: $isMovingFolder,
-                    isPaper: isPaper,
-                    id:selectedItemID,
-                    selectedID: $moveToFolderID
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .frame(width: 740, height: 550)
-                .blur(radius: createMovingFolder ? 20 : 0)
-            }
             
             if isEditingTitle || isEditingMemo {
                 RenamePaperTitleView(
@@ -163,18 +147,37 @@ struct HomeView: View {
                 )
             }
             
+            if isEditingFolderMemo {
+                if let folder = homeViewModel.folders.first(where: { $0.id == selectedItemID! }) {
+                    FolderMemoView(
+                        isEditingFolderMemo: $isEditingFolderMemo,
+                        folder: folder
+                    )
+                }
+            }
+            
             // 폴더 이동 View
-            if isMovingFolder, let selectedItemID = selectedItemID {
+            if isMovingFolder {
+                let itemsToMove: [FileSystemItem] = selectedItems.isEmpty
+                ? (selectedItemID.flatMap { id in
+                    homeViewModel.filteredLists.first(where: { $0.id == id })
+                }).map { [$0] } ?? []
+                : selectedItems.compactMap { id in
+                    homeViewModel.filteredLists.first(where: { $0.id == id })
+                }
+                
                 MoveFolderView(
                     createMovingFolder: $createMovingFolder,
                     isMovingFolder: $isMovingFolder,
-                    isPaper: isPaper,
-                    id:selectedItemID,
+                    items: itemsToMove,
                     selectedID: $moveToFolderID
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: 740, height: 550)
                 .blur(radius: createMovingFolder ? 20 : 0)
+                .onDisappear {
+                    selectedItems.removeAll()
+                }
             }
             
             Color.black
@@ -231,7 +234,7 @@ private struct MainMenuView: View {
     @Binding var isSearching: Bool
     @Binding var isEditing: Bool
     
-    @Binding var selectedItems: Set<Int>
+    @Binding var selectedItems: Set<UUID>
     @Binding var selectedItemID: UUID?
     @Binding var createFolder: Bool
     
@@ -341,48 +344,76 @@ private struct SearchMenuView: View {
 private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State private var isStarSelected: Bool = false
-    
     @Binding var selectedMenu: Options
-    @Binding var selectedItems: Set<Int>
+    @Binding var selectedItems: Set<UUID>
     @Binding var isEditing: Bool
+    @Binding var isMovingFolder: Bool
     
     
     var body: some View {
         HStack(spacing: 0) {
-            let selectedIDs: [UUID] = selectedItems.compactMap { index in
-                guard index < homeViewModel.paperInfos.count else { return nil }
-                return homeViewModel.paperInfos[index].id
+            let items: [FileSystemItem] = selectedItems.compactMap { id in
+                homeViewModel.filteredLists.first(where: { $0.id == id })
+            }
+            
+            let containsFolder = items.contains { file in
+                if case .folder = file {
+                    return true
+                }
+                return false
             }
             
             Button(action: {
-                isStarSelected.toggle()
-                homeViewModel.updatePaperFavorites(at: selectedIDs)
-            }, label : {
-                Image(systemName: isStarSelected ? "star.fill" : "star")
+                // TODO: - 공유 버튼 활성화 필요
+            }, label: {
+                Image(systemName: "square.and.arrow.up")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 19)
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
+            })
+            .padding(.trailing, 28)
+            .disabled(containsFolder)
+            
+            Button(action: {
+                // TODO: - 복제 버튼 활성화 필요
+            }, label: {
+                Image(systemName: "square.on.square")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 17, height: 17)
+                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
+            })
+            .padding(.trailing, 28)
+            .disabled(containsFolder)
+            
+            Button(action: {
+                self.isMovingFolder.toggle()
+            }, label: {
+                Image(systemName: "rectangle.portrait.and.arrow.right")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 17, height: 17)
                     .foregroundStyle(.gray100)
             })
             .padding(.trailing, 28)
             
             Button(action: {
-                homeViewModel.deletePDF(ids: selectedIDs)
+                homeViewModel.deleteFiles(items)
+                selectedItems.removeAll()
             }, label: {
                 Image(systemName: "trash")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 19)
+                    .frame(width: 17, height: 17)
                     .foregroundStyle(.gray100)
             })
-            .padding(.trailing, 28)        
+            .padding(.trailing, 28)
             
             Button(action: {
                 selectedMenu = .main
                 isEditing = false
                 selectedItems.removeAll()
-                isStarSelected = false
             }, label: {
                 Text("취소")
                     .reazyFont(.button1)
@@ -503,6 +534,7 @@ private struct RenamePaperTitleView: View {
     }
 }
 
+/// 폴더 생성 뷰
 private struct FolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
@@ -587,7 +619,7 @@ private struct FolderView: View {
                     .frame(width: 206, height: 206)
                     .foregroundStyle(selectedColors.color)
                     .overlay(
-                        Image("folder")
+                        Image(.folder)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 105)
@@ -652,6 +684,123 @@ private struct FolderView: View {
                     text = folder.title
                     selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
                 }
+            }
+        }
+    }
+}
+
+/// 폴더 메모 생성 & 수정 뷰
+private struct FolderMemoView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @State private var selectedColors: FolderColors
+    
+    @Binding var isEditingFolderMemo: Bool
+    
+    @State private var text: String = ""
+    
+    let folder: Folder
+    
+    init(
+        isEditingFolderMemo: Binding<Bool>,
+        folder: Folder
+    ) {
+        self._isEditingFolderMemo = isEditingFolderMemo
+        self.folder = folder
+        selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
+    }
+    
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        self.isEditingFolderMemo.toggle()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.gray100)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        self.homeViewModel.updateFolderMemo(at: folder.id, memo: text)
+                        self.homeViewModel.memoText = text
+                        self.isEditingFolderMemo.toggle()
+                    }) {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                }
+                .padding(.horizontal, 28)
+                .padding(.top, 28)
+                
+                Spacer()
+            }
+            
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 49)
+                    .frame(width: 206, height: 206)
+                    .foregroundStyle(selectedColors.color)
+                    .overlay(
+                        Image("folder")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 105)
+                    )
+                    .padding(.trailing, 54)
+                    .padding(.bottom, 26)
+                
+                VStack(spacing: 0) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 180)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 180)
+                    }
+                    .frame(width: 400, height: 180)
+                    .overlay(alignment: .topLeading) {
+                        TextField("폴더에 대한 메모를 남겨주세요.", text: $text, axis: .vertical)
+                            .lineLimit(6)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    .overlay(alignment: .bottomTrailing) {
+                        if !self.text.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                                .padding(.bottom, 15)
+                                .padding(.trailing, 15)
+                                .onTapGesture {
+                                    text = ""
+                                }
+                        }
+                    }
+                    .padding(.bottom, 16)
+                    
+                    Text("폴더 제목을 입력해 주세요")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.comment)
+                }
+            }
+        }
+        .onAppear {
+            if isEditingFolderMemo {
+                self.text = folder.memo ?? ""
             }
         }
     }
