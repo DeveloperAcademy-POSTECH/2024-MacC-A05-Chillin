@@ -328,15 +328,15 @@ extension OriginalViewController {
                         var commentX: CGFloat
                         var commentY: CGFloat
                         
-                        if convertedBounds.midX < 193 {                /// 코멘트뷰가 왼쪽 화면을 넘어갈 때
+                        if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
                             commentX = 193
-                        } else if convertedBounds.midX > self.mainPDFView.bounds.maxX - 193 { /// 코멘트뷰가 오른쪽 화면을 넘어갈 때
+                        } else if convertedBounds.midX > self.mainPDFView.bounds.maxX - 193 {   /// 코멘트뷰가 오른쪽 화면 초과
                             commentX = self.mainPDFView.bounds.maxX - 193
                         } else {
                             commentX = convertedBounds.midX
                         }
                         
-                        if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 {
+                        if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 {          /// 코멘트 뷰가 아래 화면 초과
                             commentY = convertedBounds.minY - 60
                         } else {
                             commentY = convertedBounds.maxY + 60

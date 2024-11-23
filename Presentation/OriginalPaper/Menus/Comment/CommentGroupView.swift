@@ -145,13 +145,13 @@ private struct CommentInputView: View {
 struct CommentMenuView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
-    var comment: Comment // 선택된 comment
+    var comment: Comment    /// 선택된 comment
     
     var body: some View {
         HStack{
+            
+            // 수정
             Button(action: {
-                //수정 액션
-//                viewModel.comment = comment
                 viewModel.isEditMode = true
                 pdfViewModel.isCommentTapped = false
                 viewModel.isMenuTapped = false
@@ -170,6 +170,7 @@ struct CommentMenuView: View {
                 .tint(.primary2)
                 .padding(.horizontal, 33)
             
+            // 삭제
             Button(action: {
                 viewModel.deleteComment(commentId: comment.id)
                 pdfViewModel.isCommentTapped = false

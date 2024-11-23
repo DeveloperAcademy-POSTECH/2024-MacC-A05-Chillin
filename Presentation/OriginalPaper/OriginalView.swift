@@ -16,13 +16,13 @@ struct OriginalView: View {
     @EnvironmentObject var commentViewModel: CommentViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     
+    // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
     @State private var pdfViewOffset: CGFloat = 50
+    private let screenHeight = UIScreen.main.bounds.height
     
     @State private var cancellables: Set<AnyCancellable> = []
-    
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
-    private let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
         GeometryReader { geometry in
@@ -124,16 +124,16 @@ struct OriginalView: View {
             }
         }
     }
+    
     // 키보드 offset 계산
     private func calculateOffset(for position: CGPoint, keyboardFrame: CGRect, screenHeight: CGFloat) -> CGFloat {
         let keyboardTopY = screenHeight - keyboardFrame.height
         let margin: CGFloat = 120 // 여유 공간
         
-        // 키보드에 가려질 경우
-        if position.y + 60 > keyboardTopY {
+        if position.y + 60 > keyboardTopY {             /// 키보드에 가려질 경우
             return (position.y - keyboardTopY) + margin
         } else {
-            return 0 // 키보드에 안 가려짐
+            return 0                                    /// 키보드에 안 가려짐
         }
     }
 }
