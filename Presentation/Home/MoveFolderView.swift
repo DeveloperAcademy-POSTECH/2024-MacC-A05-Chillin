@@ -146,7 +146,7 @@ struct FolderCell: View {
                     .frame(width: 29, height: 29)
                     .foregroundStyle(level == 0 ? .primary1 : FolderColors.color(for: folder.color))
                     .overlay(
-                        Image("folder")
+                        Image(.folder)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 13)
