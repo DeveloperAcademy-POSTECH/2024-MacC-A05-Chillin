@@ -346,9 +346,6 @@ struct PaperListView: View {
                     self.selectAll.toggle()
                 }
             }
-            .onChange(of: homeViewModel.searchText) {
-                homeViewModel.updateSearchList()
-            }
             .background(.gray200)
             .ignoresSafeArea()
         }

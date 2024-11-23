@@ -48,7 +48,15 @@ class HomeViewModel: ObservableObject {
     }
     
     @Published public var isSearching: Bool = false
-    @Published public var searchText: String = ""
+    @Published public var searchText: String = "" {
+        didSet {
+            if searchText.isEmpty {
+                updateFilteredList()
+            } else {
+                updateSearchList()
+            }
+        }
+    }
     
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
