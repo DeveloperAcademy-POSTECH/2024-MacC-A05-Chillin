@@ -17,6 +17,8 @@ struct OriginalView: View {
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     
     @State private var keyboardOffset: CGFloat = 0
+    @State private var pdfViewOffset: CGFloat = 20
+    
     @State private var cancellables: Set<AnyCancellable> = []
     
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
@@ -28,6 +30,7 @@ struct OriginalView: View {
                 VStack(spacing: 0) {
                     OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
                 }
+                .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .onReceive(publisher) { a in
                     if let _ = a.userInfo?["hitted"] as? Bool {
                         commentViewModel.isMenuTapped = false
@@ -46,6 +49,7 @@ struct OriginalView: View {
                 if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
                     CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
                         .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
+                        .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
                 }
                 
                 if let comment = commentViewModel.comment {
@@ -63,6 +67,7 @@ struct OriginalView: View {
                 }
             }
             .offset(y: -keyboardOffset)
+            .animation(.smooth(duration: 0.5), value: keyboardOffset)
             .onAppear {
                 
                 let screenHeight = geometry.size.height
@@ -75,6 +80,7 @@ struct OriginalView: View {
                             withAnimation {
                                 keyboardOffset = calculateOffset(
                                     for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: screenHeight)
+                                //pdfViewOffset = 20
                             }
                         }
                     }
@@ -85,11 +91,11 @@ struct OriginalView: View {
                     .sink { _ in
                         withAnimation {
                             keyboardOffset = 0
+                            //pdfViewOffset = 0
                         }
                     }
                     .store(in: &cancellables)
             }
-            .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
             .animation(.smooth(duration: 0.1), value: viewModel.isCommentTapped)
             .transition(.move(edge: .bottom).combined(with: .opacity))
             .onDisappear {
@@ -103,7 +109,7 @@ struct OriginalView: View {
         let margin: CGFloat = 100 // 여유 공간
         
         // 키보드에 가려질 경우
-        if position.y + 50 > keyboardTopY {
+        if position.y + 60 > keyboardTopY {
             return (position.y - keyboardTopY) + margin
         } else {
             return 0 // 키보드에 안 가려짐

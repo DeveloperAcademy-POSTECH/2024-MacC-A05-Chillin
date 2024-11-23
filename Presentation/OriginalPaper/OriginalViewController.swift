@@ -327,7 +327,7 @@ extension OriginalViewController {
                         //comment position 설정
                         let commentPosition = CGPoint(
                             x: convertedBounds.midX,
-                            y: convertedBounds.maxY + 55
+                            y: convertedBounds.maxY + 60
                         )
                         
                         // 선택된 텍스트 가져오기
