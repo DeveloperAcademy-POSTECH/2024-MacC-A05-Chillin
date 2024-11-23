@@ -15,6 +15,7 @@ struct FigureView: View {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @State private var scrollToIndex: Int? = nil
+    @State private var isCaptureMode: Bool = false
     
     let onSelect: (String, PDFDocument, String) -> Void
     
@@ -96,14 +97,26 @@ struct FigureView: View {
                     }
                     VStack(spacing: 0){
                         Button(action: {
-                            // 액션
+                            isCaptureMode.toggle()
+                            if isCaptureMode {
+                                mainPDFViewModel.toolMode = .lasso
+                            } else {
+                                mainPDFViewModel.toolMode = .none
+                            }
                         }) {
-                            Image(systemName: "plus")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 14)
-                                .foregroundStyle(.primary1)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            if !isCaptureMode {
+                                Image(systemName: "plus")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 14)
+                                    .foregroundStyle(.primary1)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            } else {
+                                Text("완료")
+                                    .reazyFont(.text1)
+                                    .foregroundStyle(.primary1)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }
                             
                         }
                         .frame(maxWidth: .infinity, maxHeight: 52)

@@ -61,6 +61,9 @@ final class MainPDFViewModel: ObservableObject {
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false
     
+    // 올가미 툴
+    @Published var isCaptureSelected: Bool = false
+    
     public var pdfSharedData: PDFSharedData = .shared
     
     @Published var isMenuSelected: Bool = false
@@ -283,6 +286,7 @@ enum ToolMode {
     case translate
     case comment
     case drawing
+    case lasso
 }
 
 // 드로잉 툴바에 있는 버튼
@@ -291,6 +295,7 @@ enum DrawingToolMode {
     case pencil
     case eraser
     case highlight
+    case lasso
 }
 
 // 펜슬 제스처 인식 모드

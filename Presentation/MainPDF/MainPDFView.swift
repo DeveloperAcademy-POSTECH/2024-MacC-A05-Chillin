@@ -452,6 +452,10 @@ struct MainPDFView: View {
             if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
                 TemporaryAlertView(mode: "comment")
             }
+            //TODO: - 선택한 영역이 없을 때 뜨게 하는 조건으로 바꿔야함
+            if isFigSelected && mainPDFViewModel.toolMode == .lasso {
+                TemporaryAlertView(mode: "lasso")
+            }
         }
         .onReceive(publisher) { a in
             if let _ = a.userInfo?["hitted"] as? Bool {
