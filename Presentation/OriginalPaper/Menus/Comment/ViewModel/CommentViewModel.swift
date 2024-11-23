@@ -218,13 +218,13 @@ extension CommentViewModel {
             
             if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
                 commentX = 193
-            } else if convertedBounds.midX > pdfView.bounds.maxX - 193 {   /// 코멘트뷰가 오른쪽 화면 초과
+            } else if convertedBounds.midX > pdfView.bounds.maxX - 193 {            /// 코멘트뷰가 오른쪽 화면 초과
                 commentX = pdfView.bounds.maxX - 193
             } else {
                 commentX = convertedBounds.midX
             }
             
-            if convertedBounds.maxY > pdfView.bounds.maxY - 200 {          /// 코멘트 뷰가 아래 화면 초과
+            if convertedBounds.maxY > pdfView.bounds.maxY - offset - 150 {                   /// 코멘트 뷰가 아래 화면 초과
                 commentY = convertedBounds.minY - offset
             } else {
                 commentY = convertedBounds.maxY + offset
