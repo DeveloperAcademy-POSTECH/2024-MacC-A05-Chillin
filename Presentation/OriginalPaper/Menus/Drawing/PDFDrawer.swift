@@ -7,12 +7,13 @@
 
 import Foundation
 import PDFKit
+import SwiftUI
 
 enum DrawingTool: Int {
     case none = 0
     case eraser = 1
     case pencil = 2
-    //TODO: - 올가미 (lasso)관련 설정 추가 
+    case lasso = 3
     
     var width: CGFloat {
         switch self {
@@ -36,6 +37,7 @@ enum PDFAction {
 }
 
 class PDFDrawer {
+    @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
@@ -46,7 +48,15 @@ class PDFDrawer {
     private var eraserLayer: CAShapeLayer? = nil
     
     var onHistoryChange: (() -> Void)?
-
+    
+    var startPoint: CGPoint? // lasso 영역을 저장할 경로 추가
+    var endPoint: CGPoint? // lasso 영역을 저장할 경로 추가
+    var endPage: PDFPage? // lasso 영역을 저장할 경로 추가
+    var checkButton: UIButton = UIButton()
+    
+    
+    private var lassoRectangleLayer: CAShapeLayer? // 점선 사각형을 그리기 위한 레이어
+    
     var annotationHistory: [(action: PDFAction, annotation: PDFAnnotation, page: PDFPage)] = [] {
         didSet { onHistoryChange?() }
     }
@@ -55,10 +65,13 @@ class PDFDrawer {
         didSet { onHistoryChange?() }
     }
     
+    // 올가미로 선택한 영역 좌표
+    @State private var selectedRect: CGRect = .zero
+    
     // 새로운 주석 히스토리에 저장
     private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
         annotationHistory.append((action: action, annotation: annotation, page: page))
-
+        
         // 최신 10개만 남기기
         if annotationHistory.count > 10 {
             annotationHistory = Array(annotationHistory.suffix(10))
@@ -75,7 +88,7 @@ class PDFDrawer {
         switch lastAction.action {
         case .add(let annotation):
             lastAction.page.removeAnnotation(annotation)
-
+            
         case .remove(let annotation):
             lastAction.page.addAnnotation(annotation)
         }
@@ -122,6 +135,29 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             path = UIBezierPath()
             path?.move(to: convertedPoint)
         }
+
+        if drawingTool == .lasso {
+            
+            lassoRectangleLayer?.removeFromSuperlayer()
+            checkButton.removeFromSuperview()
+            
+            if checkButton.frame.contains(location) {
+                // 버튼을 터치했으면 제스처를 시작하지 않음
+                return
+            }
+            // 터치 시작 시점에서 사각형의 왼쪽 상단 좌표를 저장
+            startPoint = location  // 시작점 설정
+
+            // 점선 테두리 레이어를 준비
+            lassoRectangleLayer = CAShapeLayer()
+            lassoRectangleLayer?.strokeColor = UIColor.primary1.cgColor // 점선 색상 설정
+            lassoRectangleLayer?.lineWidth = 1.5
+            lassoRectangleLayer?.lineDashPattern = [6, 6] // 점선
+            lassoRectangleLayer?.fillColor = UIColor.init(hex: "CFD9FF").withAlphaComponent(0.2).cgColor // 하늘색 채우기
+            pdfView.layer.addSublayer(lassoRectangleLayer!)
+            return
+        }
+        
     }
     
     // MARK: - 제스처 움직이는 동안 실행되는 함수
@@ -129,6 +165,24 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
+        
+        if drawingTool == .lasso {
+            guard let startPoint = self.startPoint else { return }
+
+            // 현재 위치에 따라 실시간으로 사각형의 위치와 크기를 계산
+            let topLeft = CGPoint(x: min(startPoint.x, location.x), y: min(startPoint.y, location.y))
+            let bottomRight = CGPoint(x: max(startPoint.x, location.x), y: max(startPoint.y, location.y))
+            
+            let width = bottomRight.x - topLeft.x
+            let height = bottomRight.y - topLeft.y
+            
+            // 사각형 경로를 업데이트
+            let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
+            
+            // CAShapeLayer의 경로를 업데이트하여 화면에 실시간으로 변경된 사각형이 보이도록 설정
+            lassoRectangleLayer?.path = rectanglePath.cgPath
+            return
+        }
         
         if !pageBounds.contains(location) {
             completeCurrentPath(on: page)
@@ -148,6 +202,95 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             path?.addLine(to: convertedPoint)
         }
         drawAnnotation(onPage: page)
+    }
+    
+    // MARK: - 패드에서 제스처 뗄 때 실행되는 함수
+    func gestureRecognizerEnded(_ location: CGPoint) {
+        guard let page = currentPage else { return }
+        let convertedPoint = pdfView.convert(location, to: page)
+        
+        if drawingTool == .lasso {
+            if checkButton.frame.contains(location) {
+                // 버튼을 터치했으면 제스처를 시작하지 않음
+                print("들어왔ㄴㅣ?")
+                guard let startConvertedPoint = self.startPoint else { return }
+                guard let endConvertedPoint = self.endPoint else { return }
+                
+                
+                // 시작점과 종료점으로 사각형을 계산
+                let topLeft = CGPoint(x: min(startConvertedPoint.x, endConvertedPoint.x),
+                                      y: min(startConvertedPoint.y, endConvertedPoint.y))
+                let bottomRight = CGPoint(x: max(startConvertedPoint.x, endConvertedPoint.x),
+                                          y: max(startConvertedPoint.y, endConvertedPoint.y))
+                
+                let width = bottomRight.x - topLeft.x
+                let height = bottomRight.y - topLeft.y
+                
+                // 사각형 경로를 생성
+                let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
+                
+                // PDF 잘라내기 및 이미지 처리
+                if let newFigure = captureToPDF(path: rectanglePath) {
+                    // PDF 작업이 끝나면, 처리 후 버튼 제거
+                    print("PDF is captured: \(newFigure)")
+                    lassoRectangleLayer?.removeFromSuperlayer()
+                    checkButton.removeFromSuperview()
+                }
+                return
+            }
+            
+            guard let startPoint = self.startPoint else { return }
+            self.endPage = page
+
+            // 현재 위치에 따라 실시간으로 사각형의 위치와 크기를 계산
+            let topLeft = CGPoint(x: min(startPoint.x, location.x), y: min(startPoint.y, location.y))
+            let bottomRight = CGPoint(x: max(startPoint.x, location.x), y: max(startPoint.y, location.y))
+            
+            let width = bottomRight.x - topLeft.x
+            let height = bottomRight.y - topLeft.y
+            
+            // 사각형 경로를 생성
+            let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
+            
+            lassoRectangleLayer?.path = rectanglePath.cgPath
+            
+            // 좌표 pdf에 맞게 변경
+            self.startPoint = pdfView.convert(startPoint, to: page)
+            self.endPoint = pdfView.convert(location, to: page)
+            
+            // 체크 버튼 만들기
+            checkButton = UIButton(type: .system)
+            checkButton.frame = CGRect(x: topLeft.x + width / 2, y: topLeft.y + height + 8, width: 36, height: 28)
+            checkButton.setImage(UIImage(named: "check"), for: .normal) // 버튼 이미지 설정
+            checkButton.imageView?.contentMode = .scaleAspectFit
+            checkButton.tintColor = .gray100
+            // 버튼 배경 색상 설정
+            checkButton.backgroundColor = .point4
+
+            // 버튼 둥글게 만들기 (모서리 둥글기 설정)
+            checkButton.layer.cornerRadius = 10
+            pdfView.addSubview(checkButton)
+
+            return
+            
+        }
+        if drawingTool == .eraser {
+            removeAnnotationAtPoint(point: location, page: page)
+            eraserLayer?.removeFromSuperlayer()
+            eraserLayer = nil
+            return
+        }
+        
+        guard let _ = currentAnnotation else { return }
+        
+        path?.addLine(to: convertedPoint)
+        path?.move(to: convertedPoint)
+        page.removeAnnotation(currentAnnotation!)
+        
+        if drawingTool == .pencil {
+            let _ = createFinalAnnotation(path: path!, page: page)
+        }
+        currentAnnotation = nil
     }
     
     private func completeCurrentPath(on page: PDFPage) {
@@ -173,30 +316,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         let eraserRadius = 5 * scaleFactor
         let eraserCirclePath = UIBezierPath(arcCenter: location, radius: eraserRadius, startAngle: 0, endAngle: .pi * 2, clockwise: true)
         eraserLayer?.path = eraserCirclePath.cgPath
-    }
-    
-    // MARK: - 패드에서 제스처 뗄 때 실행되는 함수
-    func gestureRecognizerEnded(_ location: CGPoint) {
-        guard let page = currentPage else { return }
-        let convertedPoint = pdfView.convert(location, to: page)
-        
-        if drawingTool == .eraser {
-            removeAnnotationAtPoint(point: location, page: page)
-            eraserLayer?.removeFromSuperlayer()
-            eraserLayer = nil
-            return
-        }
-        
-        guard let _ = currentAnnotation else { return }
-        
-        path?.addLine(to: convertedPoint)
-        path?.move(to: convertedPoint)
-        page.removeAnnotation(currentAnnotation!)
-        
-        if drawingTool == .pencil {
-            let _ = createFinalAnnotation(path: path!, page: page)
-        }
-        currentAnnotation = nil
     }
     
     private func createAnnotation(path: UIBezierPath, page: PDFPage) -> DrawingAnnotation {
@@ -273,4 +392,26 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         onPage.removeAnnotation(annotation)
         onPage.addAnnotation(annotation)
     }
+    
+    // 올가미 영역을 PDF Document로 바꿔주는 함수
+    private func captureToPDF(path: UIBezierPath) -> PDFDocument? {
+        guard let page = currentPage else { return nil }
+        
+        let clipRect = path.bounds
+        let pageBounds = page.bounds(for: pdfView.displayBox)
+
+        guard pageBounds.intersects(clipRect) else { return nil }
+
+        let croppedRect = pageBounds.intersection(clipRect)
+
+        // 새 PDF 문서 만들기
+        let document = PDFDocument()
+        let newPage = page.copy() as! PDFPage
+        newPage.setBounds(croppedRect, for: .mediaBox)
+        document.insert(newPage, at: 0)
+
+        return document
+    }
 }
+
+

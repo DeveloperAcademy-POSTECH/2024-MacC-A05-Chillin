@@ -453,7 +453,7 @@ struct MainPDFView: View {
                 TemporaryAlertView(mode: "comment")
             }
             //TODO: - 선택한 영역이 없을 때 뜨게 하는 조건으로 바꿔야함
-            if isFigSelected && mainPDFViewModel.toolMode == .lasso {
+            if isFigSelected && mainPDFViewModel.drawingToolMode == .lasso {
                 TemporaryAlertView(mode: "lasso")
             }
         }

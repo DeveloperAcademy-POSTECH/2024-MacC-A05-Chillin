@@ -99,9 +99,11 @@ struct FigureView: View {
                         Button(action: {
                             isCaptureMode.toggle()
                             if isCaptureMode {
-                                mainPDFViewModel.toolMode = .lasso
+                                mainPDFViewModel.drawingToolMode = .lasso
+                                mainPDFViewModel.updateDrawingTool()
                             } else {
                                 mainPDFViewModel.toolMode = .none
+                                mainPDFViewModel.updateDrawingTool()
                             }
                         }) {
                             if !isCaptureMode {

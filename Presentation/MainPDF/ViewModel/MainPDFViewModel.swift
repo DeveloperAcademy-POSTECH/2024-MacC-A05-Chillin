@@ -286,7 +286,6 @@ enum ToolMode {
     case translate
     case comment
     case drawing
-    case lasso
 }
 
 // 드로잉 툴바에 있는 버튼
@@ -306,6 +305,8 @@ extension MainPDFViewModel {
             pdfDrawer.drawingTool = .pencil
         case .eraser:
             pdfDrawer.drawingTool = .eraser
+        case .lasso:
+            pdfDrawer.drawingTool = .lasso
         default:
             pdfDrawer.drawingTool = .none
         }
