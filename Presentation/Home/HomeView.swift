@@ -49,7 +49,7 @@ struct HomeView: View {
                         .foregroundStyle(.point1)
                     
                     HStack(spacing: 0) {
-                        Image("icon")
+                        Image(.icon)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 62, height: 50)
@@ -669,7 +669,7 @@ private struct FolderView: View {
                     .frame(width: 206, height: 206)
                     .foregroundStyle(selectedColors.color)
                     .overlay(
-                        Image("folder")
+                        Image(.folder)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 105)

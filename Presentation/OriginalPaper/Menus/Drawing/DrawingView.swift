@@ -36,7 +36,7 @@ struct DrawingView: View {
                     .foregroundStyle(isHighlight ? .primary3 : .clear)
                     .frame(width: 26, height: 26)
                     .overlay(
-                        Image("Highlight")
+                        Image(.highlight)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
@@ -83,7 +83,7 @@ struct DrawingView: View {
                     .foregroundStyle(isPencil ? .primary3 : .clear)
                     .frame(width: 26, height: 26)
                     .overlay(
-                        Image("Pencil")
+                        Image(.pencil)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
@@ -178,7 +178,7 @@ struct DrawingView: View {
                     .foregroundStyle(.clear)
                     .frame(width: 26, height: 26)
                     .overlay(
-                        Image("close")
+                        Image(.close)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
