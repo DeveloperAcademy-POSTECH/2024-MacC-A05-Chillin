@@ -11,8 +11,6 @@ import SwiftUI
 struct FolderInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var isPaper: Bool
-    
     let id: UUID
     let title: String
     let color: Color
@@ -24,7 +22,7 @@ struct FolderInfoView: View {
     @State private var isDeleteConfirm: Bool = false
     
     @Binding var isEditingFolder: Bool
-    @Binding var isEditingMemo: Bool
+    @Binding var isEditingFolderMemo: Bool
     @Binding var isMovingFolder: Bool
     
     let onNavigate: () -> Void
@@ -66,11 +64,13 @@ struct FolderInfoView: View {
                     
                     Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
                         self.isMovingFolder.toggle()
-                        isPaper = false
                     }
                     
                     Button("삭제", systemImage: "trash", role: .destructive) {
-                        self.isDeleteConfirm.toggle()
+                        // TODO: - Alert 오류 추후 수정 필요
+//                        self.isDeleteConfirm.toggle()
+                        self.homeViewModel.deleteFolder(at: id)
+                        onDelete()
                     }
                     
                 } label: {
@@ -136,11 +136,12 @@ struct FolderInfoView: View {
                     if !(self.memo == nil) {
                         Menu {
                             Button("수정", systemImage: "pencil") {
-                                self.isEditingMemo = true
+                                self.isEditingFolderMemo = true
                             }
                             
                             Button("삭제", systemImage: "trash", role: .destructive) {
                                 self.memo = nil
+                                self.homeViewModel.updateFolderMemo(at: id, memo: nil)
                             }
                             
                         } label: {
@@ -153,7 +154,7 @@ struct FolderInfoView: View {
                     } else {
                         Button {
                             self.memo = ""
-                            self.isEditingMemo = true
+                            self.isEditingFolderMemo = true
                         } label: {
                             Image(systemName: "plus")
                                 .resizable()
@@ -202,18 +203,29 @@ struct FolderInfoView: View {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
         }
-        .alert(isPresented: $isDeleteConfirm) {
-            Alert(
-                title: Text("정말 삭제하시겠습니까?"),
-                message: Text("삭제된 파일은 복구할 수 없습니다."),
-                primaryButton: .default(Text("취소")),
-                secondaryButton: .destructive(Text("삭제")) {
-                    let ids = [id]
-                    self.homeViewModel.deleteFolder(ids: ids)
-                    onDelete()
-                }
-            )
+        .onChange(of: self.id) {
+            let folder = homeViewModel.folders.first { $0.id == self.id }!
+            self.memo = folder.memo
         }
+        .onChange(of: self.homeViewModel.memoText) {
+            self.memo = self.homeViewModel.memoText
+        }
+        .onChange(of: self.isEditingFolderMemo) {
+            self.homeViewModel.memoText = memo!
+        }
+        // TODO: - Alert 수정 필요
+//        .alert(isPresented: $isDeleteConfirm) {
+//            Alert(
+//                title: Text("정말 삭제하시겠습니까?"),
+//                message: Text("삭제된 파일은 복구할 수 없습니다."),
+//                primaryButton: .default(Text("취소")),
+//                secondaryButton: .destructive(Text("삭제")) {
+//                    let ids = [id]
+//                    self.homeViewModel.deleteFolder(ids: ids)
+//                    onDelete()
+//                }
+//            )
+//        }
     }
     
     @ViewBuilder
@@ -260,7 +272,6 @@ struct FolderInfoView: View {
 
 #Preview {
     FolderInfoView(
-        isPaper: .constant(false),
         id: .init(),
         title: "테스트",
         color: .primary1,
@@ -268,7 +279,7 @@ struct FolderInfoView: View {
         isFavorite: false,
         isStarSelected: false,
         isEditingFolder: .constant(false),
-        isEditingMemo: .constant(false),
+        isEditingFolderMemo: .constant(false),
         isMovingFolder: .constant(false),
         onNavigate: {},
         onDelete: {}

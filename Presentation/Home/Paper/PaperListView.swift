@@ -13,7 +13,7 @@ struct PaperListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @Binding var selectedItemID: UUID?
-    @Binding var selectedItems: Set<Int>
+    @Binding var selectedItems: Set<UUID>
     @State private var isNavigationPushed: Bool = false
     
     @Binding var isEditing: Bool
@@ -21,13 +21,14 @@ struct PaperListView: View {
     @Binding var isEditingTitle: Bool
     @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
+    @Binding var isEditingFolderMemo: Bool
     @Binding var searchText: String
     
-    @Binding var isFavoriteSelected: Bool
     @State var isFavorite: Bool = false
+    @State var selectAll: Bool = false
     
     @Binding var isMovingFolder: Bool
-    @Binding var isPaper: Bool
+    @State var isPaper: Bool = false
     
     @State private var keyboardHeight: CGFloat = 0
     
@@ -36,61 +37,83 @@ struct PaperListView: View {
     @State private var isIPadMini: Bool = false
     @State private var isVertical = false
     
-    var filteredLists: [FileSystemItem] {
-        return homeViewModel.filteringList(isFavoriteSelected: isFavoriteSelected)
-    }
-    
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 0) {
                 VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        // 최상위 폴더가 아닐 경우에 등장
-                        if !homeViewModel.isAtRoot {
+                    if isEditing {
+                        HStack(spacing: 0) {
                             Button(action: {
-                                withAnimation(nil) {
-                                    homeViewModel.navigateToParent()
-                                }
+                                if selectAll { deselectAllItems() }
+                                else { selectAllItems() }
+                                self.selectAll.toggle()
                             }) {
                                 HStack(spacing: 0) {
-                                    Image(systemName: "chevron.left")
+                                    Image(systemName: selectAll ? "xmark" : "checkmark")
                                         .font(.system(size: 18))
-                                        .foregroundStyle(.primary1)
-                                        .padding(.trailing, 7)
+                                        .foregroundStyle(.gray550)
+                                        .padding(.trailing, 8)
                                     
-                                    Text(homeViewModel.parentFolderTitle ?? "전체")
+                                    Text(selectAll ? "전체 선택 해제" : "전체 선택")
                                         .reazyFont(.h2)
-                                        .foregroundStyle(.primary1)
+                                        .foregroundStyle(.gray600)
                                 }
                             }
-                            .transition(.identity)
+                            .padding(.vertical, 14)
+                            .padding(.leading, 22)
+                            
+                            Spacer()
                         }
-                        Spacer()
-                        
-                        Text((homeViewModel.isAtRoot ? "전체" : homeViewModel.currentFolder?.title) ?? "새 폴더")
+                    } else {
+                        HStack(spacing: 0) {
+                            // 최상위 폴더가 아닐 경우에 등장
+                            if !homeViewModel.isAtRoot {
+                                Button(action: {
+                                    withAnimation(nil) {
+                                        homeViewModel.navigateToParent()
+                                    }
+                                }) {
+                                    HStack(spacing: 0) {
+                                        Image(systemName: "chevron.left")
+                                            .font(.system(size: 18))
+                                            .foregroundStyle(.primary1)
+                                            .padding(.trailing, 7)
+                                        
+                                        Text(homeViewModel.parentFolderTitle ?? (homeViewModel.isFavoriteSelected ? "즐겨찾기" : "전체"))
+                                            .reazyFont(.h2)
+                                            .foregroundStyle(.primary1)
+                                    }
+                                }
+                                .transition(.identity)
+                            }
+                            Spacer()
+                            
+                            Text((homeViewModel.isAtRoot ? (homeViewModel.isFavoriteSelected ?
+                                                            "즐겨찾기" : "전체") : homeViewModel.currentFolder?.title) ?? "새 폴더")
                             .reazyFont(.text3)
                             .foregroundStyle(.primary1)
-                        
-                        Spacer()
-                        if !homeViewModel.isAtRoot {
-                            Button(action: {
-                                isFavorite.toggle()
-                                if let folder = homeViewModel.currentFolder {
-                                    homeViewModel.updateFolderFavorite(at: folder.id, isFavorite: isFavorite)
+                            
+                            Spacer()
+                            if !homeViewModel.isAtRoot {
+                                Button(action: {
+                                    isFavorite.toggle()
+                                    if let folder = homeViewModel.currentFolder {
+                                        homeViewModel.updateFolderFavorite(at: folder.id, isFavorite: isFavorite)
+                                    }
+                                }) {
+                                    Image(systemName: isFavorite ? "star.fill" : "star")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(.primary1)
                                 }
-                            }) {
-                                Image(systemName: isFavorite ? "star.fill" : "star")
-                                    .font(.system(size: 18))
-                                    .foregroundStyle(.primary1)
                             }
                         }
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 20)
                     
                     Divider()
                     
-                    if filteredLists.isEmpty {
+                    if homeViewModel.filteredLists.isEmpty {
                         if isSearching {
                             Spacer()
                             
@@ -109,7 +132,7 @@ struct PaperListView: View {
                                 .scaledToFit()
                                 .frame(height: 146)
                                 .padding(.bottom, 11)
-                            Text(isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
+                            Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray550)
                                 .padding(.bottom, 80)
@@ -119,8 +142,8 @@ struct PaperListView: View {
                     } else {
                         ScrollView {
                             VStack(spacing: 0) {
-                                ForEach(filteredLists.indices, id: \.self) { index in
-                                    let item = filteredLists[index]
+                                ForEach(homeViewModel.filteredLists.indices, id: \.self) { index in
+                                    let item = homeViewModel.filteredLists[index]
                                     switch item {
                                         // 논문 추가
                                     case .paper(let paperInfo):
@@ -131,7 +154,7 @@ struct PaperListView: View {
                                             color: .gray500,
                                             isSelected: selectedItemID == paperInfo.id,
                                             isEditing: isEditing,
-                                            isEditingSelected: selectedItems.contains(index),
+                                            isEditingSelected: selectedItems.contains(item.id),
                                             onSelect: {
                                                 if !isEditing && !isNavigationPushed {
                                                     if selectedItemID == paperInfo.id {
@@ -145,10 +168,10 @@ struct PaperListView: View {
                                             },
                                             onEditingSelect: {
                                                 if isEditing {
-                                                    if selectedItems.contains(index) {
-                                                        selectedItems.remove(index)
+                                                    if selectedItems.contains(item.id) {
+                                                        selectedItems.remove(item.id)
                                                     } else {
-                                                        selectedItems.insert(index)
+                                                        selectedItems.insert(item.id)
                                                     }
                                                 }
                                             }
@@ -163,7 +186,7 @@ struct PaperListView: View {
                                             color: FolderColors.color(for: folder.color),
                                             isSelected: selectedItemID == folder.id,
                                             isEditing: isEditing,
-                                            isEditingSelected: selectedItems.contains(index),
+                                            isEditingSelected: selectedItems.contains(item.id),
                                             onSelect: {
                                                 if !isEditing && !isNavigationPushed {
                                                     if selectedItemID == folder.id {
@@ -175,10 +198,10 @@ struct PaperListView: View {
                                             },
                                             onEditingSelect: {
                                                 if isEditing {
-                                                    if selectedItems.contains(index) {
-                                                        selectedItems.remove(index)
+                                                    if selectedItems.contains(item.id) {
+                                                        selectedItems.remove(item.id)
                                                     } else {
-                                                        selectedItems.insert(index)
+                                                        selectedItems.insert(item.id)
                                                     }
                                                 }
                                             }
@@ -211,12 +234,11 @@ struct PaperListView: View {
                         .foregroundStyle(.primary3)
                     
                     VStack(spacing: 0) {
-                        if !filteredLists.isEmpty,
-                           let selectedItem = filteredLists.first(where: { $0.id == selectedItemID }) {
+                        if !homeViewModel.filteredLists.isEmpty,
+                           let selectedItem = homeViewModel.filteredLists.first(where: { $0.id == selectedItemID }) {
                             switch selectedItem {
                             case .paper(let paperInfo):
                                 PaperInfoView(
-                                    isPaper: $isPaper,
                                     id: paperInfo.id,
                                     image: paperInfo.thumbnail,
                                     title: paperInfo.title,
@@ -233,17 +255,16 @@ struct PaperListView: View {
                                         }
                                     },
                                     onDelete: {
-                                        if filteredLists.isEmpty {
+                                        if homeViewModel.filteredLists.isEmpty {
                                             selectedItemID = nil
                                         } else {
-                                            selectedItemID = filteredLists.first?.id
+                                            selectedItemID = homeViewModel.filteredLists.first?.id
                                         }
                                     }
                                 )
                                 
                             case .folder(let folder):
                                 FolderInfoView(
-                                    isPaper: $isPaper,
                                     id: folder.id,
                                     title: folder.title,
                                     color: FolderColors.color(for: folder.color),
@@ -251,16 +272,16 @@ struct PaperListView: View {
                                     isFavorite: folder.isFavorite,
                                     isStarSelected: folder.isFavorite,
                                     isEditingFolder: $isEditingFolder,
-                                    isEditingMemo: $isEditingMemo,
+                                    isEditingFolderMemo: $isEditingFolderMemo,
                                     isMovingFolder: $isMovingFolder,
                                     onNavigate: {
                                         homeViewModel.navigateTo(folder: folder)
                                     },
                                     onDelete: {
-                                        if filteredLists.isEmpty {
+                                        if homeViewModel.filteredLists.isEmpty {
                                             selectedItemID = nil
                                         } else {
-                                            selectedItemID = filteredLists.first?.id
+                                            selectedItemID = homeViewModel.filteredLists.first?.id
                                         }
                                     }
                                 )
@@ -322,6 +343,11 @@ struct PaperListView: View {
                     isFavorite = folder.isFavorite
                 }
             }
+            .onChange(of: selectedItems) {
+                if selectedItems.count == homeViewModel.filteredLists.count {
+                    self.selectAll.toggle()
+                }
+            }
             .background(.gray200)
             .ignoresSafeArea()
         }
@@ -362,7 +388,7 @@ extension PaperListView {
     }
     
     private func initializeSelectedItemID() {
-        if selectedItemID == nil, let firstPaper = filteredLists.first {
+        if selectedItemID == nil, let firstPaper = homeViewModel.filteredLists.first {
             selectedItemID = firstPaper.id
         }
     }
@@ -403,5 +429,16 @@ extension PaperListView {
     
     private func updateOrientation(with geometry: GeometryProxy) {
         isVertical = geometry.size.height > geometry.size.width
+    }
+}
+
+extension PaperListView {
+    private func selectAllItems() {
+        let allIDs = Set(homeViewModel.filteredLists.map { $0.id })
+        selectedItems = allIDs
+    }
+    
+    private func deselectAllItems() {
+        selectedItems.removeAll()
     }
 }
