@@ -233,22 +233,37 @@ struct MainPDFView: View {
                             HStack(spacing: 0) {
                                 ZStack {
                                     if isListSelected {
-                                        MenuView()
-                                            .environmentObject(mainPDFViewModel)
-                                            .environmentObject(indexViewModel)
-                                            .environmentObject(pageListViewModel)
-                                            .frame(width: 252)
-                                            .background(.gray100)
-                                            .transition(.move(edge: .leading))
+                                        HStack(spacing: 0) {
+                                            MenuView()
+                                                .environmentObject(mainPDFViewModel)
+                                                .environmentObject(indexViewModel)
+                                                .environmentObject(pageListViewModel)
+                                                .frame(width: 252)
+                                                .background(.gray100)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(width: 1.5)
+                                                        .foregroundStyle(.primary3),
+                                                    alignment: .trailing
+                                                )
+                                                .transition(.move(edge: .leading))
+                                        }
                                     }
                                     
                                     if isSearchSelected {
                                         OverlaySearchView(isSearchSelected: $isSearchSelected)
                                             .environmentObject(searchViewModel)
+                                            .overlay(
+                                                Rectangle()
+                                                    .frame(width: 1.5)
+                                                    .foregroundStyle(.primary3),
+                                                alignment: .trailing
+                                            )
+                                            .transition(.move(edge: .leading))
                                     }
-                                    
                                 }
                                 
+                                Spacer()
                                 
                                 ZStack {
                                     if isVertical {
@@ -257,35 +272,41 @@ struct MainPDFView: View {
                                         splitLayout(for: .horizontal)
                                     }
                                 }
-                            }
-                            .animation(.easeInOut(duration: 0.3), value: isListSelected)
-                            
-                            HStack(spacing: 0) {
+                                
                                 Spacer()
                                 
-                                if isFigSelected && !floatingViewModel.splitMode {
-                                    Rectangle()
-                                        .frame(width: 1)
-                                        .foregroundStyle(Color(hex: "CCCEE1"))
+                                ZStack {
+                                    if isFigSelected && !floatingViewModel.splitMode {
+                                        HStack(spacing: 0) {
+                                            FigureView(onSelect: { documentID, document, head in
+                                                floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                                            })
+                                            .environmentObject(mainPDFViewModel)
+                                            .environmentObject(floatingViewModel)
+                                            .environmentObject(focusFigureViewModel)
+                                            .background(.white)
+                                            .frame(width: geometry.size.width * 0.22)
+                                            .transition(.move(edge: .leading))
+                                            .overlay(
+                                                Rectangle()
+                                                    .frame(width: 1.5)
+                                                    .foregroundStyle(.primary3),
+                                                alignment: .leading
+                                            )
+                                        }
+                                    }
                                     
-                                    FigureView(onSelect: { documentID, document, head in
-                                        floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
-                                    })
-                                    .environmentObject(mainPDFViewModel)
-                                    .environmentObject(floatingViewModel)
-                                    .environmentObject(focusFigureViewModel)
-                                    .background(.white)
-                                    .frame(width: geometry.size.width * 0.22)
-                                }
-                                
-                                // TODO: - 모아보기
-                                if isBoardSelected && !floatingViewModel.splitMode {
-                                    Rectangle()
-                                        .frame(width: 1)
-                                        .foregroundStyle(Color(hex: "CCCEE1"))
+                                    // TODO: - 모아보기
+                                    if isBoardSelected && !floatingViewModel.splitMode {
+                                        Rectangle()
+                                            .frame(width: 1)
+                                            .foregroundStyle(Color(hex: "CCCEE1"))
+                                    }
                                 }
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(.gray200)
                         .ignoresSafeArea()
                     }
                 }
@@ -325,7 +346,8 @@ struct MainPDFView: View {
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(20)
+                        .padding(.top, 20)
+                        .padding(.leading, isListSelected || isSearchSelected ? 272 : 20)
                     }
                 }
                 
@@ -334,11 +356,18 @@ struct MainPDFView: View {
                     .environmentObject(floatingViewModel)
                 
                 if mainPDFViewModel.isMenuSelected {
-                    PDFInfoMenu()
-                        .environmentObject(pdfInfoMenuViewModel)
-                        .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
-                        .transition(.opacity)
-                        .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected) // 애니메이션 설정
+                    GeometryReader { gp in
+                        ZStack {
+                            PDFInfoMenu()
+                                .environmentObject(pdfInfoMenuViewModel)
+                                .transition(.opacity)
+                                .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                        .padding(.top, 50)
+                        .padding(.trailing, 20)
+                        
+                    }
                 }
             }
             
