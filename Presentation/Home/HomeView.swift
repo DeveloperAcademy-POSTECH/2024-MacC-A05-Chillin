@@ -11,6 +11,7 @@ enum Options {
     case main
     case search
     case edit
+    case setting
 }
 
 struct HomeView: View {
@@ -95,6 +96,11 @@ struct HomeView: View {
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing,
                                 isMovingFolder: $isMovingFolder)
+                        case .setting:
+                            // TODO: - [쿠로] 설정 추가
+                            SettingMenuView(
+                                selectedMenu: $homeViewModel.selectedMenu
+                            )
                         }
                     }
                     .padding(.top, 46)
@@ -234,10 +240,28 @@ private struct MainMenuView: View {
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedMenu = .search
+                }
+                self.homeViewModel.isSearching.toggle()
+            }) {
+                Image(.search)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 createFolder.toggle()
             }) {
-                Image(systemName: "folder.badge.plus")
-                    .font(.system(size: 16))
+                Image(.newfolder)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 21, height: 20)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -250,19 +274,22 @@ private struct MainMenuView: View {
                 selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
-                    .font(.system(size: 16))
+                    .font(.system(size: 17.68))
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
             
             Button(action: {
+                // TODO: - [쿠로] 설정 버튼
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .search
+                    selectedMenu = .setting
                 }
-                self.homeViewModel.isSearching.toggle()
             }) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 16))
+                Image(.morecircle)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -336,6 +363,29 @@ private struct SearchMenuView: View {
         }
         .onAppear {
             isSearchFieldFocused = true
+        }
+    }
+}
+
+/// 설정 화면 버튼 뷰
+// TODO: - [쿠로] 설정 화면 버튼 뷰
+private struct SettingMenuView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @Binding var selectedMenu: Options
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedMenu = .main
+                }
+            }, label: {
+                Text("취소")
+                    .reazyFont(.button1)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
         }
     }
 }
