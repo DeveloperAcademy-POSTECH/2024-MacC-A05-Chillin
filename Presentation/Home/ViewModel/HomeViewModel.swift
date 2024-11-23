@@ -58,6 +58,7 @@ class HomeViewModel: ObservableObject {
         }
     }
     @Published public var selectedFilter: SearchFilter = .total
+    @Published public var selectedMenu: Options = .main
     
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []

@@ -17,7 +17,6 @@ struct HomeView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State var selectedMenu: Options = .main
     @State var selectedItemID: UUID?
     
     @State private var isStarSelected: Bool = false
@@ -78,21 +77,21 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        switch selectedMenu {
+                        switch homeViewModel.selectedMenu {
                         case .main:
                             MainMenuView(
-                                selectedMenu: $selectedMenu,
+                                selectedMenu: $homeViewModel.selectedMenu,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
                                 selectedItemID: $selectedItemID,
                                 createFolder: $createFolder)
                             
                         case .search:
-                            SearchMenuView(selectedMenu: $selectedMenu)
+                            SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
                             
                         case .edit:
                             EditMenuView(
-                                selectedMenu: $selectedMenu,
+                                selectedMenu: $homeViewModel.selectedMenu,
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing,
                                 isMovingFolder: $isMovingFolder)

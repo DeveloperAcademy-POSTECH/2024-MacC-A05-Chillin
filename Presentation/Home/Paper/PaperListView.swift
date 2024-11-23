@@ -163,6 +163,11 @@ struct PaperListView: View {
                                                 isEditingSelected: selectedItems.contains(item.id),
                                                 onSelect: {
                                                     if !isEditing && !isNavigationPushed {
+                                                        // 검색 중에 문서를 클릭한다면 바로 이동
+                                                        if homeViewModel.isSearching {
+                                                            selectedItemID = paperInfo.id
+                                                        }
+                                                        
                                                         if selectedItemID == paperInfo.id {
                                                             self.isNavigationPushed = true
                                                             navigateToPaper()
@@ -195,6 +200,14 @@ struct PaperListView: View {
                                                 isEditingSelected: selectedItems.contains(item.id),
                                                 onSelect: {
                                                     if !isEditing && !isNavigationPushed {
+                                                        // 검색 중에 폴더를 선택한다면 해당 폴더로 navigate
+                                                        if homeViewModel.isSearching {
+                                                            homeViewModel.isSearching.toggle()
+                                                            homeViewModel.selectedMenu = .main
+                                                            homeViewModel.searchText = ""
+                                                            selectedItemID = folder.id
+                                                        }
+                                                        
                                                         if selectedItemID == folder.id {
                                                             homeViewModel.navigateTo(folder: folder)
                                                         } else {
