@@ -188,10 +188,11 @@ struct CommentMenuView: View {
         }
         .padding(.horizontal, 32)
         .padding(.vertical, 15)
-        .background(
+        .background(.gray100)
+        .cornerRadius(12)
+        .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(.primary2, lineWidth: 1)
-                .foregroundStyle(.gray100)
         )
         .frame(minWidth: 180, minHeight: 67)
         .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
