@@ -84,6 +84,7 @@
 		6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */; };
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
+		B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B505C7512CF02B35002FF1CC /* FigureMenu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -207,6 +208,7 @@
 		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
+		B505C7512CF02B35002FF1CC /* FigureMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureMenu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -516,6 +518,7 @@
 				2C1473E52CE7896A00B35D92 /* ViewModel */,
 				2C1473522CE73B6F00B35D92 /* FigureView.swift */,
 				2C1473512CE73B6F00B35D92 /* FigureCell.swift */,
+				B505C7512CF02B35002FF1CC /* FigureMenu.swift */,
 			);
 			path = FigureList;
 			sourceTree = "<group>";
@@ -959,6 +962,7 @@
 				2C1473962CE73B6F00B35D92 /* CoordinatorProtocol.swift in Sources */,
 				2C1473972CE73B6F00B35D92 /* NavigationCoordinator.swift in Sources */,
 				2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */,
+				B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */,
 				2C1473982CE73B6F00B35D92 /* PresentationType.swift in Sources */,
 				2C1473992CE73B6F00B35D92 /* NotificationCenter + Extension.swift in Sources */,
 				2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */,

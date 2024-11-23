@@ -81,6 +81,22 @@ struct FigureCell: View {
                         
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(floatingViewModel.isFigureSelected(documentID: documentID) ? .primary1 : .primary3, lineWidth: floatingViewModel.isFigureSelected(documentID: documentID) ? 1.5 : 1)
+                        
+                        FigureMenu()
+                        
+                        if floatingViewModel.isSaveImgAlert {
+                            VStack {
+                                Text("사진 앱에 저장되었습니다")
+                                    .padding()
+                                    .frame(width: 190, height: 40)
+                                    .reazyFont(.h3)
+                                    .background(Color.gray300)
+                                    .foregroundStyle(.gray800)
+                                    .cornerRadius(12)
+                                    .transition(.opacity)                       // 부드러운 전환 효과
+                                    .zIndex(1)                                  // ZStack에서의 순서 조정
+                            }
+                        }
                     }
                 } else {
                     Text("pdf 로드 실패 ")
