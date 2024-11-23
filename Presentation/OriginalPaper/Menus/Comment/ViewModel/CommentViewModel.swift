@@ -198,6 +198,9 @@ extension CommentViewModel {
         let buttonId = selectedComments.first?.buttonId
         let commentId = selectedComments.first?.id
         
+        var commentX: CGFloat = 0.0
+        var commentY: CGFloat = 0.0
+        
         guard let boundForComments = buttonGroup.filter({$0.id == buttonId}).first?.selectedLine else { return }
         guard let boundForOneComment = comments.filter ({ $0.id == commentId}).first?.bounds else { return }
         
@@ -213,9 +216,23 @@ extension CommentViewModel {
                 convertedBounds = pdfView.convert(boundForComments, from: page)
             }
             
+            if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
+                commentX = 193
+            } else if convertedBounds.midX > pdfView.bounds.maxX - 193 {   /// 코멘트뷰가 오른쪽 화면 초과
+                commentX = pdfView.bounds.maxX - 193
+            } else {
+                commentX = convertedBounds.midX
+            }
+            
+            if convertedBounds.maxY > pdfView.bounds.maxY - 200 {          /// 코멘트 뷰가 아래 화면 초과
+                commentY = convertedBounds.minY - offset
+            } else {
+                commentY = convertedBounds.maxY + offset
+            }
+            
             let position = CGPoint(
-                x: convertedBounds.midX,
-                y: convertedBounds.maxY + offset
+                x: commentX,
+                y: commentY
             )
             self.commentPosition = position
         }
