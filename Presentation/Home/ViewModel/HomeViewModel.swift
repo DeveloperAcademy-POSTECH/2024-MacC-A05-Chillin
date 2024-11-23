@@ -233,19 +233,22 @@ extension HomeViewModel {
     
     func updateSearchList(with filter: SearchFilter) {
         let items = sortLists(paperInfos: paperInfos, folders: folders)
+        
+        let lowercasedSearchText = searchText.lowercased()
+        
         if filter == .total {
-            filteredLists = items.filter( { $0.title.contains(searchText) })
+            filteredLists = items.filter( { $0.title.lowercased().contains(lowercasedSearchText) })
         } else if filter == .paper {
             filteredLists = items.filter { item in
                 if case .paper = item {
-                    return item.title.contains(searchText)
+                    return item.title.lowercased().contains(lowercasedSearchText)
                 }
                 return false
             }
         } else if filter == .folder {
             filteredLists = items.filter { item in
                 if case .folder = item {
-                    return item.title.contains(searchText)
+                    return item.title.lowercased().contains(lowercasedSearchText)
                 }
                 return false
             }
