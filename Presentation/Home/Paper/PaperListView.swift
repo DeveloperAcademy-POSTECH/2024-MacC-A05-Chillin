@@ -125,7 +125,7 @@ struct PaperListView: View {
                                 
                                 Text("\"\(homeViewModel.searchText)\"와\n일치하는 결과가 없어요")
                                     .reazyFont(.h5)
-                                    .foregroundStyle(.gray600)
+                                    .foregroundStyle(.gray550)
                                     .multilineTextAlignment(.center)
                                     .padding(.bottom, keyboardHeight)
                                 

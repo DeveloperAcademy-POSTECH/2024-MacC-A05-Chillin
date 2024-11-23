@@ -15,6 +15,8 @@ struct SearchWordView: View {
     let horizontalSpacing: CGFloat = 12
     let verticalSpacing: CGFloat = 12
     
+    @State private var keyboardHeight: CGFloat = 0
+    
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
@@ -25,33 +27,68 @@ struct SearchWordView: View {
                     
                     Spacer()
                     
-                    Button(action: {
-                        homeViewModel.clearAllSearchTerms()
-                        homeViewModel.recentSearches = UserDefaults.standard.recentSearches
-                    }) {
-                        Text("모두 지우기")
-                            .reazyFont(.text1)
-                            .foregroundStyle(.primary1)
+                    if !homeViewModel.recentSearches.isEmpty {
+                        Button(action: {
+                            homeViewModel.clearAllSearchTerms()
+                            homeViewModel.recentSearches = UserDefaults.standard.recentSearches
+                        }) {
+                            Text("모두 지우기")
+                                .reazyFont(.text1)
+                                .foregroundStyle(.primary1)
+                        }
+                        .padding(.trailing, 22)
                     }
-                    .padding(.trailing, 22)
                 }
                 .padding(.bottom, 21)
                 
-                ScrollView(.horizontal) {
-                    HStack(spacing: 0) {
-                        ForEach(homeViewModel.recentSearches, id: \.self) { word in
-                            SearchWordCell(text: word)
-                                .padding(.trailing, 12)
+                if homeViewModel.recentSearches.isEmpty {
+                    Spacer(minLength: keyboardHeight != 0 ? 100 : 0)
+                    
+                    Text("최근 검색어가 없습니다")
+                        .reazyFont(.h5)
+                        .foregroundStyle(.gray550)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, keyboardHeight)
+                    
+                    Spacer(minLength: keyboardHeight == 0 ? 350 : 0)
+                } else {
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 0) {
+                            ForEach(homeViewModel.recentSearches, id: \.self) { word in
+                                SearchWordCell(text: word)
+                                    .padding(.trailing, 12)
+                            }
                         }
                     }
+                    .scrollIndicators(.hidden)
+                    
+                    
+                    Spacer()
                 }
-                .scrollIndicators(.hidden)
-                
-                Spacer()
             }
             .padding(.leading, 22)
             .padding(.top, 20)
             .background(.gray300)
+            .onAppear {
+                // 키보드 높이에 맞게 검색 Text 위치 조정
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation {
+                            self.keyboardHeight = keyboardFrame.height
+                        }
+                    }
+                }
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                    withAnimation {
+                        self.keyboardHeight = 0
+                    }
+                }
+            }
+            .onDisappear {
+                // Notification 제거
+                NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+                NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+            }
         }
     }
 }
@@ -66,8 +103,8 @@ struct SearchWordCell: View {
             homeViewModel.searchText = text
         }) {
             Text(text)
-                .reazyFont(.h4)
-                .foregroundStyle(.black)
+                .reazyFont(.h3)
+                .foregroundStyle(.gray800)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
