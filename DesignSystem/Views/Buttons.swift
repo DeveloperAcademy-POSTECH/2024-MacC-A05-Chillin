@@ -18,7 +18,7 @@ enum Buttons: String, CaseIterable {
         case .drawing:
             return Image(.drawing)
         case .comment:
-            return Image(.tempComment)
+            return Image(.comment)
         case .translate:
             return Image(.globe)
         }
