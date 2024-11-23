@@ -61,7 +61,7 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(systemName: "chevron.left")
-                                            .font(.system(size: 14))
+                                            .font(.system(size: 16))
                                             .foregroundStyle(.gray800)
                                     )
                             }
@@ -216,10 +216,9 @@ struct MainPDFView: View {
                             
                             Spacer()
                         }
-                        
                     }
                     .padding(.top, 10)
-                    .padding(.bottom, 11)
+                    .padding(.bottom, 6)
                     .padding(.horizontal, 20)
                     .background(.primary3)
                     .zIndex(1)
