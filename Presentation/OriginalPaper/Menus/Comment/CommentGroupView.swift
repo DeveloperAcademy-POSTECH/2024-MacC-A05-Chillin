@@ -79,7 +79,7 @@ private struct CommentInputView: View {
                 "\(placeHolder.foregroundStyle(Color.primary4))",
                 text: $text, axis:.vertical
             )
-            .lineLimit(5)
+            .lineLimit(4)
             .reazyFont(.text1)
             .foregroundStyle(.point2)
             .padding(.horizontal, 22)

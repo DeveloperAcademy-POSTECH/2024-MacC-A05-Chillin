@@ -17,7 +17,7 @@ struct OriginalView: View {
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     
     @State private var keyboardOffset: CGFloat = 0
-    @State private var pdfViewOffset: CGFloat = 20
+    @State private var pdfViewOffset: CGFloat = 50
     
     @State private var cancellables: Set<AnyCancellable> = []
     
@@ -127,7 +127,7 @@ struct OriginalView: View {
     // 키보드 offset 계산
     private func calculateOffset(for position: CGPoint, keyboardFrame: CGRect, screenHeight: CGFloat) -> CGFloat {
         let keyboardTopY = screenHeight - keyboardFrame.height
-        let margin: CGFloat = 100 // 여유 공간
+        let margin: CGFloat = 120 // 여유 공간
         
         // 키보드에 가려질 경우
         if position.y + 60 > keyboardTopY {
