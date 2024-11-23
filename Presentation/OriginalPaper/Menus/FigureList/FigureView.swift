@@ -94,6 +94,28 @@ struct FigureView: View {
                             }
                         }
                     }
+                    VStack(spacing: 0){
+                        Button(action: {
+                            // 액션
+                        }) {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14)
+                                .foregroundStyle(.primary1)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: 52)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: 52)
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 1.5)
+                            .foregroundStyle(.primary3),
+                        alignment: .top
+                    )
+                    .background(.gray100)
                 }
             }
         }
