@@ -47,6 +47,9 @@ class HomeViewModel: ObservableObject {
         }
     }
     
+    @Published public var isSearching: Bool = false
+    @Published public var searchText: String = ""
+    
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
     
@@ -214,6 +217,11 @@ extension HomeViewModel {
         } else {
             filteredLists = filteringList()
         }
+    }
+    
+    func updateSearchList() {
+        let items = sortLists(paperInfos: paperInfos, folders: folders)
+        filteredLists = items.filter( { $0.title.contains(searchText) })
     }
         
     func filteringList() -> [FileSystemItem] {

@@ -17,12 +17,10 @@ struct PaperListView: View {
     @State private var isNavigationPushed: Bool = false
     
     @Binding var isEditing: Bool
-    @Binding var isSearching: Bool
     @Binding var isEditingTitle: Bool
     @Binding var isEditingFolder: Bool
     @Binding var isEditingMemo: Bool
     @Binding var isEditingFolderMemo: Bool
-    @Binding var searchText: String
     
     @State var isFavorite: Bool = false
     @State var selectAll: Bool = false
@@ -114,10 +112,10 @@ struct PaperListView: View {
                     Divider()
                     
                     if homeViewModel.filteredLists.isEmpty {
-                        if isSearching {
+                        if homeViewModel.isSearching {
                             Spacer()
                             
-                            Text("\"\(searchText)\"와\n일치하는 결과가 없어요")
+                            Text("\"\(homeViewModel.searchText)\"와\n일치하는 결과가 없어요")
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray600)
                                 .multilineTextAlignment(.center)
@@ -217,7 +215,7 @@ struct PaperListView: View {
                     }
                 }
                 .frame(width: {
-                    if isEditing || isSearching {
+                    if isEditing || homeViewModel.isSearching {
                         return geometry.size.width
                     } else if isIPadMini && isVertical {
                         return geometry.size.width * 0.6
@@ -228,7 +226,7 @@ struct PaperListView: View {
                 .background(.gray300)
                 
                 // 편집 모드 & 검색 모드에서는 문서 정보가 보이지 않아야 함
-                if !isEditing && !isSearching {
+                if !isEditing && !homeViewModel.isSearching {
                     Rectangle()
                         .frame(width: 1)
                         .foregroundStyle(.primary3)
@@ -347,6 +345,9 @@ struct PaperListView: View {
                 if selectedItems.count == homeViewModel.filteredLists.count {
                     self.selectAll.toggle()
                 }
+            }
+            .onChange(of: homeViewModel.searchText) {
+                homeViewModel.updateSearchList()
             }
             .background(.gray200)
             .ignoresSafeArea()
