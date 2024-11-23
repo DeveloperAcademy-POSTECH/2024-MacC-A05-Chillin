@@ -311,10 +311,14 @@ private struct SearchMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @Binding var selectedMenu: Options
     
+    // 검색 버튼 클릭 시 검색창 자동 포커싱
+    @FocusState private var isSearchFieldFocused: Bool
+    
     var body: some View {
         HStack(spacing: 0) {
             SearchBar(text: $homeViewModel.searchText)
                 .frame(width: 400)
+                .focused($isSearchFieldFocused)
             
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
@@ -322,12 +326,16 @@ private struct SearchMenuView: View {
                 }
                 self.homeViewModel.isSearching.toggle()
                 homeViewModel.searchText = ""
+                isSearchFieldFocused = false
             }, label: {
                 Text("취소")
                     .reazyFont(.button1)
                     .foregroundStyle(.gray100)
             })
             .padding(.trailing, 28)
+        }
+        .onAppear {
+            isSearchFieldFocused = true
         }
     }
 }

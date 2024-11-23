@@ -57,6 +57,8 @@ class HomeViewModel: ObservableObject {
             }
         }
     }
+    @Published public var recentSearches: [String] = UserDefaults.standard.recentSearches
+    
     @Published public var selectedFilter: SearchFilter = .total
     @Published public var selectedMenu: Options = .main
     
@@ -408,6 +410,29 @@ extension HomeViewModel {
             }
             return folders.first { $0.id == parentID }?.title
         }
+    }
+}
+
+extension HomeViewModel {
+    public func addSearchTerm(_ term: String) {
+        var searches = UserDefaults.standard.recentSearches
+        
+        // 중복 제거: 기존 검색어 목록에서 제거
+        if let index = searches.firstIndex(of: term) {
+            searches.remove(at: index)
+        }
+        
+        // 배열이 10개를 초과하면 가장 오래된 항목 제거
+        if searches.count == 10 {
+            searches.removeLast()
+        }
+        
+        searches.insert(term, at: 0)
+        UserDefaults.standard.recentSearches = searches
+    }
+
+    public func clearAllSearchTerms() {
+        UserDefaults.standard.recentSearches = []
     }
 }
 

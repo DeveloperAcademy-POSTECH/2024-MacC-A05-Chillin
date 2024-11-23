@@ -165,6 +165,10 @@ struct PaperListView: View {
                                                     if !isEditing && !isNavigationPushed {
                                                         // 검색 중에 문서를 클릭한다면 바로 이동
                                                         if homeViewModel.isSearching {
+                                                            // 검색 후 이동 시 최근 검색어 저장
+                                                            homeViewModel.addSearchTerm(homeViewModel.searchText)
+                                                            homeViewModel.recentSearches = UserDefaults.standard.recentSearches
+                                                            
                                                             selectedItemID = paperInfo.id
                                                         }
                                                         
@@ -202,6 +206,10 @@ struct PaperListView: View {
                                                     if !isEditing && !isNavigationPushed {
                                                         // 검색 중에 폴더를 선택한다면 해당 폴더로 navigate
                                                         if homeViewModel.isSearching {
+                                                            // 검색 후 이동 시 최근 검색어 저장
+                                                            homeViewModel.addSearchTerm(homeViewModel.searchText)
+                                                            homeViewModel.recentSearches = UserDefaults.standard.recentSearches
+                                                            
                                                             homeViewModel.isSearching.toggle()
                                                             homeViewModel.selectedMenu = .main
                                                             homeViewModel.searchText = ""
