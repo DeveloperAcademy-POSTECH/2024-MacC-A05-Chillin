@@ -53,10 +53,11 @@ class HomeViewModel: ObservableObject {
             if searchText.isEmpty {
                 updateFilteredList()
             } else {
-                updateSearchList()
+                updateSearchList(with: selectedFilter)
             }
         }
     }
+    @Published public var selectedFilter: SearchFilter = .total
     
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
@@ -227,9 +228,25 @@ extension HomeViewModel {
         }
     }
     
-    func updateSearchList() {
+    func updateSearchList(with filter: SearchFilter) {
         let items = sortLists(paperInfos: paperInfos, folders: folders)
-        filteredLists = items.filter( { $0.title.contains(searchText) })
+        if filter == .total {
+            filteredLists = items.filter( { $0.title.contains(searchText) })
+        } else if filter == .paper {
+            filteredLists = items.filter { item in
+                if case .paper = item {
+                    return item.title.contains(searchText)
+                }
+                return false
+            }
+        } else if filter == .folder {
+            filteredLists = items.filter { item in
+                if case .folder = item {
+                    return item.title.contains(searchText)
+                }
+                return false
+            }
+        }
     }
         
     func filteringList() -> [FileSystemItem] {
@@ -404,6 +421,23 @@ extension HomeViewModel {
                 self.homeViewUseCase.deleteFolder(id: folder.id)
                 self.folders.removeAll(where: { $0.id == folder.id })
             }
+        }
+    }
+}
+
+enum SearchFilter: CaseIterable {
+    case total
+    case paper
+    case folder
+    
+    var title: String {
+        switch self {
+        case .total:
+            return "전체"
+        case .paper:
+            return "논문"
+        case .folder:
+            return "폴더"
         }
     }
 }
