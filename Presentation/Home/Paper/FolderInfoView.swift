@@ -170,13 +170,37 @@ struct FolderInfoView: View {
                     
                     if !(self.memo == nil) {
                         Menu {
-                            Button("메모 수정", image: .editpencil) {
+                            Button {
                                 self.isEditingFolderMemo = true
+                            } label: {
+                                HStack(spacing: 0) {
+                                    Text("메모 수정")
+                                        .reazyFont(.body1)
+                                        .foregroundStyle(.gray800)
+                                    Spacer()
+                                    Image(.editpencil)
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 17, height: 17)
+                                        .foregroundStyle(.gray800)
+                                }
                             }
                             
-                            Button("삭제", image: .trash, role: .destructive) {
+                            Button(role: .destructive) {
                                 self.memo = nil
                                 self.homeViewModel.updateFolderMemo(at: id, memo: nil)
+                            } label: {
+                                HStack(spacing: 0) {
+                                    Text("삭제")
+                                        .reazyFont(.body1)
+                                    Spacer()
+                                    Image(.trash)
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 17, height: 17)
+                                }
                             }
                             
                         } label: {
