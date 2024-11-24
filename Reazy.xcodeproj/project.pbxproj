@@ -87,6 +87,7 @@
 		6ED2F1FC2CF237FF00C5DE95 /* UserDefault+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */; };
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
+		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -213,6 +214,7 @@
 		6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefault+Keys.swift"; sourceTree = "<group>"; };
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
+		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -624,6 +626,7 @@
 			children = (
 				2CC431552CE9CECB00E51DB0 /* ViewModel */,
 				2C1473392CE73B6F00B35D92 /* HomeView.swift */,
+				B32E3D292CF23C0800171F23 /* SettingView.swift */,
 				2C1474252CE8FFC400B35D92 /* Paper */,
 				6E241BDD2CEDF47600AE3EB4 /* MoveFolderView.swift */,
 				6ED2F1F92CF1A10A00C5DE95 /* SearchWordView.swift */,
@@ -1018,6 +1021,7 @@
 				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,
 				2C1473C62CE73B6F00B35D92 /* OriginalViewController.swift in Sources */,
 				2C1473C82CE73B6F00B35D92 /* OriginalViewRepresentable.swift in Sources */,
+				B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */,
 				2C1473C92CE73B6F00B35D92 /* CommentViewModel.swift in Sources */,
 				2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */,
 				2C1473CB2CE73B6F00B35D92 /* IndexViewModel.swift in Sources */,

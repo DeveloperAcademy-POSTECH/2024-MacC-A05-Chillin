@@ -11,7 +11,6 @@ enum Options {
     case main
     case search
     case edit
-    case setting
 }
 
 struct HomeView: View {
@@ -55,25 +54,27 @@ struct HomeView: View {
                             .frame(width: 62, height: 50)
                             .padding(.trailing, 36)
                         
-                        Button(action: {
-                            homeViewModel.isFavoriteSelected = false
-                        }) {
-                            Text("전체")
-                                .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
-                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
-                        }
-                        
-                        Rectangle()
-                            .frame(width: 1, height: 16)
-                            .foregroundStyle(.gray700)
-                            .padding(.horizontal, 14)
-                        
-                        Button(action: {
-                            homeViewModel.isFavoriteSelected = true
-                        }) {
-                            Text("즐겨찾기")
-                                .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
-                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
+                        if !homeViewModel.isSearching {
+                            Button(action: {
+                                homeViewModel.isFavoriteSelected = false
+                            }) {
+                                Text("전체")
+                                    .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
+                                    .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
+                            }
+                            
+                            Rectangle()
+                                .frame(width: 1, height: 16)
+                                .foregroundStyle(.gray700)
+                                .padding(.horizontal, 14)
+                            
+                            Button(action: {
+                                homeViewModel.isFavoriteSelected = true
+                            }) {
+                                Text("즐겨찾기")
+                                    .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
+                                    .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
+                            }
                         }
                         
                         Spacer()
@@ -96,11 +97,6 @@ struct HomeView: View {
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing,
                                 isMovingFolder: $isMovingFolder)
-                        case .setting:
-                            // TODO: - [쿠로] 설정 추가
-                            SettingMenuView(
-                                selectedMenu: $homeViewModel.selectedMenu
-                            )
                         }
                     }
                     .padding(.top, 46)
@@ -128,7 +124,7 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             if isEditingTitle || isEditingMemo {
@@ -193,6 +189,15 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: folder
                 )
+            }
+            
+            // 세팅 메뉴 뷰
+            if homeViewModel.isSettingMenu {
+                if #available(iOS 18.0, *) {
+                    SettingView()
+                } else {
+                    
+                }
             }
         }
         .background(Color(hex: "F7F7FB"))
@@ -280,9 +285,8 @@ private struct MainMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                // TODO: - [쿠로] 설정 버튼
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .setting
+                    homeViewModel.isSettingMenu = true
                 }
             }) {
                 Image(.morecircle)
@@ -367,29 +371,6 @@ private struct SearchMenuView: View {
     }
 }
 
-/// 설정 화면 버튼 뷰
-// TODO: - [쿠로] 설정 화면 버튼 뷰
-private struct SettingMenuView: View {
-    @EnvironmentObject private var homeViewModel: HomeViewModel
-    
-    @Binding var selectedMenu: Options
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .main
-                }
-            }, label: {
-                Text("취소")
-                    .reazyFont(.button1)
-                    .foregroundStyle(.gray100)
-            })
-            .padding(.trailing, 28)
-        }
-    }
-}
-
 /// 수정 화면 버튼 뷰
 private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
@@ -416,7 +397,8 @@ private struct EditMenuView: View {
             Button(action: {
                 // TODO: - 공유 버튼 활성화 필요
             }, label: {
-                Image(systemName: "square.and.arrow.up")
+                Image(.share)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
@@ -428,7 +410,8 @@ private struct EditMenuView: View {
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
-                Image(systemName: "square.on.square")
+                Image(.copy)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
@@ -440,7 +423,8 @@ private struct EditMenuView: View {
             Button(action: {
                 self.isMovingFolder.toggle()
             }, label: {
-                Image(systemName: "rectangle.portrait.and.arrow.right")
+                Image(.move)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
@@ -452,7 +436,8 @@ private struct EditMenuView: View {
                 homeViewModel.deleteFiles(items)
                 selectedItems.removeAll()
             }, label: {
-                Image(systemName: "trash")
+                Image(.trash)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
@@ -465,7 +450,7 @@ private struct EditMenuView: View {
                 isEditing = false
                 selectedItems.removeAll()
             }, label: {
-                Text("취소")
+                Text("완료")
                     .reazyFont(.button1)
                     .foregroundStyle(.gray100)
             })
