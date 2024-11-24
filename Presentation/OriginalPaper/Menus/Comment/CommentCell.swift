@@ -32,7 +32,6 @@ struct CommentCell: View {
         Text(comment.text)
             .reazyFont(.text1)
             .foregroundStyle(.point2)
-            .padding(0)
             .padding(.trailing, 16)
         
         HStack{

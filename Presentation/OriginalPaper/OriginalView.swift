@@ -21,7 +21,6 @@ struct OriginalView: View {
     @State private var pdfViewOffset: CGFloat = 50
     private let screenHeight = UIScreen.main.bounds.height
     
-    @State private var cancellables: Set<AnyCancellable> = []
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
     
     var body: some View {
@@ -87,40 +86,27 @@ struct OriginalView: View {
             .animation(.smooth(duration: 0.5), value: keyboardOffset)
             .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped)
             .animation(.smooth(duration: 0.3), value: commentViewModel.isMenuTapped)
-            .onAppear {
-                let screenHeight = geometry.size.height
-                
-                /// 키보드 열릴 때
-                NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-                    .receive(on: DispatchQueue.main)
-                    .sink {
-                        if let keyboardFrame = $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                            withAnimation {
-                                if viewModel.isCommentVisible {
-                                    keyboardOffset = calculateOffset(
-                                        for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: screenHeight)
-                                }
-                                if commentViewModel.isEditMode {
-                                    keyboardOffset = calculateOffset(
-                                        for: commentViewModel.commentPosition, keyboardFrame: keyboardFrame, screenHeight: screenHeight)
-                                }
-                            }
+            
+            // 키보드 열릴 때
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                    withAnimation {
+                        if viewModel.isCommentVisible {
+                            keyboardOffset = calculateOffset(
+                                for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                        }
+                        if commentViewModel.isEditMode {
+                            keyboardOffset = calculateOffset(
+                                for: commentViewModel.commentPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
                         }
                     }
-                    .store(in: &cancellables)
-                
-                /// 키보드 닫힐 때
-                NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-                    .receive(on: DispatchQueue.main)
-                    .sink { _ in
-                        withAnimation {
-                            keyboardOffset = 0
-                        }
-                    }
-                    .store(in: &cancellables)
+                }
             }
-            .onDisappear {
-                self.cancellables.forEach { $0.cancel() }
+            // 키보드 닫힐 때
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                withAnimation {
+                    keyboardOffset = 0
+                }
             }
         }
     }
