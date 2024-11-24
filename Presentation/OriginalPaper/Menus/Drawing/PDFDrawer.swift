@@ -37,6 +37,8 @@ enum PDFAction {
 }
 
 class PDFDrawer {
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
+    
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
@@ -167,8 +169,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             guard let startPoint = self.startPoint else { return }
 
             // 현재 위치에 따라 실시간으로 사각형의 위치와 크기를 계산
-            let topLeft = CGPoint(x: min(startPoint.x, location.x), y: min(startPoint.y, location.y))
-            let bottomRight = CGPoint(x: max(startPoint.x, location.x), y: max(startPoint.y, location.y))
+            let topLeft = CGPoint(x: min(startPoint.x, location.x), y: max(startPoint.y, location.y))
+            let bottomRight = CGPoint(x: max(startPoint.x, location.x), y: min(startPoint.y, location.y))
             
             let width = bottomRight.x - topLeft.x
             let height = bottomRight.y - topLeft.y
@@ -215,25 +217,28 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 
                 // 시작점과 종료점으로 사각형을 계산
                 let topLeft = CGPoint(x: min(startConvertedPoint.x, endConvertedPoint.x),
-                                      y: min(startConvertedPoint.y, endConvertedPoint.y))
+                                      y: max(startConvertedPoint.y, endConvertedPoint.y))
                 let bottomRight = CGPoint(x: max(startConvertedPoint.x, endConvertedPoint.x),
-                                          y: max(startConvertedPoint.y, endConvertedPoint.y))
+                                          y: min(startConvertedPoint.y, endConvertedPoint.y))
                 
                 let width = bottomRight.x - topLeft.x
-                let height = bottomRight.y - topLeft.y
+                let height = topLeft.y - bottomRight.y
                 
                 // 사각형 경로를 생성
                 let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
                 
+                print(rectanglePath)
                 // PDF 잘라내기 및 이미지 처리
                 if let newFigure = captureToPDF(path: rectanglePath) {
                     // PDF 작업이 끝나면, 처리 후 버튼 제거
                     print("PDF is captured: \(newFigure)")
                     endCaptureMode()
                 }
-                let pageNum = PDFSharedData.shared.document?.index(for: page)
                 
-                let coords = "\(pageNum! + 1),\(topLeft.x),\(bottomRight.y),\(width),\(height)"
+                let pageNum = PDFSharedData.shared.document?.index(for: page)
+                let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
+                
+                let coords = "\(pageNum! + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
                 print(coords)
                 
                 let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
