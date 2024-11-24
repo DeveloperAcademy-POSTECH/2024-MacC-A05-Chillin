@@ -52,8 +52,11 @@ struct PaperListView: View {
                                     self.selectAll.toggle()
                                 }) {
                                     HStack(spacing: 0) {
-                                        Image(systemName: selectAll ? "xmark" : "checkmark")
-                                            .font(.system(size: 18))
+                                        Image(selectAll ? .close : .checkmark)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 22, height: 22)
                                             .foregroundStyle(.gray550)
                                             .padding(.trailing, 8)
                                         
@@ -107,7 +110,7 @@ struct PaperListView: View {
                                             homeViewModel.updateFolderFavorite(at: folder.id, isFavorite: isFavorite)
                                         }
                                     }) {
-                                        Image(systemName: isFavorite ? "star.fill" : "star")
+                                        Image(isFavorite ? .starfill : .star)
                                             .font(.system(size: 18))
                                             .foregroundStyle(.primary1)
                                     }
@@ -294,7 +297,7 @@ struct PaperListView: View {
                                     FolderInfoView(
                                         id: folder.id,
                                         title: folder.title,
-                                        color: FolderColors.color(for: folder.color),
+                                        color: FolderColors(rawValue: folder.color) ?? .folder1,
                                         memo: folder.memo,
                                         isFavorite: folder.isFavorite,
                                         isStarSelected: folder.isFavorite,

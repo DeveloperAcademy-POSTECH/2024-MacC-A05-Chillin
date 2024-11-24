@@ -55,25 +55,27 @@ struct HomeView: View {
                             .frame(width: 62, height: 50)
                             .padding(.trailing, 36)
                         
-                        Button(action: {
-                            homeViewModel.isFavoriteSelected = false
-                        }) {
-                            Text("전체")
-                                .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
-                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
-                        }
-                        
-                        Rectangle()
-                            .frame(width: 1, height: 16)
-                            .foregroundStyle(.gray700)
-                            .padding(.horizontal, 14)
-                        
-                        Button(action: {
-                            homeViewModel.isFavoriteSelected = true
-                        }) {
-                            Text("즐겨찾기")
-                                .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
-                                .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
+                        if !homeViewModel.isSearching {
+                            Button(action: {
+                                homeViewModel.isFavoriteSelected = false
+                            }) {
+                                Text("전체")
+                                    .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
+                                    .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
+                            }
+                            
+                            Rectangle()
+                                .frame(width: 1, height: 16)
+                                .foregroundStyle(.gray700)
+                                .padding(.horizontal, 14)
+                            
+                            Button(action: {
+                                homeViewModel.isFavoriteSelected = true
+                            }) {
+                                Text("즐겨찾기")
+                                    .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
+                                    .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
+                            }
                         }
                         
                         Spacer()
@@ -416,7 +418,8 @@ private struct EditMenuView: View {
             Button(action: {
                 // TODO: - 공유 버튼 활성화 필요
             }, label: {
-                Image(systemName: "square.and.arrow.up")
+                Image(.share)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
@@ -428,7 +431,8 @@ private struct EditMenuView: View {
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
-                Image(systemName: "square.on.square")
+                Image(.copy)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
@@ -440,7 +444,8 @@ private struct EditMenuView: View {
             Button(action: {
                 self.isMovingFolder.toggle()
             }, label: {
-                Image(systemName: "rectangle.portrait.and.arrow.right")
+                Image(.move)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
@@ -452,7 +457,8 @@ private struct EditMenuView: View {
                 homeViewModel.deleteFiles(items)
                 selectedItems.removeAll()
             }, label: {
-                Image(systemName: "trash")
+                Image(.trash)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
@@ -465,7 +471,7 @@ private struct EditMenuView: View {
                 isEditing = false
                 selectedItems.removeAll()
             }, label: {
-                Text("취소")
+                Text("완료")
                     .reazyFont(.button1)
                     .foregroundStyle(.gray100)
             })
