@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StoreKit
+import Translation
 
 struct SupportEmailModel {
     let toAddress: String = "fromchillin@gmail.com"
@@ -41,14 +42,20 @@ struct SupportEmailModel {
 }
 
 struct SettingView: View {
+    private var email = SupportEmailModel()
+    
     @Environment(\.requestReview) var requestReview
     @Environment(\.openURL) var openURL
-    private var email = SupportEmailModel()
-    @State var isDismiss: Bool = false
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     var body: some View {
         VStack(spacing: 0) {
             HStack {
+                
+                Rectangle()
+                    .frame(width: 18, height: 1)
+                    .foregroundStyle(.gray200)
+                
                 Spacer()
                 
                 Text("설정")
@@ -57,24 +64,24 @@ struct SettingView: View {
                 Spacer()
                 
                 Button(action: {
-                    isDismiss = true
+                    homeViewModel.isSettingMenu = false
                 }, label: {
                     Text("닫기")
                         .reazyFont(.text1)
                         .foregroundStyle(.primary1)
                 })
-                .padding(.trailing, 20)
             }
             .padding(.vertical, 14)
+            .padding(.horizontal, 20)
             
             Divider()
                 .padding(0)
             
-            VStack {
+            VStack(spacing: 0) {
                 
                 Image("setting_thumbnail")
                     .resizable()
-                    .scaledToFit()
+                    .frame(width: 480, height: 214)
                     .padding(.bottom, 30)
                 
                 List {
@@ -126,13 +133,17 @@ struct SettingView: View {
                 .environment(\.defaultMinListRowHeight, 52)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
-                .frame(maxHeight: 208)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .frame(maxHeight: 207)
                 .padding(.bottom, 20)
                 
                 List {
                     Button(action: {
-                        
+                        if #available(iOS 18.0, *) {
+                            PrepareTranslationView()
+                        } else {
+                            // Fallback on earlier versions
+                        }
                     }, label: {
                         HStack {
                             Text("언어")
@@ -150,8 +161,6 @@ struct SettingView: View {
                 .scrollContentBackground(.hidden)
                 .frame(maxHeight: 52)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                
-                Spacer()
             }
             .padding(20)
         }
@@ -161,6 +170,39 @@ struct SettingView: View {
     }
 }
 
-#Preview {
-    SettingView()
+
+@available(iOS 18.0, *)
+struct PrepareTranslationView: View {
+
+    // Define the pairing of languages you want to download.
+    @State private var configuration = TranslationSession.Configuration(
+        source: Locale.Language(identifier: "pt_BR"),
+        target: Locale.Language(identifier: "ko_KR")
+    )
+
+    @State private var buttonTapped = false
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Tap the button to start downloading languages before offering a translation.")
+            Button("Prepare") {
+                configuration.invalidate()
+                buttonTapped = true
+            }
+        }
+        .translationTask(configuration) { session in
+            if buttonTapped {
+                do {
+                    // Display a sheet asking the user's permission
+                    // to start downloading the language pairing.
+                    try await session.prepareTranslation()
+                } catch {
+                    // Handle any errors.
+                }
+            }
+        }
+        .padding()
+        .navigationTitle("Prepare translation")
+    }
 }
+

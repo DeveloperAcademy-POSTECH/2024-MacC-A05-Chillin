@@ -11,7 +11,6 @@ enum Options {
     case main
     case search
     case edit
-    case setting
 }
 
 struct HomeView: View {
@@ -96,11 +95,6 @@ struct HomeView: View {
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing,
                                 isMovingFolder: $isMovingFolder)
-                        case .setting:
-                            // TODO: - [쿠로] 설정 추가
-                            SettingMenuView(
-                                selectedMenu: $homeViewModel.selectedMenu
-                            )
                         }
                     }
                     .padding(.top, 46)
@@ -128,7 +122,7 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             if isEditingTitle || isEditingMemo {
@@ -193,6 +187,11 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: folder
                 )
+            }
+            
+            // 세팅 메뉴 뷰
+            if homeViewModel.isSettingMenu {
+                SettingView()
             }
         }
         .background(Color(hex: "F7F7FB"))
@@ -280,9 +279,8 @@ private struct MainMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                // TODO: - [쿠로] 설정 버튼
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .setting
+                    homeViewModel.isSettingMenu = true
                 }
             }) {
                 Image(.morecircle)
@@ -363,29 +361,6 @@ private struct SearchMenuView: View {
         }
         .onAppear {
             isSearchFieldFocused = true
-        }
-    }
-}
-
-/// 설정 화면 버튼 뷰
-// TODO: - [쿠로] 설정 화면 버튼 뷰
-private struct SettingMenuView: View {
-    @EnvironmentObject private var homeViewModel: HomeViewModel
-    
-    @Binding var selectedMenu: Options
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .main
-                }
-            }, label: {
-                Text("취소")
-                    .reazyFont(.button1)
-                    .foregroundStyle(.gray100)
-            })
-            .padding(.trailing, 28)
         }
     }
 }
