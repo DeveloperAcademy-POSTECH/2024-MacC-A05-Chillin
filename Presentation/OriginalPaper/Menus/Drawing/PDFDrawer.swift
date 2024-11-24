@@ -138,8 +138,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
 
         if drawingTool == .lasso {
             
-            lassoRectangleLayer?.removeFromSuperlayer()
-            checkButton.removeFromSuperview()
+            endCaptureMode()
             
             if checkButton.frame.contains(location) {
                 // 버튼을 터치했으면 제스처를 시작하지 않음
@@ -212,7 +211,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         if drawingTool == .lasso {
             if checkButton.frame.contains(location) {
                 // 버튼을 터치했으면 제스처를 시작하지 않음
-                print("들어왔ㄴㅣ?")
                 guard let startConvertedPoint = self.startPoint else { return }
                 guard let endConvertedPoint = self.endPoint else { return }
                 
@@ -233,8 +231,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 if let newFigure = captureToPDF(path: rectanglePath) {
                     // PDF 작업이 끝나면, 처리 후 버튼 제거
                     print("PDF is captured: \(newFigure)")
-                    lassoRectangleLayer?.removeFromSuperlayer()
-                    checkButton.removeFromSuperview()
+                    endCaptureMode()
                 }
                 return
             }
@@ -264,7 +261,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             checkButton.setImage(UIImage(named: "check"), for: .normal) // 버튼 이미지 설정
             checkButton.imageView?.contentMode = .scaleAspectFit
             checkButton.tintColor = .gray100
-            // 버튼 배경 색상 설정
             checkButton.backgroundColor = .point4
 
             // 버튼 둥글게 만들기 (모서리 둥글기 설정)
@@ -411,6 +407,11 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         document.insert(newPage, at: 0)
 
         return document
+    }
+    
+    func endCaptureMode() {
+        lassoRectangleLayer?.removeFromSuperlayer()
+        checkButton.removeFromSuperview()
     }
 }
 
