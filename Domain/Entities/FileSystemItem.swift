@@ -20,6 +20,15 @@ enum FileSystemItem: Identifiable {
         }
     }
     
+    var title: String {
+        switch self {
+        case .paper(let paperInfo):
+            return paperInfo.title
+        case .folder(let folder):
+            return folder.title
+        }
+    }
+    
     var date: Date {
         switch self {
         case .paper(let paperInfo):

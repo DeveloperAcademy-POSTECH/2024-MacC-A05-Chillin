@@ -11,17 +11,14 @@ enum Options {
     case main
     case search
     case edit
+    case setting
 }
 
 struct HomeView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State var selectedMenu: Options = .main
     @State var selectedItemID: UUID?
-    
-    // 검색 모드 search text
-    @State private var searchText: String = ""
     
     @State private var isStarSelected: Bool = false
     @State private var isFolderSelected: Bool = false
@@ -29,7 +26,6 @@ struct HomeView: View {
     @State private var isEditing: Bool = false
     @State private var selectedItems: Set<UUID> = []
     
-    @State private var isSearching: Bool = false
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
     
@@ -82,28 +78,29 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        switch selectedMenu {
+                        switch homeViewModel.selectedMenu {
                         case .main:
                             MainMenuView(
-                                selectedMenu: $selectedMenu,
-                                isSearching: $isSearching,
+                                selectedMenu: $homeViewModel.selectedMenu,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
                                 selectedItemID: $selectedItemID,
                                 createFolder: $createFolder)
                             
                         case .search:
-                            SearchMenuView(
-                                selectedMenu: $selectedMenu,
-                                searchText: $searchText,
-                                isSearching: $isSearching)
+                            SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
                             
                         case .edit:
                             EditMenuView(
-                                selectedMenu: $selectedMenu,
+                                selectedMenu: $homeViewModel.selectedMenu,
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing,
                                 isMovingFolder: $isMovingFolder)
+                        case .setting:
+                            // TODO: - [쿠로] 설정 추가
+                            SettingMenuView(
+                                selectedMenu: $homeViewModel.selectedMenu
+                            )
                         }
                     }
                     .padding(.top, 46)
@@ -111,18 +108,21 @@ struct HomeView: View {
                 }
                 .frame(height: 80)
                 
-                PaperListView(
-                    selectedItemID: $selectedItemID,
-                    selectedItems: $selectedItems,
-                    isEditing: $isEditing,
-                    isSearching: $isSearching,
-                    isEditingTitle: $isEditingTitle,
-                    isEditingFolder: $isEditingFolder,
-                    isEditingMemo: $isEditingMemo,
-                    isEditingFolderMemo: $isEditingFolderMemo,
-                    searchText: $searchText,
-                    isMovingFolder: $isMovingFolder
-                )
+                // TODO: - 검색 케이스 분리
+                if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
+                    SearchWordView()
+                } else {
+                    PaperListView(
+                        selectedItemID: $selectedItemID,
+                        selectedItems: $selectedItems,
+                        isEditing: $isEditing,
+                        isEditingTitle: $isEditingTitle,
+                        isEditingFolder: $isEditingFolder,
+                        isEditingMemo: $isEditingMemo,
+                        isEditingFolderMemo: $isEditingFolderMemo,
+                        isMovingFolder: $isMovingFolder
+                    )
+                }
             }
             .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
             
@@ -231,7 +231,6 @@ private struct MainMenuView: View {
     @State private var errorAlert: Bool = false
     
     @Binding var selectedMenu: Options
-    @Binding var isSearching: Bool
     @Binding var isEditing: Bool
     
     @Binding var selectedItems: Set<UUID>
@@ -241,10 +240,28 @@ private struct MainMenuView: View {
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedMenu = .search
+                }
+                self.homeViewModel.isSearching.toggle()
+            }) {
+                Image(.search)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 createFolder.toggle()
             }) {
-                Image(systemName: "folder.badge.plus")
-                    .font(.system(size: 16))
+                Image(.newfolder)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 21, height: 20)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -257,19 +274,22 @@ private struct MainMenuView: View {
                 selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
-                    .font(.system(size: 16))
+                    .font(.system(size: 17.68))
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
             
             Button(action: {
+                // TODO: - [쿠로] 설정 버튼
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .search
+                    selectedMenu = .setting
                 }
-                isSearching.toggle()
             }) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 16))
+                Image(.morecircle)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -315,21 +335,51 @@ private struct MainMenuView: View {
 
 /// 검색 화면 버튼 뷰
 private struct SearchMenuView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     @Binding var selectedMenu: Options
-    @Binding var searchText: String
-    @Binding var isSearching: Bool
+    
+    // 검색 버튼 클릭 시 검색창 자동 포커싱
+    @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
         HStack(spacing: 0) {
-            SearchBar(text: $searchText)
+            SearchBar(text: $homeViewModel.searchText)
                 .frame(width: 400)
+                .focused($isSearchFieldFocused)
             
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     selectedMenu = .main
                 }
-                isSearching.toggle()
-                searchText = ""
+                self.homeViewModel.isSearching.toggle()
+                homeViewModel.searchText = ""
+                isSearchFieldFocused = false
+            }, label: {
+                Text("취소")
+                    .reazyFont(.button1)
+                    .foregroundStyle(.gray100)
+            })
+            .padding(.trailing, 28)
+        }
+        .onAppear {
+            isSearchFieldFocused = true
+        }
+    }
+}
+
+/// 설정 화면 버튼 뷰
+// TODO: - [쿠로] 설정 화면 버튼 뷰
+private struct SettingMenuView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @Binding var selectedMenu: Options
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedMenu = .main
+                }
             }, label: {
                 Text("취소")
                     .reazyFont(.button1)
