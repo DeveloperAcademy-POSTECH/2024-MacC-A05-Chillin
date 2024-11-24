@@ -19,14 +19,14 @@ class FocusFigureViewModel: ObservableObject {
     @Published public var changedPageNumber: Int?
     
 
-    let a = NotificationCenter.default.publisher(for: .test)
+    let a = NotificationCenter.default.publisher(for: .isPDFCaptured)
     
     var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
-        self.test()
+        self.isPDFCaptured()
     }
 }
 
@@ -97,8 +97,6 @@ extension FocusFigureViewModel {
             }
             
             Task.init {
-                
-//                let height = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 let height = self.focusFigureUseCase.getPDFHeight()
                 var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
                 
@@ -230,7 +228,7 @@ extension FocusFigureViewModel {
         return document
     }
     
-    func test() {
+    func isPDFCaptured() {
         self.a
             .sink { [weak self] in
                 guard let figure = $0.object as? Figure else { return }

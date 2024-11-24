@@ -15,5 +15,5 @@ extension Notification.Name {
     static let didSelectThumbnail = Notification.Name("didSelectThumbnail")
     static let isCommentTapped = Notification.Name("isCommentTapped")
     static let isPDFInfoMenuHidden = Notification.Name("isPDFInfoMenuHidden")
-    static let test = Notification.Name("test")
+    static let isPDFCaptured = Notification.Name("isPDFCaptured")
 }

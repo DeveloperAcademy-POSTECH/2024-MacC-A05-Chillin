@@ -233,11 +233,12 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 }
                 let pageNum = PDFSharedData.shared.document?.index(for: page)
                 
-                let coords = "\(pageNum! + 1),\(topLeft.x),\(topLeft.y),\(width),\(height)"
+                let coords = "\(pageNum! + 1),\(topLeft.x),\(bottomRight.y),\(width),\(height)"
+                print(coords)
                 
                 let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 
-                NotificationCenter.default.post(name: .test, object: result)
+                NotificationCenter.default.post(name: .isPDFCaptured, object: result)
                 return
             }
             
