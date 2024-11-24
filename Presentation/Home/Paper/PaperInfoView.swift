@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PDFKit
 
 struct PaperInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
@@ -165,7 +166,11 @@ struct PaperInfoView: View {
                                 .foregroundStyle(.gray600)
                         )
                 }
-                .popover(isPresented: $isActivityViewPresented, content: {
+                .popover(isPresented: $isActivityViewPresented,
+                         attachmentAnchor: .point(.leading),
+                         arrowEdge: .trailing,
+                         content: {
+                    
                     if let url = homeViewModel.sharePaperURL(at: id) {
                         ActivityViewController(activityItems: [url])
                     }
