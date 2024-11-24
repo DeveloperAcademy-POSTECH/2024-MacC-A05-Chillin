@@ -30,6 +30,7 @@ protocol FocusFigureUseCase {
         info: PaperInfo
     ) -> Result<VoidResponse, any Error>
     
+    func getPDFHeight() -> CGFloat
 }
 
 
@@ -81,5 +82,9 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
     
     public func editPaperInfo(info: PaperInfo) -> Result<VoidResponse, any Error> {
         figureDataRepository.editPaperInfo(info: info)
+    }
+    
+    public func getPDFHeight() -> CGFloat {
+        self.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
     }
 }

@@ -57,6 +57,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // pencil tool
     public var pdfDrawer: PDFDrawer = .init()
+    
     // 현재 undo와 redo 가능 여부
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false

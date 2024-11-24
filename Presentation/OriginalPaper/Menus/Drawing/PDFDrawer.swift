@@ -37,8 +37,6 @@ enum PDFAction {
 }
 
 class PDFDrawer {
-    @EnvironmentObject var floatingViewModel: FloatingViewModel
-    
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
@@ -233,6 +231,13 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     print("PDF is captured: \(newFigure)")
                     endCaptureMode()
                 }
+                let pageNum = PDFSharedData.shared.document?.index(for: page)
+                
+                let coords = "\(pageNum! + 1),\(topLeft.x),\(topLeft.y),\(width),\(height)"
+                
+                let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
+                
+                NotificationCenter.default.post(name: .test, object: result)
                 return
             }
             
@@ -414,5 +419,3 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         checkButton.removeFromSuperview()
     }
 }
-
-

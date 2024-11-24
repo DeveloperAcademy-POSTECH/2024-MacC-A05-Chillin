@@ -8,6 +8,7 @@
 import Foundation
 import Network
 import PDFKit
+import Combine
 
 
 @MainActor
@@ -17,10 +18,15 @@ class FocusFigureViewModel: ObservableObject {
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
     
+
+    let a = NotificationCenter.default.publisher(for: .test)
+    
+    var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
+        self.test()
     }
 }
 
@@ -92,7 +98,8 @@ extension FocusFigureViewModel {
             
             Task.init {
                 
-                let height = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
+//                let height = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
+                let height = self.focusFigureUseCase.getPDFHeight()
                 var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
                 
                 await self.focusFigureUseCase.excute(process: .processFulltextDocument, url: url) {
@@ -221,5 +228,16 @@ extension FocusFigureViewModel {
          */
         
         return document
+    }
+    
+    func test() {
+        self.a
+            .sink { [weak self] in
+                guard let figure = $0.object as? Figure else { return }
+                guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
+                self?.focusFigureUseCase.saveFigures(with: figure)
+                self?.figures.append(figure.toEntity(pageHeight: height))
+            }
+            .store(in: &self.cancellables)
     }
 }

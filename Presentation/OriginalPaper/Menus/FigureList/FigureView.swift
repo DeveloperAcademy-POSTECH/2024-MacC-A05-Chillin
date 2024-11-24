@@ -115,7 +115,7 @@ struct FigureView: View {
                                     .foregroundStyle(.primary1)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                             } else {
-                                Text("완료")
+                                Text("취소")
                                     .reazyFont(.text1)
                                     .foregroundStyle(.primary1)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
