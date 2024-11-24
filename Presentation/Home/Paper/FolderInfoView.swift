@@ -58,19 +58,56 @@ struct FolderInfoView: View {
             
             HStack(spacing: 0) {
                 Menu {
-                    Button("이름 및 색상 변경", systemImage: "pencil") {
+                    Button {
                         self.isEditingFolder = true
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("이름 및 색상 변경")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                            Image(.editpencil)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                                .foregroundStyle(.gray800)
+                        }
                     }
                     
-                    Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
+                    Button {
                         self.isMovingFolder.toggle()
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("이동")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                            Image(.move)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                                .foregroundStyle(.gray800)
+                        }
                     }
                     
-                    Button("삭제", systemImage: "trash", role: .destructive) {
+                    Button(role: .destructive) {
                         // TODO: - Alert 오류 추후 수정 필요
 //                        self.isDeleteConfirm.toggle()
                         self.homeViewModel.deleteFolder(at: id)
                         onDelete()
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("삭제")
+                                .reazyFont(.body1)
+                            Spacer()
+                            Image(.trash)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                        }
                     }
                     
                 } label: {
@@ -78,8 +115,11 @@ struct FolderInfoView: View {
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "ellipsis")
-                                .font(.system(size: 14))
+                            Image(.morehorizontal)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         )
                 }
@@ -93,8 +133,11 @@ struct FolderInfoView: View {
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: isFavorite ? "star.fill" : "star")
-                                .font(.system(size: 14))
+                            Image(isFavorite ? .starfill : .star)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
                                 .foregroundStyle(isFavorite ? .primary1 : .gray600)
                         )
                 }
@@ -107,8 +150,11 @@ struct FolderInfoView: View {
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 14))
+                            Image(.share)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         )
                 }
@@ -135,20 +181,21 @@ struct FolderInfoView: View {
                     
                     if !(self.memo == nil) {
                         Menu {
-                            Button("수정", systemImage: "pencil") {
+                            Button("메모 수정", image: .editpencil) {
                                 self.isEditingFolderMemo = true
                             }
                             
-                            Button("삭제", systemImage: "trash", role: .destructive) {
+                            Button("삭제", image: .trash, role: .destructive) {
                                 self.memo = nil
                                 self.homeViewModel.updateFolderMemo(at: id, memo: nil)
                             }
                             
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Image(.morecircle)
+                                .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 17)
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         }
                     } else {
@@ -156,10 +203,11 @@ struct FolderInfoView: View {
                             self.memo = ""
                             self.isEditingFolderMemo = true
                         } label: {
-                            Image(systemName: "plus")
+                            Image(.memo)
+                                .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 17)
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         }
                     }
