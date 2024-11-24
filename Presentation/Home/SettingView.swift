@@ -20,7 +20,7 @@ struct SettingView: View {
     
     @State var translationTapped: Bool = false
     @State private var configuration = TranslationSession.Configuration(
-        source: Locale.Language(identifier: "pt_BR"),
+        source: Locale.Language(identifier: "en_EG(US)"),
         target: Locale.Language(identifier: "ko_KR")
     )
     
