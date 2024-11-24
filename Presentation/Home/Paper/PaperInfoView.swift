@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PDFKit
 
 struct PaperInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
