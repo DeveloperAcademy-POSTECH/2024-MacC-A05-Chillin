@@ -71,7 +71,6 @@ class HomeViewModel: ObservableObject {
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     @Published public var isSettingMenu: Bool = false
-    @Published public var isTranslationSetting: Bool = false
     
     private let homeViewUseCase: HomeViewUseCase
     
