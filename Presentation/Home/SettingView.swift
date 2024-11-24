@@ -64,9 +64,7 @@ struct SettingView: View {
                         }
                     })
                     
-                    Button(action: {
-                        
-                    }, label: {
+                    Link(destination: URL(string: "https://linktr.ee/Reazy.official")!, label: {
                         HStack {
                             Text("더 알아보기")
                                 .foregroundStyle(.gray800)
