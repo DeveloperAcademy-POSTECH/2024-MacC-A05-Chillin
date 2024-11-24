@@ -170,8 +170,7 @@ struct PaperInfoView: View {
                          attachmentAnchor: .point(.leading),
                          arrowEdge: .trailing,
                          content: {
-                    
-                    if let url = homeViewModel.sharePaperURL(at: id) {
+                    if let url = homeViewModel.getPapaerURL(at: id) {
                         ActivityViewController(activityItems: [url])
                     }
                 })

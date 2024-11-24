@@ -154,23 +154,6 @@ extension HomeViewModel {
 
 
 extension HomeViewModel {
-    public func sharePaperURL(at id: UUID) -> URL? {
-        var isStale: Bool = false
-        
-        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            
-            if let url = try? URL.init(resolvingBookmarkData: paperInfos[index].url, bookmarkDataIsStale: &isStale),
-               url.startAccessingSecurityScopedResource() {
-                
-                defer {
-                    url.stopAccessingSecurityScopedResource()
-                }
-                return url
-            }
-        }
-        return nil
-    }
-    
     public func updatePaperFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite
@@ -472,6 +455,23 @@ extension HomeViewModel {
                 self.folders.removeAll(where: { $0.id == folder.id })
             }
         }
+    }
+}
+
+extension HomeViewModel {
+    public func getPapaerURL(at id: UUID) -> URL? {
+        var isStale: Bool = false
+        
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            if let url = try? URL.init(resolvingBookmarkData: paperInfos[index].url, bookmarkDataIsStale: &isStale),
+               url.startAccessingSecurityScopedResource() {
+                defer {
+                    url.stopAccessingSecurityScopedResource()
+                }
+                return url
+            }
+        }
+        return nil
     }
 }
 
