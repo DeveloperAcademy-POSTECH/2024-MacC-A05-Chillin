@@ -9,7 +9,6 @@ import SwiftUI
 import StoreKit
 import Translation
 
-// MARK: - iOS18 이상
 @available(iOS 18.0, *)
 struct SettingView: View {
     private var email = SupportEmail()
@@ -151,112 +150,6 @@ struct SettingView: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - iOS18미만
-struct olderSettingView: View {
-    private var email = SupportEmail()
-    
-    @Environment(\.requestReview) var requestReview
-    @Environment(\.openURL) var openURL
-    @EnvironmentObject private var homeViewModel: HomeViewModel
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                
-                Rectangle()
-                    .frame(width: 18, height: 1)
-                    .foregroundStyle(.gray200)
-                
-                Spacer()
-                
-                Text("설정")
-                    .reazyFont(.button1)
-                
-                Spacer()
-                
-                Button(action: {
-                    homeViewModel.isSettingMenu = false
-                }, label: {
-                    Text("닫기")
-                        .reazyFont(.text1)
-                        .foregroundStyle(.primary1)
-                })
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-            
-            Divider()
-                .padding(0)
-            
-            VStack(spacing: 0) {
-                
-                Image("setting_thumbnail")
-                    .resizable()
-                    .frame(width: 480, height: 214)
-                    .padding(.bottom, 30)
-                
-                List {
-                    HStack {
-                        Text("버전")
-                        Spacer()
-                        Text("1.0.1")
-                    }
-                    .foregroundStyle(.gray800)
-                    
-                    Button(action: {
-                        requestReview()
-                    }, label: {
-                        HStack {
-                            Text("앱스토어 리뷰 남기기")
-                                .foregroundStyle(.gray800)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.gray600)
-                        }
-                    })
-                    
-                    Link(destination: URL(string: "https://linktr.ee/Reazy.official")!, label: {
-                        HStack {
-                            Text("더 알아보기")
-                                .foregroundStyle(.gray800)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.gray600)
-                        }
-                    })
-                    
-                    Button(action: {
-                        email.send(openURL: openURL)
-                    }, label: {
-                        HStack {
-                            Text("문의하기")
-                                .foregroundStyle(.gray800)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.gray600)
-                        }
-                    })
-                    
-                }
-                .environment(\.defaultMinListRowHeight, 52)
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .scrollDisabled(true)
-                .frame(maxHeight: 207)
-                .padding(.bottom, 20)
-            }
-            .padding(20)
-        }
-        .background(.gray200)
-        .frame(maxWidth: 520, maxHeight: 620)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
 

@@ -194,7 +194,7 @@ struct HomeView: View {
                 if #available(iOS 18.0, *) {
                     SettingView()
                 } else {
-                    olderSettingView()
+                    
                 }
             }
         }
