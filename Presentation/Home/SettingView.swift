@@ -154,7 +154,7 @@ struct SettingView: View {
 }
 
 // MARK: - 이메일
-struct SupportEmail {
+private struct SupportEmail {
     let toAddress: String = "fromchillin@gmail.com"
     let subject: String = "[Reazy] 관련 문의"
     var body: String {"""
