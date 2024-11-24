@@ -205,6 +205,25 @@ enum FolderColors: String, CaseIterable {
     static func color(for rawValue: String) -> Color {
         return FolderColors(rawValue: rawValue)?.color ?? .primary1
     }
+    
+    var thumbnail: Image {
+        switch self {
+        case .folder1:
+            return Image(.folder1)
+        case .folder2:
+            return Image(.folder2)
+        case .folder3:
+            return Image(.folder3)
+        case .folder4:
+            return Image(.folder4)
+        case .folder5:
+            return Image(.folder5)
+        case .folder6:
+            return Image(.folder6)
+        case .folder7:
+            return Image(.folder7)
+        }
+    }
 }
 
 struct FolderColorButton: View {

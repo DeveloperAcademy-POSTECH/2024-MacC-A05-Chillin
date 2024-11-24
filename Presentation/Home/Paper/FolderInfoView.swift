@@ -13,7 +13,7 @@ struct FolderInfoView: View {
     
     let id: UUID
     let title: String
-    let color: Color
+    let color: FolderColors
     @State var memo: String?
     var isFavorite: Bool
     
@@ -30,21 +30,10 @@ struct FolderInfoView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // TODO: - [브리] 이미지 수정 필요
-            RoundedRectangle(cornerRadius: 12)
-                .frame(width: 295, height: 378)
-                .foregroundStyle(.primary2)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 32)
-                        .frame(width: 135, height: 135)
-                        .foregroundStyle(color)
-                        .overlay(
-                            Image(.folder)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 69)
-                        )
-                )
+            color.thumbnail
+                .resizable()
+                .scaledToFit()
+                .padding(.horizontal, 30)
             
             HStack(spacing: 0) {
                 Text(title)
@@ -322,7 +311,7 @@ struct FolderInfoView: View {
     FolderInfoView(
         id: .init(),
         title: "테스트",
-        color: .primary1,
+        color: FolderColors.folder1,
         memo: "",
         isFavorite: false,
         isStarSelected: false,
