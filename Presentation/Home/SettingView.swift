@@ -13,7 +13,7 @@ struct SettingView: View {
     @State var isDismiss: Bool = false
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 0)
             HStack {
                 Spacer()
                 
