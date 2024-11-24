@@ -444,13 +444,13 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         // drawingToolMode에 따라 제스처 인식기를 추가
         if mode == .pencil || mode == .eraser || mode == .lasso {
             let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-            if mode == .lasso || mode == .eraser {
+            if mode == .lasso {
                 pdfDrawingGestureRecognizer.allowedTouchTypes = [
                     NSNumber(value: UITouch.TouchType.indirect.rawValue),
                     NSNumber(value: UITouch.TouchType.direct.rawValue),
                     NSNumber(value: UITouch.TouchType.pencil.rawValue)
                 ]
-            } else if mode == .pencil {
+            } else if mode == .pencil || mode == .eraser {
                 pdfDrawingGestureRecognizer.allowedTouchTypes = [
                     NSNumber(value: UITouch.TouchType.indirect.rawValue),
                     NSNumber(value: UITouch.TouchType.pencil.rawValue)
