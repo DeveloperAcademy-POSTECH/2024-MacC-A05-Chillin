@@ -152,6 +152,13 @@ extension HomeViewModel {
 
 
 extension HomeViewModel {
+    public func sharePaperURL(at id: UUID) -> Data? {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            return paperInfos[index].url
+        }
+        return nil
+    }
+    
     public func updatePaperFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite

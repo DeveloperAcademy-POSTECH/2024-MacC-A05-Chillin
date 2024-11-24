@@ -27,6 +27,8 @@ struct PaperInfoView: View {
     let onNavigate: () -> Void
     let onDelete: () -> Void
     
+    @State private var isActivityViewPresented = false
+    
     var body: some View {
         VStack(spacing: 0) {
             Image(uiImage: .init(data: image) ?? .init(resource: .testThumbnail))
@@ -149,7 +151,7 @@ struct PaperInfoView: View {
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    // TODO: - 내보내기 버튼 구현
+                    isActivityViewPresented = true
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
@@ -163,6 +165,11 @@ struct PaperInfoView: View {
                                 .foregroundStyle(.gray600)
                         )
                 }
+                .popover(isPresented: $isActivityViewPresented, content: {
+                    if let url = homeViewModel.sharePaperURL(at: id) {
+                        ActivityViewController(activityItems: [url])
+                    }
+                })
                 
                 Spacer()
                 
