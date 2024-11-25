@@ -78,13 +78,17 @@
 		2C6A13DD2CEE2D7300518986 /* FileManager + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6A13DC2CEE2D7300518986 /* FileManager + Extension.swift */; };
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
+		67E8AB792CF0C33000FACBAB /* TemporaryAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */; };
 		6E241BDE2CEDF47600AE3EB4 /* MoveFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E241BDD2CEDF47600AE3EB4 /* MoveFolderView.swift */; };
 		6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */; };
 		6EBB167B2CEB6005001F9EA0 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB167A2CEB6005001F9EA0 /* Folder.swift */; };
 		6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */; };
+		6ED2F1FA2CF1A10A00C5DE95 /* SearchWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2F1F92CF1A10A00C5DE95 /* SearchWordView.swift */; };
+		6ED2F1FC2CF237FF00C5DE95 /* UserDefault+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */; };
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B505C7512CF02B35002FF1CC /* FigureMenu.swift */; };
+		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -201,14 +205,18 @@
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemporaryAlertView.swift; sourceTree = "<group>"; };
 		6E241BDD2CEDF47600AE3EB4 /* MoveFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveFolderView.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 		6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderDataRepository.swift; sourceTree = "<group>"; };
 		6EBB167A2CEB6005001F9EA0 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
+		6ED2F1F92CF1A10A00C5DE95 /* SearchWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchWordView.swift; sourceTree = "<group>"; };
+		6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefault+Keys.swift"; sourceTree = "<group>"; };
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		B505C7512CF02B35002FF1CC /* FigureMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureMenu.swift; sourceTree = "<group>"; };
+		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -480,6 +488,7 @@
 				2C1473F62CE8902900B35D92 /* FigureList */,
 				2C1473EF2CE8816500B35D92 /* PageList */,
 				2C2C35892CEB24D800552185 /* MenuView.swift */,
+				67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */,
 			);
 			path = Menus;
 			sourceTree = "<group>";
@@ -620,8 +629,10 @@
 			children = (
 				2CC431552CE9CECB00E51DB0 /* ViewModel */,
 				2C1473392CE73B6F00B35D92 /* HomeView.swift */,
+				B32E3D292CF23C0800171F23 /* SettingView.swift */,
 				2C1474252CE8FFC400B35D92 /* Paper */,
 				6E241BDD2CEDF47600AE3EB4 /* MoveFolderView.swift */,
+				6ED2F1F92CF1A10A00C5DE95 /* SearchWordView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -738,6 +749,7 @@
 			children = (
 				2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */,
 				2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */,
+				6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -971,6 +983,7 @@
 				2C14739D2CE73B6F00B35D92 /* FigureDataRepository.swift in Sources */,
 				2C14739E2CE73B6F00B35D92 /* PaperDataRepository.swift in Sources */,
 				2C14739F2CE73B6F00B35D92 /* Comment.swift in Sources */,
+				67E8AB792CF0C33000FACBAB /* TemporaryAlertView.swift in Sources */,
 				2C1473A02CE73B6F00B35D92 /* DrawingData.swift in Sources */,
 				2C1473A12CE73B6F00B35D92 /* FigureAnnotation.swift in Sources */,
 				6EBB16812CEB81D9001F9EA0 /* FileSystemItem.swift in Sources */,
@@ -980,6 +993,7 @@
 				B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */,
 				2C1473A42CE73B6F00B35D92 /* PDFInfo.swift in Sources */,
 				6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */,
+				6ED2F1FC2CF237FF00C5DE95 /* UserDefault+Keys.swift in Sources */,
 				2C1473A62CE73B6F00B35D92 /* TableItem.swift in Sources */,
 				2C1473A72CE73B6F00B35D92 /* NetworkManager + Error.swift in Sources */,
 				2C1473A82CE73B6F00B35D92 /* NetworkManager + Grobid.swift in Sources */,
@@ -1011,6 +1025,7 @@
 				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,
 				2C1473C62CE73B6F00B35D92 /* OriginalViewController.swift in Sources */,
 				2C1473C82CE73B6F00B35D92 /* OriginalViewRepresentable.swift in Sources */,
+				B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */,
 				2C1473C92CE73B6F00B35D92 /* CommentViewModel.swift in Sources */,
 				2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */,
 				2C1473CB2CE73B6F00B35D92 /* IndexViewModel.swift in Sources */,
@@ -1019,6 +1034,7 @@
 				2C1473CF2CE73B6F00B35D92 /* TranslateViewOlderVer.swift in Sources */,
 				2C1473D02CE73B6F00B35D92 /* CommentCell.swift in Sources */,
 				6E241BDE2CEDF47600AE3EB4 /* MoveFolderView.swift in Sources */,
+				6ED2F1FA2CF1A10A00C5DE95 /* SearchWordView.swift in Sources */,
 				2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */,
 				2C1473D12CE73B6F00B35D92 /* CommentGroupView.swift in Sources */,
 				2C1473D22CE73B6F00B35D92 /* MainPDFView.swift in Sources */,

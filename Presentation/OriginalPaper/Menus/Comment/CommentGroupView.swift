@@ -24,10 +24,10 @@ struct CommentGroupView: View {
                     CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
                 }
             }
+            .frame(maxWidth: 386, minHeight: 91)
             .background(Color.gray100)
-            .cornerRadius(12)
-            .frame(width: 357)
             .border(.primary2, width: 1)
+            .cornerRadius(16)
             .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
         }
         .onChange(of: viewModel.isEditMode) {
@@ -36,34 +36,33 @@ struct CommentGroupView: View {
     }
 }
 
-// MARK: - CommentGrouopView 분리
 
-// 저장된 코멘트
+// MARK: - 저장된 코멘트 뷰
 private struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
+    
     var selectedComments: [Comment]
+    
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(selectedComments.indices, id: \.self) { index in
-                CommentCell(viewModel: viewModel, comment: selectedComments[index])
-                    .padding(.leading, 16)
-                
-                if index < selectedComments.count - 1 {
-                    Divider()
-                        .frame(height: 1)
-                        .foregroundStyle(.primary2)
-                        .padding(0)
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(selectedComments.indices, id: \.self) { index in
+                    CommentCell(viewModel: viewModel, comment: selectedComments[index])
+                        .padding(.leading, 22)
+                        .padding(.trailing, 12)
+                    
+                    if index < selectedComments.count - 1 {
+                        Divider()
+                            .frame(height: 1)
+                            .foregroundStyle(.primary2)
+                            .padding(0)
+                    }
                 }
             }
-        }
-        .frame(minWidth: 357, minHeight: 78)
-        .foregroundStyle(.point2)
-        
+            .foregroundStyle(.point2)        
     }
 }
 
-// 코멘트 입력 창
+// MARK: -  코멘트 입력 창
 private struct CommentInputView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @StateObject var viewModel: CommentViewModel
@@ -75,12 +74,16 @@ private struct CommentInputView: View {
     let placeHolder: Text = .init("코멘트 추가")
     
     var body: some View {
-        LazyVStack(alignment: .leading) {
-            TextField("\(placeHolder.foregroundStyle(Color.primary4))", text: $text, axis:.vertical)
-                .lineLimit(5)
-                .reazyFont(.body1)
-                .foregroundStyle(.point2)
-                .padding(.horizontal, 18)
+        VStack(alignment: .leading) {
+            TextField(
+                "\(placeHolder.foregroundStyle(Color.primary4))",
+                text: $text, axis:.vertical
+            )
+            .lineLimit(4)
+            .reazyFont(.text1)
+            .foregroundStyle(.point2)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 5)
             
             HStack{
                 Spacer()
@@ -122,14 +125,13 @@ private struct CommentInputView: View {
                 }, label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .foregroundStyle(text.isEmpty ? .primary4 : .primary1)
-                        .font(.system(size: 20))
+                        .font(.system(size: 28))
                 })
-                .padding(.trailing, 9)
+                .padding([.trailing,.bottom], 12)
                 .disabled(text.isEmpty)
             }
         }
-        .padding(.top, 16)
-        .padding(.bottom, 9)
+        .padding(.top, 18)
         .onReceive(self.viewModel.$comment) {
             guard let comment = $0 else { return }
             if viewModel.isEditMode {
@@ -139,46 +141,62 @@ private struct CommentInputView: View {
     }
 }
 
-// 수정,삭제 뷰
-
-private struct CommentMenuView: View {
+// MARK: - 수정,삭제 뷰
+struct CommentMenuView: View {
+    @EnvironmentObject var pdfViewModel: MainPDFViewModel
+    @StateObject var viewModel: CommentViewModel
+    var comment: Comment    /// 선택된 comment
+    
     var body: some View {
         HStack{
-            Menu {
-                Button(action: {
-                    //수정 액션
-                }, label: {
-                    HStack{
-                        Image(systemName: "pencil.line")
-                            .font(.system(size: 12))
-                            .padding(.trailing, 6)
-                        Text("수정")
-                            .reazyFont(.body3)
-                    }
-                })
-                .foregroundStyle(.gray600)
-                
-                Button(action: {
-                    //수정 액션
-                }, label: {
-                    HStack{
-                        Image(systemName: "trash")
-                            .font(.system(size: 12))
-                            .padding(.trailing, 6)
-                        Text("삭제")
-                            .reazyFont(.body3)
-                    }
-                }).foregroundStyle(.gray600)
-            } label: {
-                
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            
+            // 수정
+            Button(action: {
+                viewModel.isEditMode = true
+                pdfViewModel.isCommentTapped = false
+                viewModel.isMenuTapped = false
+            }, label: {
+                VStack(alignment: .center, spacing: 3) {
+                    Image(systemName: "pencil.line")
+                        .font(.system(size: 14))
+                    
+                    Text("수정")
+                        .reazyFont(.h3)
+                }
+            })
+            .foregroundStyle(.gray600)
+            
+            Divider().frame(width: 1, height: 43)
+                .tint(.primary2)
+                .padding(.horizontal, 33)
+            
+            // 삭제
+            Button(action: {
+                viewModel.deleteComment(commentId: comment.id)
+                pdfViewModel.isCommentTapped = false
+                pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
+                viewModel.isMenuTapped = false
+            }, label: {
+                VStack(alignment: .center, spacing: 3) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 14))
+                    
+                    Text("삭제")
+                        .reazyFont(.h3)
+                }
+            })
+            .foregroundStyle(.gray600)
         }
+        .padding(.horizontal, 32)
+        .padding(.vertical, 15)
         .background(.gray100)
-        .border(.primary2, width: 1)
-        .frame(minWidth: 130)
-        .cornerRadius(8)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.primary2, lineWidth: 1)
+        )
+        .frame(minWidth: 180, minHeight: 67)
         .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
     }
 }
+

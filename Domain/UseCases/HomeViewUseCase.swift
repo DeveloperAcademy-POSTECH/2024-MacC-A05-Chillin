@@ -20,7 +20,7 @@ protocol HomeViewUseCase {
     func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
     
     @discardableResult
-    func deletePDFs(id: [UUID]) -> Result<VoidResponse, any Error>
+    func deletePDF(id: UUID) -> Result<VoidResponse, any Error>
     
     func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
   
@@ -37,7 +37,7 @@ protocol HomeViewUseCase {
     func editFolder(_ folder: Folder) -> Result<VoidResponse, any Error>
     
     @discardableResult
-    func deleteFolders(id: [UUID]) -> Result<VoidResponse, any Error>
+    func deleteFolder(id: UUID) -> Result<VoidResponse, any Error>
 }
 
 
@@ -62,22 +62,18 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.paperDataRepository.editPDFInfo(info)
     }
     
-    public func deletePDFs(id: [UUID]) -> Result<VoidResponse, any Error> {
-        var result: Result<VoidResponse, any Error>? = nil
-        id.forEach {
-            switch self.paperDataRepository.deletePDFInfo(id: $0) {
-            case .success(let success):
-                result = .success(success)
-            case .failure(let error):
-                result = .failure(error)
-                break
-            }
-        }
-        return result!
+    public func deletePDF(id: UUID) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.deletePDFInfo(id: id)
     }
     
     public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
+        
+        guard url.startAccessingSecurityScopedResource() else {
+            return nil
+        }
+        
+        defer { url.stopAccessingSecurityScopedResource() }
         
         let tempDoc = PDFDocument(url: url)
 
@@ -174,18 +170,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.folderDataRepository.editFolder(folder)
     }
     
-    public func deleteFolders(id: [UUID]) -> Result<VoidResponse, any Error> {
-        var result: Result<VoidResponse, any Error>? = nil
-        id.forEach {
-            switch self.folderDataRepository.deleteFolder(id: $0) {
-            case .success(let success):
-                result = .success(success)
-            case .failure(let error):
-                result = .failure(error)
-                break
-            }
-        }
-        return result!
+    public func deleteFolder(id: UUID) -> Result<VoidResponse, any Error> {
+        self.folderDataRepository.deleteFolder(id: id)
     }
       
     internal func savePDFIntoDirectory(url: URL) throws -> (Data, URL)? {
@@ -193,6 +179,10 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
+            
+            // TODO: url 오류 대응
+            guard url.startAccessingSecurityScopedResource() else { return nil }
+            defer { url.stopAccessingSecurityScopedResource() }
             
             if manager.fileExists(atPath: fileURL.path()) {
                 var dupNum = 1
@@ -203,7 +193,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 
                 
                 while dupNum < 100 {
-                    let tempURL = documentURL.appending(path: lastComponent.joined() + " (\(dupNum)).pdf")
+                    let tempURL = documentURL.appending(path: lastComponent.joined() + "(\(dupNum)).pdf")
                     
                     if !manager.fileExists(atPath: tempURL.path()) {
                         try manager.copyItem(at: url, to: tempURL)

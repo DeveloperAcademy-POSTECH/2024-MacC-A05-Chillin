@@ -33,6 +33,7 @@ struct MainPDFView: View {
     
     @State private var isListSelected: Bool = false
     @State private var isFigSelected: Bool = false
+    @State private var isBoardSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isReadMode: Bool = false
     
@@ -60,7 +61,7 @@ struct MainPDFView: View {
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(systemName: "chevron.left")
-                                            .font(.system(size: 14))
+                                            .font(.system(size: 16))
                                             .foregroundStyle(.gray800)
                                     )
                             }
@@ -74,8 +75,11 @@ struct MainPDFView: View {
                                     .foregroundStyle(isListSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
-                                        Image(systemName: "list.bullet")
-                                            .font(.system(size: 14))
+                                        Image(.index)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 18)
                                             .foregroundStyle(isListSelected ? .gray100 : .gray800)
                                     )
                             }
@@ -88,11 +92,14 @@ struct MainPDFView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .foregroundStyle( isSearchSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
-                                    .overlay {
-                                        Image(systemName: "magnifyingglass")
-                                            .font(.system(size: 16))
-                                            .foregroundStyle( isSearchSelected ? .gray100 : .gray800 )
-                                    }
+                                    .overlay (
+                                        Image(.search)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 22)
+                                            .foregroundStyle(isSearchSelected ? .gray100 : .gray800)
+                                    )
                             }
                             
                             Rectangle()
@@ -106,17 +113,21 @@ struct MainPDFView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .foregroundStyle( isReadMode ? .primary1 : .clear )
                                     .frame(width: 26, height: 26)
-                                    .overlay {
-                                        Image(systemName: "text.justify")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle( isReadMode ? .gray100 : .gray800 )
-                                    }
+                                    .overlay (
+                                        Image(.focus)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 18)
+                                            .foregroundStyle(isReadMode ? .gray100 : .gray800)
+                                    )
                             }
                             
                             Spacer()
                             
                             Button(action: {
                                 isFigSelected.toggle()
+                                isBoardSelected = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -125,6 +136,24 @@ struct MainPDFView: View {
                                         Text("Fig")
                                             .font(.system(size: 14))
                                             .foregroundStyle( isFigSelected ? .gray100 : .gray800 )
+                                    )
+                            }
+                            .padding(.trailing, 24)
+                            
+                            Button(action: {
+                                isBoardSelected.toggle()
+                                isFigSelected = false
+                            }) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .frame(width: 26, height: 26)
+                                    .foregroundStyle(isBoardSelected ? .primary1 : .clear)
+                                    .overlay (
+                                        Image(.window)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 16)
+                                            .foregroundStyle(isBoardSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
@@ -177,23 +206,19 @@ struct MainPDFView: View {
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                         mainPDFViewModel.toolMode = .translate
                                         mainPDFViewModel.drawingToolMode = .none
-                                    case .lasso:
-                                        mainPDFViewModel.toolMode = .lasso
-                                        mainPDFViewModel.drawingToolMode = .none
                                     default:
                                         mainPDFViewModel.toolMode = .none
                                         mainPDFViewModel.drawingToolMode = .none
                                     }
                                 }
-                                .padding(.trailing, btn == .lasso ? 0 : 30 )
+                                .padding(.horizontal, 18)
                             }
                             
                             Spacer()
                         }
-                        
                     }
                     .padding(.top, 10)
-                    .padding(.bottom, 11)
+                    .padding(.bottom, 6)
                     .padding(.horizontal, 20)
                     .background(.primary3)
                     .zIndex(1)
@@ -208,22 +233,37 @@ struct MainPDFView: View {
                             HStack(spacing: 0) {
                                 ZStack {
                                     if isListSelected {
-                                        MenuView()
-                                            .environmentObject(mainPDFViewModel)
-                                            .environmentObject(indexViewModel)
-                                            .environmentObject(pageListViewModel)
-                                            .frame(width: 252)
-                                            .background(.gray100)
-                                            .transition(.move(edge: .leading))
+                                        HStack(spacing: 0) {
+                                            MenuView()
+                                                .environmentObject(mainPDFViewModel)
+                                                .environmentObject(indexViewModel)
+                                                .environmentObject(pageListViewModel)
+                                                .frame(width: 252)
+                                                .background(.gray100)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(width: 1.5)
+                                                        .foregroundStyle(.primary3),
+                                                    alignment: .trailing
+                                                )
+                                                .transition(.move(edge: .leading))
+                                        }
                                     }
                                     
                                     if isSearchSelected {
                                         OverlaySearchView(isSearchSelected: $isSearchSelected)
                                             .environmentObject(searchViewModel)
+                                            .overlay(
+                                                Rectangle()
+                                                    .frame(width: 1.5)
+                                                    .foregroundStyle(.primary3),
+                                                alignment: .trailing
+                                            )
+                                            .transition(.move(edge: .leading))
                                     }
-                                    
                                 }
                                 
+                                Spacer()
                                 
                                 ZStack {
                                     if isVertical {
@@ -232,28 +272,41 @@ struct MainPDFView: View {
                                         splitLayout(for: .horizontal)
                                     }
                                 }
-                            }
-                            .animation(.easeInOut(duration: 0.3), value: isListSelected)
-                            
-                            HStack(spacing: 0) {
+                                
                                 Spacer()
                                 
-                                if isFigSelected && !floatingViewModel.splitMode {
-                                    Rectangle()
-                                        .frame(width: 1)
-                                        .foregroundStyle(Color(hex: "CCCEE1"))
+                                ZStack {
+                                    if isFigSelected && !floatingViewModel.splitMode {
+                                        HStack(spacing: 0) {
+                                            FigureView(onSelect: { documentID, document, head in
+                                                floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                                            })
+                                            .environmentObject(mainPDFViewModel)
+                                            .environmentObject(floatingViewModel)
+                                            .environmentObject(focusFigureViewModel)
+                                            .background(.white)
+                                            .frame(width: geometry.size.width * 0.22)
+                                            .transition(.move(edge: .leading))
+                                            .overlay(
+                                                Rectangle()
+                                                    .frame(width: 1.5)
+                                                    .foregroundStyle(.primary3),
+                                                alignment: .leading
+                                            )
+                                        }
+                                    }
                                     
-                                    FigureView(onSelect: { documentID, document, head in
-                                        floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
-                                    })
-                                    .environmentObject(mainPDFViewModel)
-                                    .environmentObject(floatingViewModel)
-                                    .environmentObject(focusFigureViewModel)
-                                    .background(.white)
-                                    .frame(width: geometry.size.width * 0.22)
+                                    // TODO: - 모아보기
+                                    if isBoardSelected && !floatingViewModel.splitMode {
+                                        Rectangle()
+                                            .frame(width: 1)
+                                            .foregroundStyle(Color(hex: "CCCEE1"))
+                                    }
                                 }
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(.gray200)
                         .ignoresSafeArea()
                     }
                 }
@@ -293,7 +346,8 @@ struct MainPDFView: View {
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(20)
+                        .padding(.top, 20)
+                        .padding(.leading, isListSelected || isSearchSelected ? 272 : 20)
                     }
                 }
                 
@@ -302,11 +356,18 @@ struct MainPDFView: View {
                     .environmentObject(floatingViewModel)
                 
                 if mainPDFViewModel.isMenuSelected {
-                    PDFInfoMenu()
-                        .environmentObject(pdfInfoMenuViewModel)
-                        .position(x: menuButtonPosition.x - 135 , y: menuButtonPosition.y + 220 )
-                        .transition(.opacity)
-                        .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected) // 애니메이션 설정
+                    GeometryReader { gp in
+                        ZStack {
+                            PDFInfoMenu()
+                                .environmentObject(pdfInfoMenuViewModel)
+                                .transition(.opacity)
+                                .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                        .padding(.top, 50)
+                        .padding(.trailing, 20)
+                        
+                    }
                 }
                 
                 if focusFigureViewModel.isEditFigName {
@@ -391,6 +452,14 @@ struct MainPDFView: View {
                 if mainPDFViewModel.toolMode == .translate {
                     TranslateViewOlderVer()
                 }
+            } else {
+                // 드래그 전까지 selected Text 없으면 말풍선
+                if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
+                    TemporaryAlertView(mode: "translate")
+                }
+            }
+            if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
+                TemporaryAlertView(mode: "comment")
             }
         }
         .onReceive(publisher) { a in

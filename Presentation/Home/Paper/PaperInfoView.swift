@@ -10,8 +10,6 @@ import SwiftUI
 struct PaperInfoView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var isPaper: Bool
-    
     let id: UUID
     let image: Data
     let title: String
@@ -28,6 +26,8 @@ struct PaperInfoView: View {
     
     let onNavigate: () -> Void
     let onDelete: () -> Void
+    
+    @State private var isActivityViewPresented = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -48,21 +48,73 @@ struct PaperInfoView: View {
             
             HStack(spacing: 0) {
                 Menu {
-                    Button("제목 수정", systemImage: "pencil") {
+                    Button {
                         self.isEditingTitle = true
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("제목 수정")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                            Image(.editpencil)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                                .foregroundStyle(.gray800)
+                        }
                     }
                     
-                    Button("복제", systemImage: "square.on.square") {
+                    Button {
                         // TODO: - 문서 복제 구현
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("복제")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                            Image(.copy)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                                .foregroundStyle(.gray800)
+                        }
                     }
                     
-                    Button("이동", systemImage: "rectangle.portrait.and.arrow.right") {
+                    Button {
                         self.isMovingFolder.toggle()
-                        isPaper = true
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("이동")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                            Image(.move)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                                .foregroundStyle(.gray800)
+                        }
                     }
                     
-                    Button("삭제", systemImage: "trash", role: .destructive) {
-                        self.isDeleteConfirm.toggle()
+                    Button(role: .destructive) {
+                        // TODO: - Alert 오류 추후 수정 필요
+//                        self.isDeleteConfirm.toggle()
+                        self.homeViewModel.deletePDF(at: id)
+                        onDelete()
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("삭제")
+                                .reazyFont(.body1)
+                            Spacer()
+                            Image(.trash)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
+                        }
                     }
                     
                 } label: {
@@ -70,8 +122,11 @@ struct PaperInfoView: View {
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "ellipsis")
-                                .font(.system(size: 14))
+                            Image(.morehorizontal)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         )
                 }
@@ -85,25 +140,39 @@ struct PaperInfoView: View {
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: isFavorite ? "star.fill" : "star")
-                                .font(.system(size: 14))
+                            Image(isFavorite ? .starfill : .star)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
                                 .foregroundStyle(isFavorite ? .primary1 : .gray600)
                         )
                 }
                 .padding(.trailing, 6)
                 
                 Button(action: {
-                    // TODO: - 내보내기 버튼 구현
+                    isActivityViewPresented = true
                 }) {
                     RoundedRectangle(cornerRadius: 14)
                         .frame(width: 40, height: 40)
                         .foregroundStyle(.gray400)
                         .overlay(
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 14))
+                            Image(.share)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         )
                 }
+                .popover(isPresented: $isActivityViewPresented,
+                         attachmentAnchor: .point(.leading),
+                         arrowEdge: .trailing,
+                         content: {
+                    if let url = homeViewModel.getPapaerURL(at: id) {
+                        ActivityViewController(activityItems: [url])
+                    }
+                })
                 
                 Spacer()
                 
@@ -127,20 +196,45 @@ struct PaperInfoView: View {
                     
                     if !(self.memo == nil) {
                         Menu {
-                            Button("수정", systemImage: "pencil") {
+                            Button {
                                 self.isEditingMemo = true
+                            } label: {
+                                HStack(spacing: 0) {
+                                    Text("메모 수정")
+                                        .reazyFont(.body1)
+                                        .foregroundStyle(.gray800)
+                                    Spacer()
+                                    Image(.editpencil)
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 17, height: 17)
+                                        .foregroundStyle(.gray800)
+                                }
                             }
                             
-                            Button("삭제", systemImage: "trash", role: .destructive) {
+                            Button(role: .destructive) {
                                 self.homeViewModel.deleteMemo(at: id)
                                 self.memo = nil
+                            } label: {
+                                HStack(spacing: 0) {
+                                    Text("삭제")
+                                        .reazyFont(.body1)
+                                    Spacer()
+                                    Image(.trash)
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 17, height: 17)
+                                }
                             }
                             
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Image(.morecircle)
+                                .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 17)
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         }
                     } else {
@@ -148,10 +242,11 @@ struct PaperInfoView: View {
                             self.memo = ""
                             self.isEditingMemo = true
                         } label: {
-                            Image(systemName: "plus")
+                            Image(.memo)
+                                .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 17)
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray600)
                         }
                     }
@@ -205,18 +300,19 @@ struct PaperInfoView: View {
         .onChange(of: self.isEditingMemo) {
             self.homeViewModel.memoText = memo!
         }
-        .alert(isPresented: $isDeleteConfirm) {
-            Alert(
-                title: Text("정말 삭제하시겠습니까?"),
-                message: Text("삭제된 파일은 복구할 수 없습니다."),
-                primaryButton: .default(Text("취소")),
-                secondaryButton: .destructive(Text("삭제")) {
-                    let ids = [id]
-                    self.homeViewModel.deletePDF(ids: ids)
-                    onDelete()
-                }
-            )
-        }
+        // TODO: - Alert 수정 필요
+//        .alert(isPresented: $isDeleteConfirm) {
+//            Alert(
+//                title: Text("정말 삭제하시겠습니까?"),
+//                message: Text("삭제된 파일은 복구할 수 없습니다."),
+//                primaryButton: .default(Text("취소")),
+//                secondaryButton: .destructive(Text("삭제")) {
+//                    let ids = [id]
+//                    self.homeViewModel.deletePDF(ids: ids)
+//                    onDelete()
+//                }
+//            )
+//        }
     }
     
     @ViewBuilder
@@ -264,7 +360,6 @@ struct PaperInfoView: View {
 
 #Preview {
     PaperInfoView(
-        isPaper: .constant(true),
         id: .init(),
         image: .init(),
         title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",

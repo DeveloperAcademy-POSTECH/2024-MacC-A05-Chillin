@@ -12,18 +12,15 @@ enum Buttons: String, CaseIterable {
     case drawing
     case comment
     case translate
-    case lasso
 
     var icon: Image {
         switch self {
         case .drawing:
-            return Image(systemName: "pencil.tip.crop.circle")
+            return Image(.drawing)
         case .comment:
-            return Image(systemName: "text.bubble")
+            return Image(.comment)
         case .translate:
-            return Image(systemName: "globe")
-        case .lasso:
-            return Image(systemName: "square.dashed")
+            return Image(.globe)
         }
     }
 }
@@ -43,8 +40,12 @@ struct ButtonsView: View {
                 .frame(width: 26, height: 26)
                 .overlay(
                     selectedButton.icon
-                        .font(.system(size: 16))
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 18)
                         .foregroundStyle(button == selectedButton ? .gray100 : .gray800)
+
                 )
         }
     }
@@ -203,6 +204,25 @@ enum FolderColors: String, CaseIterable {
     
     static func color(for rawValue: String) -> Color {
         return FolderColors(rawValue: rawValue)?.color ?? .primary1
+    }
+    
+    var thumbnail: Image {
+        switch self {
+        case .folder1:
+            return Image(.folder1)
+        case .folder2:
+            return Image(.folder2)
+        case .folder3:
+            return Image(.folder3)
+        case .folder4:
+            return Image(.folder4)
+        case .folder5:
+            return Image(.folder5)
+        case .folder6:
+            return Image(.folder6)
+        case .folder7:
+            return Image(.folder7)
+        }
     }
 }
 
