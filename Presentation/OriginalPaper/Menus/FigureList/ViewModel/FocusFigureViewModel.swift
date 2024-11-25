@@ -24,7 +24,7 @@ class FocusFigureViewModel: ObservableObject {
     // 올가미 툴
     @Published var isCaptureMode: Bool = false
     
-    let a = NotificationCenter.default.publisher(for: .isPDFCaptured)
+    let publisher = NotificationCenter.default.publisher(for: .isPDFCaptured)
     
     var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
@@ -234,9 +234,9 @@ extension FocusFigureViewModel {
     
     // 올가미로 새 Figure 추가하는 부분
     func isPDFCaptured() {
-        self.a
+        self.publisher
             .sink { [weak self] in
-                self?.isCaptureMode = false
+                self?.isCaptureMode.toggle()
                 
                 guard let figure = $0.object as? Figure else { return }
                 guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }

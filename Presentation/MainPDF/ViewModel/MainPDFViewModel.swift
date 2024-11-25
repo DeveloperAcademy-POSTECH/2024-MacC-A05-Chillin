@@ -284,6 +284,7 @@ enum ToolMode {
     case translate
     case comment
     case drawing
+    case lasso
 }
 
 // 드로잉 툴바에 있는 버튼

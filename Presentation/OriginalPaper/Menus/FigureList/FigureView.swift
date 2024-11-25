@@ -15,7 +15,6 @@ struct FigureView: View {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @State private var scrollToIndex: Int? = nil
-//    @State private var isCaptureMode: Bool = false
     
     let onSelect: (String, PDFDocument, String) -> Void
     
@@ -101,9 +100,11 @@ struct FigureView: View {
                             focusFigureViewModel.isCaptureMode.toggle()
                             if focusFigureViewModel.isCaptureMode {
                                 mainPDFViewModel.drawingToolMode = .lasso
+                                mainPDFViewModel.toolMode = .lasso
                                 mainPDFViewModel.updateDrawingTool()
                             } else {
                                 mainPDFViewModel.drawingToolMode = .none
+                                mainPDFViewModel.toolMode = .none
                                 mainPDFViewModel.updateDrawingTool()
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
