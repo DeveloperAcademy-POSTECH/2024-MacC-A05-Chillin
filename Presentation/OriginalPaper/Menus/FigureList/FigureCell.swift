@@ -87,6 +87,7 @@ struct FigureCell: View {
                             .stroke(floatingViewModel.isFigureSelected(documentID: documentID) ? .primary1 : .primary3, lineWidth: floatingViewModel.isFigureSelected(documentID: documentID) ? 1.5 : 1)
                         
                         FigureMenu(
+                            observableDocument: ObservableDocument(document: document),
                             newFigName: $newFigName,
                             isDeleteFigAlert: $isDeleteFigAlert,
                             id: id
