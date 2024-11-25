@@ -12,7 +12,7 @@ struct FigureAnnotation: Hashable {
     let uuid: UUID
     let page: Int
     let id: String
-    let head: String
+    var head: String
     let position: CGRect
 }
 
