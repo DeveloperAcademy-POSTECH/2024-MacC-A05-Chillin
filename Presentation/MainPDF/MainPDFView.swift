@@ -448,7 +448,6 @@ struct MainPDFView: View {
         .onReceive(publisher) { a in
             if let _ = a.userInfo?["hitted"] as? Bool {
                 mainPDFViewModel.isMenuSelected = false
-//                mainPDFViewModel.pdfDrawer.endCaptureMode()
             }
         }
         

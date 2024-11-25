@@ -49,7 +49,6 @@ struct TemporaryAlertView: View {
                     .reazyFont(.button2)
             }
         }
-//        .opacity(isPresented ? 1 : 0) // 투명도 변경
         .onAppear {
             isPresented = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
