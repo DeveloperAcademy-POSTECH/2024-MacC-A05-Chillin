@@ -126,7 +126,8 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isFigSelected.toggle()
-                                // 올가미 초기화
+                                
+                                mainPDFViewModel.drawingToolMode = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                                 focusFigureViewModel.isCaptureMode = false
                                 
@@ -185,6 +186,7 @@ struct MainPDFView: View {
                                     switch selectedButton {
                                     case .drawing:
                                         mainPDFViewModel.toolMode = .drawing
+                                        mainPDFViewModel.drawingToolMode = .none
                                     case .comment:
                                         mainPDFViewModel.toolMode = .comment
                                         mainPDFViewModel.drawingToolMode = .none
@@ -446,7 +448,7 @@ struct MainPDFView: View {
         .onReceive(publisher) { a in
             if let _ = a.userInfo?["hitted"] as? Bool {
                 mainPDFViewModel.isMenuSelected = false
-                mainPDFViewModel.pdfDrawer.endCaptureMode()
+//                mainPDFViewModel.pdfDrawer.endCaptureMode()
             }
         }
         

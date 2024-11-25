@@ -103,9 +103,9 @@ struct FigureView: View {
                                 mainPDFViewModel.toolMode = .lasso
                                 mainPDFViewModel.updateDrawingTool()
                             } else {
-                                mainPDFViewModel.drawingToolMode = .none
                                 mainPDFViewModel.toolMode = .none
                                 mainPDFViewModel.updateDrawingTool()
+                                mainPDFViewModel.drawingToolMode = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {

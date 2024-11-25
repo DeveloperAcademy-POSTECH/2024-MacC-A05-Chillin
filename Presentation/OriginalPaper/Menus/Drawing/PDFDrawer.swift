@@ -124,20 +124,16 @@ class PDFDrawer {
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
     // MARK: - 제스처 최초 시작 시 한 번 실행되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
+        if drawingTool == .none { return }
+        
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
         
-        let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
-        
-        if pageBounds.contains(location) {
-            let convertedPoint = pdfView.convert(location, to: currentPage!)
-            path = UIBezierPath()
-            path?.move(to: convertedPoint)
-        }
-
+        print(drawingTool)
         if drawingTool == .lasso {
             
-            endCaptureMode()
+            lassoRectangleLayer?.removeFromSuperlayer()
+            checkButton.removeFromSuperview()
             
             if checkButton.frame.contains(location) {
                 // 버튼을 터치했으면 제스처를 시작하지 않음
@@ -156,10 +152,19 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             return
         }
         
+        let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
+        
+        if pageBounds.contains(location) {
+            let convertedPoint = pdfView.convert(location, to: currentPage!)
+            path = UIBezierPath()
+            path?.move(to: convertedPoint)
+        }
+        
     }
     
     // MARK: - 제스처 움직이는 동안 실행되는 함수
     func gestureRecognizerMoved(_ location: CGPoint) {
+        if drawingTool == .none { return }
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
@@ -204,6 +209,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     
     // MARK: - 패드에서 제스처 뗄 때 실행되는 함수
     func gestureRecognizerEnded(_ location: CGPoint) {
+        if drawingTool == .none { return }
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         
@@ -412,6 +418,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     }
     
     func endCaptureMode() {
+        drawingTool = .none
         lassoRectangleLayer?.removeFromSuperlayer()
         checkButton.removeFromSuperview()
     }
