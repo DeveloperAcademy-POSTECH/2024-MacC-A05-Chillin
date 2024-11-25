@@ -463,11 +463,7 @@ extension HomeViewModel {
         var isStale: Bool = false
         
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            if let url = try? URL.init(resolvingBookmarkData: paperInfos[index].url, bookmarkDataIsStale: &isStale),
-               url.startAccessingSecurityScopedResource() {
-                defer {
-                    url.stopAccessingSecurityScopedResource()
-                }
+            if let url = try? URL.init(resolvingBookmarkData: paperInfos[index].url, bookmarkDataIsStale: &isStale) {
                 return url
             }
         }

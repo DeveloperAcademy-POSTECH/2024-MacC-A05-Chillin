@@ -68,9 +68,9 @@ class FocusFigureRepositoryImpl: FocusFigureRepository {
                 // 500 error, PDF OCR 적용이 안되어있음
                 if (500 ..< 600 ~= response.statusCode) {
                     let decoder = JSONDecoder()
-                    //let errorResult = try! decoder.decode(ErrorDescription.self, from: data)
+                    let errorResult = try! decoder.decode(ErrorDescription.self, from: data)
                     print("PDF extract error!, statusCode: \(response.statusCode)")
-                    //print(errorResult.error)
+                    print(errorResult.error)
                     completion(.failure(.corruptedPDF))
                     return
                 }
