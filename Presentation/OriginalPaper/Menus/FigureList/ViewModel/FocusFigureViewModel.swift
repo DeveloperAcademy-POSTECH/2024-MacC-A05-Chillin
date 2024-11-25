@@ -18,6 +18,9 @@ class FocusFigureViewModel: ObservableObject {
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
     
+    @Published public var isEditFigName: Bool = false
+    @Published public var selectedID: UUID?
+    
     // 올가미 툴
     @Published var isCaptureMode: Bool = false
     
@@ -127,8 +130,7 @@ extension FocusFigureViewModel {
     }
     
     
-    public func setFigureDocument(for index: Int) -> PDFDocument? {
-        
+    public func setFigureDocument(for index: Int) -> PDFDocument? {        
         guard index >= 0 && index < self.figures.count else {           // 인덱스가 유효한지 확인
             print("Invalid index")
             return nil
@@ -258,3 +260,13 @@ extension FocusFigureViewModel {
     }
 }
 
+extension FocusFigureViewModel {
+    public func editFigTitle(at id: UUID, head: String) {
+        if let index = figures.firstIndex(where: { $0.uuid == id }) {
+            figures[index].head = head
+            // TODO: - [무니] 살려줘
+//            let figure = figures[index].toCoreData()
+//            self.focusFigureUseCase.editFigures(with: figure)
+        }
+    }
+}

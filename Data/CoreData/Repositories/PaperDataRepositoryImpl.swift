@@ -27,6 +27,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                     title: paperData.title,
                     thumbnail: paperData.thumbnail,
                     url: paperData.url,
+                    focusURL: paperData.focusURL,
                     lastModifiedDate: paperData.lastModifiedDate,
                     isFavorite: paperData.isFavorite,
                     memo: paperData.memo ?? nil,
@@ -48,6 +49,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         newPaperData.id = info.id
         newPaperData.title = info.title
         newPaperData.url = info.url
+        newPaperData.focusURL = info.focusURL
         newPaperData.thumbnail = info.thumbnail
         newPaperData.lastModifiedDate = info.lastModifiedDate
         newPaperData.isFavorite = info.isFavorite
@@ -87,6 +89,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 // 기존 데이터 수정
                 dataToEdit.title = info.title
                 dataToEdit.url = info.url
+                dataToEdit.focusURL = info.focusURL
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
                 dataToEdit.memo = info.memo

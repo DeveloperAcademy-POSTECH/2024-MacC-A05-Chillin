@@ -63,6 +63,7 @@ struct PDFLayoutResponseDTO: Codable {
             }
             
             result.append(.init(
+                uuid: UUID(),
                 page: page,
                 id: id,
                 head: head ?? "nil",
@@ -121,7 +122,7 @@ struct PDFLayoutResponseDTO: Codable {
 
 struct Figure: Codable {
     let id: String
-    let head: String?
+    var head: String?
     let label: String?
     let figDesc: String?
     let coords: [String]
@@ -162,6 +163,7 @@ struct Figure: Codable {
         }
         
         return .init(
+            uuid: UUID(),
             page: page,
             id: id,
             head: head ?? "nil",

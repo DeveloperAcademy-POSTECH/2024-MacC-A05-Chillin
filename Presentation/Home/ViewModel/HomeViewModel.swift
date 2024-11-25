@@ -10,6 +10,8 @@ import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
+    private let pdfSharedData: PDFSharedData = .shared
+    
     @Published public var paperInfos: [PaperInfo] = [] {
         didSet {
             updateFilteredList()
@@ -453,6 +455,19 @@ extension HomeViewModel {
                 self.folders.removeAll(where: { $0.id == folder.id })
             }
         }
+    }
+}
+
+extension HomeViewModel {
+    public func getPapaerURL(at id: UUID) -> URL? {
+        var isStale: Bool = false
+        
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            if let url = try? URL.init(resolvingBookmarkData: paperInfos[index].url, bookmarkDataIsStale: &isStale) {
+                return url
+            }
+        }
+        return nil
     }
 }
 

@@ -87,6 +87,7 @@
 		6ED2F1FC2CF237FF00C5DE95 /* UserDefault+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */; };
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
+		B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B505C7512CF02B35002FF1CC /* FigureMenu.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
 /* End PBXBuildFile section */
 
@@ -214,6 +215,7 @@
 		6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefault+Keys.swift"; sourceTree = "<group>"; };
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
+		B505C7512CF02B35002FF1CC /* FigureMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureMenu.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -525,6 +527,7 @@
 				2C1473E52CE7896A00B35D92 /* ViewModel */,
 				2C1473522CE73B6F00B35D92 /* FigureView.swift */,
 				2C1473512CE73B6F00B35D92 /* FigureCell.swift */,
+				B505C7512CF02B35002FF1CC /* FigureMenu.swift */,
 			);
 			path = FigureList;
 			sourceTree = "<group>";
@@ -971,6 +974,7 @@
 				2C1473962CE73B6F00B35D92 /* CoordinatorProtocol.swift in Sources */,
 				2C1473972CE73B6F00B35D92 /* NavigationCoordinator.swift in Sources */,
 				2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */,
+				B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */,
 				2C1473982CE73B6F00B35D92 /* PresentationType.swift in Sources */,
 				2C1473992CE73B6F00B35D92 /* NotificationCenter + Extension.swift in Sources */,
 				2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */,
