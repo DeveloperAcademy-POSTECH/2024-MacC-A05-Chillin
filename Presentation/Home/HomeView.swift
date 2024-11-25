@@ -96,7 +96,8 @@ struct HomeView: View {
                                 selectedMenu: $homeViewModel.selectedMenu,
                                 selectedItems: $selectedItems,
                                 isEditing: $isEditing,
-                                isMovingFolder: $isMovingFolder)
+                                isMovingFolder: $isMovingFolder
+                            )
                         }
                     }
                     .padding(.top, 46)
