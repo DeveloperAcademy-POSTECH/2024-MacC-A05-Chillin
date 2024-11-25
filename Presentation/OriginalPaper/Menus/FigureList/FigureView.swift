@@ -109,30 +109,29 @@ struct FigureView: View {
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {
-                            if !focusFigureViewModel.isCaptureMode {
-                                Image(systemName: "plus")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 14)
-                                    .foregroundStyle(.primary1)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            } else {
-                                Text("취소")
-                                    .reazyFont(.text1)
-                                    .foregroundStyle(.primary1)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            ZStack(alignment: .center) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(.gray300)
+                                    .frame(width: 212, height: 40)
+                                    .padding(.horizontal, 20)
+                                
+                                if !focusFigureViewModel.isCaptureMode {
+                                    Image(systemName: "plus")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 14)
+                                        .foregroundStyle(.primary1)
+                                } else {
+                                    Text("취소")
+                                        .reazyFont(.text1)
+                                        .foregroundStyle(.primary1)
+                                }
                             }
-                            
+                            .frame(height: 76)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: 52)
+                        .frame(maxWidth: .infinity, maxHeight: 76)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: 52)
-                    .overlay(
-                        Rectangle()
-                            .frame(height: 1.5)
-                            .foregroundStyle(.primary3),
-                        alignment: .top
-                    )
+                    .frame(maxWidth: .infinity, maxHeight: 76)
                     .background(.gray100)
                 }
             }
