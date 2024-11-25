@@ -53,14 +53,15 @@ struct OriginalView: View {
                 }
                 
                 // 코멘트뷰
-                if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
                     ZStack {
-                        CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
+                        if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
+                            CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
+                        }
                     }
                     .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
                     .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
                     .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
-                }
+                    .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
                 
                 // 코멘트 메뉴
                 if let comment = commentViewModel.comment {
