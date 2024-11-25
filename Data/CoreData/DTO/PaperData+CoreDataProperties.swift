@@ -18,6 +18,7 @@ extension PaperData {
     @NSManaged public var title: String
     @NSManaged public var thumbnail: Data
     @NSManaged public var url: Data
+    @NSManaged public var focusURL: Data?
     @NSManaged public var lastModifiedDate: Date
     @NSManaged public var isFavorite: Bool
     @NSManaged public var memo: String?
