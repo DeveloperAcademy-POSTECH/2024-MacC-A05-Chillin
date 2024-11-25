@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
 		2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 2C14693F2CE25B7600B35D92 /* Settings.bundle */; };
 		2C14737F2CE73B6F00B35D92 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1472FA2CE73B6F00B35D92 /* AppView.swift */; };
 		2C14738E2CE73B6F00B35D92 /* PersistantContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14730D2CE73B6F00B35D92 /* PersistantContainer.swift */; };
@@ -87,8 +86,8 @@
 		6ED2F1FC2CF237FF00C5DE95 /* UserDefault+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */; };
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
-		B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B505C7512CF02B35002FF1CC /* FigureMenu.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
+		B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B505C7512CF02B35002FF1CC /* FigureMenu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -215,8 +214,8 @@
 		6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefault+Keys.swift"; sourceTree = "<group>"; };
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
-		B505C7512CF02B35002FF1CC /* FigureMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureMenu.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		B505C7512CF02B35002FF1CC /* FigureMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureMenu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -864,7 +863,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					2C1458932CD7D09800B35D92 = {
 						CreatedOnToolsVersion = 16.0;
@@ -930,7 +929,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */,
-				2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
