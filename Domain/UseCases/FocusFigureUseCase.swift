@@ -35,6 +35,11 @@ protocol FocusFigureUseCase {
         info: PaperInfo
     ) -> Result<VoidResponse, any Error>
     
+    @discardableResult
+    func deleteFigures (
+        with figure: Figure
+    ) -> Result<VoidResponse, any Error>
+    
 }
 
 
@@ -94,5 +99,13 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
     
     public func editPaperInfo(info: PaperInfo) -> Result<VoidResponse, any Error> {
         figureDataRepository.editPaperInfo(info: info)
+    }
+    
+    public func deleteFigures(with figure: Figure) -> Result<VoidResponse, any Error> {
+        guard let id = self.pdfSharedData.paperInfo?.id else {
+            return .failure(NetworkManagerError.badRequest)
+        }
+        
+        return figureDataRepository.deleteFigureData(for: id, id: figure.id)
     }
 }

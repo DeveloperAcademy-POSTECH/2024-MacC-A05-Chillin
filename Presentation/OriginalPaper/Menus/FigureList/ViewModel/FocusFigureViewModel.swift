@@ -230,13 +230,15 @@ extension FocusFigureViewModel {
     public func editFigTitle(at id: UUID, head: String) {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
             figures[index].head = head
-            // TODO: - [무니] 살려줘
-//            let figure = figures[index].toCoreData()
-//            self.focusFigureUseCase.editFigures(with: figure)
+            
+            self.focusFigureUseCase.editFigures(with: figures[index].toDTO())
         }
     }
     
     public func deleteFigure(at id: UUID) {
+        if let index = figures.firstIndex(where: { $0.uuid == id }) {
+            self.focusFigureUseCase.deleteFigures(with: figures[index].toDTO())
+        }
         self.figures.removeAll(where: { $0.uuid == id })
     }
 }

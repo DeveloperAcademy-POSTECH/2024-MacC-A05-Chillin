@@ -63,13 +63,19 @@ struct PDFLayoutResponseDTO: Codable {
             
             result.append(.init(
                 uuid: UUID(),
+                id: coords.id,
                 page: page,
-                head: head ?? "nil",
+                head: head ?? coords.id,
                 position: .init(
                     x: x0,
                     y: pageHeight - y1,
                     width: x1 - x0,
-                    height: y1 - y0)))
+                    height: y1 - y0),
+                label: coords.label,
+                figDesc: coords.figDesc,
+                coords: coords.coords,
+                graphicCoord: coords.graphicCoord
+            ))
         }
         
         return result
@@ -161,12 +167,19 @@ struct Figure: Codable {
         
         return .init(
             uuid: UUID(),
+            id: id,
             page: page,
-            head: head ?? "nil",
+            head: head ?? id,
             position: .init(
                 x: x0,
                 y: pageHeight - y1,
                 width: x1 - x0,
-                height: y1 - y0))
+                height: y1 - y0),
+            label: label,
+            figDesc: figDesc,
+            coords: coords,
+            graphicCoord: graphicCoord
+        )
+            
     }
 }
