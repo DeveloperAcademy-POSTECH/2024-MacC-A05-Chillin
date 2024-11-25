@@ -52,13 +52,25 @@ struct PaperListView: View {
                                     self.selectAll.toggle()
                                 }) {
                                     HStack(spacing: 0) {
-                                        Image(selectAll ? .close : .check)
-                                            .renderingMode(.template)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 22, height: 22)
-                                            .foregroundStyle(.gray550)
-                                            .padding(.trailing, 8)
+                                        if selectAll {
+                                            Rectangle()
+                                                .frame(width: 22, height: 22)
+                                                .foregroundStyle(.clear)
+                                                .overlay(
+                                                    Image(systemName: "xmark")
+                                                        .font(.system(size: 18))
+                                                        .foregroundStyle(.gray600)
+                                                )
+                                                .padding(.trailing, 8)
+                                        } else {
+                                            Image(.check)
+                                                .renderingMode(.template)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 22, height: 22)
+                                                .foregroundStyle(.gray600)
+                                                .padding(.trailing, 8)
+                                        }
                                         
                                         Text(selectAll ? "전체 선택 해제" : "전체 선택")
                                             .reazyFont(.h2)
@@ -427,7 +439,7 @@ struct PaperListView: View {
             }
             .onChange(of: selectedItems) {
                 if selectedItems.count == homeViewModel.filteredLists.count {
-                    self.selectAll.toggle()
+                    self.selectAll = true
                 }
             }
             .onChange(of: homeViewModel.selectedFilter) {
