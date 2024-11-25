@@ -9,7 +9,6 @@ import SwiftUI
 import StoreKit
 import Translation
 
-@available(iOS 18.0, *)
 struct SettingView: View {
     private var email = SupportEmail()
     

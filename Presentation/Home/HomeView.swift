@@ -193,11 +193,7 @@ struct HomeView: View {
             
             // 세팅 메뉴 뷰
             if homeViewModel.isSettingMenu {
-                if #available(iOS 18.0, *) {
-                    SettingView()
-                } else {
-                    
-                }
+                SettingView()
             }
         }
         .background(Color(hex: "F7F7FB"))
