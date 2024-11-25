@@ -106,12 +106,16 @@ struct SettingView: View {
                 .frame(maxHeight: 207)
                 .padding(.bottom, 20)
                 .scrollDisabled(true)
+                
+                Text("© 2024 chillin'. All rights reserved.")
+                    .reazyFont(.body1)
+                    .foregroundStyle(.gray700)
             }
             .padding(20)
         }
         .background(.gray200)
-        .frame(maxWidth: 520, maxHeight: 620)
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .frame(maxWidth: 520, maxHeight: 620)
     }
 }
 
