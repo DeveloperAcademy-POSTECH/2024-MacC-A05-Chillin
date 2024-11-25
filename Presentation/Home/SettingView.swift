@@ -17,12 +17,6 @@ struct SettingView: View {
     @Environment(\.openURL) var openURL
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State var translationTapped: Bool = false
-    @State private var configuration = TranslationSession.Configuration(
-        source: Locale.Language(identifier: "en_EG(US)"),
-        target: Locale.Language(identifier: "ko_KR")
-    )
-    
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -63,7 +57,7 @@ struct SettingView: View {
                     HStack {
                         Text("버전")
                         Spacer()
-                        Text("1.0.1")
+                        Text("2.0")
                     }
                     .foregroundStyle(.gray800)
                     
@@ -112,44 +106,12 @@ struct SettingView: View {
                 .frame(maxHeight: 207)
                 .padding(.bottom, 20)
                 .scrollDisabled(true)
-                
-                List {
-                    Button(action: {
-                        configuration.invalidate()
-                        translationTapped = true
-                    }, label: {
-                        HStack {
-                            Text("언어")
-                                .foregroundStyle(.gray800)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.gray600)
-                        }
-                    })
-                    .listRowSeparator(.hidden)
-                }
-                .environment(\.defaultMinListRowHeight, 52)
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .frame(maxHeight: 52)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .scrollDisabled(true)
             }
             .padding(20)
         }
         .background(.gray200)
         .frame(maxWidth: 520, maxHeight: 620)
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .translationTask(configuration) { session in
-            if translationTapped {
-                do {
-                    try await session.prepareTranslation()
-                } catch {
-                    // Handle any errors.
-                }
-            }
-        }
     }
 }
 
