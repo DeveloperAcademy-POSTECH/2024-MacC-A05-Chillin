@@ -223,10 +223,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let height = topLeft.y - bottomRight.y
                 
                 let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
-                
-                print(rectanglePath)
-                // PDF 잘라내기 및 이미지 처리
-                
+
                 if let newFigure = captureToPDF(path: rectanglePath) {
                     print("PDF is captured: \(newFigure)")
                     endCaptureMode()
@@ -236,9 +233,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 
                 let coords = "\(pageNum! + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
-                print(coords)
-                
-                // NEW FIGURE
+
                 let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 
                 NotificationCenter.default.post(name: .isPDFCaptured, object: result)
@@ -264,15 +259,13 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             self.startPoint = pdfView.convert(startPoint, to: page)
             self.endPoint = pdfView.convert(location, to: page)
             
-            // 체크 버튼 만들기
+            // 올가미 하단에 뜨는 체크 버튼
             checkButton = UIButton(type: .system)
             checkButton.frame = CGRect(x: topLeft.x + width / 2, y: topLeft.y + height + 8, width: 36, height: 28)
             checkButton.setImage(UIImage(named: "check"), for: .normal) // 버튼 이미지 설정
             checkButton.imageView?.contentMode = .scaleAspectFit
             checkButton.tintColor = .gray100
             checkButton.backgroundColor = .point4
-
-            // 버튼 둥글게 만들기 (모서리 둥글기 설정)
             checkButton.layer.cornerRadius = 10
             pdfView.addSubview(checkButton)
 
