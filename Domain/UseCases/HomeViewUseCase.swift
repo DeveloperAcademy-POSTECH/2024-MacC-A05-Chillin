@@ -24,7 +24,7 @@ protocol HomeViewUseCase {
     
     func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
   
-    func savePDFIntoDirectory(url: URL) throws -> (Data, URL)?
+    func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)?
     
     func uploadSamplePDFFile() -> PaperInfo?
     
@@ -78,7 +78,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         let tempDoc = PDFDocument(url: url)
 
         
-        guard let urlData = try? self.savePDFIntoDirectory(url: url) else {
+        guard let urlData = try? self.savePDFIntoDirectory(url: url, isSample: false) else {
             throw PDFUploadError.fileNameDuplication
         }
         
@@ -122,7 +122,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let tempDoc = PDFDocument(url: pdfURL)
 
-        let urlData = try! self.savePDFIntoDirectory(url: pdfURL)!
+        let urlData = try! self.savePDFIntoDirectory(url: pdfURL, isSample: true)!
         
         var lastComponent = pdfURL.lastPathComponent.split(separator: ".")
         lastComponent.removeLast()
@@ -174,15 +174,17 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.folderDataRepository.deleteFolder(id: id)
     }
       
-    internal func savePDFIntoDirectory(url: URL) throws -> (Data, URL)? {
+    internal func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)? {
         do {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             // TODO: url 오류 대응
-            guard url.startAccessingSecurityScopedResource() else { return nil }
-            defer { url.stopAccessingSecurityScopedResource() }
+            if !isSample {
+                guard url.startAccessingSecurityScopedResource() else { return nil }
+                do { url.stopAccessingSecurityScopedResource() }
+            }
             
             if manager.fileExists(atPath: fileURL.path()) {
                 var dupNum = 1

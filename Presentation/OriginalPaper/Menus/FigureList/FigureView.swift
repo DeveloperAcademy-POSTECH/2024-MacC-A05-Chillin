@@ -66,11 +66,39 @@ struct FigureView: View {
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
                 case .complete:
-                    Text("피규어를 꺼내서 창에 띄울 수 있어요")
-                        .reazyFont(.text2)
-                        .foregroundStyle(.gray600)
-                        .padding(.vertical, 24)
-                    
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            // TODO: - splitView 진입
+                            // 선택된 Floating이 없을 경우 반드시 첫 figure 선택
+                        }) {
+                            Image(.dualwindow)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 19)
+                                .foregroundStyle(.primary1)
+                        }
+                        
+                        Spacer()
+                        
+                        Text("Fig & Table")
+                            .reazyFont(.body1)
+                            .foregroundStyle(.gray800)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            // TODO: - 다중 선택 구현
+                        }) {
+                            Image(systemName: "checkmark.circle")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.primary1)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 15)
+                    .padding(.bottom, 24)
+ 
                     
                     // ScrollViewReader로 자동 스크롤 구현
                     ScrollViewReader { proxy in

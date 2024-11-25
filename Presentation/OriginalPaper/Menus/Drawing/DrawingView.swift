@@ -178,11 +178,8 @@ struct DrawingView: View {
                     .foregroundStyle(.clear)
                     .frame(width: 26, height: 26)
                     .overlay(
-                        Image(.close)
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 12)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15))
                             .foregroundStyle(.gray700)
                     )
             }

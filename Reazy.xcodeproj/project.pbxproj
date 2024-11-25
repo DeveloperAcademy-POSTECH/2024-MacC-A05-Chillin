@@ -89,6 +89,7 @@
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
 		B505C7522CF02B35002FF1CC /* FigureMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B505C7512CF02B35002FF1CC /* FigureMenu.swift */; };
 		B56A56A02CF4680D000BE384 /* EditFigNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56A569F2CF4680D000BE384 /* EditFigNameView.swift */; };
+
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
