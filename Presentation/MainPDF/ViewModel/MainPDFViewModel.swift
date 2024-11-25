@@ -62,9 +62,6 @@ final class MainPDFViewModel: ObservableObject {
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false
     
-    // 올가미 툴
-    @Published var isCaptureSelected: Bool = false
-    
     public var pdfSharedData: PDFSharedData = .shared
     
     @Published var isMenuSelected: Bool = false

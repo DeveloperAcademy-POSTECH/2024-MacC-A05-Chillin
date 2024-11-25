@@ -54,7 +54,6 @@ class PDFDrawer {
     var endPage: PDFPage? // lasso 영역을 저장할 경로 추가
     var checkButton: UIButton = UIButton()
     
-    
     private var lassoRectangleLayer: CAShapeLayer? // 점선 사각형을 그리기 위한 레이어
     
     var annotationHistory: [(action: PDFAction, annotation: PDFAnnotation, page: PDFPage)] = [] {
@@ -237,6 +236,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 
                 NotificationCenter.default.post(name: .isPDFCaptured, object: result)
+                
                 return
             }
             

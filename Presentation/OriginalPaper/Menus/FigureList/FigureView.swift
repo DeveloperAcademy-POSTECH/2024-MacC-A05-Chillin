@@ -15,7 +15,7 @@ struct FigureView: View {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     @State private var scrollToIndex: Int? = nil
-    @State private var isCaptureMode: Bool = false
+//    @State private var isCaptureMode: Bool = false
     
     let onSelect: (String, PDFDocument, String) -> Void
     
@@ -97,8 +97,8 @@ struct FigureView: View {
                     }
                     VStack(spacing: 0){
                         Button(action: {
-                            isCaptureMode.toggle()
-                            if isCaptureMode {
+                            focusFigureViewModel.isCaptureMode.toggle()
+                            if focusFigureViewModel.isCaptureMode {
                                 mainPDFViewModel.drawingToolMode = .lasso
                                 mainPDFViewModel.updateDrawingTool()
                             } else {
@@ -107,7 +107,7 @@ struct FigureView: View {
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {
-                            if !isCaptureMode {
+                            if !focusFigureViewModel.isCaptureMode {
                                 Image(systemName: "plus")
                                     .resizable()
                                     .scaledToFit()

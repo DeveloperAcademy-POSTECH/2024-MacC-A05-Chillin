@@ -18,6 +18,8 @@ class FocusFigureViewModel: ObservableObject {
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
     
+    // 올가미 툴
+    @Published var isCaptureMode: Bool = false
     
     let a = NotificationCenter.default.publisher(for: .isPDFCaptured)
     
@@ -232,6 +234,8 @@ extension FocusFigureViewModel {
     func isPDFCaptured() {
         self.a
             .sink { [weak self] in
+                self?.isCaptureMode = false
+                
                 guard let figure = $0.object as? Figure else { return }
                 guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
                 
