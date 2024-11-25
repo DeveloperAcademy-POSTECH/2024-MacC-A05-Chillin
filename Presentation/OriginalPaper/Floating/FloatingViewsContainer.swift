@@ -36,7 +36,9 @@ struct FloatingViewsContainer: View {
           ),
           viewWidth: Binding(
             get: { floatingViewModel.droppedFigures[index].viewWidth },
-            set: { floatingViewModel.droppedFigures[index].viewWidth = $0 }
+            set: { calculatedWidth in
+                floatingViewModel.droppedFigures[index].viewWidth = max(calculatedWidth, 200)
+              }
           )
         )
         .environmentObject(floatingViewModel)
