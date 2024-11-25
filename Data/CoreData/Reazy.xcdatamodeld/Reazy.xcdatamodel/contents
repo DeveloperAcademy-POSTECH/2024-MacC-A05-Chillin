@@ -36,6 +36,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
     </entity>
     <entity name="PaperData" representedClassName="PaperData" syncable="YES">
+        <attribute name="focusURL" optional="YES" attributeType="Binary"/>
         <attribute name="folderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

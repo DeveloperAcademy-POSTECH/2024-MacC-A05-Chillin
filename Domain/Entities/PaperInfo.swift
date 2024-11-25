@@ -13,6 +13,7 @@ struct PaperInfo {
     var title: String
     let thumbnail: Data
     let url: Data
+    var focusURL: Data?
     var lastModifiedDate: Date
     var isFavorite: Bool
     var memo: String?
@@ -25,6 +26,7 @@ struct PaperInfo {
         title: String,
         thumbnail: Data,
         url: Data,
+        focusURL: Data? = nil,
         lastModifiedDate: Date = .init(),
         isFavorite: Bool = false,
         memo: String? = nil,
@@ -35,6 +37,7 @@ struct PaperInfo {
         self.title = title
         self.thumbnail = thumbnail
         self.url = url
+        self.focusURL = focusURL
         self.lastModifiedDate = lastModifiedDate
         self.isFavorite = isFavorite
         self.memo = memo
