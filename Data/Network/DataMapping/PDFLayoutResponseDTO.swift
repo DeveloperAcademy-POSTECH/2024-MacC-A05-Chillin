@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import PDFKit
 
 /**
  Grobid 모델에서 PDF 분석 결과를 받아오는 구조체

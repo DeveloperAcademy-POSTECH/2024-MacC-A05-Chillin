@@ -22,6 +22,8 @@ class FocusFigureViewModel: ObservableObject {
     
     private var focusFigureUseCase: FocusFigureUseCase
     
+    public var focusDocument: PDFDocument?
+    
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
     }
@@ -43,14 +45,17 @@ extension FocusFigureViewModel {
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
-            
+            var isStale = false
             let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
+            let focusUrl = try! URL.init(resolvingBookmarkData: paperInfo!.focusURL!, bookmarkDataIsStale: &isStale)
             
             if result.isEmpty {
                 self.figureStatus = .empty
                 return
             }
+            
+            self.focusDocument = PDFDocument(url: focusUrl)
             
             DispatchQueue.main.async {
                 self.figures = result
@@ -107,6 +112,9 @@ extension FocusFigureViewModel {
                             self.figureStatus = .complete
                             
                             self.saveFigures(figures: layout.toCoreData())
+                            
+                            let url = self.setFocusDocument(fileName: "")
+                            paperInfo.focusURL = try? url.bookmarkData(options: .minimalBookmark)
                             
                             paperInfo.isFigureSaved = true
                             self.focusFigureUseCase.editPaperInfo(info: paperInfo)
@@ -173,7 +181,7 @@ extension FocusFigureViewModel {
 
 
 extension FocusFigureViewModel {
-    public func setFocusDocument() -> PDFDocument {
+    private func setFocusDocument(fileName: String) -> URL {
         
         let document = PDFDocument()
         
@@ -193,6 +201,69 @@ extension FocusFigureViewModel {
             document.insert(page, at: pageIndex)
             pageIndex += 1
         }
+        
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "combine.pdf")
+        let width = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).width
+        
+        let w: CGFloat = {
+            var result: CGFloat = 0
+            for a in self.focusPages {
+                if a.position.width > result {
+                    result = a.position.width
+                }
+            }
+            return result
+        }()
+        
+        let height: CGFloat = {
+            var result: CGFloat = 0
+            for a in self.focusPages {
+                result += a.position.height
+            }
+            return result
+        }()
+        
+        UIGraphicsBeginPDFContextToFile(path.path(), CGRect(origin: .zero, size: .init(width: w + 60, height: height + 20)), nil)
+        UIGraphicsBeginPDFPageWithInfo(CGRect(origin: .zero, size: .init(width: w + 60, height: height + 20)), nil)
+        
+        var currentY: CGFloat = 20
+        
+        for i in self.focusPages {
+//            let pageHeight = self.document!.page(at: i)!.bounds(for: .mediaBox).height
+//            let pageWidth = self.document!.page(at: i)!.bounds(for: .mediaBox).width
+
+                // Render the page content
+                if let context = UIGraphicsGetCurrentContext() {
+                    let page = self.focusFigureUseCase.pdfSharedData.document!
+                        .page(at: i.page - 1)!.copy() as! PDFPage
+//                    let croppedPage = self.annotations[i].page!.copy() as! PDFPage
+                    
+                    let crop = i.position
+                    
+                    let original = page.bounds(for: .mediaBox)
+                    let croppedRect = original.intersection(crop)
+//                    page.displaysAnnotations = false
+                    
+                    page.setBounds(croppedRect, for: .mediaBox)
+                    
+                    context.saveGState()
+                    context.translateBy(x: 30, y: currentY + i.position.height) // Adjust y-position
+                    context.scaleBy(x: 1, y: -1) // Flip coordinate system
+                    page.draw(with: .mediaBox, to: context) // Draw the page
+                    context.restoreGState()
+                }
+
+                // Move to the next page's position
+            currentY += i.position.height
+        }
+        
+        UIGraphicsEndPDFContext()
+        
+        let dddocument = PDFDocument(url: path)
+        self.focusDocument = dddocument
+        return path
+        
+        
         
         // TODO: 밑 주석 추후에 수정 예정
         /*
@@ -222,7 +293,7 @@ extension FocusFigureViewModel {
         let resultDocument = PDFDocument(url: url)!
          */
         
-        return document
+//        return document
     }
 }
 

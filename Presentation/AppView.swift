@@ -72,8 +72,6 @@ extension AppView {
         UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
         homeViewModel.updateIsFigureSaved(at: id, isFigureSaved: true)
         
-        
-        
         layout.fig.forEach {
             let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
                 id: $0.id,

@@ -24,7 +24,7 @@ protocol HomeViewUseCase {
     
     func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
   
-    func savePDFIntoDirectory(url: URL) throws -> (Data, URL)?
+    func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)?
     
     func uploadSamplePDFFile() -> PaperInfo?
     
@@ -76,9 +76,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         defer { url.stopAccessingSecurityScopedResource() }
         
         let tempDoc = PDFDocument(url: url)
-
         
-        guard let urlData = try? self.savePDFIntoDirectory(url: url) else {
+        guard let urlData = try? self.savePDFIntoDirectory(url: url, isSample: false) else {
             throw PDFUploadError.fileNameDuplication
         }
         
@@ -122,12 +121,73 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let tempDoc = PDFDocument(url: pdfURL)
 
-        let urlData = try! self.savePDFIntoDirectory(url: pdfURL)!
+        let urlData = try! self.savePDFIntoDirectory(url: pdfURL, isSample: true)!
         
         var lastComponent = pdfURL.lastPathComponent.split(separator: ".")
         lastComponent.removeLast()
         
         let title = lastComponent.joined()
+        
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "ReazySamplePaper_combine.pdf")
+        
+        let layout = try! JSONDecoder()
+            .decode(
+                PDFLayoutResponseDTO.self,
+                from: try! .init(contentsOf: Bundle.main.url(forResource: "sample", withExtension: "json")!))
+        
+        let focuses = layout.toFocusEntities(pageHeight: tempDoc!.page(at: 0)!.bounds(for: .mediaBox).height)
+        
+        let w: CGFloat = {
+            var result: CGFloat = 0
+            for annotation in focuses {
+                if annotation.position.width > result {
+                    result = annotation.position.width
+                }
+            }
+            return result
+        }()
+        
+        let height: CGFloat = {
+            var result: CGFloat = 0
+            for annotation in focuses {
+                result += annotation.position.height
+            }
+            return result
+        }()
+        
+        UIGraphicsBeginPDFContextToFile(path.path(), CGRect(origin: .zero, size: .init(width: w + 60, height: height + 20)), nil)
+        UIGraphicsBeginPDFPageWithInfo(CGRect(origin: .zero, size: .init(width: w + 60, height: height + 20)), nil)
+        
+        var currentY: CGFloat = 20
+        
+        for annotation in focuses {
+                // Render the page content
+                if let context = UIGraphicsGetCurrentContext() {
+                    let page = tempDoc!
+                        .page(at: annotation.page - 1)!.copy() as! PDFPage
+                    
+                    let crop = annotation.position
+                    
+                    let original = page.bounds(for: .mediaBox)
+                    let croppedRect = original.intersection(crop)
+                    page.displaysAnnotations = false
+                    
+                    page.setBounds(croppedRect, for: .mediaBox)
+                    
+                    context.saveGState()
+                    context.translateBy(x: 0, y: currentY + annotation.position.height) // Adjust y-position
+                    context.scaleBy(x: 1, y: -1) // Flip coordinate system
+                    page.draw(with: .mediaBox, to: context) // Draw the page
+                    context.restoreGState()
+                }
+
+                // Move to the next page's position
+            currentY += annotation.position.height
+        }
+        
+        UIGraphicsEndPDFContext()
+        
+        let focusURLData = try! path.bookmarkData(options: .minimalBookmark)
         
         if let firstPage = tempDoc?.page(at: 0) {
             let width = firstPage.bounds(for: .mediaBox).width
@@ -139,7 +199,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: thumbnailData!,
-                url: urlData.0
+                url: urlData.0,
+                focusURL: focusURLData
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -150,7 +211,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let paperInfo = PaperInfo(
                 title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
-                url: urlData.0
+                url: urlData.0,
+                focusURL: focusURLData
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
@@ -174,19 +236,20 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.folderDataRepository.deleteFolder(id: id)
     }
       
-    internal func savePDFIntoDirectory(url: URL) throws -> (Data, URL)? {
+    internal func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)? {
         do {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             // TODO: url 오류 대응
-            guard url.startAccessingSecurityScopedResource() else { return nil }
-            defer { url.stopAccessingSecurityScopedResource() }
+            if !isSample {
+                guard url.startAccessingSecurityScopedResource() else { return nil }
+                defer { url.stopAccessingSecurityScopedResource() }
+            }
             
             if manager.fileExists(atPath: fileURL.path()) {
                 var dupNum = 1
-                
                 
                 var lastComponent = url.lastPathComponent.split(separator: ".")
                 lastComponent.removeLast()

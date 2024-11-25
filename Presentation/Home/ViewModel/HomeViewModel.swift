@@ -7,10 +7,10 @@
 
 import Foundation
 import SwiftUI
+import PDFKit
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    private let pdfSharedData: PDFSharedData = .shared
     
     @Published public var paperInfos: [PaperInfo] = [] {
         didSet {
@@ -208,11 +208,18 @@ extension HomeViewModel {
             }
         }
     }
+    
+    public func updateFocusURL(at id: UUID, focusURL: Data) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].focusURL = focusURL
+            self.homeViewUseCase.editPDF(paperInfos[index])
+        }
+    }
 }
 
 
 extension HomeViewModel {
-    public func uploadSampleData() {
+    public func uploadSampleData(focuses: [FocusAnnotation]) {
         let sampleUrl = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
         self.paperInfos.append(PaperInfo(
             title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
