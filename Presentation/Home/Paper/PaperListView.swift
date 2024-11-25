@@ -123,6 +123,7 @@ struct PaperListView: View {
                                         }
                                     }) {
                                         Image(isFavorite ? .starfill : .star)
+                                            .renderingMode(.template)
                                             .font(.system(size: 18))
                                             .foregroundStyle(.primary1)
                                     }
@@ -497,7 +498,7 @@ extension PaperListView {
         let data = selectedPaper.url
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            print("bookmartdata to url failed")
+            print("bookmarkdata to url failed")
             return
         }
         

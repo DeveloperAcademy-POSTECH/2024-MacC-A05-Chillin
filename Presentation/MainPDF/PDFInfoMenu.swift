@@ -33,7 +33,18 @@ public struct ActivityViewController: UIViewControllerRepresentable {
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
     @State private var isActivityViewPresented = false
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var pdfInfoMenuViewModel: PDFInfoMenuViewModel
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    
+    @Binding var isEditingTitle: Bool
+    @Binding var isEditingMemo: Bool
+    @Binding var isMovingFolder: Bool
+    @Binding var createMovingFolder: Bool
+    
+    @State var title: String?
+    @State var isStarSelected: Bool = false
     
     var body: some View {
         VStack(spacing: 12) {
@@ -43,7 +54,7 @@ struct PDFInfoMenu: View {
             }, label: {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(pdfSharedData.paperInfo!.title)
+                        Text(title ?? "알 수 없음")
                             .multilineTextAlignment(.leading)
                             .padding(.bottom, 5)
                             .lineLimit(2)
@@ -82,15 +93,19 @@ struct PDFInfoMenu: View {
             
             VStack(spacing: 10) {
                 Button(action: {
-                    // TODO : 제목 수정 action
-                    
+                    self.mainPDFViewModel.isMenuSelected = false
+                    self.isEditingTitle = true
                 }, label: {
                     HStack{
                         Text("제목 수정")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "pencil")
+                        Image(.editpencil)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 17, height: 17)
                             .padding(.trailing, 14)
                     }
                 })
@@ -102,15 +117,19 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // TODO : 논문에 메모 action
-                    
+                    self.mainPDFViewModel.isMenuSelected = false
+                    self.isEditingMemo = true
                 }, label: {
                     HStack{
                         Text("논문에 메모")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "square.and.pencil")
+                        Image(.memo)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
                             .padding(.trailing, 14)
                     }
                 })
@@ -121,15 +140,19 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // TODO : 즐겨찾기 action
-                    
+                    self.isStarSelected.toggle()
+                    homeViewModel.updatePaperFavorite(at: pdfSharedData.paperInfo?.id ?? UUID(), isFavorite: isStarSelected)
                 }, label: {
                     HStack{
                         Text("즐겨찾기")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "star")
+                        Image(isStarSelected ? .starfill : .star)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
                             .padding(.trailing, 14)
                     }
                 })
@@ -140,15 +163,19 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    // TODO : 이동 action
-                    
+                    self.mainPDFViewModel.isMenuSelected = false
+                    self.isMovingFolder = true
                 }, label: {
                     HStack{
                         Text("이동")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "ipad.and.arrow.forward")
+                        Image(.move)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 17, height: 17)
                             .padding(.trailing, 14)
                     }
                 })
@@ -158,16 +185,21 @@ struct PDFInfoMenu: View {
                     .tint(.primary2)
                     .frame(height: 1)
                 
-                Button(action: {
-                    // TODO : 삭제 action
-                    
+                Button(role: .destructive, action: {
+                    self.mainPDFViewModel.isMenuSelected = false
+                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
+                    navigationCoordinator.pop()
                 }, label: {
                     HStack{
                         Text("삭제")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(systemName: "trash")
+                        Image(.trash)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 17, height: 17)
                             .padding(.trailing, 14)
                     }
                 })
@@ -188,9 +220,28 @@ struct PDFInfoMenu: View {
                     x: 0,
                     y: 0)
         )
+        .onAppear {
+            if let paperInfo = pdfSharedData.paperInfo {
+                self.isStarSelected = paperInfo.isFavorite
+                
+                if title == nil {
+                    self.title = paperInfo.title
+                }
+            }
+        }
+        .onDisappear {
+            homeViewModel.changedTitle = nil
+        }
     }
 }
 
 #Preview {
-    PDFInfoMenu()
+    PDFInfoMenu(
+        isEditingTitle: .constant(false),
+        isEditingMemo: .constant(false),
+        isMovingFolder: .constant(false),
+        createMovingFolder: .constant(false),
+        title: "Reazy",
+        isStarSelected: false
+    )
 }

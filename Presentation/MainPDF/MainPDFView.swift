@@ -37,6 +37,13 @@ struct MainPDFView: View {
     @State private var isSearchSelected: Bool = false
     @State private var isReadMode: Bool = false
     
+    @State private var isEditingTitle: Bool = false
+    @State private var isEditingMemo: Bool = false
+    @State private var isMovingFolder: Bool = false
+    @State private var createMovingFolder: Bool = false
+    
+    @State private var moveToFolderID: UUID? = nil
+    
     @State private var isVertical = false
     @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
@@ -310,6 +317,11 @@ struct MainPDFView: View {
                         .ignoresSafeArea()
                     }
                 }
+                .blur(radius: isEditingTitle || isEditingMemo || createMovingFolder ? 20 : 0)
+                
+                Color.black
+                    .opacity(isEditingTitle || isEditingMemo || isMovingFolder || createMovingFolder ? 0.5 : 0)
+                    .ignoresSafeArea(edges: .bottom)
                 
                 if mainPDFViewModel.toolMode == .drawing {
                     GeometryReader { gp in
@@ -358,10 +370,18 @@ struct MainPDFView: View {
                 if mainPDFViewModel.isMenuSelected {
                     GeometryReader { gp in
                         ZStack {
-                            PDFInfoMenu()
-                                .environmentObject(pdfInfoMenuViewModel)
-                                .transition(.opacity)
-                                .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
+                            PDFInfoMenu(
+                                isEditingTitle: $isEditingTitle,
+                                isEditingMemo: $isEditingMemo,
+                                isMovingFolder: $isMovingFolder,
+                                createMovingFolder: $createMovingFolder,
+                                title: homeViewModel.changedTitle
+                            )
+                            .environmentObject(homeViewModel)
+                            .environmentObject(mainPDFViewModel)
+                            .environmentObject(pdfInfoMenuViewModel)
+                            .transition(.opacity)
+                            .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .padding(.top, 50)
@@ -377,6 +397,44 @@ struct MainPDFView: View {
                             .transition(.slide)                             // 전환 애니메이션 추가
                             .zIndex(1)                                      // 다른 뷰 위에 표시
                     }
+                }
+                
+                if isEditingTitle || isEditingMemo {
+                    RenamePaperTitleView(
+                        isEditingTitle: $isEditingTitle,
+                        isEditingMemo: $isEditingMemo,
+                        paperInfo: PDFSharedData.shared.paperInfo!
+                    )
+                }
+                
+                if isMovingFolder {
+                    if let paperInfo = PDFSharedData.shared.paperInfo {
+                        let itemsToMove: FileSystemItem = FileSystemItem.paper(paperInfo)
+                        
+                        MoveFolderView(
+                            createMovingFolder: $createMovingFolder,
+                            isMovingFolder: $isMovingFolder,
+                            items: [itemsToMove],
+                            selectedID: $moveToFolderID
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .frame(width: 740, height: 550)
+                        .blur(radius: createMovingFolder ? 20 : 0)
+                    }
+                }
+                
+                Color.black
+                    .opacity(createMovingFolder ? 0.5 : 0)
+                    .ignoresSafeArea(edges: .bottom)
+                
+                if createMovingFolder {
+                    let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
+                    FolderView(
+                        createFolder: .constant(false),
+                        createMovingFolder: $createMovingFolder,
+                        isEditingFolder: .constant(false),
+                        folder: folder
+                    )
                 }
             }
             
