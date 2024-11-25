@@ -11,6 +11,7 @@ import Foundation
 struct FigureAnnotation: Hashable {
     let uuid: UUID
     let page: Int
+    let id: String
     var head: String
     let position: CGRect
 }

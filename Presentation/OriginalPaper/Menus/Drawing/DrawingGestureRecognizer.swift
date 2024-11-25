@@ -7,6 +7,13 @@
 
 import UIKit
 
+// 터치 타입을 정의하는 열거형
+enum TouchType {
+    case direct
+    case indirect
+    case pencil
+}
+
 protocol DrawingGestureRecognizerDelegate: AnyObject {
     func gestureRecognizerBegan(_ location: CGPoint)
     func gestureRecognizerMoved(_ location: CGPoint)
@@ -19,7 +26,6 @@ class DrawingGestureRecognizer: UIGestureRecognizer {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first,
-           touch.type == .pencil, // 시뮬레이터에서 펜슬 없이 테스트할 때는 이 줄 주석 해야함!
             let numberOfTouches = event?.allTouches?.count,
             numberOfTouches == 1 {
             state = .began

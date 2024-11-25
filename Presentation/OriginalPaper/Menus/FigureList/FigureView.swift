@@ -123,6 +123,44 @@ struct FigureView: View {
                             }
                         }
                     }
+                    VStack(spacing: 0){
+                        Button(action: {
+                            focusFigureViewModel.isCaptureMode.toggle()
+                            if focusFigureViewModel.isCaptureMode {
+                                mainPDFViewModel.drawingToolMode = .lasso
+                                mainPDFViewModel.toolMode = .lasso
+                                mainPDFViewModel.updateDrawingTool()
+                            } else {
+                                mainPDFViewModel.toolMode = .none
+                                mainPDFViewModel.updateDrawingTool()
+                                mainPDFViewModel.drawingToolMode = .none
+                                mainPDFViewModel.pdfDrawer.endCaptureMode()
+                            }
+                        }) {
+                            ZStack(alignment: .center) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(.gray300)
+                                    .frame(width: 212, height: 40)
+                                    .padding(.horizontal, 20)
+                                
+                                if !focusFigureViewModel.isCaptureMode {
+                                    Image(systemName: "plus")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 14)
+                                        .foregroundStyle(.primary1)
+                                } else {
+                                    Text("취소")
+                                        .reazyFont(.text1)
+                                        .foregroundStyle(.primary1)
+                                }
+                            }
+                            .frame(height: 76)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: 76)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: 76)
+                    .background(.gray100)
                 }
             }
         }

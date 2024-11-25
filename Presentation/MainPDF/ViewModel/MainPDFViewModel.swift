@@ -57,6 +57,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // pencil tool
     public var pdfDrawer: PDFDrawer = .init()
+    
     // 현재 undo와 redo 가능 여부
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false
@@ -283,6 +284,7 @@ enum ToolMode {
     case translate
     case comment
     case drawing
+    case lasso
 }
 
 // 드로잉 툴바에 있는 버튼
@@ -291,6 +293,7 @@ enum DrawingToolMode {
     case pencil
     case eraser
     case highlight
+    case lasso
 }
 
 // 펜슬 제스처 인식 모드
@@ -301,6 +304,8 @@ extension MainPDFViewModel {
             pdfDrawer.drawingTool = .pencil
         case .eraser:
             pdfDrawer.drawingTool = .eraser
+        case .lasso:
+            pdfDrawer.drawingTool = .lasso
         default:
             pdfDrawer.drawingTool = .none
         }
