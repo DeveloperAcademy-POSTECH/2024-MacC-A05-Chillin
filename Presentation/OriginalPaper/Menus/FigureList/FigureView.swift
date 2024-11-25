@@ -75,8 +75,9 @@ struct FigureView: View {
                     // ScrollViewReader로 자동 스크롤 구현
                     ScrollViewReader { proxy in
                         List {
-                            ForEach(0 ..< focusFigureViewModel.figures.count, id: \.self) { index in
-                                FigureCell(index: index, onSelect: onSelect)
+                            ForEach(focusFigureViewModel.figures, id: \.self) { item in
+                                let id = item.uuid
+                                FigureCell(id: id, onSelect: onSelect)
                                     .padding(.bottom, 21)
                                     .listRowSeparator(.hidden)
                             }

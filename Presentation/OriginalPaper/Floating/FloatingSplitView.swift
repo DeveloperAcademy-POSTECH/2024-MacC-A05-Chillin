@@ -113,11 +113,7 @@ struct FloatingSplitView: View {
                             .padding(.horizontal, 24)
                         
                         Button(action: {
-                            floatingViewModel.saveFigImage(document: observableDocument)
-                            floatingViewModel.saveFigAlert()
-                            
-                            print("Download Image")
-                            
+                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 14, weight: .medium))
@@ -166,8 +162,11 @@ struct FloatingSplitView: View {
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal) {
                             HStack(spacing: 8) {
-                                ForEach(0 ..< focusFigureViewModel.figures.count, id: \.self) { index in
-                                    FigureCell(index: index, onSelect: { newDocumentID, newDocument, newHead in
+                                ForEach(focusFigureViewModel.figures, id: \.self) { item in
+                                    let id = item.uuid
+                                    let index = focusFigureViewModel.figures.firstIndex(where: { $0 == item })
+                                     
+                                    FigureCell(id: id, onSelect: { newDocumentID, newDocument, newHead in
                                         if floatingViewModel.selectedFigureCellID != newDocumentID {
                                             floatingViewModel.updateSplitDocument(with: newDocument, documentID: newDocumentID, head: newHead)
                                             observableDocument.updateDocument(to: newDocument)
@@ -180,7 +179,6 @@ struct FloatingSplitView: View {
                                     })
                                     .environmentObject(floatingViewModel)
                                     .padding(.trailing, 5)
-                                    .id(index)
                                 }
                             }
                             .padding(.horizontal, 20)
