@@ -52,18 +52,11 @@ struct FigureCell: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
-//    @ObservedObject var observableDocument: ObservableDocument
-//    init(documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
-//        _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
-//    }
-    
     let id: UUID
     let onSelect: (String, PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
-    
     @State private var newFigName: String = ""
-    
     @State private var isDeleteFigAlert: Bool = false
     
     var body: some View {
@@ -95,25 +88,11 @@ struct FigureCell: View {
                         
                         FigureMenu(
                             newFigName: $newFigName,
-                            id: id,
-                            isDeleteFigAlert: $isDeleteFigAlert
+                            isDeleteFigAlert: $isDeleteFigAlert,
+                            id: id
                         )
-                            // Fig 삭제 Alert
-                            .alert(isPresented: $isDeleteFigAlert) {
-                                Alert(
-                                    title: Text("\(focusFigureViewModel.figures[index].head)를 삭제하시겠습니까?"),
-                                    message: Text("삭제된 항목은 복구할 수 없습니다."),
-                                    primaryButton: .cancel(Text("취소"), action: {
-                                        print("Cancel Delete")
-                                    }),
-                                    secondaryButton: .destructive(Text("삭제"), action: {
-                                        focusFigureViewModel.figures.remove(at: index)
-                                        print("Delete Fig")
-                                    })
-                                )
-                            }
                         
-                        if floatingViewModel.isSaveImgAlert {
+                        if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id {
                             VStack {
                                 Text("사진 앱에 저장되었습니다")
                                     .padding()
@@ -122,8 +101,8 @@ struct FigureCell: View {
                                     .background(Color.gray300)
                                     .foregroundStyle(.gray800)
                                     .cornerRadius(12)
-                                    .transition(.opacity)                       // 부드러운 전환 효과
-                                    .zIndex(1)                                  // ZStack에서의 순서 조정
+                                    .transition(.opacity)
+                                    .zIndex(1)
                             }
                         }
                     }
