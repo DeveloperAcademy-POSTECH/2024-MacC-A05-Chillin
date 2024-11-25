@@ -11,7 +11,6 @@ struct FigureMenu: View {
     
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
-//    @ObservedObject var observableDocument: ObservableDocument
     
     @Binding var newFigName: String
     let id: UUID
@@ -38,8 +37,11 @@ struct FigureMenu: View {
                             
                             Spacer()
                             
-                            Image(systemName: "pencil")
-                                .font(.system(size: 16, weight: .medium))
+                            Image(.editpencil)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17, height: 17)
                                 .foregroundStyle(.gray800)
                         }
                     })
@@ -59,8 +61,11 @@ struct FigureMenu: View {
                             
                             Spacer()
                             
-                            Image(systemName: "square.and.arrow.down")
-                                .font(.system(size: 16, weight: .medium))
+                            Image(.share)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(.gray800)
                         }
                     })
@@ -77,19 +82,22 @@ struct FigureMenu: View {
                         HStack {
                             Text("삭제")
                                 .reazyFont(.body1)
-                                .foregroundStyle(.pen1)
                             
                             Spacer()
                             
-                            Image(systemName: "trash")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(.pen1)
+                            Image(.trash)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 17)
                         }
                     })
                     
                 } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .font(.system(size: 20, weight: .medium))
+                    Image(.editfigure)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
                         .foregroundStyle(.gray600)
                 }
                 .foregroundStyle(.primary2)
