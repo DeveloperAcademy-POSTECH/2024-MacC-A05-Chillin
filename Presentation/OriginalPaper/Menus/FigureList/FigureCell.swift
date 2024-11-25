@@ -52,14 +52,25 @@ struct FigureCell: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
-    let index: Int
+//    @ObservedObject var observableDocument: ObservableDocument
+//    init(documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
+//        _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
+//    }
+    
+    let id: UUID
     let onSelect: (String, PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
     
+    @State private var newFigName: String = ""
+    
+    @State private var isDeleteFigAlert: Bool = false
+    
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
+                let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }) ?? 0
+                
                 if let document = focusFigureViewModel.setFigureDocument(for: index) {
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
@@ -68,7 +79,7 @@ struct FigureCell: View {
                         let documentID = "figure-\(index)"
                         
                         PDFKitView(document: document, isScrollEnabled: false)
-                            .edgesIgnoringSafeArea(.all)        // 전체 화면에 맞추기
+                            .edgesIgnoringSafeArea(.all)                    // 전체 화면에 맞추기
                             .padding(8)
                             .aspectRatio(aspectRatio, contentMode: .fit)
                             .simultaneousGesture(
@@ -82,7 +93,25 @@ struct FigureCell: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(floatingViewModel.isFigureSelected(documentID: documentID) ? .primary1 : .primary3, lineWidth: floatingViewModel.isFigureSelected(documentID: documentID) ? 1.5 : 1)
                         
-                        FigureMenu()
+                        FigureMenu(
+                            newFigName: $newFigName,
+                            id: id,
+                            isDeleteFigAlert: $isDeleteFigAlert
+                        )
+                            // Fig 삭제 Alert
+                            .alert(isPresented: $isDeleteFigAlert) {
+                                Alert(
+                                    title: Text("\(focusFigureViewModel.figures[index].head)를 삭제하시겠습니까?"),
+                                    message: Text("삭제된 항목은 복구할 수 없습니다."),
+                                    primaryButton: .cancel(Text("취소"), action: {
+                                        print("Cancel Delete")
+                                    }),
+                                    secondaryButton: .destructive(Text("삭제"), action: {
+                                        focusFigureViewModel.figures.remove(at: index)
+                                        print("Delete Fig")
+                                    })
+                                )
+                            }
                         
                         if floatingViewModel.isSaveImgAlert {
                             VStack {
@@ -104,10 +133,9 @@ struct FigureCell: View {
             }
             .padding(.bottom, 10)
             
-            Text(focusFigureViewModel.figures[index].head)
+            Text(focusFigureViewModel.figures.first(where: { $0.uuid == id})?.head ?? "")
                 .reazyFont(.body3)
                 .foregroundStyle(.gray800)
         }
     }
 }
-

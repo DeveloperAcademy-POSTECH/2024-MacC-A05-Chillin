@@ -308,6 +308,15 @@ struct MainPDFView: View {
                         .transition(.opacity)
                         .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected) // 애니메이션 설정
                 }
+                
+                if focusFigureViewModel.isEditFigName {
+                    if let id = focusFigureViewModel.selectedID {
+                        EditFigName(id: id)
+                            .environmentObject(focusFigureViewModel)        // 필요한 환경 객체 추가
+                            .transition(.slide)                             // 전환 애니메이션 추가
+                            .zIndex(1)                                      // 다른 뷰 위에 표시
+                    }
+                }
             }
             
             .navigationBarHidden(true)

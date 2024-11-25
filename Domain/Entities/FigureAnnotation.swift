@@ -8,9 +8,10 @@
 import Foundation
 
 // 이미지 위치 파악용 모델
-struct FigureAnnotation {
+struct FigureAnnotation: Hashable {
+    let uuid: UUID
     let page: Int
-    let head: String
+    var head: String
     let position: CGRect
 }
 
