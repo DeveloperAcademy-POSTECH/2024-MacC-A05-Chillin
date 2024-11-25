@@ -33,7 +33,6 @@ struct MainPDFView: View {
     
     @State private var isListSelected: Bool = false
     @State private var isFigSelected: Bool = false
-    @State private var isBoardSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isReadMode: Bool = false
     
@@ -127,7 +126,11 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isFigSelected.toggle()
-                                isBoardSelected = false
+                                
+                                mainPDFViewModel.drawingToolMode = .none
+                                mainPDFViewModel.pdfDrawer.endCaptureMode()
+                                focusFigureViewModel.isCaptureMode = false
+                                
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -139,25 +142,7 @@ struct MainPDFView: View {
                                     )
                             }
                             .padding(.trailing, 24)
-                            
-                            Button(action: {
-                                isBoardSelected.toggle()
-                                isFigSelected = false
-                            }) {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .frame(width: 26, height: 26)
-                                    .foregroundStyle(isBoardSelected ? .primary1 : .clear)
-                                    .overlay (
-                                        Image(.window)
-                                            .renderingMode(.template)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: 16)
-                                            .foregroundStyle(isBoardSelected ? .gray100 : .gray800)
-                                    )
-                            }
-                            .padding(.trailing, 24)
-                            
+
                             Button(action: {
                                 withAnimation {
                                     mainPDFViewModel.isMenuSelected.toggle()
@@ -194,11 +179,14 @@ struct MainPDFView: View {
                                         mainPDFViewModel.drawingToolMode = .none
                                     } else {
                                         selectedButton = btn
+                                        mainPDFViewModel.pdfDrawer.endCaptureMode()
+                                        focusFigureViewModel.isCaptureMode = false
                                     }
                                     
                                     switch selectedButton {
                                     case .drawing:
                                         mainPDFViewModel.toolMode = .drawing
+                                        mainPDFViewModel.drawingToolMode = .none
                                     case .comment:
                                         mainPDFViewModel.toolMode = .comment
                                         mainPDFViewModel.drawingToolMode = .none
@@ -294,13 +282,6 @@ struct MainPDFView: View {
                                                 alignment: .leading
                                             )
                                         }
-                                    }
-                                    
-                                    // TODO: - 모아보기
-                                    if isBoardSelected && !floatingViewModel.splitMode {
-                                        Rectangle()
-                                            .frame(width: 1)
-                                            .foregroundStyle(Color(hex: "CCCEE1"))
                                     }
                                 }
                             }
@@ -451,13 +432,15 @@ struct MainPDFView: View {
                     TranslateViewOlderVer()
                 }
             } else {
-                // 드래그 전까지 selected Text 없으면 말풍선
                 if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
                     TemporaryAlertView(mode: "translate")
                 }
             }
             if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
                 TemporaryAlertView(mode: "comment")
+            }
+            if isFigSelected && mainPDFViewModel.drawingToolMode == .lasso && focusFigureViewModel.isCaptureMode {
+                TemporaryAlertView(mode: "lasso")
             }
         }
         .onReceive(publisher) { a in

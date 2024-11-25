@@ -40,6 +40,7 @@ protocol FocusFigureUseCase {
         with figure: Figure
     ) -> Result<VoidResponse, any Error>
     
+    func getPDFHeight() -> CGFloat
 }
 
 
@@ -107,5 +108,9 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         }
         
         return figureDataRepository.deleteFigureData(for: id, id: figure.id)
+    }
+
+    public func getPDFHeight() -> CGFloat {
+        self.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
     }
 }

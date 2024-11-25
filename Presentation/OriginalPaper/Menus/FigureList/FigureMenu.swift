@@ -12,6 +12,8 @@ struct FigureMenu: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
+    @ObservedObject var observableDocument: ObservableDocument
+    
     @Binding var newFigName: String
     @Binding var isDeleteFigAlert: Bool
     
@@ -27,7 +29,8 @@ struct FigureMenu: View {
                     Button(action: {
                         focusFigureViewModel.isEditFigName = true
                         self.focusFigureViewModel.selectedID = id
-                        print("Change FigName")
+                        
+                        print("Edit FigName")
                         
                     }, label: {
                         HStack {
@@ -48,7 +51,7 @@ struct FigureMenu: View {
                     
                     // Fig 사진 앱에 저장
                     Button(action: {
-//                        floatingViewModel.saveFigImage(document: observableDocument)
+                        floatingViewModel.saveFigImage(document: observableDocument)
                         floatingViewModel.saveFigAlert()
                         self.focusFigureViewModel.selectedID = id
                         
@@ -75,6 +78,9 @@ struct FigureMenu: View {
                     Button(role: .destructive, action: {
                         isDeleteFigAlert = true
                         focusFigureViewModel.deleteFigure(at: id)
+                        
+                        print("Delete Fig")
+                        
                     }, label: {
                         HStack {
                             Text("삭제")
