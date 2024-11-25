@@ -235,4 +235,8 @@ extension FocusFigureViewModel {
 //            self.focusFigureUseCase.editFigures(with: figure)
         }
     }
+    
+    public func deleteFigure(at id: UUID) {
+        self.figures.removeAll(where: { $0.uuid == id })
+    }
 }

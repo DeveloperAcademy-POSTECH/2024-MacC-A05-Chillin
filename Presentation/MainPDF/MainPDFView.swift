@@ -38,7 +38,7 @@ struct MainPDFView: View {
     @State private var isReadMode: Bool = false
     
     @State private var isVertical = false
-    @State private var isModifyTitlePresented: Bool = false // 타이틀 바꿀 때 활용하는 Bool값
+    @State private var isModifyTitlePresented: Bool = false         // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
     
     @State private var dragAmount: CGPoint?
@@ -370,16 +370,14 @@ struct MainPDFView: View {
                     }
                 }
                 
-                if focusFigureViewModel.isEditFigName {
-                    if let id = focusFigureViewModel.selectedID {
-                        EditFigName(id: id)
-                            .environmentObject(focusFigureViewModel)        // 필요한 환경 객체 추가
-                            .transition(.slide)                             // 전환 애니메이션 추가
-                            .zIndex(1)                                      // 다른 뷰 위에 표시
-                    }
+                if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
+                    EditFigNameView(id: id)
+                        .environmentObject(focusFigureViewModel)        // 필요한 환경 객체 추가
+                        .transition(.slide)                             // 전환 애니메이션 추가
+                        .zIndex(1)                                      // 다른 뷰 위에 표시
                 }
             }
-            
+        
             .navigationBarHidden(true)
             .onAppear {
                 updateOrientation(with: geometry)
