@@ -137,11 +137,12 @@ struct FigureView: View {
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {
-                            ZStack(alignment: .center) {
+                            ZStack(alignment: .top) {
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(.gray300)
+                                    .fill(!focusFigureViewModel.isCaptureMode ? .gray300 : .point4)
                                     .frame(width: 212, height: 40)
                                     .padding(.horizontal, 20)
+                                    .padding(.bottom, 12)
                                 
                                 if !focusFigureViewModel.isCaptureMode {
                                     Image(systemName: "plus")
@@ -149,17 +150,19 @@ struct FigureView: View {
                                         .scaledToFit()
                                         .frame(width: 14)
                                         .foregroundStyle(.primary1)
+                                        .padding(.top, 13)
                                 } else {
                                     Text("취소")
                                         .reazyFont(.text1)
-                                        .foregroundStyle(.primary1)
+                                        .foregroundStyle(.gray100)
+                                        .padding(.top, 11)
                                 }
                             }
-                            .frame(height: 76)
+                            .frame(height: 80)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: 76)
+                        .frame(maxWidth: .infinity, maxHeight: 80)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: 76)
+                    .frame(maxWidth: .infinity, maxHeight: 80)
                     .background(.gray100)
                 }
             }

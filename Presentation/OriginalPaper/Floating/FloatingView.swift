@@ -124,7 +124,7 @@ struct FloatingView: View {
                     DragGesture()
                         .onChanged { value in
                             // 최대 크기 제한 850 + 최소 크기 제한 300
-                            let newWidth = max(min(viewWidth + value.translation.width, 850), 300)
+                            let newWidth = max(min(viewWidth + value.translation.width, 850), 200)
                             self.viewWidth = newWidth
                         }
                 )
