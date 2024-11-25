@@ -100,8 +100,8 @@ struct FloatingView: View {
                             .padding()
                             .frame(width: 190, height: 40)
                             .reazyFont(.h3)
-                            .background(Color.gray300)
-                            .foregroundStyle(.gray800)
+                            .background(Color.gray700)
+                            .foregroundStyle(.gray100)
                             .cornerRadius(12)
                             .transition(.opacity)                       // 부드러운 전환 효과
                             .zIndex(1)                                  // ZStack에서의 순서 조정
