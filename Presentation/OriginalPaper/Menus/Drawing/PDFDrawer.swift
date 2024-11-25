@@ -210,12 +210,10 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         
         if drawingTool == .lasso {
             if checkButton.frame.contains(location) {
-                // 버튼을 터치했으면 제스처를 시작하지 않음
+                // MARK: PDF 저장하는 부분
                 guard let startConvertedPoint = self.startPoint else { return }
                 guard let endConvertedPoint = self.endPoint else { return }
                 
-                
-                // 시작점과 종료점으로 사각형을 계산
                 let topLeft = CGPoint(x: min(startConvertedPoint.x, endConvertedPoint.x),
                                       y: max(startConvertedPoint.y, endConvertedPoint.y))
                 let bottomRight = CGPoint(x: max(startConvertedPoint.x, endConvertedPoint.x),
@@ -224,13 +222,12 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let width = bottomRight.x - topLeft.x
                 let height = topLeft.y - bottomRight.y
                 
-                // 사각형 경로를 생성
                 let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
                 
                 print(rectanglePath)
                 // PDF 잘라내기 및 이미지 처리
+                
                 if let newFigure = captureToPDF(path: rectanglePath) {
-                    // PDF 작업이 끝나면, 처리 후 버튼 제거
                     print("PDF is captured: \(newFigure)")
                     endCaptureMode()
                 }
@@ -241,6 +238,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let coords = "\(pageNum! + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
                 print(coords)
                 
+                // NEW FIGURE
                 let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 
                 NotificationCenter.default.post(name: .isPDFCaptured, object: result)

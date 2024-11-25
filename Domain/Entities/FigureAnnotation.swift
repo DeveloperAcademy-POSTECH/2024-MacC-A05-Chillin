@@ -10,6 +10,7 @@ import Foundation
 // 이미지 위치 파악용 모델
 struct FigureAnnotation {
     let page: Int
+    let id: String
     let head: String
     let position: CGRect
 }

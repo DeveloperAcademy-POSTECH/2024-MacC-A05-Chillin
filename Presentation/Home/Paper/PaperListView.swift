@@ -52,7 +52,7 @@ struct PaperListView: View {
                                     self.selectAll.toggle()
                                 }) {
                                     HStack(spacing: 0) {
-                                        Image(selectAll ? .close : .checkmark)
+                                        Image(selectAll ? .close : .check)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
@@ -351,7 +351,7 @@ struct PaperListView: View {
                                     
                                     // 선택된 항목에만 체크 표시
                                     if homeViewModel.selectedFilter == filter {
-                                        Image(.checkmark)
+                                        Image(.check)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
