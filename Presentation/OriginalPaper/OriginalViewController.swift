@@ -310,29 +310,24 @@ extension OriginalViewController {
                     return
                 }
                 
-                let lineSelections = selection.selectionsByLine()
-                if let lastLine = lineSelections.last, let page = lastLine.pages.first {
-                    let lastLineBounds = lastLine.bounds(for: page)
-                }
+//                let lineSelections = selection.selectionsByLine()
+//                if let lastLine = lineSelections.last, let page = lastLine.pages.first {
+//                    let lastLineBounds = lastLine.bounds(for: page)
+//                }
                 
                 
                 guard let _ = selection.string else { return }
-                    
+                let lineSelections = selection.selectionsByLine()
+                
                 if let page = selection.pages.first {
-                    
                     // PDFSelection의 bounds 추출(CGRect)
                     let bound = selection.bounds(for: page)
-                    
-                    // 선택 영역이 pdfView 넓이의 절반 이상을 차지하고 있을 때,
-                    let isAcross = bound.width < mainPDFView.bounds.width / 2
-                    // 가장 마지막 선택 영역의 bounds 값을 기준으로 뷰가 위치하도록 하기
-                    // 그렇지 않을 경우, 선택 영역의 전체 bounds 값을 기준으로 뷰의 위치 계산하기
-                    
                     let convertedBounds = self.mainPDFView.convert(bound, from: page)
+                    
                     
                     //comment position 설정
                     var commentX: CGFloat
-                    var commentY: CGFloat
+                    var commentY: CGFloat = 0.0
                     
                     if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
                         commentX = 193
@@ -342,17 +337,29 @@ extension OriginalViewController {
                         commentX = convertedBounds.midX
                     }
                     
-                    if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 {          /// 코멘트 뷰가 아래 화면 초과
+                    if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 && !(convertedBounds.maxX > self.mainPDFView.bounds.maxX * 0.6) {
+                        /// 코멘트 뷰가 아래 화면 초과
+                        print("코멘트 뷰가 아래 화면 초과")
                         commentY = convertedBounds.minY - 60
                     } else {
-                        commentY = convertedBounds.maxY + 60
+                        print("isAcross")
+                        if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
+                            let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
+                            
+                            /// 코멘트 뷰가 아래 화면으로 초과
+                            if lastLineBounds.maxY > self.mainPDFView.bounds.maxY - 200 {
+                                print("isAcross 아래 초과")
+                                commentY = lastLineBounds.minY - 100
+                            } else {
+                                commentY = lastLineBounds.maxY + 60
+                            }
+                        }
                     }
                     
                     let commentPosition = CGPoint(
                         x: commentX,
                         y: commentY
                     )
-                    
                     
                     // 선택된 텍스트 가져오기
                     let selectedText = selection.string ?? ""
