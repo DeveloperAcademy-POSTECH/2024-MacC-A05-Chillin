@@ -431,10 +431,7 @@ struct MainPDFView: View {
     
     @ViewBuilder
     private func mainView(isReadMode: Bool) -> some View {
-        if isReadMode {
-            ConcentrateView()
-                .environmentObject(focusFigureViewModel)
-        } else {
+        ZStack {
             OriginalView()
                 .environmentObject(mainPDFViewModel)
                 .environmentObject(floatingViewModel)
@@ -443,6 +440,11 @@ struct MainPDFView: View {
                 .environmentObject(pageListViewModel)
                 .environmentObject(searchViewModel)
                 .environmentObject(indexViewModel)
+            
+            if isReadMode {
+                ConcentrateView()
+                    .environmentObject(focusFigureViewModel)
+            }
         }
     }
     
