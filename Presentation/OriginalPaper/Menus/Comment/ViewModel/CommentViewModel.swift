@@ -276,7 +276,7 @@ extension CommentViewModel {
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY, width: 10, height: 10)
+            iconPosition = CGRect(x: lineBounds.minX - 20, y: lineBounds.minY, width: 10, height: 10)
         } else if isRight || isAcross {
             iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY, width: 10, height: 10)
         }
@@ -353,7 +353,7 @@ extension CommentViewModel {
     func drawCommentCount(newComment: Comment, button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
-            x: button.buttonPosition.midX + 6,
+            x: button.buttonPosition.midX + 5,
             y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
@@ -382,7 +382,7 @@ extension CommentViewModel {
     func loadCommentcount(button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
-            x: button.buttonPosition.midX + 6,
+            x: button.buttonPosition.midX + 5,
             y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
