@@ -262,12 +262,9 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        self.viewModel.$drawingToolMode
-            .sink { [weak self] mode in
-                // ViewModel toolMode의 변경 감지해서 pencil이랑 eraser일 때만 펜슬 제스처 인식하게
-                self?.updateGestureRecognizer(for: mode)
-                // toolMode 변경에 따라 canPerformAction 동작하도록
-                self?.mainPDFView.drawingToolMode = mode
+        self.viewModel.pdfDrawer.$drawingTool
+            .sink { [weak self] drawingTool in
+                self?.updateGestureRecognizer(mode: drawingTool)
             }
             .store(in: &cancellable)
         
@@ -437,7 +434,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
     }
     
-    private func updateGestureRecognizer(for mode: DrawingToolMode) {
+    private func updateGestureRecognizer(mode: DrawingTool) {
         // 현재 설정된 제스처 인식기를 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
@@ -493,26 +490,15 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
 //canPerformAction()으로 menuAction 제한
 class CustomPDFView: PDFView {
     var toolMode: ToolMode = .none
-    var drawingToolMode: DrawingToolMode = .none
     var scrollView: UIScrollView? {
         self.subviews.first as? UIScrollView
     }
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        
         switch toolMode {
-        case .comment, .translate:
+        case .comment, .translate, .drawing:
             return false
-            
-        case .drawing:
-            switch drawingToolMode {
-            case .highlight:
-                return false
-            default:
-                if action == #selector(copy(_:)) {
-                    return true
-                }
-                return false
-            }
             
         default:
             if action == #selector(copy(_:)) {

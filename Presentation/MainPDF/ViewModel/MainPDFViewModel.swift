@@ -24,12 +24,6 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
-    
-    @Published var drawingToolMode: DrawingToolMode = .none {
-        didSet {
-            updateDrawingTool()
-        }
-    }
 
     @Published var toolMode: ToolMode = .none {
         didSet {
@@ -180,9 +174,7 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        
-        // (toolMode == .drawing && drawingToolMode == .highlight) 일때 동작
-        guard toolMode == .drawing, drawingToolMode == .highlight else { return }
+        guard pdfDrawer.drawingTool == .highlights else { return }
 
         // PDFView 안에서 스크롤 영역 파악
         guard let currentSelection = pdfView.currentSelection else { return }
@@ -287,29 +279,4 @@ enum ToolMode {
     case comment
     case drawing
     case lasso
-}
-
-// 드로잉 툴바에 있는 버튼
-enum DrawingToolMode {
-    case none // translate, comment 일 때 이 드로잉 모드
-    case pencil
-    case eraser
-    case highlight
-    case lasso
-}
-
-// 펜슬 제스처 인식 모드
-extension MainPDFViewModel {
-    func updateDrawingTool() {
-        switch drawingToolMode {
-        case .pencil:
-            pdfDrawer.drawingTool = .pencil
-        case .eraser:
-            pdfDrawer.drawingTool = .eraser
-        case .lasso:
-            pdfDrawer.drawingTool = .lasso
-        default:
-            pdfDrawer.drawingTool = .none
-        }
-    }
 }

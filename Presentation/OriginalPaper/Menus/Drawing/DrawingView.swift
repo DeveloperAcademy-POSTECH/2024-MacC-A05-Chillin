@@ -21,7 +21,14 @@ struct DrawingView: View {
         VStack(spacing: 0) {
             Button(action: {
                 isHighlight.toggle()
-                mainPDFViewModel.drawingToolMode = .highlight
+                
+                if isHighlight {
+                    mainPDFViewModel.pdfDrawer.drawingTool = .highlights
+                    mainPDFViewModel.toolMode = .drawing
+                } else {
+                    mainPDFViewModel.pdfDrawer.drawingTool = .none
+                }
+                
                 if selectedHighlightColor == nil {
                     selectedHighlightColor = .yellow
                 } else {
@@ -50,7 +57,7 @@ struct DrawingView: View {
                 HighlightColorButton(button: $selectedHighlightColor, selectedButton: color) {
                     isHighlight = true
                     selectedHighlightColor = color
-                    mainPDFViewModel.drawingToolMode = .highlight
+                    mainPDFViewModel.pdfDrawer.drawingTool = .highlights
                     mainPDFViewModel.selectedHighlightColor = color
 
                     isPencil = false
@@ -67,8 +74,15 @@ struct DrawingView: View {
 
             Button(action: {
                 isPencil.toggle()
-                mainPDFViewModel.drawingToolMode = .pencil
-                mainPDFViewModel.updateDrawingTool()
+                
+                if isPencil {
+                    mainPDFViewModel.toolMode = .drawing
+                    mainPDFViewModel.pdfDrawer.drawingTool = .pencil
+                } else {
+                    mainPDFViewModel.pdfDrawer.drawingTool = .none
+                    
+                }
+                
                 if selectedPenColor == nil {
                     selectedPenColor = .black
                 } else {
@@ -97,7 +111,7 @@ struct DrawingView: View {
                 PenColorButton(button: $selectedPenColor, selectedButton: color) {
                     isPencil = true
                     selectedPenColor = color
-                    mainPDFViewModel.drawingToolMode = .pencil
+                    mainPDFViewModel.pdfDrawer.drawingTool = .pencil
                     mainPDFViewModel.pdfDrawer.penColor = selectedPenColor!
 
                     isHighlight = false
@@ -114,7 +128,12 @@ struct DrawingView: View {
 
             Button(action: {
                 isEraser.toggle()
-                mainPDFViewModel.drawingToolMode = .eraser
+                
+                if isEraser {
+                    mainPDFViewModel.pdfDrawer.drawingTool = .eraser
+                } else {
+                    mainPDFViewModel.pdfDrawer.drawingTool = .none
+                }
 
                 isPencil = false
                 selectedPenColor = nil
@@ -172,7 +191,7 @@ struct DrawingView: View {
             Button(action: {
                 selectedButton = nil
                 mainPDFViewModel.toolMode = .none
-                mainPDFViewModel.drawingToolMode = .none
+                mainPDFViewModel.pdfDrawer.drawingTool = .none
             }) {
                 RoundedRectangle(cornerRadius: 6)
                     .foregroundStyle(.clear)

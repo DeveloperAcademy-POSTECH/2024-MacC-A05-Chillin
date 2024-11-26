@@ -163,13 +163,11 @@ struct FigureView: View {
                         Button(action: {
                             focusFigureViewModel.isCaptureMode.toggle()
                             if focusFigureViewModel.isCaptureMode {
-                                mainPDFViewModel.drawingToolMode = .lasso
+                                mainPDFViewModel.pdfDrawer.drawingTool = .lasso
                                 mainPDFViewModel.toolMode = .lasso
-                                mainPDFViewModel.updateDrawingTool()
                             } else {
                                 mainPDFViewModel.toolMode = .none
-                                mainPDFViewModel.drawingToolMode = .none
-                                mainPDFViewModel.updateDrawingTool()
+                                mainPDFViewModel.pdfDrawer.drawingTool = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {
