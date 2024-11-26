@@ -16,7 +16,7 @@
                         $attachment,
                         ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.adobe.pdf"
                     ).@count == $extensionItem.attachments.@count
-                ).@count &gt;= 1
+                ).@count >= 1
             </string>
 			<key>NSExtensionServiceAllowsFinderPreviewItem</key>
 			<true/>
