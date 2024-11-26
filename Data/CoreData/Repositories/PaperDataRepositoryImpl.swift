@@ -142,8 +142,44 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         do {
             let results = try dataContext.fetch(fetchRequest)
             if let dataToEdit = results.first {
-                
                 let newPaperData = PaperData(context: dataContext)
+
+                var commentData: Set<CommentData> = []
+                var figureData: Set<FigureData> = []
+                
+                if let comments = dataToEdit.commentData {
+                    for comment in comments {
+                        let temp = CommentData(context: dataContext)
+                        temp.buttonID = comment.buttonID
+                        temp.bounds = comment.bounds
+                        temp.id = UUID()
+                        temp.pages = comment.pages
+                        temp.text = comment.text
+                        temp.paperData = newPaperData
+                        temp.selectedText = comment.selectedText
+                        temp.selectionByLine = comment.selectionByLine
+                        
+                        commentData.insert(temp)
+                    }
+                    newPaperData.commentData = commentData
+                }
+                
+                if let figures = dataToEdit.figureData {
+                    for figure in figures {
+                        let temp = FigureData(context: dataContext)
+                        temp.coords = figure.coords
+                        temp.figDesc = figure.figDesc
+                        temp.graphicCoord = figure.graphicCoord
+                        temp.head = figure.head
+                        temp.id = figure.id
+                        temp.paperData = newPaperData
+                        temp.label = figure.label
+                        
+                        figureData.insert(temp)
+                    }
+                    newPaperData.figureData = figureData
+                }
+                
                 newPaperData.id = info.id
                 newPaperData.isFavorite = info.isFavorite
                 newPaperData.isFigureSaved = info.isFigureSaved
@@ -151,10 +187,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 newPaperData.memo = info.memo
                 newPaperData.thumbnail = info.thumbnail
                 newPaperData.url = info.url
-                newPaperData.focusURL = nil
                 newPaperData.folderID = info.folderID
-                newPaperData.commentData = dataToEdit.commentData
-                newPaperData.figureData = dataToEdit.figureData
                 
                 try dataContext.save()
                 return .success(VoidResponse())

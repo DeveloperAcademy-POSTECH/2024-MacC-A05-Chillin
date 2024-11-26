@@ -174,9 +174,9 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     url: data,
                     focusURL: nil,
                     lastModifiedDate: Date(),
-                    isFavorite: false,
+                    isFavorite: paperInfo.isFavorite,
                     memo: paperInfo.memo,
-                    isFigureSaved: false,
+                    isFigureSaved: paperInfo.isFigureSaved,
                     folderID: paperInfo.folderID)
                 
                 self.paperDataRepository.duplicatePDFInfo(id: paperInfo.id, info: newPaperInfo)
