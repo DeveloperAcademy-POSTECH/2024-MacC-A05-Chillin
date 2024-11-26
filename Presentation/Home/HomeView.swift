@@ -105,7 +105,6 @@ struct HomeView: View {
                 }
                 .frame(height: 80)
                 
-                // TODO: - 검색 케이스 분리
                 if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
                     SearchWordView()
                 } else {
