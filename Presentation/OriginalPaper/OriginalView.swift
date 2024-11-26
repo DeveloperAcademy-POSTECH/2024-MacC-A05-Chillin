@@ -39,7 +39,7 @@ struct OriginalView: View {
                         } else {                                    /// 뷰 바깥 영역을 탭했을 때 메뉴가 꺼져있으면
                             viewModel.isCommentTapped = false       /// 코멘트 뷰가 닫히게
                         }
-                        viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
+                        viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: false)
                     }
                 }
                 

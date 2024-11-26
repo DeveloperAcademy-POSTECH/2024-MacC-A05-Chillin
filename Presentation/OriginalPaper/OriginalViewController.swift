@@ -314,7 +314,7 @@ extension OriginalViewController {
                 }
                 
                 guard let _ = selection.string else { return }
-                var lineSelections = selection.selectionsByLine()
+                let lineSelections = selection.selectionsByLine()
                 
                 if let page = selection.pages.first {
                     // PDFSelection의 bounds 추출(CGRect)
@@ -476,20 +476,21 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         guard let page = mainPDFView.page(for: location, nearest: true) else { return }
         let pageLocation = mainPDFView.convert(location, to: page)
         
-        /// 해당 위치에 Annotation이 있는지 확인
         if let tappedAnnotation = page.annotation(at: pageLocation) {
-            if let buttonID = tappedAnnotation.contents {
-                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                viewModel.isCommentTapped.toggle()
-                if viewModel.isCommentTapped {
+            viewModel.isCommentTapped.toggle()
+            if viewModel.isCommentTapped {
+                if let buttonID = tappedAnnotation.contents {
+                    viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                     commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
                     viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                 } else {
-                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
+                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: false)
                 }
             } else {
-                print("No match comment annotation")
+                viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
             }
+        } else {
+            print("No match comment annotation")
         }
     }
 }
