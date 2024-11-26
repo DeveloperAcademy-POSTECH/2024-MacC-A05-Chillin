@@ -77,18 +77,16 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             let results = try dataContext.fetch(fetchRequest)
             if let dataToEdit = results.first {
                 if info.title != dataToEdit.title {
-                    if let url = try? URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale) {
-                        // 실제 파일 이름 변경
-                        if !FileManager.default.renameFile(fileURL: url, to: info.title) {
-                            print("Failed to rename file")
-                            return .failure(PDFUploadError.fileNameDuplication)
-                        }
-                    }
+                    let url = try URL(resolvingBookmarkData: dataToEdit.url, bookmarkDataIsStale: &isStale)
+                    let newURL = url.deletingLastPathComponent().appending(path: "\(info.title).pdf")
+                    
+                    try FileManager.default.moveItem(at: url, to: newURL)
+                    
+                    dataToEdit.url = try newURL.bookmarkData(options: .minimalBookmark)
                 }
                 
                 // 기존 데이터 수정
                 dataToEdit.title = info.title
-                dataToEdit.url = info.url
                 dataToEdit.focusURL = info.focusURL
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
@@ -102,6 +100,7 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
             }
         } catch {
+            print(error)
             return .failure(error)
         }
     }
