@@ -138,7 +138,6 @@ struct FigureView: View {
                                     withAnimation {
                                         // 자동 스크롤
                                         proxy.scrollTo(id, anchor: .top)
-                                        print(id)
                                     }
                                 }
                             }
