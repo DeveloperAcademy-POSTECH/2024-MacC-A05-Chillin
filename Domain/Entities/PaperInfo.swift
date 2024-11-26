@@ -12,7 +12,7 @@ struct PaperInfo {
     let id: UUID
     var title: String
     let thumbnail: Data
-    let url: Data
+    var url: Data
     var focusURL: Data?
     var lastModifiedDate: Date
     var isFavorite: Bool

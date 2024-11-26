@@ -50,6 +50,7 @@ struct PaperInfoView: View {
                 Menu {
                     Button {
                         self.isEditingTitle = true
+                        self.homeViewModel.changedTitle = self.title
                     } label: {
                         HStack(spacing: 0) {
                             Text("제목 수정")
