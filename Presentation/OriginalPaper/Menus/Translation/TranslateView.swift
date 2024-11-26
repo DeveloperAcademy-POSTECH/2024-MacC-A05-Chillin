@@ -24,7 +24,7 @@ struct TranslateView: View {
         GeometryReader { geometry in
             Color.clear
                 .foregroundStyle(.gray200)
-                .popover(isPresented: $isPopoverVisible, arrowEdge: .bottom) {
+                .popover(isPresented: $isPopoverVisible) {
                     ZStack(alignment: .top) {
                         ScrollView(showsIndicators: false) {
                             Text(targetText)
