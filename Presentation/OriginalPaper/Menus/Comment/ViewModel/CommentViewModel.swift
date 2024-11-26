@@ -171,8 +171,8 @@ extension CommentViewModel {
         return selections
     }
     
-    // selection이 위치하는 Line의 bounds값
-    private func getSelectedLine(selection: PDFSelection) -> CGRect{
+    // selection이 위치하는 첫 번째 Line의 bounds값
+    private func getSelectedLine(selection: PDFSelection) -> CGRect {
         var selectedLine: CGRect = .zero
         let lineSelection = selection.selectionsByLine()
         if let firstLineSelection = lineSelection.first {
@@ -201,8 +201,39 @@ extension CommentViewModel {
         var commentX: CGFloat = 0.0
         var commentY: CGFloat = 0.0
         
-        guard let boundForComments = buttonGroup.filter({$0.id == buttonId}).first?.selectedLine else { return }
         guard let boundForOneComment = comments.filter ({ $0.id == commentId}).first?.bounds else { return }
+        // 같은 버튼 그룹에 있는 comment를 찾기
+        let commentsGroup = comments.filter ({ $0.buttonId == buttonId})
+        var bounds = commentsGroup.first?.bounds ?? .zero
+        
+        for (index, comment) in commentsGroup.enumerated() {
+        
+            /// 내가 가진 x 값이 더 클 때
+            if commentsGroup[index].bounds.origin.x < bounds.origin.x {
+                /// 높이가 같다면
+                if commentsGroup[index].bounds.size.height == bounds.size.height {
+                    /// 큰 x 좌표에서 작은 x 좌표를 뺀 값이 width
+                    bounds.size.width = bounds.maxX - comment.bounds.minX
+                }
+                /// 더 작은 x 좌표로 바꾸기
+                bounds.origin.x = commentsGroup[index].bounds.origin.x
+                
+            /// 내가 가진 x 값이 더 작고
+            } else if commentsGroup[index].bounds.origin.x > bounds.origin.x {
+                /// 높이가 같을 때
+                if commentsGroup[index].bounds.size.height == bounds.size.height {
+                    /// 큰 x 좌표에서 작은 x 좌표를 뺀 값이 width
+                    bounds.size.width = commentsGroup[index].bounds.maxX - bounds.minX
+                /// y좌표가 나보다 더 크다면
+                } else if commentsGroup[index].bounds.origin.y > bounds.origin.y {
+                    /// 큰 값의 width를 그대로 가져가기
+                    bounds.size.width = commentsGroup[index].bounds.width
+                }
+            }
+            if commentsGroup[index].bounds.size.height > bounds.size.height {
+                bounds.size.height = commentsGroup[index].bounds.size.height
+            }
+        }
         
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: selectedComments[0].pages, document: document).first else { return }
@@ -213,7 +244,8 @@ extension CommentViewModel {
             if selectedComments.count == 1 {
                 convertedBounds = pdfView.convert(boundForOneComment, from: page)
             } else {
-                convertedBounds = pdfView.convert(boundForComments, from: page)
+                // 코멘트가 여러개 일 경우
+                convertedBounds = pdfView.convert(bounds, from: page)
             }
             
             if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
