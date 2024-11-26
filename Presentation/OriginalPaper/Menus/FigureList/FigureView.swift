@@ -13,6 +13,7 @@ struct FigureView: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     @State private var scrollToIndex: Int? = nil
     
@@ -68,8 +69,8 @@ struct FigureView: View {
                 case .complete:
                     HStack(spacing: 0) {
                         Button(action: {
-                            // TODO: - splitView 진입
-                            // 선택된 Floating이 없을 경우 반드시 첫 figure 선택
+                            let documentID = "figure-0"
+                            floatingViewModel.setSplitDocument(documentID: documentID)
                         }) {
                             Image(.dualwindow)
                                 .renderingMode(.template)

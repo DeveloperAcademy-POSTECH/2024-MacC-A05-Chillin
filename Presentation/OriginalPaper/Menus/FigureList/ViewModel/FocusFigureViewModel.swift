@@ -271,8 +271,9 @@ extension FocusFigureViewModel {
     
     public func deleteFigure(at id: UUID) {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
+            self.figures.removeAll(where: { $0.uuid == id })
+            
             self.focusFigureUseCase.deleteFigures(with: figures[index].toDTO())
         }
-        self.figures.removeAll(where: { $0.uuid == id })
     }
 }
