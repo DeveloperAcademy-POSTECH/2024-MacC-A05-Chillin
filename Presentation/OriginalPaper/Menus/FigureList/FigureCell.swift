@@ -62,9 +62,10 @@ struct FigureCell: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
-                let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }) ?? 0
-                
-                if let document = focusFigureViewModel.setFigureDocument(for: index) {
+                if let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }),
+                   focusFigureViewModel.documents.indices.contains(index) {
+                    
+                    let document = focusFigureViewModel.documents[index]
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
                         let aspectRatio = pageRect.width / pageRect.height

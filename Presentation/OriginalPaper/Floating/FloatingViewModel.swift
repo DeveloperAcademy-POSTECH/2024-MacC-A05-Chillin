@@ -174,11 +174,17 @@ class FloatingViewModel: ObservableObject {
     
     @MainActor
     private func moveToFigure(at index: Int, focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        guard let document = focusFigureViewModel.setFigureDocument(for: index) else { return }
-        let figure = focusFigureViewModel.figures[index]
+        guard index < focusFigureViewModel.figures.count, index < focusFigureViewModel.documents.count else {
+            print("Invalid index")
+            return
+        }
         
+        let figure = focusFigureViewModel.figures[index]
+        let document = focusFigureViewModel.documents[index]
+
         updateSplitDocument(with: document, documentID: "figure-\(index)", head: figure.head)
         observableDocument.updateDocument(to: document)
+        
         selectedFigureIndex = index
     }
     

@@ -126,16 +126,19 @@ struct FigureView: View {
                                 FigureCell(id: id, onSelect: onSelect)
                                     .padding(.bottom, 21)
                                     .listRowSeparator(.hidden)
+                                    .id(id)
                             }
                         }
                         .padding(.horizontal, 10)
                         .listStyle(.plain)
                         .onChange(of: scrollToIndex) { _, newValue in
-                            if let index = newValue {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if let index = newValue, index < focusFigureViewModel.figures.count {
+                                let id = focusFigureViewModel.figures[index].uuid // `uuid`를 사용
+                                DispatchQueue.main.async {
                                     withAnimation {
                                         // 자동 스크롤
-                                        proxy.scrollTo(index, anchor: .top)
+                                        proxy.scrollTo(id, anchor: .top)
+                                        print(id)
                                     }
                                 }
                             }
