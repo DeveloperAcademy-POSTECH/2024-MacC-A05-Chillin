@@ -263,9 +263,9 @@ extension FocusFigureViewModel {
                 guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
                 
                 // "New" ID를 가진 Figure의 수를 계산하여 넘버링 추가
-                let newFigureCount = self!.figures.filter { $0.id == "New" }.count + 1
+                let newFigureCount = self!.figures.filter { $0.id.split(separator: " ").first == "New" }.count + 1
                 let updatedFigure = Figure(
-                    id: figure.id,
+                    id: figure.id + " \(newFigureCount)",
                     head: "\(figure.head ?? "New") \(newFigureCount)", // head에 "New 1", "New 2" 형식으로 넘버링
                     label: figure.label,
                     figDesc: figure.figDesc,
