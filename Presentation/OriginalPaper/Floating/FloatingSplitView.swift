@@ -134,9 +134,6 @@ struct FloatingSplitView: View {
                         .id(observableDocument.document)
                         .padding(.horizontal, 30)
                         .padding(.vertical, 14)
-                        .onAppear {
-                            print(documentID)
-                        }
                     
                     if floatingViewModel.isSaveImgAlert {
                         VStack {
