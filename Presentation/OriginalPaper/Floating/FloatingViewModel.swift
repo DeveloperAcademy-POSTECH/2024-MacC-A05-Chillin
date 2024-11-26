@@ -123,7 +123,11 @@ class FloatingViewModel: ObservableObject {
         
         // PDF 페이지를 UIImage로 변환
         let pdfPageBounds = pdfPage.bounds(for: .mediaBox)
-        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 5.0              // 스케일 조정 -> 높은 화질
+        format.opaque = false           // 배경 투명 설정 false
+        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size, format: format)
         
         let image = renderer.image { context in
             UIColor.white.setFill()
