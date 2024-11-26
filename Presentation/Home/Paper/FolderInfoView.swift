@@ -132,22 +132,6 @@ struct FolderInfoView: View {
                 }
                 .padding(.trailing, 6)
                 
-                Button(action: {
-                    // TODO: - 내보내기 버튼 구현
-                }) {
-                    RoundedRectangle(cornerRadius: 14)
-                        .frame(width: 40, height: 40)
-                        .foregroundStyle(.gray400)
-                        .overlay(
-                            Image(.share)
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(.gray600)
-                        )
-                }
-                
                 Spacer()
                 
                 actionButton()
