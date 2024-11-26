@@ -275,7 +275,10 @@ extension OriginalViewController {
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] noti in
+                if let tempPDFView = noti.object as? PDFView, tempPDFView != self?.mainPDFView {
+                    return
+                }
                 guard let page = self?.mainPDFView.currentPage else { return }
                 guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
                 

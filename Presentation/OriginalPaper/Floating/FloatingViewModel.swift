@@ -80,7 +80,7 @@ class FloatingViewModel: ObservableObject {
             self.selectedFigureCellID = documentID
         }
     }
-    
+        
     func setFloatingDocument(documentID: String) {
         self.selectedFigureCellID = documentID
         self.splitMode = false
