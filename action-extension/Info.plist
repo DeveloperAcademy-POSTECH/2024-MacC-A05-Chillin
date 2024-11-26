@@ -7,7 +7,7 @@
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>NSExtensionActivationRule</key>
-			<string>
+            <string>
                 SUBQUERY (
                 extensionItems,
                 $extensionItem,
