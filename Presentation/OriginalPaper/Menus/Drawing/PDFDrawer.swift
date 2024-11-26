@@ -235,10 +235,10 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     endCaptureMode()
                 }
                 
-                let pageNum = PDFSharedData.shared.document?.index(for: page)
+                let pageNum = PDFSharedData.shared.document?.index(for: page) ?? 0
                 let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 
-                let coords = "\(pageNum! + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
+                let coords = "\(pageNum + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
 
                 let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 

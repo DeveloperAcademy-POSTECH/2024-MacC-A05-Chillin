@@ -105,7 +105,6 @@ struct HomeView: View {
                 }
                 .frame(height: 80)
                 
-                // TODO: - 검색 케이스 분리
                 if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
                     SearchWordView()
                 } else {
@@ -391,18 +390,6 @@ private struct EditMenuView: View {
                 return false
             }
             
-            Button(action: {
-                // TODO: - 공유 버튼 활성화 필요
-            }, label: {
-                Image(.share)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
-            })
-            .padding(.trailing, 28)
-            .disabled(containsFolder)
             /*
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
