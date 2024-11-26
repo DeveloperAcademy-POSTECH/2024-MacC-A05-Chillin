@@ -112,14 +112,21 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
-        var isStale: Bool = false
+        var isStaleOriginal = false
+        var isStaleConcentrate = false
         
         do {
             let results = try dataContext.fetch(fetchRequest)
             
             if let dataToDelete = results.first {
                 // 실제 파일 삭제
-                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStale),
+                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStaleOriginal),
+                   FileManager.default.fileExists(atPath: url.path()) {
+                    try FileManager.default.removeItem(at: url)
+                }
+                
+                if let focusURL = dataToDelete.focusURL,
+                   let url = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStaleConcentrate),
                    FileManager.default.fileExists(atPath: url.path()) {
                     try FileManager.default.removeItem(at: url)
                 }
