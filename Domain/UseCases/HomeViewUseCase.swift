@@ -167,6 +167,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let originalUrl = try URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale)
             
             if let (data, url) = try self.savePDFIntoDirectory(url: originalUrl, isSample: false) {
+                
                 let newPaperInfo = PaperInfo(
                     title: url.deletingPathExtension().lastPathComponent,
                     thumbnail: paperInfo.thumbnail,
@@ -178,7 +179,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     isFigureSaved: false,
                     folderID: paperInfo.folderID)
                 
-                self.paperDataRepository.savePDFInfo(newPaperInfo)
+                self.paperDataRepository.duplicatePDFInfo(id: paperInfo.id, info: newPaperInfo)
                 return newPaperInfo
             }
             

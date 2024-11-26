@@ -133,4 +133,37 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             return .failure(error)
         }
     }
+    
+    public func duplicatePDFInfo(id: UUID, info: PaperInfo) -> Result<VoidResponse, any Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let results = try dataContext.fetch(fetchRequest)
+            if let dataToEdit = results.first {
+                
+                let newPaperData = PaperData(context: dataContext)
+                newPaperData.id = info.id
+                newPaperData.isFavorite = info.isFavorite
+                newPaperData.isFigureSaved = info.isFigureSaved
+                newPaperData.lastModifiedDate = info.lastModifiedDate
+                newPaperData.memo = info.memo
+                newPaperData.thumbnail = info.thumbnail
+                newPaperData.url = info.url
+                newPaperData.focusURL = nil
+                newPaperData.folderID = info.folderID
+                newPaperData.commentData = dataToEdit.commentData
+                newPaperData.figureData = dataToEdit.figureData
+                
+                try dataContext.save()
+                return .success(VoidResponse())
+            } else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
+            }
+        } catch {
+            print(error)
+            return .failure(error)
+        }
+    }
 }
