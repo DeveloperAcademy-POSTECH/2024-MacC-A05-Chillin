@@ -26,8 +26,6 @@ struct MainPDFView: View {
     @StateObject public var searchViewModel: SearchViewModel
     @StateObject public var indexViewModel: IndexViewModel
     
-    @State private var selectedButton: Buttons? = nil
-    
     @State private var selectedIndex: Int = 0
     @State private var isReadModeFirstSelected: Bool = false
     
@@ -184,18 +182,18 @@ struct MainPDFView: View {
                             Spacer()
                             
                             ForEach(Buttons.allCases, id: \.self) { btn in
-                                ButtonsView(button: $selectedButton, selectedButton: btn) {
-                                    if selectedButton == btn {
-                                        selectedButton = nil
+                                ButtonsView(button: $mainPDFViewModel.selectedButton, selectedButton: btn) {
+                                    if mainPDFViewModel.selectedButton == btn {
+                                        mainPDFViewModel.selectedButton = nil
                                         mainPDFViewModel.toolMode = .none
                                         mainPDFViewModel.pdfDrawer.drawingTool = .none
                                     } else {
-                                        selectedButton = btn
+                                        mainPDFViewModel.selectedButton = btn
                                         mainPDFViewModel.pdfDrawer.endCaptureMode()
                                         focusFigureViewModel.isCaptureMode = false
                                     }
                                     
-                                    switch selectedButton {
+                                    switch mainPDFViewModel.selectedButton {
                                     case .drawing:
                                         mainPDFViewModel.toolMode = .drawing
                                         mainPDFViewModel.pdfDrawer.drawingTool = .none
@@ -313,7 +311,7 @@ struct MainPDFView: View {
                     GeometryReader { gp in
                         ZStack {
                             HStack(spacing: 0) {
-                                DrawingView(selectedButton: $selectedButton)
+                                DrawingView(selectedButton: $mainPDFViewModel.selectedButton)
                                     .environmentObject(mainPDFViewModel)
                                     .background {
                                         RoundedRectangle(cornerRadius: 12)

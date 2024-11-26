@@ -306,7 +306,9 @@ extension OriginalViewController {
                 
                 guard let selection = self.mainPDFView.currentSelection else {
                     // 선택된 텍스트가 없을 때 특정 액션
-                    self.viewModel.selectedText = ""
+                    DispatchQueue.main.async {
+                        self.viewModel.selectedText = ""
+                    }
                     return
                 }
                 
