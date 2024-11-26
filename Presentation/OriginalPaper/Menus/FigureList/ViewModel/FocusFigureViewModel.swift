@@ -113,10 +113,16 @@ extension FocusFigureViewModel {
                             
                             self.saveFigures(figures: layout.toCoreData())
                             
-                            let url = self.setFocusDocument(fileName: "")
+                            let url = self.setFocusDocument(fileName: paperInfo.title)
+                            
+                            self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = try? url.bookmarkData(options: .minimalBookmark)
                             paperInfo.focusURL = try? url.bookmarkData(options: .minimalBookmark)
                             
+                            self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
                             paperInfo.isFigureSaved = true
+                            
+                            NotificationCenter.default.post(name: .changeHomePaperInfo, object: paperInfo, userInfo: nil)
+                            
                             self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         }
                     case .failure(let error):
@@ -202,8 +208,9 @@ extension FocusFigureViewModel {
             pageIndex += 1
         }
         
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "combine.pdf")
-        let width = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).width
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+            .first!.appending(path: "\(fileName)_combine.pdf")
+//        let width = self.focusFigureUseCase.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).width
         
         let w: CGFloat = {
             var result: CGFloat = 0
@@ -229,20 +236,16 @@ extension FocusFigureViewModel {
         var currentY: CGFloat = 20
         
         for i in self.focusPages {
-//            let pageHeight = self.document!.page(at: i)!.bounds(for: .mediaBox).height
-//            let pageWidth = self.document!.page(at: i)!.bounds(for: .mediaBox).width
-
                 // Render the page content
                 if let context = UIGraphicsGetCurrentContext() {
                     let page = self.focusFigureUseCase.pdfSharedData.document!
                         .page(at: i.page - 1)!.copy() as! PDFPage
-//                    let croppedPage = self.annotations[i].page!.copy() as! PDFPage
                     
                     let crop = i.position
                     
                     let original = page.bounds(for: .mediaBox)
                     let croppedRect = original.intersection(crop)
-//                    page.displaysAnnotations = false
+                    page.displaysAnnotations = false
                     
                     page.setBounds(croppedRect, for: .mediaBox)
                     
@@ -259,41 +262,9 @@ extension FocusFigureViewModel {
         
         UIGraphicsEndPDFContext()
         
-        let dddocument = PDFDocument(url: path)
-        self.focusDocument = dddocument
+        self.focusDocument = PDFDocument(url: path)
+        
         return path
-        
-        
-        
-        // TODO: 밑 주석 추후에 수정 예정
-        /*
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "test.pdf")
-
-        let renderer = UIGraphicsPDFRenderer(bounds: .zero)
-        try! renderer.writePDF(to: url) { context in
-            let pdfContext = context.cgContext
-            
-            self.focusPages.forEach { annotation in
-                guard let page = self.focusFigureUseCase.pdfSharedData.document?
-                    .page(at: annotation.page - 1)?.copy() as? PDFPage else {
-                    return
-                }
-                page.displaysAnnotations = false
-                
-                guard let pdfRef = page.pageRef else { return }
-                
-                var mediaBox = pdfRef.getBoxRect(.mediaBox)
-                pdfContext.beginPage(mediaBox: &mediaBox)
-                pdfContext.drawPDFPage(pdfRef)
-            }
-            
-            pdfContext.endPage()
-        }
-        
-        let resultDocument = PDFDocument(url: url)!
-         */
-        
-//        return document
     }
 }
 

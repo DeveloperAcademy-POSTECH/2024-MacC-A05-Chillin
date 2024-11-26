@@ -279,7 +279,7 @@ extension OriginalViewController {
                 guard let page = self?.mainPDFView.currentPage else { return }
                 guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
                 
-                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
+//                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
                 
                 self?.pageListViewModel.changedPageNumber = num
                 self?.focusFigureViewModel.changedPageNumber = num
