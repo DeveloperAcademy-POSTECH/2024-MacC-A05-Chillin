@@ -22,6 +22,8 @@ protocol HomeViewUseCase {
     @discardableResult
     func deletePDF(id: UUID) -> Result<VoidResponse, any Error>
     
+    func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo?
+    
     func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
   
     func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)?
@@ -155,6 +157,35 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             
             self.paperDataRepository.savePDFInfo(paperInfo)
             return paperInfo
+        }
+    }
+    
+    public func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo? {
+        var isStale = false
+        
+        do {
+            let originalUrl = try URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale)
+            
+            if let (data, url) = try self.savePDFIntoDirectory(url: originalUrl, isSample: false) {
+                
+                let newPaperInfo = PaperInfo(
+                    title: url.deletingPathExtension().lastPathComponent,
+                    thumbnail: paperInfo.thumbnail,
+                    url: data,
+                    focusURL: nil,
+                    lastModifiedDate: Date(),
+                    isFavorite: paperInfo.isFavorite,
+                    memo: paperInfo.memo,
+                    isFigureSaved: paperInfo.isFigureSaved,
+                    folderID: paperInfo.folderID)
+                
+                self.paperDataRepository.duplicatePDFInfo(id: paperInfo.id, info: newPaperInfo)
+                return newPaperInfo
+            }
+            
+            throw PDFUploadError.fileNameDuplication
+        } catch {
+            throw PDFUploadError.fileNameDuplication
         }
     }
     

@@ -144,6 +144,23 @@ extension HomeViewModel {
         self.paperInfos.removeAll(where: { $0.id == id })
     }
     
+    public func duplicatePDF(at id: UUID) {
+        guard let paper = self.paperInfos.first(where: { $0.id == id }) else {
+            return
+        }
+        
+        do {
+            if let result = try self.homeViewUseCase.duplicatePDF(paperInfo: paper) {
+                self.paperInfos.append(result)
+            }
+        } catch {
+            if let error = error as? PDFUploadError {
+                self.errorStatus = error
+                self.isErrorOccured.toggle()
+            }
+        }
+    }
+    
     private func setBinding() {
         NotificationCenter.default.publisher(for: .changeHomePaperInfo)
             .sink { [weak self] noti in

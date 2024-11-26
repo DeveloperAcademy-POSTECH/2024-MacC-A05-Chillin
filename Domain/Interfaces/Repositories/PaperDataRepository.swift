@@ -23,4 +23,7 @@ protocol PaperDataRepository {
     /// PDF 정보를 삭제합니다
     @discardableResult
     func deletePDFInfo(id: UUID) -> Result<VoidResponse, Error>
+    
+    @discardableResult
+    func duplicatePDFInfo(id: UUID, info: PaperInfo) -> Result<VoidResponse, Error>
 }
