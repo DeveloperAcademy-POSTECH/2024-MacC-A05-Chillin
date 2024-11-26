@@ -373,6 +373,8 @@ struct MainPDFView: View {
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
                     Color.black.opacity(0.5)
+                        .ignoresSafeArea(edges: .all)
+                    
                     EditFigNameView(id: id)
                         .environmentObject(focusFigureViewModel)
                         .zIndex(1)
