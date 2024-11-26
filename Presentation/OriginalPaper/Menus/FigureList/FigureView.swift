@@ -170,6 +170,7 @@ struct FigureView: View {
                                 mainPDFViewModel.pdfDrawer.drawingTool = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
+                            mainPDFViewModel.selectedButton = nil
                         }) {
                             ZStack(alignment: .top) {
                                 RoundedRectangle(cornerRadius: 8)
