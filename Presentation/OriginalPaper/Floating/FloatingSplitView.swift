@@ -179,6 +179,7 @@ struct FloatingSplitView: View {
                                     })
                                     .environmentObject(floatingViewModel)
                                     .padding(.trailing, 5)
+                                    .id(index)
                                 }
                             }
                             .padding(.horizontal, 20)

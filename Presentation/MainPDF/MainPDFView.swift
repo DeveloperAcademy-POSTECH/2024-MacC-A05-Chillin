@@ -110,7 +110,9 @@ struct MainPDFView: View {
                             
                             Rectangle()
                                 .frame(width: 1.2, height: 16)
-                                .foregroundStyle(.primary4)
+                                // TODO: - 집중모드 개선 후 삭제
+                                .foregroundStyle(.clear)
+                                // .foregroundStyle(.primary4)
                                 .padding(.horizontal, 16)
                             
                             Button(action: {
@@ -125,9 +127,12 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            .foregroundStyle(isReadMode ? .gray100 : .gray800)
+                                            // TODO: - 집중모드 개선 후 삭제
+                                            .foregroundStyle(.clear)
+                                            // .foregroundStyle(isReadMode ? .gray100 : .gray800)
                                     )
                             }
+                            .disabled(true) // TODO: - 집중모드 개선 후 삭제
                             
                             Spacer()
                             

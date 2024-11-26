@@ -66,12 +66,12 @@ struct FigureView: View {
                         if !focusFigureViewModel.figures.isEmpty {
                             HStack(spacing: 0) {
                                 Button(action: {
-                                    // 첫 번째 Document를 Split에 반영
-                                    if let document = focusFigureViewModel.setFigureDocument(for: 0) {
-                                        let head = focusFigureViewModel.figures[0].head
-                                        let documentID = "figure-0"
+                                    if let figure = focusFigureViewModel.figures.first {
+                                        let document = focusFigureViewModel.setFigureDocument(for: 0)!
+                                        let head = figure.head
+                                        let documentID = figure.id
                                         
-                                        floatingViewModel.droppedFigures.append((
+                                        let newFigure = DroppedFigure(
                                             documentID: documentID,
                                             document: document,
                                             head: head,
@@ -80,7 +80,8 @@ struct FigureView: View {
                                             lastOffset: CGSize(width: 0, height: 0),
                                             viewWidth: 300,
                                             isInSplitMode: true
-                                        ))
+                                        )
+                                        floatingViewModel.droppedFigures.append(newFigure)
                                         
                                         floatingViewModel.setSplitDocument(documentID: documentID)
                                     }
