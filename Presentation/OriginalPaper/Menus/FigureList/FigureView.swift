@@ -69,8 +69,24 @@ struct FigureView: View {
                 case .complete:
                     HStack(spacing: 0) {
                         Button(action: {
-                            let documentID = "figure-0"
-                            floatingViewModel.setSplitDocument(documentID: documentID)
+                            // 첫 번째 Document를 Split에 반영
+                            if let document = focusFigureViewModel.setFigureDocument(for: 0) {
+                                let head = focusFigureViewModel.figures[0].head
+                                let documentID = "figure-0"
+                                
+                                floatingViewModel.droppedFigures.append((
+                                    documentID: documentID,
+                                    document: document,
+                                    head: head,
+                                    isSelected: true,
+                                    viewOffset: CGSize(width: 0, height: 0),
+                                    lastOffset: CGSize(width: 0, height: 0),
+                                    viewWidth: 300,
+                                    isInSplitMode: true
+                                ))
+                                
+                                floatingViewModel.setSplitDocument(documentID: documentID)
+                            }
                         }) {
                             Image(.dualwindow)
                                 .renderingMode(.template)
