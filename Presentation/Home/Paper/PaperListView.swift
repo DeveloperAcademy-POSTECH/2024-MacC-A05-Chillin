@@ -123,6 +123,7 @@ struct PaperListView: View {
                                         }
                                     }) {
                                         Image(isFavorite ? .starfill : .star)
+                                            .renderingMode(.template)
                                             .font(.system(size: 18))
                                             .foregroundStyle(.primary1)
                                     }
@@ -497,17 +498,19 @@ extension PaperListView {
         let data = selectedPaper.url
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            print("bookmartdata to url failed")
+            print("bookmarkdata to url failed")
             return
         }
         
         if isStale {
             print("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let _ = try? url.bookmarkData(options: .minimalBookmark) else {
+            guard let newURL = try? url.bookmarkData(options: .minimalBookmark) else {
                 print("Unable to create bookmark")
                 return
             }
-            // TODO: URL 데이터 업데이트 필요
+            
+            let idx = homeViewModel.paperInfos.firstIndex { $0.id == selectedPaperID }!
+            homeViewModel.paperInfos[idx].url = newURL
         }
         
         if url.startAccessingSecurityScopedResource() {

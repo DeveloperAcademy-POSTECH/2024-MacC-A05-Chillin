@@ -13,6 +13,7 @@ struct FigureView: View {
     
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject var floatingViewModel: FloatingViewModel
     
     @State private var scrollToIndex: Int? = nil
     
@@ -60,69 +61,103 @@ struct FigureView: View {
                         .multilineTextAlignment(.center)
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
-                case .empty:
-                    Text("Fig와 Table이 있으면,\n여기에 표시됩니다")
-                        .multilineTextAlignment(.center)
-                        .reazyFont(.body3)
-                        .foregroundStyle(.gray600)
-                case .complete:
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            // TODO: - splitView 진입
-                            // 선택된 Floating이 없을 경우 반드시 첫 figure 선택
-                        }) {
-                            Image(.dualwindow)
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 19)
-                                .foregroundStyle(.primary1)
+                case .empty, .complete:
+                    ZStack {
+                        if !focusFigureViewModel.figures.isEmpty {
+                            HStack(spacing: 0) {
+                                Button(action: {
+                                    // 첫 번째 Document를 Split에 반영
+                                    if let document = focusFigureViewModel.setFigureDocument(for: 0) {
+                                        let head = focusFigureViewModel.figures[0].head
+                                        let documentID = "figure-0"
+                                        
+                                        floatingViewModel.droppedFigures.append((
+                                            documentID: documentID,
+                                            document: document,
+                                            head: head,
+                                            isSelected: true,
+                                            viewOffset: CGSize(width: 0, height: 0),
+                                            lastOffset: CGSize(width: 0, height: 0),
+                                            viewWidth: 300,
+                                            isInSplitMode: true
+                                        ))
+                                        
+                                        floatingViewModel.setSplitDocument(documentID: documentID)
+                                    }
+                                }) {
+                                    Image(.dualwindow)
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 19)
+                                        .foregroundStyle(.primary1)
+                                }
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    // TODO: - 다중 선택 구현
+                                    /// Ver.2.0.1 구현 예정
+                                }) {
+                                    Image(systemName: "checkmark.circle")
+                                        .font(.system(size: 16))
+                                        .foregroundStyle(.clear)
+                                }
+                            }
                         }
                         
-                        Spacer()
-                        
-                        Text("Fig & Table")
-                            .reazyFont(.body1)
-                            .foregroundStyle(.gray800)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            // TODO: - 다중 선택 구현
-                        }) {
-                            Image(systemName: "checkmark.circle")
-                                .font(.system(size: 16))
-                                .foregroundStyle(.primary1)
+                        HStack(spacing: 0) {
+                            Spacer()
+                            
+                            Text("Fig & Table")
+                                .reazyFont(.body1)
+                                .foregroundStyle(.gray800)
+                            
+                            Spacer()
                         }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 15)
                     .padding(.bottom, 24)
  
-                    
-                    // ScrollViewReader로 자동 스크롤 구현
-                    ScrollViewReader { proxy in
-                        List {
-                            ForEach(focusFigureViewModel.figures, id: \.self) { item in
-                                let id = item.uuid
-                                FigureCell(id: id, onSelect: onSelect)
-                                    .padding(.bottom, 21)
-                                    .listRowSeparator(.hidden)
-                            }
+                    if focusFigureViewModel.figures.isEmpty {
+                        VStack(spacing: 0) {
+                            Spacer()
+                            Text("Fig와 Table이 있으면,\n여기에 표시됩니다")
+                                .multilineTextAlignment(.center)
+                                .reazyFont(.body3)
+                                .foregroundStyle(.gray600)
+                            Spacer()
                         }
-                        .padding(.horizontal, 10)
-                        .listStyle(.plain)
-                        .onChange(of: scrollToIndex) { _, newValue in
-                            if let index = newValue {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    withAnimation {
-                                        // 자동 스크롤
-                                        proxy.scrollTo(index, anchor: .top)
+                    } else {
+                        // ScrollViewReader로 자동 스크롤 구현
+                        ScrollViewReader { proxy in
+                            List {
+                                ForEach(focusFigureViewModel.figures, id: \.self) { item in
+                                    let id = item.uuid
+                                    FigureCell(id: id, onSelect: onSelect)
+                                        .padding(.bottom, 21)
+                                        .listRowSeparator(.hidden)
+                                        .id(id)
+                                }
+                            }
+                            .padding(.horizontal, 10)
+                            .listStyle(.plain)
+                            .onChange(of: scrollToIndex) { _, newValue in
+                                if let index = newValue, index < focusFigureViewModel.figures.count {
+                                    let id = focusFigureViewModel.figures[index].uuid // `uuid`를 사용
+                                    DispatchQueue.main.async {
+                                        withAnimation {
+                                            // 자동 스크롤
+                                            proxy.scrollTo(id, anchor: .top)
+                                            print(id)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    
                     VStack(spacing: 0){
                         Button(action: {
                             focusFigureViewModel.isCaptureMode.toggle()
@@ -132,8 +167,8 @@ struct FigureView: View {
                                 mainPDFViewModel.updateDrawingTool()
                             } else {
                                 mainPDFViewModel.toolMode = .none
-                                mainPDFViewModel.updateDrawingTool()
                                 mainPDFViewModel.drawingToolMode = .none
+                                mainPDFViewModel.updateDrawingTool()
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {

@@ -80,7 +80,7 @@ class FloatingViewModel: ObservableObject {
             self.selectedFigureCellID = documentID
         }
     }
-    
+        
     func setFloatingDocument(documentID: String) {
         self.selectedFigureCellID = documentID
         self.splitMode = false
@@ -123,7 +123,11 @@ class FloatingViewModel: ObservableObject {
         
         // PDF 페이지를 UIImage로 변환
         let pdfPageBounds = pdfPage.bounds(for: .mediaBox)
-        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 5.0              // 스케일 조정 -> 높은 화질
+        format.opaque = false           // 배경 투명 설정 false
+        let renderer = UIGraphicsImageRenderer(size: pdfPageBounds.size, format: format)
         
         let image = renderer.image { context in
             UIColor.white.setFill()
@@ -174,11 +178,17 @@ class FloatingViewModel: ObservableObject {
     
     @MainActor
     private func moveToFigure(at index: Int, focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        guard let document = focusFigureViewModel.setFigureDocument(for: index) else { return }
-        let figure = focusFigureViewModel.figures[index]
+        guard index < focusFigureViewModel.figures.count, index < focusFigureViewModel.documents.count else {
+            print("Invalid index")
+            return
+        }
         
+        let figure = focusFigureViewModel.figures[index]
+        let document = focusFigureViewModel.documents[index]
+
         updateSplitDocument(with: document, documentID: "figure-\(index)", head: figure.head)
         observableDocument.updateDocument(to: document)
+        
         selectedFigureIndex = index
     }
     

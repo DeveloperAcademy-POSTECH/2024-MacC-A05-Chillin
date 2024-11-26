@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 @MainActor
 class HomeViewModel: ObservableObject {
@@ -64,6 +65,8 @@ class HomeViewModel: ObservableObject {
     @Published public var selectedFilter: SearchFilter = .total
     @Published public var selectedMenu: Options = .main
     
+    @Published public var changedTitle: String?
+    
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
     
@@ -75,6 +78,8 @@ class HomeViewModel: ObservableObject {
     @Published public var isSettingMenu: Bool = false
     
     private let homeViewUseCase: HomeViewUseCase
+    
+    private var cancellables: Set<AnyCancellable> = []
     
     init(homeViewUseCase: HomeViewUseCase) {
         self.homeViewUseCase = homeViewUseCase
@@ -96,6 +101,11 @@ class HomeViewModel: ObservableObject {
         }
         
         updateFilteredList()
+        setBinding()
+    }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
     }
 }
 
@@ -132,6 +142,17 @@ extension HomeViewModel {
     public func deletePDF(at id: UUID) {
         self.homeViewUseCase.deletePDF(id: id)
         self.paperInfos.removeAll(where: { $0.id == id })
+    }
+    
+    private func setBinding() {
+        NotificationCenter.default.publisher(for: .changeHomePaperInfo)
+            .sink { [weak self] noti in
+                if let paper = noti.object as? PaperInfo,
+                   let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
+                    self?.paperInfos[idx] = paper
+                }
+            }
+            .store(in: &self.cancellables)
     }
 }
 

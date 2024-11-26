@@ -67,6 +67,8 @@ final class MainPDFViewModel: ObservableObject {
     @Published var isMenuSelected: Bool = false
     
     @Published public var pageNumber: Int = 0
+    
+    @Published public var paperInfo: PaperInfo = PDFSharedData.shared.paperInfo!
         
     init() {
         pdfDrawer.onHistoryChange = { [weak self] in
