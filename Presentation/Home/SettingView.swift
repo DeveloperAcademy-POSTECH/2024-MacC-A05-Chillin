@@ -11,6 +11,10 @@ import Translation
 
 struct SettingView: View {
     private var email = SupportEmail()
+    private var appVersion: String {
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+            return "\(version)"
+     }
     
     @Environment(\.requestReview) var requestReview
     @Environment(\.openURL) var openURL
@@ -56,7 +60,7 @@ struct SettingView: View {
                     HStack {
                         Text("버전")
                         Spacer()
-                        Text("2.0")
+                        Text(appVersion)
                     }
                     .foregroundStyle(.gray800)
                     
