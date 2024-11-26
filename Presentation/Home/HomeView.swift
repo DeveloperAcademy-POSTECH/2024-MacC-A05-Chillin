@@ -392,19 +392,6 @@ private struct EditMenuView: View {
             }
             
             Button(action: {
-                // TODO: - 공유 버튼 활성화 필요
-            }, label: {
-                Image(.share)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
-            })
-            .padding(.trailing, 28)
-            .disabled(containsFolder)
-            
-            Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
                 Image(.copy)
