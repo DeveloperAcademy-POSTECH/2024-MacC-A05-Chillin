@@ -14,7 +14,14 @@ import Combine
 @MainActor
 class FocusFigureViewModel: ObservableObject {
     @Published public var focusPages: [FocusAnnotation] = []
-    @Published public var figures: [FigureAnnotation] = []
+    @Published public var figures: [FigureAnnotation] = [] {
+        didSet {
+            if oldValue != figures {
+                updateThumbnails()
+            }
+        }
+    }
+    @Published public var documents: [PDFDocument] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
     
@@ -129,15 +136,27 @@ extension FocusFigureViewModel {
         }
     }
     
+    // figure 리스트가 바뀔 때 마다 썸네일을 업데이트하는 메서드
+    private func updateThumbnails() {
+        // 정렬
+        DispatchQueue.main.async {
+            self.figures.sort { $0.page < $1.page }
+        }
+        
+        documents.removeAll()
+        
+        for index in figures.indices {
+            if let newDocument = setFigureDocument(for: index) {
+                documents.append(newDocument)
+            }
+        }
+    }
     
-    public func setFigureDocument(for index: Int) -> PDFDocument? {        
+    public func setFigureDocument(for index: Int) -> PDFDocument? {
+        print("setFiguredocument")
         guard index >= 0 && index < self.figures.count else {           // 인덱스가 유효한지 확인
             print("Invalid index")
             return nil
-        }
-        
-        DispatchQueue.main.async {
-            self.figures.sort { $0.page < $1.page }                     // figure와 table 페이지 순서 정렬
         }
         
         let document = PDFDocument()                                    // 새 PDFDocument 생성
