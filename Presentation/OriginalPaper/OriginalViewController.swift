@@ -337,7 +337,7 @@ extension OriginalViewController {
                     // y 좌표 설정
                     /// 코멘트 뷰가 아래 화면 초과
                     if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 && !(convertedBounds.maxX > self.mainPDFView.bounds.maxX * 0.6) {
-                        commentY = convertedBounds.minY - 60
+                        commentY = convertedBounds.minY - 80
                     /// 코멘트 뷰가 두 컬럼 모두 선택일 때
                     } else {
                         if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
@@ -347,7 +347,7 @@ extension OriginalViewController {
                             if lastLineBounds.maxY > self.mainPDFView.bounds.maxY - 200 {
                                 commentY = lastLineBounds.minY - 100
                             } else {
-                                commentY = lastLineBounds.maxY + 60
+                                commentY = lastLineBounds.maxY + 80
                             }
                         }
                     }
