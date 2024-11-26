@@ -310,12 +310,24 @@ extension OriginalViewController {
                     return
                 }
                 
+                let lineSelections = selection.selectionsByLine()
+                if let lastLine = lineSelections.last, let page = lastLine.pages.first {
+                    let lastLineBounds = lastLine.bounds(for: page)
+                }
+                
+                
                 guard let _ = selection.string else { return }
                     
                 if let page = selection.pages.first {
                     
                     // PDFSelection의 bounds 추출(CGRect)
                     let bound = selection.bounds(for: page)
+                    
+                    // 선택 영역이 pdfView 넓이의 절반 이상을 차지하고 있을 때,
+                    let isAcross = bound.width < mainPDFView.bounds.width / 2
+                    // 가장 마지막 선택 영역의 bounds 값을 기준으로 뷰가 위치하도록 하기
+                    // 그렇지 않을 경우, 선택 영역의 전체 bounds 값을 기준으로 뷰의 위치 계산하기
+                    
                     let convertedBounds = self.mainPDFView.convert(bound, from: page)
                     
                     //comment position 설정
