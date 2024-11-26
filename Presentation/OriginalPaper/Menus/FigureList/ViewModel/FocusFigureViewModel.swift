@@ -122,7 +122,11 @@ extension FocusFigureViewModel {
                             
                             self.saveFigures(figures: layout.toCoreData())
                             
+                            self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
                             paperInfo.isFigureSaved = true
+                            
+                            NotificationCenter.default.post(name: .changeHomePaperInfo, object: paperInfo, userInfo: nil)
+                            
                             self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         }
                     case .failure(let error):
