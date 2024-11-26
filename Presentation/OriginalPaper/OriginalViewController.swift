@@ -313,20 +313,13 @@ extension OriginalViewController {
                     return
                 }
                 
-//                let lineSelections = selection.selectionsByLine()
-//                if let lastLine = lineSelections.last, let page = lastLine.pages.first {
-//                    let lastLineBounds = lastLine.bounds(for: page)
-//                }
-                
-                
                 guard let _ = selection.string else { return }
-                let lineSelections = selection.selectionsByLine()
+                var lineSelections = selection.selectionsByLine()
                 
                 if let page = selection.pages.first {
                     // PDFSelection의 bounds 추출(CGRect)
                     let bound = selection.bounds(for: page)
                     let convertedBounds = self.mainPDFView.convert(bound, from: page)
-                    
                     
                     //comment position 설정
                     var commentX: CGFloat
@@ -340,18 +333,22 @@ extension OriginalViewController {
                         commentX = convertedBounds.midX
                     }
                     
+                    /// 코멘트 뷰가 아래 화면 초과
                     if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 && !(convertedBounds.maxX > self.mainPDFView.bounds.maxX * 0.6) {
-                        /// 코멘트 뷰가 아래 화면 초과
-                        print("코멘트 뷰가 아래 화면 초과")
                         commentY = convertedBounds.minY - 60
+                    /// 코멘트 뷰가 두 컬럼 모두 선택일 때
                     } else {
-                        print("isAcross")
                         if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
                             let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
                             
+                            /// x좌표 설정
+                            if let xline = lineSelections.popLast()?.bounds(for: lastPage) {
+                                let xBounds = self.mainPDFView.convert(xline, from: lastPage)
+                                commentX = xBounds.midX
+                            }
+                            
                             /// 코멘트 뷰가 아래 화면으로 초과
                             if lastLineBounds.maxY > self.mainPDFView.bounds.maxY - 200 {
-                                print("isAcross 아래 초과")
                                 commentY = lastLineBounds.minY - 100
                             } else {
                                 commentY = lastLineBounds.maxY + 60
