@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 @MainActor
 class HomeViewModel: ObservableObject {
@@ -78,6 +79,8 @@ class HomeViewModel: ObservableObject {
     
     private let homeViewUseCase: HomeViewUseCase
     
+    private var cancellables: Set<AnyCancellable> = []
+    
     init(homeViewUseCase: HomeViewUseCase) {
         self.homeViewUseCase = homeViewUseCase
         
@@ -98,6 +101,11 @@ class HomeViewModel: ObservableObject {
         }
         
         updateFilteredList()
+        setBinding()
+    }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
     }
 }
 
@@ -134,6 +142,17 @@ extension HomeViewModel {
     public func deletePDF(at id: UUID) {
         self.homeViewUseCase.deletePDF(id: id)
         self.paperInfos.removeAll(where: { $0.id == id })
+    }
+    
+    private func setBinding() {
+        NotificationCenter.default.publisher(for: .changeHomePaperInfo)
+            .sink { [weak self] noti in
+                if let paper = noti.object as? PaperInfo,
+                   let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
+                    self?.paperInfos[idx] = paper
+                }
+            }
+            .store(in: &self.cancellables)
     }
 }
 
