@@ -62,15 +62,16 @@ struct FigureCell: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
-                if let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }),
+                if let figure = focusFigureViewModel.figures.first(where: { $0.uuid == id }),
+                   let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }),
                    focusFigureViewModel.documents.indices.contains(index) {
                     
                     let document = focusFigureViewModel.documents[index]
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
                         let aspectRatio = pageRect.width / pageRect.height
-                        let head = focusFigureViewModel.figures[index].head
-                        let documentID = "figure-\(index)"
+                        let head = figure.head
+                        let documentID = figure.id
                         
                         PDFKitView(document: document, isScrollEnabled: false)
                             .edgesIgnoringSafeArea(.all)                    // 전체 화면에 맞추기

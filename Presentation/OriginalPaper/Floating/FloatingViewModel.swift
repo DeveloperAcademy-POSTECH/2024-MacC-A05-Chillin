@@ -8,10 +8,22 @@
 import SwiftUI
 import PDFKit
 
+struct DroppedFigure: Identifiable {
+    let id: UUID = UUID()
+    var documentID: String
+    var document: PDFDocument
+    var head: String
+    var isSelected: Bool
+    var viewOffset: CGSize
+    var lastOffset: CGSize
+    var viewWidth: CGFloat
+    var isInSplitMode: Bool
+}
+
 class FloatingViewModel: ObservableObject {
-    @Published var droppedFigures: [(documentID: String, document: PDFDocument, head: String, isSelected: Bool, viewOffset: CGSize, lastOffset: CGSize, viewWidth: CGFloat, isInSplitMode: Bool)] = []
-    @Published var topmostIndex: Int? = nil
-    @Published var selectedFigureCellID: String? = nil
+    @Published var droppedFigures: [DroppedFigure] = []
+    @Published var topmostIndex: Int?
+    @Published var selectedFigureCellID: String?
     @Published var selectedFigureIndex: Int = 0
     
     @Published var splitMode: Bool = false
@@ -25,7 +37,7 @@ class FloatingViewModel: ObservableObject {
                 topmostIndex = index
             }
         } else {
-            droppedFigures.append((
+            let newFigure = DroppedFigure(
                 documentID: documentID,
                 document: document,
                 head: head,
@@ -34,12 +46,11 @@ class FloatingViewModel: ObservableObject {
                 lastOffset: CGSize(width: 0, height: 0),
                 viewWidth: 300,
                 isInSplitMode: false
-            ))
+            )
+            droppedFigures.append(newFigure)
             
             topmostIndex = droppedFigures.count - 1
         }
-        
-        droppedFigures = droppedFigures.map { $0 }
     }
     
     func deselect(documentID: String) {
@@ -52,7 +63,7 @@ class FloatingViewModel: ObservableObject {
                 selectedFigureCellID = nil
             }
             
-            droppedFigures = droppedFigures.map { $0 }
+            droppedFigures.remove(at: index)
         }
     }
     
@@ -91,27 +102,18 @@ class FloatingViewModel: ObservableObject {
     }
     
     func updateSplitDocument(with newDocument: PDFDocument, documentID: String, head: String) {
-        if splitMode, let currentSelectedID = selectedFigureCellID {
-            if currentSelectedID != documentID {
-                if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == selectedFigureCellID }) {
-                    droppedFigures[existingIndex] = (
-                        documentID: documentID,
-                        document: newDocument,
-                        head: head,
-                        isSelected: true,
-                        viewOffset: droppedFigures[existingIndex].viewOffset,
-                        lastOffset: droppedFigures[existingIndex].lastOffset,
-                        viewWidth: droppedFigures[existingIndex].viewWidth,
-                        isInSplitMode: true
-                    )
-                    
-                    selectedFigureCellID = documentID
-                    if let index = Int(documentID.components(separatedBy: "-").last ?? "") {
-                        selectedFigureIndex = index
-                    }
-                    
-                    droppedFigures = droppedFigures.map { $0 }
-                }
+        guard splitMode, let currentSelectedID = selectedFigureCellID else { return }
+            
+        if currentSelectedID != documentID {
+            if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == selectedFigureCellID }) {
+                droppedFigures[existingIndex].documentID = documentID
+                droppedFigures[existingIndex].document = newDocument
+                droppedFigures[existingIndex].head = head
+                droppedFigures[existingIndex].isSelected = true
+                droppedFigures[existingIndex].isInSplitMode = true
+                
+                selectedFigureCellID = documentID
+                selectedFigureIndex = Int(documentID.components(separatedBy: "-").last ?? "") ?? 0
             }
         }
     }
@@ -186,7 +188,7 @@ class FloatingViewModel: ObservableObject {
         let figure = focusFigureViewModel.figures[index]
         let document = focusFigureViewModel.documents[index]
 
-        updateSplitDocument(with: document, documentID: "figure-\(index)", head: figure.head)
+        updateSplitDocument(with: document, documentID: figure.id, head: figure.head)
         observableDocument.updateDocument(to: document)
         
         selectedFigureIndex = index
