@@ -134,7 +134,7 @@ struct MainPDFView: View {
                             Button(action: {
                                 isFigSelected.toggle()
                                 
-                                mainPDFViewModel.drawingToolMode = .none
+                                mainPDFViewModel.pdfDrawer.drawingTool = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                                 focusFigureViewModel.isCaptureMode = false
                                 
@@ -183,7 +183,7 @@ struct MainPDFView: View {
                                     if selectedButton == btn {
                                         selectedButton = nil
                                         mainPDFViewModel.toolMode = .none
-                                        mainPDFViewModel.drawingToolMode = .none
+                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
                                     } else {
                                         selectedButton = btn
                                         mainPDFViewModel.pdfDrawer.endCaptureMode()
@@ -193,17 +193,17 @@ struct MainPDFView: View {
                                     switch selectedButton {
                                     case .drawing:
                                         mainPDFViewModel.toolMode = .drawing
-                                        mainPDFViewModel.drawingToolMode = .none
+                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
                                     case .comment:
                                         mainPDFViewModel.toolMode = .comment
-                                        mainPDFViewModel.drawingToolMode = .none
+                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
                                     case .translate:
                                         NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
                                         mainPDFViewModel.toolMode = .translate
-                                        mainPDFViewModel.drawingToolMode = .none
+                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
                                     default:
                                         mainPDFViewModel.toolMode = .none
-                                        mainPDFViewModel.drawingToolMode = .none
+                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
                                     }
                                 }
                                 .padding(.horizontal, 18)
@@ -499,7 +499,7 @@ struct MainPDFView: View {
             if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
                 TemporaryAlertView(mode: "comment")
             }
-            if isFigSelected && mainPDFViewModel.drawingToolMode == .lasso && focusFigureViewModel.isCaptureMode {
+            if isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
                 TemporaryAlertView(mode: "lasso")
             }
         }

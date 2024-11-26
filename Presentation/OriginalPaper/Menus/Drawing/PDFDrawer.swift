@@ -14,6 +14,7 @@ enum DrawingTool: Int {
     case eraser = 1
     case pencil = 2
     case lasso = 3
+    case highlights = 4
     
     var width: CGFloat {
         switch self {
@@ -38,13 +39,14 @@ enum PDFAction {
 
 class PDFDrawer {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
+    @Published var drawingTool: DrawingTool = .none
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
     private var currentPage: PDFPage?
     var penColor: PenColors = .black
-    var drawingTool = DrawingTool.none
+
     private var eraserLayer: CAShapeLayer? = nil
     
     var onHistoryChange: (() -> Void)?
