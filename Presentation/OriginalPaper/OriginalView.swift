@@ -39,7 +39,7 @@ struct OriginalView: View {
                         } else {                                    /// 뷰 바깥 영역을 탭했을 때 메뉴가 꺼져있으면
                             viewModel.isCommentTapped = false       /// 코멘트 뷰가 닫히게
                         }
-                        viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
+                        viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: false)
                     }
                 }
                 
@@ -53,14 +53,15 @@ struct OriginalView: View {
                 }
                 
                 // 코멘트뷰
-                if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
                     ZStack {
-                        CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
+                        if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
+                            CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
+                        }
                     }
                     .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
                     .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
                     .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
-                }
+                    .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
                 
                 // 코멘트 메뉴
                 if let comment = commentViewModel.comment {

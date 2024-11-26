@@ -24,8 +24,6 @@ final class OriginalViewController: UIViewController {
     let indexViewModel: IndexViewModel
     
     var cancellable: Set<AnyCancellable> = []
-    var selectionWorkItem: DispatchWorkItem?
-    
     
     let mainPDFView: CustomPDFView = {
         let view = CustomPDFView()
@@ -316,65 +314,68 @@ extension OriginalViewController {
                 }
                 
                 guard let _ = selection.string else { return }
+                let lineSelections = selection.selectionsByLine()
                 
-                self.selectionWorkItem?.cancel()
-                
-                let workItem = DispatchWorkItem { [weak self] in
-                    guard let self = self else { return }
-                    if let page = selection.pages.first {
-                        
-                        // PDFSelection의 bounds 추출(CGRect)
-                        let bound = selection.bounds(for: page)
-                        let convertedBounds = self.mainPDFView.convert(bound, from: page)
-                        
-                        //comment position 설정
-                        var commentX: CGFloat
-                        var commentY: CGFloat
-                        
-                        if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
-                            commentX = 193
-                        } else if convertedBounds.midX > self.mainPDFView.bounds.maxX - 193 {   /// 코멘트뷰가 오른쪽 화면 초과
-                            commentX = self.mainPDFView.bounds.maxX - 193
-                        } else {
-                            commentX = convertedBounds.midX
-                        }
-                        
-                        if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 {          /// 코멘트 뷰가 아래 화면 초과
-                            commentY = convertedBounds.minY - 60
-                        } else {
-                            commentY = convertedBounds.maxY + 60
-                        }
-                        
-                        let commentPosition = CGPoint(
-                            x: commentX,
-                            y: commentY
-                        )
-                        
-                        
-                        // 선택된 텍스트 가져오기
-                        let selectedText = selection.string ?? ""
-                        
-                        // PDFPage의 좌표를 PDFView의 좌표로 변환
-                        let pagePosition = self.mainPDFView.convert(bound, from: page)
-                        
-                        // PDFView의 좌표를 Screen의 좌표로 변환
-                        let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-                        
-                        DispatchQueue.main.async {
-                            // ViewModel에 선택된 텍스트와 위치 업데이트
-                            self.viewModel.selectedText = selectedText
-                            self.viewModel.translateViewPosition = screenPosition
-                            self.viewModel.commentSelection = selection
-                            self.viewModel.commentInputPosition = commentPosition
-                            self.commentViewModel.selectedBounds = bound
-
+                if let page = selection.pages.first {
+                    // PDFSelection의 bounds 추출(CGRect)
+                    let bound = selection.bounds(for: page)
+                    let convertedBounds = self.mainPDFView.convert(bound, from: page)
+                    
+                    //comment position 설정
+                    var commentX: CGFloat
+                    var commentY: CGFloat = 0.0
+                    
+                    // x 좌표 설정
+                    if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
+                        commentX = 193
+                    } else if convertedBounds.midX > self.mainPDFView.bounds.maxX - 193 {   /// 코멘트뷰가 오른쪽 화면 초과
+                        commentX = self.mainPDFView.bounds.maxX - 193
+                    } else {
+                        commentX = convertedBounds.midX
+                    }
+                    
+                    // y 좌표 설정
+                    /// 코멘트 뷰가 아래 화면 초과
+                    if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 && !(convertedBounds.maxX > self.mainPDFView.bounds.maxX * 0.6) {
+                        commentY = convertedBounds.minY - 80
+                    /// 코멘트 뷰가 두 컬럼 모두 선택일 때
+                    } else {
+                        if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
+                            let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
+                            
+                            /// 코멘트 뷰가 아래 화면으로 초과
+                            if lastLineBounds.maxY > self.mainPDFView.bounds.maxY - 200 {
+                                commentY = lastLineBounds.minY - 100
+                            } else {
+                                commentY = lastLineBounds.maxY + 80
+                            }
                         }
                     }
+                    
+                    let commentPosition = CGPoint(
+                        x: commentX,
+                        y: commentY
+                    )
+                    
+                    // 선택된 텍스트 가져오기
+                    let selectedText = selection.string ?? ""
+                    
+                    // PDFPage의 좌표를 PDFView의 좌표로 변환
+                    let pagePosition = self.mainPDFView.convert(bound, from: page)
+                    
+                    // PDFView의 좌표를 Screen의 좌표로 변환
+                    let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+                    
+                    DispatchQueue.main.async {
+                        // ViewModel에 선택된 텍스트와 위치 업데이트
+                        self.viewModel.selectedText = selectedText
+                        self.viewModel.translateViewPosition = screenPosition
+                        self.viewModel.commentSelection = selection
+                        self.viewModel.commentInputPosition = commentPosition
+                        self.commentViewModel.selectedBounds = bound
+
+                    }
                 }
-                
-                // 텍스트 선택 후 딜레이
-                self.selectionWorkItem = workItem
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
             }
             .store(in: &self.cancellable)
         
@@ -475,20 +476,16 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         guard let page = mainPDFView.page(for: location, nearest: true) else { return }
         let pageLocation = mainPDFView.convert(location, to: page)
         
-        /// 해당 위치에 Annotation이 있는지 확인
         if let tappedAnnotation = page.annotation(at: pageLocation) {
-            if let buttonID = tappedAnnotation.contents {
-                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                viewModel.isCommentTapped.toggle()
-                if viewModel.isCommentTapped {
+            viewModel.isCommentTapped.toggle()
+            
+            if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
+                    viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                     commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
-                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
-                } else {
-                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                 }
-            } else {
-                print("No match comment annotation")
-            }
+            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
+        } else {
+            print("No match comment annotation")
         }
     }
 }

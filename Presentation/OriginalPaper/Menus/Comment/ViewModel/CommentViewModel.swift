@@ -171,8 +171,8 @@ extension CommentViewModel {
         return selections
     }
     
-    // selection이 위치하는 Line의 bounds값
-    private func getSelectedLine(selection: PDFSelection) -> CGRect{
+    // selection이 위치하는 첫 번째 Line의 bounds값
+    private func getSelectedLine(selection: PDFSelection) -> CGRect {
         var selectedLine: CGRect = .zero
         let lineSelection = selection.selectionsByLine()
         if let firstLineSelection = lineSelection.first {
@@ -201,19 +201,35 @@ extension CommentViewModel {
         var commentX: CGFloat = 0.0
         var commentY: CGFloat = 0.0
         
-        guard let boundForComments = buttonGroup.filter({$0.id == buttonId}).first?.selectedLine else { return }
         guard let boundForOneComment = comments.filter ({ $0.id == commentId}).first?.bounds else { return }
+        // 같은 버튼 그룹에 있는 comment를 찾기
+        let commentsGroup = comments.filter ({ $0.buttonId == buttonId})
+        var bounds = commentsGroup.first?.bounds ?? .zero
+        
+        for comment in commentsGroup {
+            if bounds.size.height < comment.bounds.size.height {
+                bounds = comment.bounds
+            } else if bounds.size.height == comment.bounds.size.height {
+                if bounds.origin.x < comment.bounds.origin.x {
+                    bounds.size.width = bounds.maxX - comment.bounds.minX
+                    bounds.origin.x = comment.bounds.origin.x
+                } else {
+                    bounds.size.width = comment.bounds.maxX - bounds.minX
+                }
+            }
+        }
         
         if let document = self.document {
             guard let page = convertToPDFPage(pageIndex: selectedComments[0].pages, document: document).first else { return }
             
             var convertedBounds: CGRect = .zero
-            let offset = CGFloat(selectedComments.count) * 60.0
+            let offset = CGFloat(selectedComments.count) * 60
             
             if selectedComments.count == 1 {
                 convertedBounds = pdfView.convert(boundForOneComment, from: page)
             } else {
-                convertedBounds = pdfView.convert(boundForComments, from: page)
+                // 코멘트가 여러개 일 경우
+                convertedBounds = pdfView.convert(bounds, from: page)
             }
             
             if convertedBounds.midX < 193 {                                         /// 코멘트뷰가 왼쪽 화면 초과
@@ -260,9 +276,9 @@ extension CommentViewModel {
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 12, height: 12)
+            iconPosition = CGRect(x: lineBounds.minX - 20, y: lineBounds.minY, width: 10, height: 10)
         } else if isRight || isAcross {
-            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 12, height: 12)
+            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY, width: 10, height: 10)
         }
         return iconPosition
     }
@@ -337,7 +353,7 @@ extension CommentViewModel {
     func drawCommentCount(newComment: Comment, button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
-            x: button.buttonPosition.midX + 6,
+            x: button.buttonPosition.midX + 5,
             y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
@@ -366,7 +382,7 @@ extension CommentViewModel {
     func loadCommentcount(button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
-            x: button.buttonPosition.midX + 6,
+            x: button.buttonPosition.midX + 5,
             y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
