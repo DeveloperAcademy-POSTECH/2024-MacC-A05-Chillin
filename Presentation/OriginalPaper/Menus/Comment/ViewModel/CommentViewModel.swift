@@ -206,32 +206,16 @@ extension CommentViewModel {
         let commentsGroup = comments.filter ({ $0.buttonId == buttonId})
         var bounds = commentsGroup.first?.bounds ?? .zero
         
-        for (index, comment) in commentsGroup.enumerated() {
-        
-            /// 내가 가진 x 값이 더 클 때
-            if commentsGroup[index].bounds.origin.x < bounds.origin.x {
-                /// 높이가 같다면
-                if commentsGroup[index].bounds.size.height == bounds.size.height {
-                    /// 큰 x 좌표에서 작은 x 좌표를 뺀 값이 width
+        for comment in commentsGroup {
+            if bounds.size.height < comment.bounds.size.height {
+                bounds = comment.bounds
+            } else if bounds.size.height == comment.bounds.size.height {
+                if bounds.origin.x < comment.bounds.origin.x {
                     bounds.size.width = bounds.maxX - comment.bounds.minX
+                    bounds.origin.x = comment.bounds.origin.x
+                } else {
+                    bounds.size.width = comment.bounds.maxX - bounds.minX
                 }
-                /// 더 작은 x 좌표로 바꾸기
-                bounds.origin.x = commentsGroup[index].bounds.origin.x
-                
-            /// 내가 가진 x 값이 더 작고
-            } else if commentsGroup[index].bounds.origin.x > bounds.origin.x {
-                /// 높이가 같을 때
-                if commentsGroup[index].bounds.size.height == bounds.size.height {
-                    /// 큰 x 좌표에서 작은 x 좌표를 뺀 값이 width
-                    bounds.size.width = commentsGroup[index].bounds.maxX - bounds.minX
-                /// y좌표가 나보다 더 크다면
-                } else if commentsGroup[index].bounds.origin.y > bounds.origin.y {
-                    /// 큰 값의 width를 그대로 가져가기
-                    bounds.size.width = commentsGroup[index].bounds.width
-                }
-            }
-            if commentsGroup[index].bounds.size.height > bounds.size.height {
-                bounds.size.height = commentsGroup[index].bounds.size.height
             }
         }
         
