@@ -67,7 +67,7 @@ struct PaperInfoView: View {
                     }
                     
                     Button {
-                        // TODO: - 문서 복제 구현
+                        self.homeViewModel.duplicatePDF(at: self.id)
                     } label: {
                         HStack(spacing: 0) {
                             Text("복제")
