@@ -153,16 +153,14 @@ extension FocusFigureViewModel {
     }
     
     public func setFigureDocument(for index: Int) -> PDFDocument? {
-        print("setFiguredocument")
-        guard index >= 0 && index < self.figures.count else {           // 인덱스가 유효한지 확인
+        guard index >= 0 && index < self.figures.count else {
             print("Invalid index")
             return nil
         }
         
-        let document = PDFDocument()                                    // 새 PDFDocument 생성
-        let annotation = self.figures[index]                            // 주어진 인덱스의 annotation 가져오기
+        let document = PDFDocument()
+        let annotation = self.figures[index]
         
-        // 해당 페이지 가져오기
         guard let page = self.focusFigureUseCase.pdfSharedData.document?.page(at: annotation.page - 1)?.copy()
                 as? PDFPage else {
             print("Failed to get page")
@@ -172,11 +170,11 @@ extension FocusFigureViewModel {
         page.displaysAnnotations = false
         
         
-        let original = page.bounds(for: .mediaBox)                      // 원본 페이지의 bounds 가져오기
-        let croppedRect = original.intersection(annotation.position)    // 크롭 영역 계산 (교차 영역)
+        let original = page.bounds(for: .mediaBox)
+        let croppedRect = original.intersection(annotation.position)
         
-        page.setBounds(croppedRect, for: .mediaBox)                     // 페이지의 bounds 설정
-        document.insert(page, at: 0)                                    // 새 document에 페이지 추가
+        page.setBounds(croppedRect, for: .mediaBox)
+        document.insert(page, at: 0)                       
         
         return document                                                 // 생성된 PDFDocument 변환
     }
