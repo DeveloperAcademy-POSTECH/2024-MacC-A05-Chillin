@@ -390,6 +390,7 @@ private struct EditMenuView: View {
                 return false
             }
             
+            /*
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
@@ -402,7 +403,7 @@ private struct EditMenuView: View {
             })
             .padding(.trailing, 28)
             .disabled(containsFolder)
-            
+            */
             Button(action: {
                 self.isMovingFolder.toggle()
             }, label: {
