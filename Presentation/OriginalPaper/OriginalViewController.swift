@@ -478,17 +478,12 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         
         if let tappedAnnotation = page.annotation(at: pageLocation) {
             viewModel.isCommentTapped.toggle()
-            if viewModel.isCommentTapped {
-                if let buttonID = tappedAnnotation.contents {
+            
+            if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
                     viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                     commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
-                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
-                } else {
-                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: false)
                 }
-            } else {
-                viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
-            }
+            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
         } else {
             print("No match comment annotation")
         }
