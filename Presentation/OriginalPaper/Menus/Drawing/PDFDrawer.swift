@@ -128,8 +128,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
-        
-        print(drawingTool)
+
         if drawingTool == .lasso {
             
             lassoRectangleLayer?.removeFromSuperlayer()

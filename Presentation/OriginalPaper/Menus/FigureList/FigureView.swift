@@ -167,8 +167,8 @@ struct FigureView: View {
                                 mainPDFViewModel.updateDrawingTool()
                             } else {
                                 mainPDFViewModel.toolMode = .none
-                                mainPDFViewModel.updateDrawingTool()
                                 mainPDFViewModel.drawingToolMode = .none
+                                mainPDFViewModel.updateDrawingTool()
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                             }
                         }) {
