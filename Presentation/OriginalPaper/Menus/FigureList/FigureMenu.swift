@@ -93,6 +93,7 @@ struct FigureMenu: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 17)
+                                .foregroundStyle(.pen1)
                         }
                     })
                     

@@ -89,10 +89,11 @@ struct FigureView: View {
                         
                         Button(action: {
                             // TODO: - 다중 선택 구현
+                            /// Ver.2.0.1 구현 예정
                         }) {
                             Image(systemName: "checkmark.circle")
                                 .font(.system(size: 16))
-                                .foregroundStyle(.primary1)
+                                .foregroundStyle(.clear)
                         }
                     }
                     .padding(.horizontal, 20)

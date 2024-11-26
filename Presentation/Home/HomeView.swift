@@ -457,7 +457,7 @@ private struct EditMenuView: View {
 }
 
 /// 논문 타이틀 수정 뷰
-private struct RenamePaperTitleView: View {
+struct RenamePaperTitleView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State private var text: String = ""
@@ -490,6 +490,7 @@ private struct RenamePaperTitleView: View {
                     Button(action: {
                         if isEditingTitle {
                             homeViewModel.updateTitle(at: paperInfo.id, title: text)
+                            homeViewModel.changedTitle = text
                             isEditingTitle = false
                         } else {
                             homeViewModel.updateMemo(at: paperInfo.id, memo: text)
@@ -558,7 +559,11 @@ private struct RenamePaperTitleView: View {
         }
         .onAppear {
             if isEditingTitle {
-                self.text = paperInfo.title
+                if let title = homeViewModel.changedTitle {
+                    self.text = title
+                } else {
+                    self.text = paperInfo.title
+                }
             } else {
                 self.text = paperInfo.memo ?? ""
             }
@@ -567,7 +572,7 @@ private struct RenamePaperTitleView: View {
 }
 
 /// 폴더 생성 뷰
-private struct FolderView: View {
+struct FolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State private var selectedColors: FolderColors = .folder1
