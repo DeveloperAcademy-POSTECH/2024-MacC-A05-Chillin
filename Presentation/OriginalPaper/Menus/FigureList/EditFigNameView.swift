@@ -86,8 +86,3 @@ struct EditFigNameView: View {
         }
     }
 }
-
-
-//#Preview {
-//    EditFigNameView()
-//}

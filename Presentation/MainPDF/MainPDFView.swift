@@ -373,9 +373,8 @@ struct MainPDFView: View {
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
                     EditFigNameView(id: id)
-                        .environmentObject(focusFigureViewModel)        // 필요한 환경 객체 추가
-                        .transition(.slide)                             // 전환 애니메이션 추가
-                        .zIndex(1)                                      // 다른 뷰 위에 표시
+                        .environmentObject(focusFigureViewModel)
+                        .zIndex(1)
                 }
                 
                 if isEditingTitle || isEditingMemo {
