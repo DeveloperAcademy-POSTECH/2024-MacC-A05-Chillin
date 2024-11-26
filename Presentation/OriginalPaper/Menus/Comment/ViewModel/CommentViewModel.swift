@@ -276,9 +276,9 @@ extension CommentViewModel {
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY + 2 , width: 12, height: 12)
+            iconPosition = CGRect(x: lineBounds.minX - 25, y: lineBounds.minY, width: 10, height: 10)
         } else if isRight || isAcross {
-            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY + 2, width: 12, height: 12)
+            iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY, width: 10, height: 10)
         }
         return iconPosition
     }
