@@ -397,6 +397,7 @@ struct MainPDFView: View {
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
+                    .environmentObject(focusFigureViewModel)
                 
                 if mainPDFViewModel.isMenuSelected {
                     GeometryReader { gp in

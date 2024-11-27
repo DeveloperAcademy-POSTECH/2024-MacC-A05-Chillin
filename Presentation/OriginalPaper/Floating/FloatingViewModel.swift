@@ -75,14 +75,12 @@ class FloatingViewModel: ObservableObject {
         return droppedFigures.first { $0.documentID == documentID }?.isSelected ?? false
     }
     
-    func setSplitDocument(documentID: String) {
+    func setSplitDocument(at index: Int, documentID: String) {
         DispatchQueue.main.async {
             self.selectedFigureCellID = documentID
             self.splitMode = true
             
-            if let index = Int(documentID.components(separatedBy: "-").last ?? "") {
-                self.selectedFigureIndex = index
-            }
+            self.selectedFigureIndex = index
             
             if let index = self.droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
                 self.droppedFigures[index].isInSplitMode = true

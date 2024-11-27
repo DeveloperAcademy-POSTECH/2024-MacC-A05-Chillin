@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FloatingViewsContainer: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     let geometry: GeometryProxy
     
     var body: some View {

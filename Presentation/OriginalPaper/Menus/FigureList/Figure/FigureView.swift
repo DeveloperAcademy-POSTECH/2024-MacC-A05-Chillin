@@ -85,7 +85,7 @@ struct FigureView: View {
                                         floatingViewModel.droppedFigures.append(newFigure)
                                         
                                         floatingViewModel.isFigure = true
-                                        floatingViewModel.setSplitDocument(documentID: documentID)
+                                        floatingViewModel.setSplitDocument(at: 0, documentID: documentID)
                                     }
                                 }) {
                                     Image(.dualwindow)

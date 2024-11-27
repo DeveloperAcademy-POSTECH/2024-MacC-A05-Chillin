@@ -363,6 +363,24 @@ extension FocusFigureViewModel {
 }
 
 extension FocusFigureViewModel {
+    public func getFigureIndex(documentID: String) -> Int {
+        if let index = figures.firstIndex(where: { $0.id == documentID }) {
+            return index
+        } else {
+            return 0
+        }
+    }
+    
+    public func getCollectionIndex(documentID: String) -> Int {
+        if let index = collections.firstIndex(where: { $0.id == documentID }) {
+            return index
+        } else {
+            return 0
+        }
+    }
+}
+
+extension FocusFigureViewModel {
     public func editFigTitle(at id: UUID, head: String) {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
             figures[index].head = head

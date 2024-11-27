@@ -21,6 +21,7 @@ struct FloatingView: View {
     
     @State private var aspectRatio: CGFloat = 1.0
     
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @ObservedObject var observableDocument: ObservableDocument
     
@@ -42,7 +43,12 @@ struct FloatingView: View {
                 HStack(spacing: 0) {
                     Button(action: {
                         floatingViewModel.isFigure = isFigure
-                        floatingViewModel.setSplitDocument(documentID: documentID)
+                        
+                        let index = {
+                            if isFigure { return focusFigureViewModel.getFigureIndex(documentID: documentID) }
+                            else { return focusFigureViewModel.getCollectionIndex(documentID: documentID) }
+                        }()
+                        floatingViewModel.setSplitDocument(at: index, documentID: documentID)
                     }, label: {
                         Image(systemName: "rectangle.split.2x1")
                             .font(.system(size: 14))
