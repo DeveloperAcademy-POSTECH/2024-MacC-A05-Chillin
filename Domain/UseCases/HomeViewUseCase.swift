@@ -128,64 +128,109 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let title = lastComponent.joined()
         
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "ReazySamplePaper_combine.pdf")
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            .appending(path: "ReazySamplePaper_combine.pdf")
         
         let layout = try! JSONDecoder()
             .decode(
                 PDFLayoutResponseDTO.self,
                 from: try! .init(contentsOf: Bundle.main.url(forResource: "sample", withExtension: "json")!))
         
+        let tempPath = FileManager.default.temporaryDirectory
+            .appending(path: "combine.pdf")
+        
         let focuses = layout.toFocusEntities(pageHeight: tempDoc!.page(at: 0)!.bounds(for: .mediaBox).height)
         
-        let w: CGFloat = {
+        let maxWidth: CGFloat = {
             var result: CGFloat = 0
-            for annotation in focuses {
-                if annotation.position.width > result {
-                    result = annotation.position.width
+            for focus in focuses {
+                if focus.position.width > result {
+                    result = focus.position.width
                 }
             }
             return result
         }()
         
-        let height: CGFloat = {
-            var result: CGFloat = 0
-            for annotation in focuses {
-                result += annotation.position.height
+        let heightArray: [CGFloat] = {
+            var result: [CGFloat] = []
+            var headString = focuses.first!.header
+            
+            var temp: CGFloat = 0
+            
+            for focus in focuses {
+                if headString != focus.header {
+                    headString = focus.header
+                    result.append(temp)
+                    temp = 0
+                    continue
+                }
+                
+                temp += focus.position.height
             }
+            result.append(temp)
+            
             return result
         }()
         
-        UIGraphicsBeginPDFContextToFile(path.path(), CGRect(origin: .zero, size: .init(width: w + 60, height: height + 20)), nil)
-        UIGraphicsBeginPDFPageWithInfo(CGRect(origin: .zero, size: .init(width: w + 60, height: height + 20)), nil)
-        
-        var currentY: CGFloat = 20
-        
-        for annotation in focuses {
-                // Render the page content
-                if let context = UIGraphicsGetCurrentContext() {
-                    let page = tempDoc!
-                        .page(at: annotation.page - 1)!.copy() as! PDFPage
-                    
-                    let crop = annotation.position
-                    
-                    let original = page.bounds(for: .mediaBox)
-                    let croppedRect = original.intersection(crop)
-                    page.displaysAnnotations = false
-                    
-                    page.setBounds(croppedRect, for: .mediaBox)
-                    
-                    context.saveGState()
-                    context.translateBy(x: 0, y: currentY + annotation.position.height) // Adjust y-position
-                    context.scaleBy(x: 1, y: -1) // Flip coordinate system
-                    page.draw(with: .mediaBox, to: context) // Draw the page
-                    context.restoreGState()
+        let annotationArray: [[FocusAnnotation]] = {
+            var resultArray: [[FocusAnnotation]] = []
+            
+            var head = focuses.first!.header
+            
+            var tempArray = [FocusAnnotation]()
+            
+            for focus in focuses {
+                if focus.header != head {
+                    head = focus.header
+                    resultArray.append(tempArray)
+                    tempArray.removeAll()
+                    continue
                 }
+                
+                tempArray.append(focus)
+            }
+            resultArray.append(tempArray)
+            return resultArray
+        }()
+        
+        UIGraphicsBeginPDFContextToFile(tempPath.path(), .zero, nil)
+        
+        for (index, annotations) in annotationArray.enumerated() {
+            let height = heightArray[index]
+            
+            UIGraphicsBeginPDFPageWithInfo(.init(origin: .zero, size: .init(width: maxWidth + 60, height: height)), nil)
+            
+            var currentY: CGFloat = 0
+            
+            for i in annotations {
+                    // Render the page content
+                    if let context = UIGraphicsGetCurrentContext() {
+                        let page = tempDoc!
+                            .page(at: i.page - 1)!.copy() as! PDFPage
+                        
+                        let crop = i.position
+                        
+                        let original = page.bounds(for: .mediaBox)
+                        let croppedRect = original.intersection(crop)
+                        page.displaysAnnotations = false
+                        
+                        page.setBounds(croppedRect, for: .mediaBox)
+                        
+                        context.saveGState()
+                        context.translateBy(x: 30, y: currentY + i.position.height) // Adjust y-position
+                        context.scaleBy(x: 1, y: -1) // Flip coordinate system
+                        page.draw(with: .mediaBox, to: context) // Draw the page
+                        context.restoreGState()
+                    }
 
-                // Move to the next page's position
-            currentY += annotation.position.height
+                    // Move to the next page's position
+                currentY += i.position.height
+            }
         }
         
         UIGraphicsEndPDFContext()
+
+        try! FileManager.default.moveItem(at: tempPath, to: path)
         
         let focusURLData = try! path.bookmarkData(options: .minimalBookmark)
         
@@ -206,7 +251,6 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             self.paperDataRepository.savePDFInfo(paperInfo)
             
             return paperInfo
-            
         } else {
             let paperInfo = PaperInfo(
                 title: title,
@@ -248,7 +292,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 defer { url.stopAccessingSecurityScopedResource() }
             }
             
-            if manager.fileExists(atPath: fileURL.path()) {
+            
+            if let _ = try? Data(contentsOf: fileURL) {
                 var dupNum = 1
                 
                 var lastComponent = url.lastPathComponent.split(separator: ".")
@@ -258,7 +303,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 while dupNum < 100 {
                     let tempURL = documentURL.appending(path: lastComponent.joined() + "(\(dupNum)).pdf")
                     
-                    if !manager.fileExists(atPath: tempURL.path()) {
+                    guard let _ = try? Data(contentsOf: tempURL) else {
                         try manager.copyItem(at: url, to: tempURL)
                         return try (tempURL.bookmarkData(options: .minimalBookmark), tempURL)
                     }

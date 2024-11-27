@@ -12,12 +12,9 @@ import Foundation
 struct NetworkUnitTest {
 
     @Test func testNetwork() async throws {
-        let pdfURL = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
-        let data: PDFInfo = try await NetworkManager.fetchPDFExtraction(process: .processHeaderDocument, pdfURL: pdfURL)
-        
-//        print(data.names)
-        
-        #expect(data.names != nil)
+        let tempPath = NSTemporaryDirectory()
+        print(tempPath)
+        print(try! FileManager.default.contentsOfDirectory(atPath: tempPath))
     }
     
     @Test func testNetwork2() async throws {

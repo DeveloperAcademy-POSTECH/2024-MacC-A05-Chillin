@@ -121,13 +121,13 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             if let dataToDelete = results.first {
                 // 실제 파일 삭제
                 if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStaleOriginal),
-                   FileManager.default.fileExists(atPath: url.path()) {
+                   let _ = try? Data(contentsOf: url) {
                     try FileManager.default.removeItem(at: url)
                 }
                 
                 if let focusURL = dataToDelete.focusURL,
                    let url = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStaleConcentrate),
-                   FileManager.default.fileExists(atPath: url.path()) {
+                   let _ = try? Data(contentsOf: url) {
                     try FileManager.default.removeItem(at: url)
                 }
                 

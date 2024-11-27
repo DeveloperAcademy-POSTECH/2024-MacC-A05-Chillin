@@ -44,7 +44,6 @@ final class ConcentrateViewController: UIViewController {
         view.pageShadowsEnabled = false
         view.pageBreakMargins = .init(top: 0, left: 0, bottom: 0, right: 0)
         view.autoScales = false
-//        view.subviews.first!.backgroundColor = .white
         return view
     }()
     
@@ -68,11 +67,6 @@ final class ConcentrateViewController: UIViewController {
 extension ConcentrateViewController {
     /// filter 된 document 불러오기
     private func setData() {
-//        if self.viewModel.focusPages.isEmpty {
-//            print("empty!!")
-//            return
-//        }
-        
         self.pdfView.document = self.viewModel.focusDocument
     }
     

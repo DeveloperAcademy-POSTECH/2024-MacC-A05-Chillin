@@ -94,7 +94,7 @@ extension AppView {
         
         for item in items {
             if let containerFileURL = containerURL?.appending(path: item.value!),
-               manager.fileExists(atPath: containerFileURL.path()) {
+               let _ = try? Data(contentsOf: containerFileURL) {
                 let _ = homeViewModel.uploadPDF(url: [containerFileURL])
                 
                 try! manager.removeItem(at: containerFileURL)
