@@ -31,6 +31,7 @@ struct MainPDFView: View {
     
     @State private var isListSelected: Bool = false
     @State private var isFigSelected: Bool = false
+    @State private var isCollectionSelected: Bool = false
     @State private var isSearchSelected: Bool = false
     @State private var isReadMode: Bool = false
     
@@ -136,6 +137,7 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isFigSelected.toggle()
+                                isCollectionSelected = false
                                 
                                 mainPDFViewModel.pdfDrawer.drawingTool = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
@@ -148,10 +150,32 @@ struct MainPDFView: View {
                                     .overlay (
                                         Text("Fig")
                                             .font(.system(size: 14))
-                                            .foregroundStyle( isFigSelected ? .gray100 : .gray800 )
+                                            .foregroundStyle(isFigSelected ? .gray100 : .gray800)
                                     )
                             }
-                            .padding(.trailing, 24)
+                            .padding(.trailing, 25)
+                            
+                            Button(action: {
+                                isCollectionSelected.toggle()
+                                isFigSelected = false
+                                
+                                mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                mainPDFViewModel.pdfDrawer.endCaptureMode()
+                                focusFigureViewModel.isCaptureMode = false
+                            }) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .frame(width: 26, height: 26)
+                                    .foregroundStyle(isCollectionSelected ? .primary1 : .clear)
+                                    .overlay(
+                                        Image(.window)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 16, height: 16)
+                                            .foregroundStyle(isCollectionSelected ? .gray100 : .gray800)
+                                    )
+                            }
+                            .padding(.trailing, 25)
 
                             Button(action: {
                                 withAnimation {
@@ -277,6 +301,29 @@ struct MainPDFView: View {
                                     if isFigSelected && !floatingViewModel.splitMode {
                                         HStack(spacing: 0) {
                                             FigureView(onSelect: { documentID, document, head in
+                                                floatingViewModel.isFigure = true
+                                                floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                                            })
+                                            .environmentObject(mainPDFViewModel)
+                                            .environmentObject(floatingViewModel)
+                                            .environmentObject(focusFigureViewModel)
+                                            .background(.white)
+                                            .frame(width: geometry.size.width * 0.22)
+                                            .transition(.move(edge: .leading))
+                                            .overlay(
+                                                Rectangle()
+                                                    .frame(width: 1.5)
+                                                    .foregroundStyle(.primary3),
+                                                alignment: .leading
+                                            )
+                                        }
+                                    }
+                                    
+                                    // TODO: - 모아보기 기능
+                                    if isCollectionSelected && !floatingViewModel.splitMode {
+                                        HStack(spacing: 0) {
+                                            CollectionView(onSelect: { documentID, document, head in
+                                                floatingViewModel.isFigure = false
                                                 floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
                                             })
                                             .environmentObject(mainPDFViewModel)
@@ -477,6 +524,7 @@ struct MainPDFView: View {
                 document: splitDetails.document,
                 head: splitDetails.head,
                 isFigSelected: isFigSelected,
+                isCollectionSelected: isCollectionSelected,
                 onSelect: {
                     withAnimation {
                         mainPDFViewModel.isPaperViewFirst.toggle()
@@ -523,6 +571,7 @@ struct MainPDFView: View {
                 document: splitDetails.document,
                 head: splitDetails.head,
                 isFigSelected: isFigSelected,
+                isCollectionSelected: isCollectionSelected,
                 onSelect: {
                     withAnimation {
                         mainPDFViewModel.isPaperViewFirst.toggle()

@@ -21,7 +21,16 @@ class FocusFigureViewModel: ObservableObject {
             }
         }
     }
-    @Published public var documents: [PDFDocument] = []
+    @Published public var collections: [FigureAnnotation] = [] {
+        didSet {
+            if oldValue != collections {
+                updateCollectionThumbnails()
+            }
+        }
+    }
+    
+    @Published public var figureDocuments: [PDFDocument] = []
+    @Published public var collectionDocuments: [PDFDocument] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
     @Published public var changedPageNumber: Int?
     
@@ -31,14 +40,16 @@ class FocusFigureViewModel: ObservableObject {
     // 올가미 툴
     @Published var isCaptureMode: Bool = false
     
-    let publisher = NotificationCenter.default.publisher(for: .isPDFCaptured)
+    let figurePublisher = NotificationCenter.default.publisher(for: .isFigureCaptured)
+    let collectionPublisher = NotificationCenter.default.publisher(for: .isCollectionCaptured)
     
     var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
-        self.isPDFCaptured()
+        self.isFigureCaptured()
+        self.isCollectionCaptured()
     }
 }
 
@@ -147,11 +158,25 @@ extension FocusFigureViewModel {
             self.figures.sort { $0.page < $1.page }
         }
         
-        documents.removeAll()
+        figureDocuments.removeAll()
         
         for index in figures.indices {
             if let newDocument = setFigureDocument(for: index) {
-                documents.append(newDocument)
+                figureDocuments.append(newDocument)
+            }
+        }
+    }
+    
+    private func updateCollectionThumbnails() {
+        DispatchQueue.main.async {
+            self.collections.sort { $0.page < $1.page }
+        }
+        
+        collectionDocuments.removeAll()
+        
+        for index in collections.indices {
+            if let newDocument = setCollectionDocument(for: index) {
+                collectionDocuments.append(newDocument)
             }
         }
     }
@@ -183,9 +208,40 @@ extension FocusFigureViewModel {
         return document                                                 // 생성된 PDFDocument 변환
     }
     
+    public func setCollectionDocument(for index: Int) -> PDFDocument? {
+        guard index >= 0 && index < self.collections.count else {
+            print("Invalid index")
+            return nil
+        }
+        
+        let document = PDFDocument()
+        let annotation = self.collections[index]
+        
+        guard let page = self.focusFigureUseCase.pdfSharedData.document?.page(at: annotation.page - 1)?.copy()
+                as? PDFPage else {
+            print("Failed to get page")
+            return nil
+        }
+        
+        page.displaysAnnotations = false
+        
+        let original = page.bounds(for: .mediaBox)
+        let croppedRect = original.intersection(annotation.position)
+        
+        page.setBounds(croppedRect, for: .mediaBox)
+        document.insert(page, at: 0)
+        
+        return document
+    }
+    
     
     private func saveFigures(figures: [Figure]) {
         figures.forEach { self.focusFigureUseCase.saveFigures(with: $0) }
+    }
+    
+    private func saveCollections(collections: [Collection]) {
+        // TODO: - [브리] 콜렉션 저장 기능 만들기
+//        collections.forEach { self.focusFigureUseCase.saveCollections(with: $0) }
     }
     
     
@@ -254,8 +310,8 @@ extension FocusFigureViewModel {
     }
     
     // 올가미로 새 Figure 추가하는 부분
-    func isPDFCaptured() {
-        self.publisher
+    func isFigureCaptured() {
+        self.figurePublisher
             .sink { [weak self] in
                 self?.isCaptureMode.toggle()
                 
@@ -276,6 +332,31 @@ extension FocusFigureViewModel {
                 // Figure를 저장하고, figures에 변환된 엔티티를 추가
                 self?.focusFigureUseCase.saveFigures(with: updatedFigure)
                 self?.figures.append(updatedFigure.toEntity(pageHeight: height))
+            }
+            .store(in: &self.cancellables)
+    }
+    
+    func isCollectionCaptured() {
+        self.collectionPublisher
+            .sink { [weak self] in
+                self?.isCaptureMode.toggle()
+                
+                guard let collection = $0.object as? Collection else { return }
+                guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
+                
+                let newCollectionCount = self!.collections.filter { $0.id.split(separator: " ").first == "Bookmark" }.count + 1
+                let updateCollection = Collection(
+                    id: collection.id + " \(newCollectionCount)",
+                    head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
+                    label: collection.label,
+                    figDesc: collection.figDesc,
+                    coords: collection.coords,
+                    graphicCoord: collection.graphicCoord
+                )
+                
+                // TODO: - [브리] save 연결
+//                self?.focusFigureUseCase.saveCollections(with: updateCollection)
+                self?.collections.append(updateCollection.toEntity(pageHeight: height))
             }
             .store(in: &self.cancellables)
     }

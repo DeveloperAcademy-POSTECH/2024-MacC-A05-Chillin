@@ -64,9 +64,9 @@ struct FigureCell: View {
             ZStack  {
                 if let figure = focusFigureViewModel.figures.first(where: { $0.uuid == id }),
                    let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }),
-                   focusFigureViewModel.documents.indices.contains(index) {
+                   focusFigureViewModel.figureDocuments.indices.contains(index) {
                     
-                    let document = focusFigureViewModel.documents[index]
+                    let document = focusFigureViewModel.figureDocuments[index]
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
                         let aspectRatio = pageRect.width / pageRect.height
@@ -115,7 +115,7 @@ struct FigureCell: View {
             }
             .padding(.bottom, 10)
             
-            Text(focusFigureViewModel.figures.first(where: { $0.uuid == id})?.head ?? "")
+            Text(focusFigureViewModel.figures.first(where: { $0.uuid == id })?.head ?? "")
                 .reazyFont(.body3)
                 .foregroundStyle(.gray800)
         }

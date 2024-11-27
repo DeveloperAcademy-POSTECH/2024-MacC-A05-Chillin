@@ -37,9 +37,16 @@ enum PDFAction {
     case remove(PDFAnnotation)
 }
 
+enum Storage {
+    case figure
+    case collection
+}
+
 class PDFDrawer {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @Published var drawingTool: DrawingTool = .none
+    
+    @Published var selectedStorage: Storage = .figure
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
@@ -239,10 +246,16 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 
                 let coords = "\(pageNum + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
-
-                let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 
-                NotificationCenter.default.post(name: .isPDFCaptured, object: result)
+                if selectedStorage == .figure {
+                    let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
+                    
+                    NotificationCenter.default.post(name: .isFigureCaptured, object: result)
+                } else {
+                    let result = Collection(id: "Bookmark", head: "Bookmark", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
+                    
+                    NotificationCenter.default.post(name: .isCollectionCaptured, object: result)
+                }
                 
                 return
             }

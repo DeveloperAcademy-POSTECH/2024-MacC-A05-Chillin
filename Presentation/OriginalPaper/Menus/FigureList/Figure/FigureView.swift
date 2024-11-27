@@ -79,10 +79,12 @@ struct FigureView: View {
                                             viewOffset: CGSize(width: 0, height: 0),
                                             lastOffset: CGSize(width: 0, height: 0),
                                             viewWidth: 300,
-                                            isInSplitMode: true
+                                            isInSplitMode: true,
+                                            isFigure: true
                                         )
                                         floatingViewModel.droppedFigures.append(newFigure)
                                         
+                                        floatingViewModel.isFigure = true
                                         floatingViewModel.setSplitDocument(documentID: documentID)
                                     }
                                 }) {

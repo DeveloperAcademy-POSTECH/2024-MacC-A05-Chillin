@@ -383,6 +383,7 @@ private struct EditMenuView: View {
                 homeViewModel.filteredLists.first(where: { $0.id == id })
             }
             
+            /*
             let containsFolder = items.contains { file in
                 if case .folder = file {
                     return true
@@ -390,7 +391,6 @@ private struct EditMenuView: View {
                 return false
             }
             
-            /*
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {

@@ -10,6 +10,7 @@ import PDFKit
 
 struct FloatingView: View {
     
+    let isFigure: Bool
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -23,10 +24,11 @@ struct FloatingView: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @ObservedObject var observableDocument: ObservableDocument
     
-    init(documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
+    init(isFigure: Bool, documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
+        self.isFigure = isFigure
         self.documentID = documentID
         self.head = head
         self._isSelected = isSelected
@@ -39,6 +41,7 @@ struct FloatingView: View {
             ZStack {
                 HStack(spacing: 0) {
                     Button(action: {
+                        floatingViewModel.isFigure = isFigure
                         floatingViewModel.setSplitDocument(documentID: documentID)
                     }, label: {
                         Image(systemName: "rectangle.split.2x1")

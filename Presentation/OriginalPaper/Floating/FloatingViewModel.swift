@@ -18,13 +18,16 @@ struct DroppedFigure: Identifiable {
     var lastOffset: CGSize
     var viewWidth: CGFloat
     var isInSplitMode: Bool
+    var isFigure: Bool
 }
 
 class FloatingViewModel: ObservableObject {
     @Published var droppedFigures: [DroppedFigure] = []
     @Published var topmostIndex: Int?
+    
     @Published var selectedFigureCellID: String?
     @Published var selectedFigureIndex: Int = 0
+    @Published var isFigure: Bool = false
     
     @Published var splitMode: Bool = false
     @Published var isSaveImgAlert: Bool = false
@@ -45,7 +48,8 @@ class FloatingViewModel: ObservableObject {
                 viewOffset: CGSize(width: 0, height: 0),
                 lastOffset: CGSize(width: 0, height: 0),
                 viewWidth: 300,
-                isInSplitMode: false
+                isInSplitMode: false,
+                isFigure: isFigure
             )
             droppedFigures.append(newFigure)
             
@@ -84,9 +88,7 @@ class FloatingViewModel: ObservableObject {
                 self.droppedFigures[index].isInSplitMode = true
             }
             
-            for i in 0..<self.droppedFigures.count where self.droppedFigures[i].documentID != documentID {
-                self.droppedFigures[i].isSelected = false
-            }
+            self.droppedFigures = self.droppedFigures.filter { $0.documentID == documentID }
             
             self.selectedFigureCellID = documentID
         }
@@ -101,9 +103,11 @@ class FloatingViewModel: ObservableObject {
         }
     }
     
-    func updateSplitDocument(with newDocument: PDFDocument, documentID: String, head: String) {
+    func updateSplitDocument(isFigure: Bool, with newDocument: PDFDocument, documentID: String, head: String) {
         guard splitMode, let currentSelectedID = selectedFigureCellID else { return }
-            
+        
+        self.isFigure = isFigure
+        
         if currentSelectedID != documentID {
             if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == selectedFigureCellID }) {
                 droppedFigures[existingIndex].documentID = documentID
@@ -162,7 +166,12 @@ class FloatingViewModel: ObservableObject {
     
     @MainActor
     func moveToNextFigure(focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        let newIndex = (selectedFigureIndex + 1) % focusFigureViewModel.figures.count
+        let lists = {
+            if isFigure { return focusFigureViewModel.figures }
+            else { return focusFigureViewModel.collections }
+        }()
+        
+        let newIndex = (selectedFigureIndex + 1) % lists.count
         DispatchQueue.main.async {
             self.selectedFigureIndex = newIndex
             self.moveToFigure(at: newIndex, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
@@ -171,7 +180,12 @@ class FloatingViewModel: ObservableObject {
     
     @MainActor
     func moveToPreviousFigure(focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        let newIndex = (selectedFigureIndex - 1 + focusFigureViewModel.figures.count) % focusFigureViewModel.figures.count
+        let lists = {
+            if isFigure { return focusFigureViewModel.figures }
+            else { return focusFigureViewModel.collections }
+        }()
+        
+        let newIndex = (selectedFigureIndex - 1 + lists.count) % focusFigureViewModel.figures.count
         DispatchQueue.main.async {
             self.selectedFigureIndex = newIndex
             self.moveToFigure(at: newIndex, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
@@ -180,15 +194,24 @@ class FloatingViewModel: ObservableObject {
     
     @MainActor
     private func moveToFigure(at index: Int, focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        guard index < focusFigureViewModel.figures.count, index < focusFigureViewModel.documents.count else {
+        let lists = {
+            if isFigure { return focusFigureViewModel.figures }
+            else { return focusFigureViewModel.collections }
+        }()
+        let documents = {
+            if isFigure { return focusFigureViewModel.figureDocuments }
+            else { return focusFigureViewModel.collectionDocuments }
+        }()
+        
+        guard index < lists.count, index < documents.count else {
             print("Invalid index")
             return
         }
         
-        let figure = focusFigureViewModel.figures[index]
-        let document = focusFigureViewModel.documents[index]
+        let figure = lists[index]
+        let document = documents[index]
 
-        updateSplitDocument(with: document, documentID: figure.id, head: figure.head)
+        updateSplitDocument(isFigure: isFigure, with: document, documentID: figure.id, head: figure.head)
         observableDocument.updateDocument(to: document)
         
         selectedFigureIndex = index
