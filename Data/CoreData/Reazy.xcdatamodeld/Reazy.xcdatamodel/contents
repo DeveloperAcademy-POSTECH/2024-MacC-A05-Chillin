@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24B91" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="ButtonGroupData" representedClassName="ButtonGroupData" syncable="YES">
+        <attribute name="buttonPosition" optional="YES" attributeType="Binary" valueTransformerName="CGRectValueTransformer"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="page" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="selectedLine" optional="YES" attributeType="Binary" valueTransformerName="CGRectValueTransformer"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="buttonGroup" inverseEntity="PaperData"/>
+    </entity>
+    <entity name="CommentData" representedClassName="CommentData" syncable="YES">
+        <attribute name="bounds" optional="YES" attributeType="Binary"/>
+        <attribute name="buttonID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="pages" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
+        <attribute name="selectedText" optional="YES" attributeType="String"/>
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="commentData" inverseEntity="PaperData"/>
+        <relationship name="selectionByLine" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SelectionByLine" inverseName="commentData" inverseEntity="SelectionByLine"/>
+    </entity>
+    <entity name="FigureData" representedClassName="FigureData" syncable="YES">
+        <attribute name="coords" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="figDesc" optional="YES" attributeType="String"/>
+        <attribute name="graphicCoord" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="head" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="label" optional="YES" attributeType="String"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="figureData" inverseEntity="PaperData"/>
+    </entity>
+    <entity name="FolderData" representedClassName="FolderData" syncable="YES">
+        <attribute name="color" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="memo" optional="YES" attributeType="String"/>
+        <attribute name="parentFolderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="PaperData" representedClassName="PaperData" syncable="YES">
+        <attribute name="focusURL" optional="YES" attributeType="Binary"/>
+        <attribute name="folderID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isFavorite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isFigureSaved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastModifiedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="memo" optional="YES" attributeType="String"/>
+        <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="url" optional="YES" attributeType="Binary"/>
+        <relationship name="buttonGroup" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ButtonGroupData" inverseName="paperData" inverseEntity="ButtonGroupData"/>
+        <relationship name="commentData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentData" inverseName="paperData" inverseEntity="CommentData"/>
+        <relationship name="figureData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FigureData" inverseName="paperData" inverseEntity="FigureData"/>
+    </entity>
+    <entity name="SelectionByLine" representedClassName="SelectionByLine" syncable="YES">
+        <attribute name="bounds" optional="YES" attributeType="Binary" valueTransformerName="CGRectValueTransformer"/>
+        <attribute name="page" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="commentData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CommentData" inverseName="selectionByLine" inverseEntity="CommentData"/>
+    </entity>
+</model>

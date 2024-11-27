@@ -1,0 +1,133 @@
+{
+    "div": [
+        {
+            "header": "Introduction",
+            "@coords": [
+                "2,35.06,49.5,525.39,383.45",
+                "2,304.44,110.39,256.95,233.7"
+            ]
+        },
+        {
+            "header": "Sediment sampling and microcosm setting",
+            "@coords": [
+                "2,300.48,351.3,259.89,389.87",
+                "3,35.55,54.33,256.8,524.21"
+            ]
+        },
+        {
+            "header": "Experimental setup",
+            "@coords": [
+                "3,33.55,586.2,256.8,162.98",
+                "3,303.48,52.31,256.8,162.98"
+            ]
+        },
+        {
+            "header": "Contents, biochemical composition, and degradation of sedimentary organic matter",
+            "@coords": [
+                "3,301.05,386.62,256.8,317.05"
+            ]
+        },
+        {
+            "header": "Statistical analyses",
+            "@coords": [
+                "3,304.77,711.35,256.8,33.73",
+                "4,33.3,52.55,258.58,256.28"
+            ]
+        },
+        {
+            "header": "Biochemical composition and trophic status",
+            "@coords": [
+                "4,302.37,51.95,258.58,285.96",
+                "5,37.21,461.3,254.84,285.96"
+            ]
+        },
+        {
+            "header": "Extracellular enzymatic activities, C degradation rates and turnover time",
+            "@coords": [
+                "5,35,607.81,254.84,139.04",
+                "5,303.45,458.83,254.84,277.37"
+            ]
+        },
+        {
+            "header": "Discussion",
+            "@coords": [
+                "6,34.58,434.86,255.69,221.26"
+            ]
+        },
+        {
+            "header": "Effects on biopolymeric carbon",
+            "@coords": [
+                "6,35.66,667.48,255.69,81.53",
+                "6,304.43,433.08,255.69,81.53",
+                "7,34.95,474.18,255.88,265.89",
+                "7,304.8,473.25,255.88,235.62"
+            ]
+        },
+        {
+            "header": "Carbon degradation rates and extracellular enzymatic activities",
+            "@coords": [
+                "8,34.44,444.57,257.66,298.96",
+                "8,302.75,442.53,257.66,298.96",
+                "9,35.86,54.74,255.66,408.59"
+            ]
+        },
+        {
+            "header": "Conclusion",
+            "@coords": [
+                "9,32.16,470.86,261.22,164.1"
+            ]
+        }
+    ],
+    "fig": [
+        {
+            "id": "fig_1",
+            "coords": [
+                "4,33.52,346.13,527.4,401.83"
+            ],
+            "head": "Fig. 1.",
+            "label": "1",
+            "figDesc": "sample",
+            "graphicCoords": null
+        },
+        {
+            "id": "fig_2",
+            "coords": [
+                "5,34.5,50.35,526.6,401.27"
+            ],
+            "head": "Fig. 2.",
+            "label": "2",
+            "figDesc": "sample",
+            "graphicCoords": null
+        },
+        {
+            "id": "fig_3",
+            "coords": [
+                "6,35.8,52.5,525.6,370.25"
+            ],
+            "head": "Fig. 3.",
+            "label": "3",
+            "figDesc": "sample",
+            "graphicCoords": null
+        },
+        {
+            "id": "fig_4",
+            "coords": [
+                "7,36.82,52.34,524.1,410.42"
+            ],
+            "head": "Fig. 4.",
+            "label": "4",
+            "figDesc": "sample",
+            "graphicCoords": null
+        },
+        {
+            "id": "fig_5",
+            "coords": [
+                "8,35.06,49.5,525.39,383.45"
+            ],
+            "head": "Fig. 5.",
+            "label": "5",
+            "figDesc": "sample",
+            "graphicCoords": null
+        }
+    ]
+}

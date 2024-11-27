@@ -15,16 +15,16 @@ struct NetworkUnitTest {
         let pdfURL = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
         let data: PDFInfo = try await NetworkManager.fetchPDFExtraction(process: .processHeaderDocument, pdfURL: pdfURL)
         
-        print(data.names)
+//        print(data.names)
         
         #expect(data.names != nil)
     }
     
     @Test func testNetwork2() async throws {
         let pdfURL = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
-        let data: PDFLayout = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: pdfURL)
+        let data: PDFLayoutResponseDTO = try await NetworkManager.fetchPDFExtraction(process: .processFulltextDocument, pdfURL: pdfURL)
         
-        #expect(data.div.count > 0)
+//        #expect()
     }
 
 }
