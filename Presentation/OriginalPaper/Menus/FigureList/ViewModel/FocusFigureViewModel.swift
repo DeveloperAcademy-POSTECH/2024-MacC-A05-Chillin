@@ -36,6 +36,7 @@ class FocusFigureViewModel: ObservableObject {
     
     @Published public var isEditFigName: Bool = false
     @Published public var selectedID: UUID?
+    @Published public var isFigure: Bool = false
     
     // 올가미 툴
     @Published var isCaptureMode: Bool = false
@@ -393,6 +394,22 @@ extension FocusFigureViewModel {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
             self.focusFigureUseCase.deleteFigures(with: figures[index].toDTO())
             self.figures.removeAll(where: { $0.uuid == id })
+        }
+    }
+    
+    public func editColletionTitle(at id: UUID, head: String) {
+        if let index = collections.firstIndex(where: { $0.uuid == id }) {
+            collections[index].head = head
+            
+            // TODO: - [브리] CoreData 추가
+//            self.focusFigureUseCase.editCollections(with: collections[index].toDTO())
+        }
+    }
+    
+    public func deleteCollection(at id: UUID) {
+        if let index = collections.firstIndex(where: { $0.uuid == id }) {
+//            self.focusFigureUseCase.deleteCollections(with: collections[index].toDTO())
+            self.collections.removeAll(where: { $0.uuid == id })
         }
     }
 }

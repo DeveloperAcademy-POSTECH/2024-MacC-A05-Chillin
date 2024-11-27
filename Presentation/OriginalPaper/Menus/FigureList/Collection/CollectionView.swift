@@ -23,28 +23,49 @@ struct CollectionView: View {
             Color.list
             VStack(spacing: 0) {
                 ZStack {
-                    // TODO: - [브리] 배열이 비어있을 때에는 비활성화
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            // TODO: - [브리] 모아보기 창 SplitMode
-                        }) {
-                            Image(.dualwindow)
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 19, height: 18)
-                                .foregroundStyle(.primary1)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            // TODO: - 다중 선택 구현
-                            /// Ver.2.0.1 구현 예정
-                        }) {
-                            Image(systemName: "checkmark.circle")
-                                .font(.system(size: 16))
-                                .foregroundStyle(.clear)
+                    if !focusFigureViewModel.collections.isEmpty {
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                if let figure = focusFigureViewModel.collections.first {
+                                    let document = focusFigureViewModel.setCollectionDocument(for: 0)!
+                                    let head = figure.head
+                                    let documentID = figure.id
+                                    
+                                    let newCollection = DroppedFigure(
+                                        documentID: documentID,
+                                        document: document,
+                                        head: head,
+                                        isSelected: true,
+                                        viewOffset: CGSize(width: 0, height: 0),
+                                        lastOffset: CGSize(width: 0, height: 0),
+                                        viewWidth: 300,
+                                        isInSplitMode: true,
+                                        isFigure: false
+                                    )
+                                    floatingViewModel.droppedFigures.append(newCollection)
+                                    
+                                    floatingViewModel.isFigure = false
+                                    floatingViewModel.setSplitDocument(at: 0, documentID: documentID)
+                                }
+                            }) {
+                                Image(.dualwindow)
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 19, height: 18)
+                                    .foregroundStyle(.primary1)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                // TODO: - 다중 선택 구현
+                                /// Ver.2.0.1 구현 예정
+                            }) {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(.clear)
+                            }
                         }
                     }
                     

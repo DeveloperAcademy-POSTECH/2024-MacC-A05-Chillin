@@ -49,13 +49,13 @@ struct CollectionCell: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(floatingViewModel.isFigureSelected(documentID: documentID) ? .primary1 : .primary3, lineWidth: floatingViewModel.isFigureSelected(documentID: documentID) ? 1.5 : 1)
                         
-                        // TODO: - 메뉴 제작
-//                        FigureMenu(
-//                            observableDocument: ObservableDocument(document: document),
-//                            newFigName: $newFigName,
-//                            isDeleteFigAlert: $isDeleteFigAlert,
-//                            id: id
-//                        )
+                        
+                        CollectionMenu(
+                            observableDocument: ObservableDocument(document: document),
+                            newFigName: $newFigName,
+                            isDeleteFigAlert: $isDeleteFigAlert,
+                            id: id
+                        )
                         
                         // TODO: - [브리] 이미지 save 확인
                         if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id {
