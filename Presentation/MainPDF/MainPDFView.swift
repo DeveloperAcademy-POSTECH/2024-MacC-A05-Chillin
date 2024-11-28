@@ -300,9 +300,9 @@ struct MainPDFView: View {
                                 ZStack {
                                     if isFigSelected && !floatingViewModel.splitMode {
                                         HStack(spacing: 0) {
-                                            FigureView(onSelect: { documentID, document, head in
+                                            FigureView(onSelect: { id, documentID, document, head in
                                                 floatingViewModel.isFigure = true
-                                                floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                                                floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
                                             })
                                             .environmentObject(mainPDFViewModel)
                                             .environmentObject(floatingViewModel)
@@ -322,9 +322,9 @@ struct MainPDFView: View {
                                     // TODO: - 모아보기 기능
                                     if isCollectionSelected && !floatingViewModel.splitMode {
                                         HStack(spacing: 0) {
-                                            CollectionView(onSelect: { documentID, document, head in
+                                            CollectionView(onSelect: { id, documentID, document, head in
                                                 floatingViewModel.isFigure = false
-                                                floatingViewModel.toggleSelection(for: documentID, document: document, head: head)
+                                                floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
                                             })
                                             .environmentObject(mainPDFViewModel)
                                             .environmentObject(floatingViewModel)
@@ -524,6 +524,7 @@ struct MainPDFView: View {
         if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
             FloatingSplitView(
+                id: splitDetails.id,
                 documentID: splitDetails.documentID,
                 document: splitDetails.document,
                 head: splitDetails.head,
@@ -571,6 +572,7 @@ struct MainPDFView: View {
             divider(for: orientation)
             
             FloatingSplitView(
+                id: splitDetails.id,
                 documentID: splitDetails.documentID,
                 document: splitDetails.document,
                 head: splitDetails.head,

@@ -23,10 +23,7 @@ class CollectionDataRepositoryImpl: CollectionDataRepository {
                 return Figure(
                     id: collectionData.id,
                     head: collectionData.head,
-                    label: collectionData.label,
-                    figDesc: collectionData.figDesc,
-                    coords: collectionData.coords,
-                    graphicCoord: collectionData.graphicCoord
+                    coords: collectionData.coords
                 )
             }
             return .success(collections)
@@ -54,10 +51,7 @@ class CollectionDataRepositoryImpl: CollectionDataRepository {
                     
                     newCollectionData.id = collection.id
                     newCollectionData.head = collection.head
-                    newCollectionData.label = collection.label
-                    newCollectionData.figDesc = collection.figDesc
                     newCollectionData.coords = collection.coords
-                    newCollectionData.graphicCoord = collection.graphicCoord
                     
                     newCollectionData.paperData = paperData
                     
@@ -93,10 +87,7 @@ class CollectionDataRepositoryImpl: CollectionDataRepository {
             if let collectionToEdit = result.first {
                 
                 collectionToEdit.head = collection.head
-                collectionToEdit.label = collection.label
-                collectionToEdit.figDesc = collection.figDesc
                 collectionToEdit.coords = collection.coords
-                collectionToEdit.graphicCoord = collection.graphicCoord
                 
                 try dataContext.save()
                 return .success(VoidResponse())

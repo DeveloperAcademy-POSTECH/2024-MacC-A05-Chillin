@@ -16,6 +16,7 @@ struct FloatingViewsContainer: View {
         ForEach(floatingViewModel.droppedFigures, id: \.id) { droppedFigure in
             if droppedFigure.isSelected && !droppedFigure.isInSplitMode {
                 FloatingView(
+                    id: droppedFigure.id,
                     isFigure: droppedFigure.isFigure,
                     documentID: droppedFigure.documentID,
                     document: droppedFigure.document,

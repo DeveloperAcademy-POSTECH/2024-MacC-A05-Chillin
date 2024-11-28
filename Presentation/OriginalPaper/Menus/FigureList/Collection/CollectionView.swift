@@ -16,7 +16,7 @@ struct CollectionView: View {
     
     @State private var scrollToIndex: Int? = nil
     
-    let onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (UUID, String, PDFDocument, String) -> Void
     
     var body: some View {
         ZStack {
@@ -30,8 +30,10 @@ struct CollectionView: View {
                                     let document = focusFigureViewModel.setCollectionDocument(for: 0)!
                                     let head = figure.head
                                     let documentID = figure.id
+                                    let id = figure.uuid
                                     
                                     let newCollection = DroppedFigure(
+                                        id: id,
                                         documentID: documentID,
                                         document: document,
                                         head: head,
@@ -45,7 +47,8 @@ struct CollectionView: View {
                                     floatingViewModel.droppedFigures.append(newCollection)
                                     
                                     floatingViewModel.isFigure = false
-                                    floatingViewModel.setSplitDocument(at: 0, documentID: documentID)
+                                    floatingViewModel.selectedFigureCellID = id
+                                    floatingViewModel.setSplitDocument(at: 0, uuid: id)
                                 }
                             }) {
                                 Image(.dualwindow)

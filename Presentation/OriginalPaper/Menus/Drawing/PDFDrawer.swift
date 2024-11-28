@@ -248,11 +248,11 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let coords = "\(pageNum + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
                 
                 if selectedStorage == .figure {
-                    let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
+                    let result = Figure(id: "New", head: "New", coords: [coords])
                     
                     NotificationCenter.default.post(name: .isFigureCaptured, object: result)
                 } else {
-                    let result = Figure(id: "Bookmark", head: "Bookmark", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
+                    let result = Figure(id: "Bookmark", head: "Bookmark", coords: [coords])
                     
                     NotificationCenter.default.post(name: .isCollectionCaptured, object: result)
                 }

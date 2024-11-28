@@ -9,11 +9,8 @@
     </entity>
     <entity name="CollectionData" representedClassName="CollectionData" syncable="YES">
         <attribute name="coords" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
-        <attribute name="figDesc" optional="YES" attributeType="String"/>
-        <attribute name="graphicCoord" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <attribute name="head" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="String"/>
-        <attribute name="label" optional="YES" attributeType="String"/>
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="collectionData" inverseEntity="PaperData"/>
     </entity>
     <entity name="CommentData" representedClassName="CommentData" syncable="YES">
@@ -28,11 +25,8 @@
     </entity>
     <entity name="FigureData" representedClassName="FigureData" syncable="YES">
         <attribute name="coords" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
-        <attribute name="figDesc" optional="YES" attributeType="String"/>
-        <attribute name="graphicCoord" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <attribute name="head" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="String"/>
-        <attribute name="label" optional="YES" attributeType="String"/>
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="figureData" inverseEntity="PaperData"/>
     </entity>
     <entity name="FolderData" representedClassName="FolderData" syncable="YES">

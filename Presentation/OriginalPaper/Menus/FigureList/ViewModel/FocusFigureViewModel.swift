@@ -337,10 +337,7 @@ extension FocusFigureViewModel {
                 let updatedFigure = Figure(
                     id: figure.id + "_\(newFigureCount)",
                     head: "\(figure.head ?? "New") \(newFigureCount)", // head에 "New 1", "New 2" 형식으로 넘버링
-                    label: figure.label,
-                    figDesc: figure.figDesc,
-                    coords: figure.coords,
-                    graphicCoord: figure.graphicCoord
+                    coords: figure.coords
                 )
                 
                 // Figure를 저장하고, figures에 변환된 엔티티를 추가
@@ -369,10 +366,7 @@ extension FocusFigureViewModel {
                 let updateCollection = Figure(
                     id: collection.id + "_\(newCollectionCount)",
                     head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
-                    label: collection.label,
-                    figDesc: collection.figDesc,
-                    coords: collection.coords,
-                    graphicCoord: collection.graphicCoord
+                    coords: collection.coords
                 )
                 
                 self?.focusFigureUseCase.saveCollections(with: updateCollection)
@@ -383,16 +377,16 @@ extension FocusFigureViewModel {
 }
 
 extension FocusFigureViewModel {
-    public func getFigureIndex(documentID: String) -> Int {
-        if let index = figures.firstIndex(where: { $0.id == documentID }) {
+    public func getFigureIndex(id: UUID) -> Int {
+        if let index = figures.firstIndex(where: { $0.uuid == id }) {
             return index
         } else {
             return 0
         }
     }
     
-    public func getCollectionIndex(documentID: String) -> Int {
-        if let index = collections.firstIndex(where: { $0.id == documentID }) {
+    public func getCollectionIndex(id: UUID) -> Int {
+        if let index = collections.firstIndex(where: { $0.uuid == id }) {
             return index
         } else {
             return 0

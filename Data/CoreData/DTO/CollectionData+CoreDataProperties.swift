@@ -16,10 +16,7 @@ extension CollectionData {
     
     @NSManaged public var id: String
     @NSManaged public var head: String?
-    @NSManaged public var label: String?
-    @NSManaged public var figDesc: String?
     @NSManaged public var coords: [String]
-    @NSManaged public var graphicCoord: [String]?
     
     @NSManaged public var paperData: PaperData?
 }

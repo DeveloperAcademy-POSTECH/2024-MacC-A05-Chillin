@@ -11,6 +11,7 @@ import AVFoundation
 import Photos
 
 struct SplitDocumentDetails {
+    let id: UUID
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -23,6 +24,7 @@ struct FloatingSplitView: View {
     
     @ObservedObject var observableDocument: ObservableDocument
     
+    let id: UUID
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -30,10 +32,11 @@ struct FloatingSplitView: View {
     let isCollectionSelected: Bool
     let onSelect: () -> Void
     
-    init(documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void) {
+    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
+        self.id = id
         self.documentID = documentID
         self.head = head
         self.isFigSelected = isFigSelected
@@ -49,7 +52,7 @@ struct FloatingSplitView: View {
                 ZStack {
                     HStack(spacing: 0) {
                         Button(action: {
-                            floatingViewModel.setFloatingDocument(documentID: documentID)
+                            floatingViewModel.setFloatingDocument(uuid: id)
                         }, label: {
                             Image(systemName: "rectangle")
                                 .font(.system(size: 14, weight: .medium))
@@ -88,7 +91,7 @@ struct FloatingSplitView: View {
                         }
                         
                         Button(action: {
-                            floatingViewModel.deselect(documentID: documentID)
+                            floatingViewModel.deselect(uuid: id)
                         }, label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 14, weight: .medium))
@@ -167,42 +170,40 @@ struct FloatingSplitView: View {
                                 if isFigSelected {
                                     ForEach(focusFigureViewModel.figures, id: \.self) { item in
                                         let id = item.uuid
-                                        let index = focusFigureViewModel.figures.firstIndex(where: { $0 == item })
                                         
-                                        FigureCell(id: id, onSelect: { newDocumentID, newDocument, newHead in
-                                            if floatingViewModel.selectedFigureCellID != newDocumentID {
-                                                floatingViewModel.updateSplitDocument(isFigure: true,with: newDocument, documentID: newDocumentID, head: newHead)
+                                        FigureCell(id: id, onSelect: { id, newDocumentID, newDocument, newHead in
+                                            if floatingViewModel.selectedFigureCellID != id {
+                                                floatingViewModel.updateSplitDocument(isFigure: true, with: newDocument, uuid: id, documentID: newDocumentID, head: newHead)
                                                 observableDocument.updateDocument(to: newDocument)
                                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                                     withAnimation {
-                                                        proxy.scrollTo(index, anchor: .center)
+                                                        proxy.scrollTo(id, anchor: .center)
                                                     }
                                                 }
                                             }
                                         })
                                         .environmentObject(floatingViewModel)
                                         .padding(.trailing, 5)
-                                        .id(index)
+                                        .id(id)
                                     }
                                 } else {
                                     ForEach(focusFigureViewModel.collections, id: \.self) { item in
                                         let id = item.uuid
-                                        let index = focusFigureViewModel.collections.firstIndex(where: { $0 == item })
                                         
-                                        CollectionCell(id: id, onSelect: { newDocumentID, newDocument, newHead in
-                                            if floatingViewModel.selectedFigureCellID != newDocumentID {
-                                                floatingViewModel.updateSplitDocument(isFigure: false, with: newDocument, documentID: newDocumentID, head: newHead)
+                                        CollectionCell(id: id, onSelect: { id, newDocumentID, newDocument, newHead in
+                                            if floatingViewModel.selectedFigureCellID != id {
+                                                floatingViewModel.updateSplitDocument(isFigure: false, with: newDocument, uuid: id, documentID: newDocumentID, head: newHead)
                                                 observableDocument.updateDocument(to: newDocument)
                                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                                     withAnimation {
-                                                        proxy.scrollTo(index, anchor: .center)
+                                                        proxy.scrollTo(id, anchor: .center)
                                                     }
                                                 }
                                             }
                                         })
                                         .environmentObject(floatingViewModel)
                                         .padding(.trailing, 5)
-                                        .id(index)
+                                        .id(id)
                                     }
                                 }
                             }

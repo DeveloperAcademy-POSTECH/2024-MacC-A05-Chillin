@@ -14,7 +14,7 @@ struct CollectionCell: View {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     let id: UUID
-    let onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (UUID, String, PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
     @State private var newFigName: String = ""
@@ -33,6 +33,7 @@ struct CollectionCell: View {
                         let aspectRatio = pageRect.width / pageRect.height
                         let head = collection.head
                         let documentID = collection.id
+                        let id = collection.uuid
                         
                         PDFKitView(document: document, isScrollEnabled: false)
                             .edgesIgnoringSafeArea(.all)                    // 전체 화면에 맞추기
@@ -40,8 +41,8 @@ struct CollectionCell: View {
                             .aspectRatio(aspectRatio, contentMode: .fit)
                             .simultaneousGesture(
                                 TapGesture().onEnded {
-                                    if floatingViewModel.selectedFigureCellID != documentID {
-                                        onSelect(documentID, document, head)
+                                    if floatingViewModel.selectedFigureCellID != id {
+                                        onSelect(id, documentID, document, head)
                                     }
                                 }
                             )

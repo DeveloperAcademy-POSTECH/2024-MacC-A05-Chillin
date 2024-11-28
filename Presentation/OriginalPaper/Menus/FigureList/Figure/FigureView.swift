@@ -17,7 +17,7 @@ struct FigureView: View {
     
     @State private var scrollToIndex: Int? = nil
     
-    let onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (UUID, String, PDFDocument, String) -> Void
     
     var body: some View {
         ZStack {
@@ -70,8 +70,10 @@ struct FigureView: View {
                                         let document = focusFigureViewModel.setFigureDocument(for: 0)!
                                         let head = figure.head
                                         let documentID = figure.id
+                                        let id = figure.uuid
                                         
                                         let newFigure = DroppedFigure(
+                                            id: id,
                                             documentID: documentID,
                                             document: document,
                                             head: head,
@@ -85,7 +87,8 @@ struct FigureView: View {
                                         floatingViewModel.droppedFigures.append(newFigure)
                                         
                                         floatingViewModel.isFigure = true
-                                        floatingViewModel.setSplitDocument(at: 0, documentID: documentID)
+                                        floatingViewModel.selectedFigureCellID = id
+                                        floatingViewModel.setSplitDocument(at: 0, uuid: id)
                                     }
                                 }) {
                                     Image(.dualwindow)
