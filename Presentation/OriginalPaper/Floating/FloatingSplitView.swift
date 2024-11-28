@@ -102,7 +102,6 @@ struct FloatingSplitView: View {
                         Spacer()
                         
                         Button(action: {
-                            // TODO: - [브리] document 케이스 분리
                             floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
                         }, label: {
                             Image(systemName: "chevron.left")

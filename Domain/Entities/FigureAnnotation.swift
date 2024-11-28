@@ -20,7 +20,11 @@ struct FigureAnnotation: Hashable {
     let coords: [String]
     let graphicCoord: [String]?
     
-    public func toDTO() -> Figure {
+    public func toFigureDTO() -> Figure {
+        .init(id: id, head: head, label: label, figDesc: figDesc, coords: coords, graphicCoord: graphicCoord)
+    }
+    
+    public func toCollectionDTO() -> Collection {
         .init(id: id, head: head, label: label, figDesc: figDesc, coords: coords, graphicCoord: graphicCoord)
     }
 }

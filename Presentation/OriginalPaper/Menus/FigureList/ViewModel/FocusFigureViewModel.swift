@@ -87,6 +87,20 @@ extension FocusFigureViewModel {
         case .failure:
             self.figureStatus = .empty
         }
+        
+        switch self.focusFigureUseCase.loadCollections() {
+        case .success(let collections):
+            
+            let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
+            let result = collections.map { $0.toEntity(pageHeight: height) }
+            
+            DispatchQueue.main.async {
+                self.collections = result
+            }
+            
+        case .failure(let failure):
+            print(failure)
+        }
     }
     
     public var getDocument: PDFDocument? {
@@ -240,12 +254,6 @@ extension FocusFigureViewModel {
         figures.forEach { self.focusFigureUseCase.saveFigures(with: $0) }
     }
     
-    private func saveCollections(collections: [Collection]) {
-        // TODO: - [브리] 콜렉션 저장 기능 만들기
-//        collections.forEach { self.focusFigureUseCase.saveCollections(with: $0) }
-    }
-    
-    
     enum FigureStatus {
         case networkDisconnection
         case loading
@@ -355,8 +363,7 @@ extension FocusFigureViewModel {
                     graphicCoord: collection.graphicCoord
                 )
                 
-                // TODO: - [브리] save 연결
-//                self?.focusFigureUseCase.saveCollections(with: updateCollection)
+                self?.focusFigureUseCase.saveCollections(with: updateCollection)
                 self?.collections.append(updateCollection.toEntity(pageHeight: height))
             }
             .store(in: &self.cancellables)
@@ -386,13 +393,13 @@ extension FocusFigureViewModel {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
             figures[index].head = head
             
-            self.focusFigureUseCase.editFigures(with: figures[index].toDTO())
+            self.focusFigureUseCase.editFigures(with: figures[index].toFigureDTO())
         }
     }
     
     public func deleteFigure(at id: UUID) {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
-            self.focusFigureUseCase.deleteFigures(with: figures[index].toDTO())
+            self.focusFigureUseCase.deleteFigures(with: figures[index].toFigureDTO())
             self.figures.removeAll(where: { $0.uuid == id })
         }
     }
@@ -401,14 +408,13 @@ extension FocusFigureViewModel {
         if let index = collections.firstIndex(where: { $0.uuid == id }) {
             collections[index].head = head
             
-            // TODO: - [브리] CoreData 추가
-//            self.focusFigureUseCase.editCollections(with: collections[index].toDTO())
+            self.focusFigureUseCase.editCollections(with: collections[index].toCollectionDTO())
         }
     }
     
     public func deleteCollection(at id: UUID) {
         if let index = collections.firstIndex(where: { $0.uuid == id }) {
-//            self.focusFigureUseCase.deleteCollections(with: collections[index].toDTO())
+            self.focusFigureUseCase.deleteCollections(with: collections[index].toCollectionDTO())
             self.collections.removeAll(where: { $0.uuid == id })
         }
     }

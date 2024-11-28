@@ -7,6 +7,15 @@
         <attribute name="selectedLine" optional="YES" attributeType="Binary" valueTransformerName="CGRectValueTransformer"/>
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="buttonGroup" inverseEntity="PaperData"/>
     </entity>
+    <entity name="CollectionData" representedClassName="CollectionData" syncable="YES">
+        <attribute name="coords" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="figDesc" optional="YES" attributeType="String"/>
+        <attribute name="graphicCoord" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="head" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="label" optional="YES" attributeType="String"/>
+        <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="collectionData" inverseEntity="PaperData"/>
+    </entity>
     <entity name="CommentData" representedClassName="CommentData" syncable="YES">
         <attribute name="bounds" optional="YES" attributeType="Binary"/>
         <attribute name="buttonID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -47,6 +56,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="url" optional="YES" attributeType="Binary"/>
         <relationship name="buttonGroup" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ButtonGroupData" inverseName="paperData" inverseEntity="ButtonGroupData"/>
+        <relationship name="collectionData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CollectionData" inverseName="paperData" inverseEntity="CollectionData"/>
         <relationship name="commentData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentData" inverseName="paperData" inverseEntity="CommentData"/>
         <relationship name="figureData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FigureData" inverseName="paperData" inverseEntity="FigureData"/>
     </entity>

@@ -165,6 +165,7 @@ struct FigureView: View {
                         Button(action: {
                             focusFigureViewModel.isCaptureMode.toggle()
                             if focusFigureViewModel.isCaptureMode {
+                                mainPDFViewModel.pdfDrawer.selectedStorage = .figure
                                 mainPDFViewModel.pdfDrawer.drawingTool = .lasso
                                 mainPDFViewModel.toolMode = .lasso
                             } else {
