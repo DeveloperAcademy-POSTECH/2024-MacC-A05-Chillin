@@ -329,13 +329,13 @@ extension FocusFigureViewModel {
                 let numbers = self!.figures
                     .filter { $0.id.starts(with: "New") }
                     .compactMap { figure -> Int? in
-                        let components = figure.id.split(separator: " ")
+                        let components = figure.id.split(separator: "_")
                         return components.last.flatMap { Int($0) }
                     }
                 let newFigureCount = (numbers.max() ?? 0) + 1
                 
                 let updatedFigure = Figure(
-                    id: figure.id + " \(newFigureCount)",
+                    id: figure.id + "_\(newFigureCount)",
                     head: "\(figure.head ?? "New") \(newFigureCount)", // head에 "New 1", "New 2" 형식으로 넘버링
                     label: figure.label,
                     figDesc: figure.figDesc,
@@ -361,13 +361,13 @@ extension FocusFigureViewModel {
                 let numbers = self!.collections
                     .filter { $0.id.starts(with: "Bookmark") }
                     .compactMap { collection -> Int? in
-                        let components = collection.id.split(separator: " ")
+                        let components = collection.id.split(separator: "_")
                         return components.last.flatMap { Int($0) }
                     }
                 let newCollectionCount = (numbers.max() ?? 0) + 1
                 
                 let updateCollection = Collection(
-                    id: collection.id + " \(newCollectionCount)",
+                    id: collection.id + "_\(newCollectionCount)",
                     head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
                     label: collection.label,
                     figDesc: collection.figDesc,
