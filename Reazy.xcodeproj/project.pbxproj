@@ -725,6 +725,7 @@
 			children = (
 				2C2C37882CEC6EC700552185 /* Reazy.entitlements */,
 				2C14588E2CD769FB00B35D92 /* Server.xcconfig */,
+				67DA8C812CF736CE00B232E2 /* GoogleService-Info.plist */,
 				2C1473D92CE73C3E00B35D92 /* Data */,
 				2C1473D82CE73C2900B35D92 /* Domain */,
 				2C1473D72CE73C2100B35D92 /* Presentation */,
@@ -737,7 +738,6 @@
 				2C7AE88B2CBCF290004098AF /* Products */,
 				6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */,
 				2C14693F2CE25B7600B35D92 /* Settings.bundle */,
-				67DA8C812CF736CE00B232E2 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
