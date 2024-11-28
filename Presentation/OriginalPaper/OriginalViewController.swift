@@ -80,8 +80,7 @@ final class OriginalViewController: UIViewController {
         self.setGestures()
         self.setBinding()
     }
-    
-    // menu 관련
+    // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
         
@@ -432,7 +431,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     @objc
     func postScreenTouch() {
         NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
-        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
+//        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
     }
     
     private func updateGestureRecognizer(mode: DrawingTool) {
