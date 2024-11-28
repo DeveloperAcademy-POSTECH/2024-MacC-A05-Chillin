@@ -37,7 +37,7 @@ class ActionViewController: UIViewController {
                         let groupFilePath = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.chillin.reazy")!
                             .appending(path: fileURL.lastPathComponent)
                         
-                        if manager.fileExists(atPath: groupFilePath.path) {
+                        if let _ = try? Data(contentsOf: groupFilePath) {
                             try! manager.removeItem(at: groupFilePath)
                         }
                         

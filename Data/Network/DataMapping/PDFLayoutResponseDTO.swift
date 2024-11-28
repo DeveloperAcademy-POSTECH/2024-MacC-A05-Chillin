@@ -87,25 +87,24 @@ struct PDFLayoutResponseDTO: Codable {
         
         for division in self.div {
             let head = division.header
-            var page = -1
             
             for coord in division.coords {
                 let array = coord.split(separator: ",")
                 
-                page = Int(array[0])!
-                let tempX0 = Double(array[1])!
-                let tempX1 = Double(array[1])! + Double(array[3])!
-                let tempY0 = Double(array[2])!
-                let tempY1 = Double(array[2])! + Double(array[4])!
-                
+                let page = Int(array[0])!
+                let x = Double(array[1])!
+                let y = Double(array[2])!
+                let width = Double(array[3])!
+                let height = Double(array[4])!
+
                 result.append(.init(
                     page: page,
                     header: head,
                     position: .init(
-                        x: tempX0,
-                        y: pageHeight - tempY1,
-                        width: tempX1 - tempX0,
-                        height: tempY1 - tempY0)))
+                        x: x,
+                        y: pageHeight - (y + height),
+                        width: width,
+                        height: height)))
             }
         }
         

@@ -105,13 +105,14 @@ struct MainPDFView: View {
                                             .foregroundStyle(isSearchSelected ? .gray100 : .gray800)
                                     )
                             }
+                            .padding(.trailing, 24)
                             
-                            Rectangle()
-                                .frame(width: 1.2, height: 16)
-                                // TODO: - 집중모드 개선 후 삭제
-                                .foregroundStyle(.clear)
-                                // .foregroundStyle(.primary4)
-                                .padding(.horizontal, 16)
+//                            Rectangle()
+//                                .frame(width: 1.2, height: 16)
+//                                // TODO: - 집중모드 개선 후 삭제
+//                                .foregroundStyle(.clear)
+//                                // .foregroundStyle(.primary4)
+//                                .padding(.horizontal, 16)
                             
                             Button(action: {
                                 isReadMode.toggle()
@@ -125,12 +126,9 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            // TODO: - 집중모드 개선 후 삭제
-                                            .foregroundStyle(.clear)
-                                            // .foregroundStyle(isReadMode ? .gray100 : .gray800)
+                                            .foregroundStyle(isReadMode ? .gray100 : .gray800)
                                     )
                             }
-                            .disabled(true) // TODO: - 집중모드 개선 후 삭제
                             
                             Spacer()
                             

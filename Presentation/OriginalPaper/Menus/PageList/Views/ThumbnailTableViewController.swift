@@ -43,10 +43,6 @@ final class ThumbnailTableViewController: UIViewController {
 
         setUI()
         setBinding()
-
-        self.pageListViewModel.getPageThumbnails {
-            self.thumbnailTableView.reloadData()
-        }
     }
     
     deinit {
