@@ -355,7 +355,7 @@ extension FocusFigureViewModel {
             .sink { [weak self] in
                 self?.isCaptureMode.toggle()
                 
-                guard let collection = $0.object as? Collection else { return }
+                guard let collection = $0.object as? Figure else { return }
                 guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
                 
                 let numbers = self!.collections
@@ -366,7 +366,7 @@ extension FocusFigureViewModel {
                     }
                 let newCollectionCount = (numbers.max() ?? 0) + 1
                 
-                let updateCollection = Collection(
+                let updateCollection = Figure(
                     id: collection.id + "_\(newCollectionCount)",
                     head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
                     label: collection.label,
@@ -405,13 +405,13 @@ extension FocusFigureViewModel {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
             figures[index].head = head
             
-            self.focusFigureUseCase.editFigures(with: figures[index].toFigureDTO())
+            self.focusFigureUseCase.editFigures(with: figures[index].toDTO())
         }
     }
     
     public func deleteFigure(at id: UUID) {
         if let index = figures.firstIndex(where: { $0.uuid == id }) {
-            self.focusFigureUseCase.deleteFigures(with: figures[index].toFigureDTO())
+            self.focusFigureUseCase.deleteFigures(with: figures[index].toDTO())
             self.figures.removeAll(where: { $0.uuid == id })
         }
     }
@@ -420,13 +420,13 @@ extension FocusFigureViewModel {
         if let index = collections.firstIndex(where: { $0.uuid == id }) {
             collections[index].head = head
             
-            self.focusFigureUseCase.editCollections(with: collections[index].toCollectionDTO())
+            self.focusFigureUseCase.editCollections(with: collections[index].toDTO())
         }
     }
     
     public func deleteCollection(at id: UUID) {
         if let index = collections.firstIndex(where: { $0.uuid == id }) {
-            self.focusFigureUseCase.deleteCollections(with: collections[index].toCollectionDTO())
+            self.focusFigureUseCase.deleteCollections(with: collections[index].toDTO())
             self.collections.removeAll(where: { $0.uuid == id })
         }
     }

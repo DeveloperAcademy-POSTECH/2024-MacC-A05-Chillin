@@ -11,16 +11,16 @@ import CoreData
 class CollectionDataRepositoryImpl: CollectionDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
-    func loadCollectionData(for pdfID: UUID) -> Result<[Collection], any Error> {
+    func loadCollectionData(for pdfID: UUID) -> Result<[Figure], any Error> {
         let dataContext = container.viewContext
         let fetchRequest: NSFetchRequest<CollectionData> = CollectionData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "paperData.id == %@", pdfID as CVarArg)
         
         do {
             let fetchedCollections = try dataContext.fetch(fetchRequest)
-            let collections = fetchedCollections.map { collectionData -> Collection in
+            let collections = fetchedCollections.map { collectionData -> Figure in
                 
-                return Collection(
+                return Figure(
                     id: collectionData.id,
                     head: collectionData.head,
                     label: collectionData.label,
@@ -35,7 +35,7 @@ class CollectionDataRepositoryImpl: CollectionDataRepository {
         }
     }
     
-    func saveCollectionData(for pdfID: UUID, with collection: Collection) -> Result<VoidResponse, any Error> {
+    func saveCollectionData(for pdfID: UUID, with collection: Figure) -> Result<VoidResponse, any Error> {
         var result: Result<VoidResponse, any Error>?
         
         /// NSManagedObject는 Thread-safe 하지 못해 하나의 쓰레드에서만 사용해야 함
@@ -83,7 +83,7 @@ class CollectionDataRepositoryImpl: CollectionDataRepository {
         return result!
     }
     
-    func editFigureData(for pdfID: UUID, with collection: Collection) -> Result<VoidResponse, any Error> {
+    func editFigureData(for pdfID: UUID, with collection: Figure) -> Result<VoidResponse, any Error> {
         let dataContext = container.viewContext
         let fetchRequest: NSFetchRequest<CollectionData> = CollectionData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "paperData.id == %@ AND id == %@", pdfID as CVarArg, collection.id as CVarArg)

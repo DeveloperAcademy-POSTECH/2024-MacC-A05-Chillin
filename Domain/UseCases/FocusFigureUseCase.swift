@@ -40,21 +40,21 @@ protocol FocusFigureUseCase {
         with figure: Figure
     ) -> Result<VoidResponse, any Error>
     
-    func loadCollections () -> Result<[Collection], any Error>
+    func loadCollections () -> Result<[Figure], any Error>
     
     @discardableResult
     func saveCollections (
-        with collection: Collection
+        with collection: Figure
     ) -> Result<VoidResponse, any Error>
     
     @discardableResult
     func editCollections (
-        with collection: Collection
+        with collection: Figure
     ) -> Result<VoidResponse, any Error>
     
     @discardableResult
     func deleteCollections (
-        with collection: Collection
+        with collection: Figure
     ) -> Result<VoidResponse, any Error>
     
     func getPDFHeight() -> CGFloat
@@ -130,7 +130,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         return figureDataRepository.deleteFigureData(for: id, id: figure.id)
     }
     
-    public func loadCollections() -> Result<[Collection], any Error> {
+    public func loadCollections() -> Result<[Figure], any Error> {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
         }
@@ -138,7 +138,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         return collectionDataRepository.loadCollectionData(for: id)
     }
     
-    public func saveCollections(with collection: Collection) -> Result<VoidResponse, any Error> {
+    public func saveCollections(with collection: Figure) -> Result<VoidResponse, any Error> {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
         }
@@ -146,7 +146,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         return collectionDataRepository.saveCollectionData(for: id, with: collection)
     }
     
-    public func editCollections(with collection: Collection) -> Result<VoidResponse, any Error> {
+    public func editCollections(with collection: Figure) -> Result<VoidResponse, any Error> {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
         }
@@ -154,7 +154,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         return collectionDataRepository.editFigureData(for: id, with: collection)
     }
     
-    public func deleteCollections(with collection: Collection) -> Result<VoidResponse, any Error> {
+    public func deleteCollections(with collection: Figure) -> Result<VoidResponse, any Error> {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
         }
