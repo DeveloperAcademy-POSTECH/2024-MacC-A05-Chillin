@@ -328,7 +328,14 @@ extension FocusFigureViewModel {
                 guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
                 
                 // "New" ID를 가진 Figure의 수를 계산하여 넘버링 추가
-                let newFigureCount = self!.figures.filter { $0.id.split(separator: " ").first == "New" }.count + 1
+                let numbers = self!.figures
+                    .filter { $0.id.starts(with: "New") }
+                    .compactMap { figure -> Int? in
+                        let components = figure.id.split(separator: " ")
+                        return components.last.flatMap { Int($0) }
+                    }
+                let newFigureCount = (numbers.max() ?? 0) + 1
+                
                 let updatedFigure = Figure(
                     id: figure.id + " \(newFigureCount)",
                     head: "\(figure.head ?? "New") \(newFigureCount)", // head에 "New 1", "New 2" 형식으로 넘버링
@@ -353,7 +360,14 @@ extension FocusFigureViewModel {
                 guard let collection = $0.object as? Collection else { return }
                 guard let height = self?.focusFigureUseCase.getPDFHeight() else { return }
                 
-                let newCollectionCount = self!.collections.filter { $0.id.split(separator: " ").first == "Bookmark" }.count + 1
+                let numbers = self!.collections
+                    .filter { $0.id.starts(with: "Bookmark") }
+                    .compactMap { collection -> Int? in
+                        let components = collection.id.split(separator: " ")
+                        return components.last.flatMap { Int($0) }
+                    }
+                let newCollectionCount = (numbers.max() ?? 0) + 1
+                
                 let updateCollection = Collection(
                     id: collection.id + " \(newCollectionCount)",
                     head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
