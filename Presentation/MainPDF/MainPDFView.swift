@@ -473,9 +473,12 @@ struct MainPDFView: View {
             .navigationBarHidden(true)
             .onAppear {
                 updateOrientation(with: geometry)
+                self.focusFigureViewModel.isFigureCaptured()
+                self.focusFigureViewModel.isCollectionCaptured()
             }
             .onDisappear {
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+                self.focusFigureViewModel.cancellables.removeAll()
             }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)

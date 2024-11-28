@@ -49,8 +49,6 @@ class FocusFigureViewModel: ObservableObject {
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
-        self.isFigureCaptured()
-        self.isCollectionCaptured()
     }
 }
 
@@ -321,14 +319,6 @@ extension FocusFigureViewModel {
     // 올가미로 새 Figure 추가하는 부분
     func isFigureCaptured() {
         self.figurePublisher
-            // 알림을 여러 번 수신하게 될 경우 중복 삭제
-            .removeDuplicates(by: { lhs, rhs in
-                guard
-                    let lhsObject = lhs.object as? Figure,
-                    let rhsObject = rhs.object as? Figure
-                else { return false }
-                return lhsObject.id == rhsObject.id
-            })
             .sink { [weak self] in
                 self?.isCaptureMode.toggle()
                 
@@ -362,14 +352,6 @@ extension FocusFigureViewModel {
     
     func isCollectionCaptured() {
         self.collectionPublisher
-            // 알림을 여러 번 수신하게 될 경우 중복 삭제
-            .removeDuplicates(by: { lhs, rhs in
-                guard
-                    let lhsObject = lhs.object as? Collection,
-                    let rhsObject = rhs.object as? Collection
-                else { return false }
-                return lhsObject.id == rhsObject.id
-            })
             .sink { [weak self] in
                 self?.isCaptureMode.toggle()
                 
