@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct AppView: App {
@@ -47,6 +48,9 @@ struct AppView: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        // for Google Analytics
+        FirebaseApp.configure()
         
         // 전체 Tint Color 설정
         UIView.appearance().tintColor = UIColor.primary1
