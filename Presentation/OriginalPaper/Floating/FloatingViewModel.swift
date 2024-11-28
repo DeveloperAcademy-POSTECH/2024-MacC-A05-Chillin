@@ -26,7 +26,7 @@ class FloatingViewModel: ObservableObject {
     @Published var topmostIndex: Int?
     
     @Published var selectedFigureCellID: String?
-    @Published var selectedFigureIndex: Int = 0
+    @Published var selectedFigureIndex: Int = 3
     @Published var isFigure: Bool = false
     
     @Published var splitMode: Bool = false
@@ -115,7 +115,7 @@ class FloatingViewModel: ObservableObject {
                 droppedFigures[existingIndex].isInSplitMode = true
                 
                 selectedFigureCellID = documentID
-                selectedFigureIndex = Int(documentID.components(separatedBy: "-").last ?? "") ?? 0
+                selectedFigureIndex = Int(documentID.components(separatedBy: "_").last ?? "") ?? 0
             }
         }
     }
@@ -183,7 +183,7 @@ class FloatingViewModel: ObservableObject {
             else { return focusFigureViewModel.collections }
         }()
         
-        let newIndex = (selectedFigureIndex - 1 + lists.count) % focusFigureViewModel.figures.count
+        let newIndex = (selectedFigureIndex - 1 + lists.count) % lists.count
         DispatchQueue.main.async {
             self.selectedFigureIndex = newIndex
             self.moveToFigure(at: newIndex, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
