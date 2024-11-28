@@ -70,3 +70,4 @@ fastlane/test_output
 timeline.xctimeline
 playground.xcworkspace
 *.xcconfig
+GoogleService-Info.plist
