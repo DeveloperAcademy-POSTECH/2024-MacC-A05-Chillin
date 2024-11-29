@@ -1,14 +1,13 @@
 //
-//  FigureMenu.swift
+//  CollectionMenu.swift
 //  Reazy
 //
-//  Created by  Lucid on 11/22/24.
+//  Created by 유지수 on 11/27/24.
 //
 
 import SwiftUI
 
-struct FigureMenu: View {
-    
+struct CollectionMenu: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
@@ -29,6 +28,7 @@ struct FigureMenu: View {
                     Button(action: {
                         focusFigureViewModel.isEditFigName = true
                         self.focusFigureViewModel.selectedID = id
+                        self.focusFigureViewModel.isFigure = false
                         
                         print("Edit FigName")
                         
@@ -77,10 +77,7 @@ struct FigureMenu: View {
                     // Fig 삭제
                     Button(role: .destructive, action: {
                         isDeleteFigAlert = true
-                        focusFigureViewModel.deleteFigure(at: id)
-                        
-                        print("Delete Fig")
-                        
+                        focusFigureViewModel.deleteCollection(at: id)
                     }, label: {
                         HStack {
                             Text("삭제")
@@ -113,8 +110,3 @@ struct FigureMenu: View {
         }
     }
 }
-
-
-//#Preview {
-//    FigureMenu()
-//}

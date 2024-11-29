@@ -82,10 +82,7 @@ extension AppView {
             let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
                 id: $0.id,
                 head: $0.head,
-                label: $0.label,
-                figDesc: $0.figDesc,
-                coords: $0.coords,
-                graphicCoord: $0.graphicCoord))
+                coords: $0.coords))
         }
         
         UserDefaults.standard.set(true, forKey: "sample")
