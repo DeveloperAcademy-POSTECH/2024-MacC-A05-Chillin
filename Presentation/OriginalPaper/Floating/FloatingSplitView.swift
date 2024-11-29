@@ -11,6 +11,7 @@ import AVFoundation
 import Photos
 
 struct SplitDocumentDetails {
+    let id: UUID
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -23,19 +24,23 @@ struct FloatingSplitView: View {
     
     @ObservedObject var observableDocument: ObservableDocument
     
+    let id: UUID
     let documentID: String
     let document: PDFDocument
     let head: String
     let isFigSelected: Bool
+    let isCollectionSelected: Bool
     let onSelect: () -> Void
     
-    init(documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, onSelect: @escaping () -> Void) {
+    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
+        self.id = id
         self.documentID = documentID
         self.head = head
         self.isFigSelected = isFigSelected
+        self.isCollectionSelected = isCollectionSelected
         self.onSelect = onSelect
     }
     
@@ -47,7 +52,7 @@ struct FloatingSplitView: View {
                 ZStack {
                     HStack(spacing: 0) {
                         Button(action: {
-                            floatingViewModel.setFloatingDocument(documentID: documentID)
+                            floatingViewModel.setFloatingDocument(uuid: id)
                         }, label: {
                             Image(systemName: "rectangle")
                                 .font(.system(size: 14, weight: .medium))
@@ -86,7 +91,7 @@ struct FloatingSplitView: View {
                         }
                         
                         Button(action: {
-                            floatingViewModel.deselect(documentID: documentID)
+                            floatingViewModel.deselect(uuid: id)
                         }, label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 14, weight: .medium))
@@ -154,7 +159,7 @@ struct FloatingSplitView: View {
                 }
                 
                 
-                if isFigSelected {
+                if isFigSelected || isCollectionSelected {
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(.gray300)
@@ -162,24 +167,44 @@ struct FloatingSplitView: View {
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal) {
                             HStack(spacing: 8) {
-                                ForEach(focusFigureViewModel.figures, id: \.self) { item in
-                                    let id = item.uuid
-                                    let index = focusFigureViewModel.figures.firstIndex(where: { $0 == item })
-                                     
-                                    FigureCell(id: id, onSelect: { newDocumentID, newDocument, newHead in
-                                        if floatingViewModel.selectedFigureCellID != newDocumentID {
-                                            floatingViewModel.updateSplitDocument(with: newDocument, documentID: newDocumentID, head: newHead)
-                                            observableDocument.updateDocument(to: newDocument)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                                withAnimation {
-                                                    proxy.scrollTo(index, anchor: .center)
+                                if isFigSelected {
+                                    ForEach(focusFigureViewModel.figures, id: \.self) { item in
+                                        let id = item.uuid
+                                        
+                                        FigureCell(id: id, onSelect: { id, newDocumentID, newDocument, newHead in
+                                            if floatingViewModel.selectedFigureCellID != id {
+                                                floatingViewModel.updateSplitDocument(isFigure: true, with: newDocument, uuid: id, documentID: newDocumentID, head: newHead)
+                                                observableDocument.updateDocument(to: newDocument)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                                    withAnimation {
+                                                        proxy.scrollTo(id, anchor: .center)
+                                                    }
                                                 }
                                             }
-                                        }
-                                    })
-                                    .environmentObject(floatingViewModel)
-                                    .padding(.trailing, 5)
-                                    .id(index)
+                                        })
+                                        .environmentObject(floatingViewModel)
+                                        .padding(.trailing, 5)
+                                        .id(id)
+                                    }
+                                } else {
+                                    ForEach(focusFigureViewModel.collections, id: \.self) { item in
+                                        let id = item.uuid
+                                        
+                                        CollectionCell(id: id, onSelect: { id, newDocumentID, newDocument, newHead in
+                                            if floatingViewModel.selectedFigureCellID != id {
+                                                floatingViewModel.updateSplitDocument(isFigure: false, with: newDocument, uuid: id, documentID: newDocumentID, head: newHead)
+                                                observableDocument.updateDocument(to: newDocument)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                                    withAnimation {
+                                                        proxy.scrollTo(id, anchor: .center)
+                                                    }
+                                                }
+                                            }
+                                        })
+                                        .environmentObject(floatingViewModel)
+                                        .padding(.trailing, 5)
+                                        .id(id)
+                                    }
                                 }
                             }
                             .padding(.horizontal, 20)

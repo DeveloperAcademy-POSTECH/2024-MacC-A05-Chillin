@@ -1,59 +1,20 @@
 //
-//  FigureCell.swift
+//  CollectionCell.swift
 //  Reazy
 //
-//  Created by 유지수 on 10/15/24.
+//  Created by 유지수 on 11/27/24.
 //
-
 
 import SwiftUI
 import PDFKit
-import UniformTypeIdentifiers
 
-
-// MARK: - Lucid : FigureView 커스텀 리스트 셀
-struct PDFKitView: UIViewRepresentable {
-    
-    let document: PDFDocument
-    var isScrollEnabled: Bool
-    
-    // PDFView 생성 후 반환
-    func makeUIView(context: Context) -> PDFView {
-        
-        let pdfView = PDFView()
-        
-        pdfView.autoScales = true       // PDF가 뷰에 맞춰서 스케일 조정
-        pdfView.document = document
-        pdfView.translatesAutoresizingMaskIntoConstraints = false
-        pdfView.displayMode = .singlePageContinuous
-        pdfView.pageShadowsEnabled = false
-        pdfView.backgroundColor = .white
-        
-        if let scrollView = pdfView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
-            scrollView.isScrollEnabled = isScrollEnabled
-        }
-        
-        return pdfView
-    }
-    
-    // 업데이트 메서드 (필요에 따라 사용)
-    func updateUIView(_ uiView: PDFView, context: Context) {
-        // 스크롤 활성화 상태 업데이트
-        if let scrollView = uiView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
-            scrollView.isScrollEnabled = isScrollEnabled
-        }
-    }
-}
-
-
-struct FigureCell: View {
-    
+struct CollectionCell: View {
     @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     
     let id: UUID
-    let onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (UUID, String, PDFDocument, String) -> Void
     
     @State private var aspectRatio: CGFloat = 1.0
     @State private var newFigName: String = ""
@@ -62,16 +23,17 @@ struct FigureCell: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
-                if let figure = focusFigureViewModel.figures.first(where: { $0.uuid == id }),
-                   let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == id }),
-                   focusFigureViewModel.documents.indices.contains(index) {
+                if let collection = focusFigureViewModel.collections.first(where: { $0.uuid == id }),
+                   let index = focusFigureViewModel.collections.firstIndex(where: { $0.uuid == id }),
+                   focusFigureViewModel.collectionDocuments.indices.contains(index) {
                     
-                    let document = focusFigureViewModel.documents[index]
+                    let document = focusFigureViewModel.collectionDocuments[index]
                     if let page = document.page(at: 0) {
                         let pageRect = page.bounds(for: .mediaBox)
                         let aspectRatio = pageRect.width / pageRect.height
-                        let head = figure.head
-                        let documentID = figure.id
+                        let head = collection.head
+                        let documentID = collection.id
+                        let id = collection.uuid
                         
                         PDFKitView(document: document, isScrollEnabled: false)
                             .edgesIgnoringSafeArea(.all)                    // 전체 화면에 맞추기
@@ -79,8 +41,8 @@ struct FigureCell: View {
                             .aspectRatio(aspectRatio, contentMode: .fit)
                             .simultaneousGesture(
                                 TapGesture().onEnded {
-                                    if floatingViewModel.selectedFigureCellID != documentID {
-                                        onSelect(documentID, document, head)
+                                    if floatingViewModel.selectedFigureCellID != id {
+                                        onSelect(id, documentID, document, head)
                                     }
                                 }
                             )
@@ -88,13 +50,15 @@ struct FigureCell: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(floatingViewModel.isFigureSelected(documentID: documentID) ? .primary1 : .primary3, lineWidth: floatingViewModel.isFigureSelected(documentID: documentID) ? 1.5 : 1)
                         
-                        FigureMenu(
+                        
+                        CollectionMenu(
                             observableDocument: ObservableDocument(document: document),
                             newFigName: $newFigName,
                             isDeleteFigAlert: $isDeleteFigAlert,
                             id: id
                         )
                         
+                        // TODO: - [브리] 이미지 save 확인
                         if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id {
                             VStack {
                                 Text("사진 앱에 저장되었습니다")
@@ -115,7 +79,7 @@ struct FigureCell: View {
             }
             .padding(.bottom, 10)
             
-            Text(focusFigureViewModel.figures.first(where: { $0.uuid == id})?.head ?? "")
+            Text(focusFigureViewModel.collections.first(where: { $0.uuid == id })?.head ?? "")
                 .reazyFont(.body3)
                 .foregroundStyle(.gray800)
         }

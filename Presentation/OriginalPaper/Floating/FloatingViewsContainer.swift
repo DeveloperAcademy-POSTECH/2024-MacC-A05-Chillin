@@ -9,12 +9,15 @@ import SwiftUI
 
 struct FloatingViewsContainer: View {
     @EnvironmentObject var floatingViewModel: FloatingViewModel
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     let geometry: GeometryProxy
     
     var body: some View {
         ForEach(floatingViewModel.droppedFigures, id: \.id) { droppedFigure in
             if droppedFigure.isSelected && !droppedFigure.isInSplitMode {
                 FloatingView(
+                    id: droppedFigure.id,
+                    isFigure: droppedFigure.isFigure,
                     documentID: droppedFigure.documentID,
                     document: droppedFigure.document,
                     head: droppedFigure.head,

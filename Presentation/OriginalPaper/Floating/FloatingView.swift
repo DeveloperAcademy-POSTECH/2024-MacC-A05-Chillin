@@ -10,6 +10,8 @@ import PDFKit
 
 struct FloatingView: View {
     
+    let id: UUID
+    let isFigure: Bool
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -20,13 +22,16 @@ struct FloatingView: View {
     
     @State private var aspectRatio: CGFloat = 1.0
     
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @ObservedObject var observableDocument: ObservableDocument
     
-    init(documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
+    init(id: UUID, isFigure: Bool, documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
+        self.id = id
+        self.isFigure = isFigure
         self.documentID = documentID
         self.head = head
         self._isSelected = isSelected
@@ -39,7 +44,18 @@ struct FloatingView: View {
             ZStack {
                 HStack(spacing: 0) {
                     Button(action: {
-                        floatingViewModel.setSplitDocument(documentID: documentID)
+                        floatingViewModel.isFigure = isFigure
+                        
+                        let uuid = {
+                            if isFigure { return focusFigureViewModel.figures.first(where: { $0.id == documentID })?.uuid }
+                            else { return focusFigureViewModel.collections.first(where: { $0.id == documentID })?.uuid }
+                        }()
+                        let index = {
+                            if isFigure { return focusFigureViewModel.getFigureIndex(id: uuid!) }
+                            else { return focusFigureViewModel.getCollectionIndex(id: uuid!) }
+                        }()
+                        floatingViewModel.selectedFigureCellID = uuid
+                        floatingViewModel.setSplitDocument(at: index, uuid: id)
                     }, label: {
                         Image(systemName: "rectangle.split.2x1")
                             .font(.system(size: 14))
@@ -69,7 +85,7 @@ struct FloatingView: View {
                     }
                     
                     Button(action: {
-                        floatingViewModel.deselect(documentID: documentID)
+                        floatingViewModel.deselect(uuid: id)
                     }, label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 14))
