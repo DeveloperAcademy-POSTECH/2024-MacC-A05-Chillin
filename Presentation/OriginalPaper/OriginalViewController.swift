@@ -431,7 +431,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     @objc
     func postScreenTouch() {
         NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
-//        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
     }
     
     private func updateGestureRecognizer(mode: DrawingTool) {
