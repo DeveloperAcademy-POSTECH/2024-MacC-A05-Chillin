@@ -14,14 +14,10 @@ struct FigureAnnotation: Hashable {
     let page: Int
     var head: String
     let position: CGRect
-    
-    let label: String?
-    let figDesc: String?
     let coords: [String]
-    let graphicCoord: [String]?
     
     public func toDTO() -> Figure {
-        .init(id: id, head: head, label: label, figDesc: figDesc, coords: coords, graphicCoord: graphicCoord)
+        .init(id: id, head: head, coords: coords)
     }
 }
 

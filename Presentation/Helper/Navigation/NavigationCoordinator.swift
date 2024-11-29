@@ -65,7 +65,8 @@ final class NavigationCoordinator: CoordinatorProtocol {
                     focusFigureUseCase:
                         DefaultFocusFigureUseCase(
                             focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument),
-                            figureDataRepository: FigureDataRepositoryImpl())
+                            figureDataRepository: FigureDataRepositoryImpl(),
+                            collectionDataRepository: CollectionDataRepositoryImpl())
                 ),
                 pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
                 searchViewModel: .init(),

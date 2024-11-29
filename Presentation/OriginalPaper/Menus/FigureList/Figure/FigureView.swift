@@ -17,7 +17,7 @@ struct FigureView: View {
     
     @State private var scrollToIndex: Int? = nil
     
-    let onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (UUID, String, PDFDocument, String) -> Void
     
     var body: some View {
         ZStack {
@@ -70,8 +70,10 @@ struct FigureView: View {
                                         let document = focusFigureViewModel.setFigureDocument(for: 0)!
                                         let head = figure.head
                                         let documentID = figure.id
+                                        let id = figure.uuid
                                         
                                         let newFigure = DroppedFigure(
+                                            id: id,
                                             documentID: documentID,
                                             document: document,
                                             head: head,
@@ -79,11 +81,14 @@ struct FigureView: View {
                                             viewOffset: CGSize(width: 0, height: 0),
                                             lastOffset: CGSize(width: 0, height: 0),
                                             viewWidth: 300,
-                                            isInSplitMode: true
+                                            isInSplitMode: true,
+                                            isFigure: true
                                         )
                                         floatingViewModel.droppedFigures.append(newFigure)
                                         
-                                        floatingViewModel.setSplitDocument(documentID: documentID)
+                                        floatingViewModel.isFigure = true
+                                        floatingViewModel.selectedFigureCellID = id
+                                        floatingViewModel.setSplitDocument(at: 0, uuid: id)
                                     }
                                 }) {
                                     Image(.dualwindow)
@@ -163,6 +168,7 @@ struct FigureView: View {
                         Button(action: {
                             focusFigureViewModel.isCaptureMode.toggle()
                             if focusFigureViewModel.isCaptureMode {
+                                mainPDFViewModel.pdfDrawer.selectedStorage = .figure
                                 mainPDFViewModel.pdfDrawer.drawingTool = .lasso
                                 mainPDFViewModel.toolMode = .lasso
                             } else {
