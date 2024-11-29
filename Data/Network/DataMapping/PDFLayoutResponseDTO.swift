@@ -72,10 +72,7 @@ struct PDFLayoutResponseDTO: Codable {
                     y: pageHeight - y1,
                     width: x1 - x0,
                     height: y1 - y0),
-                label: coords.label,
-                figDesc: coords.figDesc,
-                coords: coords.coords,
-                graphicCoord: coords.graphicCoord
+                coords: coords.coords
             ))
         }
         
@@ -116,10 +113,7 @@ struct PDFLayoutResponseDTO: Codable {
             .init(
                 id: $0.id,
                 head: $0.head,
-                label: $0.label,
-                figDesc: $0.figDesc,
-                coords: $0.coords,
-                graphicCoord: $0.graphicCoord)
+                coords: $0.coords)
         }
     }
 }
@@ -127,10 +121,7 @@ struct PDFLayoutResponseDTO: Codable {
 struct Figure: Codable {
     let id: String
     var head: String?
-    let label: String?
-    let figDesc: String?
     let coords: [String]
-    let graphicCoord: [String]?
     
     public func toEntity(pageHeight: CGFloat) -> FigureAnnotation {
         let id = self.id
@@ -176,10 +167,7 @@ struct Figure: Codable {
                 y: pageHeight - y1,
                 width: x1 - x0,
                 height: y1 - y0),
-            label: label,
-            figDesc: figDesc,
-            coords: coords,
-            graphicCoord: graphicCoord
+            coords: coords
         )
             
     }

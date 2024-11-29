@@ -176,12 +176,9 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                     for figure in figures {
                         let temp = FigureData(context: dataContext)
                         temp.coords = figure.coords
-                        temp.figDesc = figure.figDesc
-                        temp.graphicCoord = figure.graphicCoord
                         temp.head = figure.head
                         temp.id = figure.id
                         temp.paperData = newPaperData
-                        temp.label = figure.label
                         
                         figureData.insert(temp)
                     }
