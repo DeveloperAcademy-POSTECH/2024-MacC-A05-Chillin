@@ -31,10 +31,16 @@ struct PaperInfoView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Image(uiImage: .init(data: image) ?? .init(resource: .testThumbnail))
-                .resizable()
-                .scaledToFit()
-                .padding(.horizontal, 30)
+            Button(action: {
+                onNavigate()
+                homeViewModel.updateLastModifiedDate(at: id, lastModifiedDate: .init())
+            }) {
+                Image(uiImage: .init(data: image) ?? .init(resource: .testThumbnail))
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 30)
+            }
+            .buttonStyle(PlainButtonStyle())
             
             HStack(spacing: 0) {
                 Text(title)
