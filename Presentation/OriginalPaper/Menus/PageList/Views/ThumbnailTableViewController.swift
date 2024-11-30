@@ -67,9 +67,20 @@ extension ThumbnailTableViewController {
         
         self.pageListViewModel.$changedPageNumber
             .sink { [weak self] num in
-                guard let num = num else { return }
+                guard let self = self, let num = num else { return }
                 NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": num])
-                self?.thumbnailTableView.scrollToRow(at: .init(row: num, section: 0), at: .top, animated: true)
+                
+                // 테이블 뷰 데이터가 모두 로드된 뒤에 스크롤
+                DispatchQueue.main.async {
+                    self.thumbnailTableView.reloadData()
+                    DispatchQueue.main.async {
+                        if num < self.thumbnailTableView.numberOfRows(inSection: 0) {
+                            self.thumbnailTableView.scrollToRow(at: IndexPath(row: num - 1, section: 0), at: .top, animated: true)
+                        } else {
+                            print("⚠️ Invalid row: \(num)")
+                        }
+                    }
+                }
             }
             .store(in: &self.cancellables)
         
