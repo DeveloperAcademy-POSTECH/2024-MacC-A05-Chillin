@@ -21,6 +21,12 @@ class PageListViewModel: ObservableObject {
     
     init(pageListUseCase: PageListUseCase) {
         self.pageListUseCase = pageListUseCase
+        
+        guard let thumbnails = self.pageListUseCase.getThumbnailImage() else {
+            return
+        }
+        
+        self.thumnailImages = thumbnails
     }
 }
 
