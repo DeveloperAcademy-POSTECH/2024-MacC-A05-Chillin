@@ -275,8 +275,8 @@ extension OriginalViewController {
                     let num = Int(page.label ?? "") ?? -1
                     
                     self?.pageLabelView.text = "\(num) / \(document.pageCount)"
-                    self?.pageListViewModel.changedPageNumber = num-1
-                    self?.focusFigureViewModel.changedPageNumber = num-1
+                    self?.pageListViewModel.changedPageNumber = num - 1
+                    self?.focusFigureViewModel.changedPageNumber = num - 1
                 } else {
                     print("Document or page is nil")
                 }
