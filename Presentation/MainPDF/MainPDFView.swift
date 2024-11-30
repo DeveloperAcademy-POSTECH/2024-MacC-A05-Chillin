@@ -298,7 +298,7 @@ struct MainPDFView: View {
                                             .environmentObject(floatingViewModel)
                                             .environmentObject(focusFigureViewModel)
                                             .background(.white)
-                                            .frame(width: geometry.size.width * 0.22)
+                                            .frame(width: 252)
                                             .transition(.move(edge: .leading))
                                             .overlay(
                                                 Rectangle()
@@ -320,7 +320,7 @@ struct MainPDFView: View {
                                             .environmentObject(floatingViewModel)
                                             .environmentObject(focusFigureViewModel)
                                             .background(.white)
-                                            .frame(width: geometry.size.width * 0.22)
+                                            .frame(width: 252)
                                             .transition(.move(edge: .leading))
                                             .overlay(
                                                 Rectangle()
