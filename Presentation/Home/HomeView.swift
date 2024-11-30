@@ -455,6 +455,8 @@ struct RenamePaperTitleView: View {
     
     let paperInfo: PaperInfo
     
+    @FocusState private var isTextFieldFocused: Bool
+    
     var body: some View {
         ZStack {
             VStack {
@@ -465,6 +467,8 @@ struct RenamePaperTitleView: View {
                         } else {
                             isEditingMemo = false
                         }
+                        self.homeViewModel.changedMemo = nil
+                        isTextFieldFocused = false
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -484,6 +488,7 @@ struct RenamePaperTitleView: View {
                             self.homeViewModel.memoText = text
                             isEditingMemo = false
                         }
+                        isTextFieldFocused = false
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -518,7 +523,7 @@ struct RenamePaperTitleView: View {
                     }
                     .frame(width: 400, height: isEditingTitle ? 52 : 180)
                     .overlay(alignment: isEditingTitle ? .center : .topLeading) {
-                        TextField( isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: .vertical)
+                        TextField(isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: .vertical)
                             .lineLimit( isEditingTitle ? 1 : 6)
                             .padding(.horizontal, 16)
                             .padding(.vertical, isEditingTitle ? 0 : 16)
@@ -537,6 +542,7 @@ struct RenamePaperTitleView: View {
                                 }
                         }
                     }
+                    .focused($isTextFieldFocused)
                     
                     Text(isEditingTitle ? "논문 제목을 입력해 주세요" : "논문에 대한 메모를 남겨주세요")
                         .reazyFont(.button1)
@@ -554,6 +560,8 @@ struct RenamePaperTitleView: View {
             } else {
                 self.text = paperInfo.memo ?? ""
             }
+            
+            isTextFieldFocused = true
         }
     }
 }
@@ -725,6 +733,8 @@ private struct FolderMemoView: View {
     
     let folder: Folder
     
+    @FocusState private var isTextFieldFocused: Bool
+    
     init(
         isEditingFolderMemo: Binding<Bool>,
         folder: Folder
@@ -739,7 +749,9 @@ private struct FolderMemoView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
+                        self.homeViewModel.changedMemo = nil
                         self.isEditingFolderMemo.toggle()
+                        self.isTextFieldFocused = false
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -752,6 +764,7 @@ private struct FolderMemoView: View {
                         self.homeViewModel.updateFolderMemo(at: folder.id, memo: text)
                         self.homeViewModel.memoText = text
                         self.isEditingFolderMemo.toggle()
+                        self.isTextFieldFocused = false
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -815,6 +828,7 @@ private struct FolderMemoView: View {
                         }
                     }
                     .padding(.bottom, 16)
+                    .focused($isTextFieldFocused)
                     
                     Text("폴더 제목을 입력해 주세요")
                         .reazyFont(.button1)
@@ -826,6 +840,7 @@ private struct FolderMemoView: View {
             if isEditingFolderMemo {
                 self.text = folder.memo ?? ""
             }
+            self.isTextFieldFocused = true
         }
     }
 }

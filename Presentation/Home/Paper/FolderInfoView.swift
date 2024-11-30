@@ -14,7 +14,6 @@ struct FolderInfoView: View {
     let id: UUID
     let title: String
     let color: FolderColors
-    @State var memo: String?
     var isFavorite: Bool
     
     @State var isStarSelected: Bool
@@ -152,7 +151,7 @@ struct FolderInfoView: View {
                     
                     Spacer()
                     
-                    if !(self.memo == nil) {
+                    if !(self.homeViewModel.changedMemo == nil) {
                         Menu {
                             Button {
                                 self.isEditingFolderMemo = true
@@ -172,7 +171,7 @@ struct FolderInfoView: View {
                             }
                             
                             Button(role: .destructive) {
-                                self.memo = nil
+                                self.homeViewModel.changedMemo = nil
                                 self.homeViewModel.updateFolderMemo(at: id, memo: nil)
                             } label: {
                                 HStack(spacing: 0) {
@@ -197,7 +196,7 @@ struct FolderInfoView: View {
                         }
                     } else {
                         Button {
-                            self.memo = ""
+                            self.homeViewModel.changedMemo = ""
                             self.isEditingFolderMemo = true
                         } label: {
                             Image(.memo)
@@ -212,7 +211,7 @@ struct FolderInfoView: View {
                 }
                 .padding(.bottom, 13)
                 
-                if self.memo != nil {
+                if self.homeViewModel.changedMemo != nil {
                     ZStack(alignment: .topLeading) {
                         RoundedRectangle(cornerRadius: 10)
                             .foregroundStyle(.gray200)
@@ -223,7 +222,7 @@ struct FolderInfoView: View {
                             .foregroundStyle(.gray550)
                         
                         VStack {
-                            Text(self.memo!)
+                            Text(self.homeViewModel.changedMemo!)
                                 .lineLimit(4)
                                 .reazyFont(.body2)
                                 .foregroundStyle(.gray700)
@@ -248,15 +247,19 @@ struct FolderInfoView: View {
             LinearGradient(colors: [.init(hex: "DADBEA"), .clear], startPoint: .bottom, endPoint: .top)
                 .frame(height: 185)
         }
+        .onAppear {
+            let folder = homeViewModel.folders.first { $0.id == self.id }!
+            self.homeViewModel.changedMemo = folder.memo
+        }
         .onChange(of: self.id) {
             let folder = homeViewModel.folders.first { $0.id == self.id }!
-            self.memo = folder.memo
+            self.homeViewModel.changedMemo = folder.memo
         }
         .onChange(of: self.homeViewModel.memoText) {
-            self.memo = self.homeViewModel.memoText
+            self.homeViewModel.changedMemo = self.homeViewModel.memoText
         }
         .onChange(of: self.isEditingFolderMemo) {
-            self.homeViewModel.memoText = memo!
+            self.homeViewModel.memoText = homeViewModel.changedMemo ?? ""
         }
         // TODO: - Alert 수정 필요
 //        .alert(isPresented: $isDeleteConfirm) {
@@ -320,7 +323,6 @@ struct FolderInfoView: View {
         id: .init(),
         title: "테스트",
         color: FolderColors.folder1,
-        memo: "",
         isFavorite: false,
         isStarSelected: false,
         isEditingFolder: .constant(false),
