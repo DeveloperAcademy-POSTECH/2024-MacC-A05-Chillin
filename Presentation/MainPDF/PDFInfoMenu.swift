@@ -56,7 +56,6 @@ struct PDFInfoMenu: View {
                     VStack(alignment: .leading) {
                         Text(title ?? "알 수 없음")
                             .multilineTextAlignment(.leading)
-                            .padding(.bottom, 5)
                             .lineLimit(2)
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)

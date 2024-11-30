@@ -80,8 +80,7 @@ final class OriginalViewController: UIViewController {
         self.setGestures()
         self.setBinding()
     }
-    
-    // menu 관련
+    // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
         
@@ -276,7 +275,8 @@ extension OriginalViewController {
                 guard let page = self?.mainPDFView.currentPage else { return }
                 guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
                 
-                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
+                // TODO: 반복 호출 수정 필요
+//                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
                 
                 self?.pageListViewModel.changedPageNumber = num
                 self?.focusFigureViewModel.changedPageNumber = num
@@ -432,7 +432,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     @objc
     func postScreenTouch() {
         NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
-        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
     }
     
     private func updateGestureRecognizer(mode: DrawingTool) {
