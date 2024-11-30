@@ -241,6 +241,18 @@ private struct MainMenuView: View {
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
+                createFolder.toggle()
+            }) {
+                Image(.newfolder)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 21, height: 20)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     selectedMenu = .search
                 }
@@ -251,18 +263,6 @@ private struct MainMenuView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 22, height: 22)
-                    .foregroundStyle(.gray100)
-            }
-            .padding(.trailing, 28)
-            
-            Button(action: {
-                createFolder.toggle()
-            }) {
-                Image(.newfolder)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 21, height: 20)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -285,7 +285,7 @@ private struct MainMenuView: View {
                     homeViewModel.isSettingMenu = true
                 }
             }) {
-                Image(.morecircle)
+                Image(.setting)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
