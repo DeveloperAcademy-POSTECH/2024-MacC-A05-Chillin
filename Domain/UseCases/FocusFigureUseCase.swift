@@ -242,7 +242,8 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         try! FileManager.default.moveItem(at: tempPath, to: savingURL)
         
         return savingURL
-
+    }
+    
     public func loadCollections() -> Result<[Figure], any Error> {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
@@ -274,7 +275,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         
         return collectionDataRepository.deleteCollectionData(for: id, id: collection.id)
     }
-
+    
     public func getPDFHeight() -> CGFloat {
         self.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
     }
