@@ -41,7 +41,7 @@ protocol FocusFigureUseCase {
     ) -> Result<VoidResponse, any Error>
     
     func makeFocusDocument(focusAnnotations: [FocusAnnotation], fileName: String) -> URL
-    
+
     func loadCollections () -> Result<[Figure], any Error>
     
     @discardableResult
