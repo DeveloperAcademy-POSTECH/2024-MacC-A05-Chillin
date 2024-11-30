@@ -49,7 +49,6 @@ struct MainPDFView: View {
     @State private var dragAmount: CGPoint?
     @State private var dragOffset: CGSize = .zero
     
-    @State private var menuButtonPosition: CGPoint = .zero
     private let publisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
     var body: some View {
@@ -135,6 +134,7 @@ struct MainPDFView: View {
                             
                             Button(action: {
                                 isFigSelected.toggle()
+                                mainPDFViewModel.isMenuSelected = false
                                 isCollectionSelected = false
                                 
                                 mainPDFViewModel.pdfDrawer.drawingTool = .none
@@ -178,6 +178,7 @@ struct MainPDFView: View {
                             Button(action: {
                                 withAnimation {
                                     mainPDFViewModel.isMenuSelected.toggle()
+                                    isFigSelected = false
                                 }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
@@ -189,15 +190,6 @@ struct MainPDFView: View {
                                             .foregroundStyle(.gray800)
                                     )
                             }
-                            .background(
-                                GeometryReader { geometry in
-                                    Color.clear
-                                        // 버튼의 위치 정보 받아오기
-                                        .onChange(of: geometry.frame(in: .global)) {  oldValue, newValue in
-                                            menuButtonPosition = newValue.origin
-                                        }
-                                }
-                            )
                         }
                         
                         HStack(spacing: 0) {
@@ -416,7 +408,6 @@ struct MainPDFView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .padding(.top, 50)
                         .padding(.trailing, 20)
-                        
                     }
                 }
                 
@@ -467,7 +458,6 @@ struct MainPDFView: View {
                     )
                 }
             }
-        
             .navigationBarHidden(true)
             .onAppear {
                 updateOrientation(with: geometry)
@@ -480,6 +470,20 @@ struct MainPDFView: View {
             }
             .onChange(of: geometry.size) {
                 updateOrientation(with: geometry)
+            }
+            .gesture(
+                mainPDFViewModel.isMenuSelected
+                    ? DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            print("터치 감지됨!")
+                            NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
+                        }
+                    : nil
+            )
+            .onReceive(publisher) { a in
+                if let _ = a.userInfo?["hitted"] as? Bool {
+                    mainPDFViewModel.isMenuSelected = false
+                }
             }
         }
     }
@@ -557,11 +561,6 @@ struct MainPDFView: View {
             }
             if isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
                 TemporaryAlertView(mode: "lasso")
-            }
-        }
-        .onReceive(publisher) { a in
-            if let _ = a.userInfo?["hitted"] as? Bool {
-                mainPDFViewModel.isMenuSelected = false
             }
         }
         
