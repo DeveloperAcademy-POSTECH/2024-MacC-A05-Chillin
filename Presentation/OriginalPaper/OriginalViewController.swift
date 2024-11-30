@@ -123,8 +123,6 @@ final class OriginalViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         // 집중모드 데이터 패치
         self.focusFigureViewModel.fetchAnnotations()
-        
-//        pageListViewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
     init(
@@ -277,8 +275,8 @@ extension OriginalViewController {
                     let num = Int(page.label ?? "") ?? -1
                     
                     self?.pageLabelView.text = "\(num) / \(document.pageCount)"
-                    self?.pageListViewModel.changedPageNumber = num
-                    self?.focusFigureViewModel.changedPageNumber = num
+                    self?.pageListViewModel.changedPageNumber = num-1
+                    self?.focusFigureViewModel.changedPageNumber = num-1
                 } else {
                     print("Document or page is nil")
                 }
