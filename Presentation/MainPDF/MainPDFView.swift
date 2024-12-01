@@ -107,13 +107,6 @@ struct MainPDFView: View {
                             }
                             .padding(.trailing, 24)
                             
-//                            Rectangle()
-//                                .frame(width: 1.2, height: 16)
-//                                // TODO: - 집중모드 개선 후 삭제
-//                                .foregroundStyle(.clear)
-//                                // .foregroundStyle(.primary4)
-//                                .padding(.horizontal, 16)
-                            
                             Button(action: {
                                 isReadMode.toggle()
                             }) {
@@ -465,6 +458,7 @@ struct MainPDFView: View {
                 self.focusFigureViewModel.isCollectionCaptured()
             }
             .onDisappear {
+                self.searchViewModel.removeAllAnnotations()
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
                 self.focusFigureViewModel.cancellables.removeAll()
             }
