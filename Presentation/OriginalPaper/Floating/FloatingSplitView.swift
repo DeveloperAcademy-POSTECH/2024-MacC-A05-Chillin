@@ -32,6 +32,8 @@ struct FloatingSplitView: View {
     let isCollectionSelected: Bool
     let onSelect: () -> Void
     
+    @State private var isSavedLocation: Bool = false
+    
     init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
@@ -73,8 +75,10 @@ struct FloatingSplitView: View {
                         
                         Menu {
                             Button(action: {
+                                self.focusFigureViewModel.selectedID = id
                                 floatingViewModel.saveFigImage(document: observableDocument)
                                 floatingViewModel.saveFigAlert()
+                                self.isSavedLocation = true
                                 
                                 print("Download Image")
                                 
@@ -140,7 +144,7 @@ struct FloatingSplitView: View {
                         .padding(.horizontal, 30)
                         .padding(.vertical, 14)
                     
-                    if floatingViewModel.isSaveImgAlert {
+                    if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id && isSavedLocation {
                         VStack {
                             Text("사진 앱에 저장되었습니다")
                                 .padding()
@@ -154,6 +158,9 @@ struct FloatingSplitView: View {
                                 .padding(.top, 20)
                             
                             Spacer()
+                        }
+                        .onDisappear {
+                            isSavedLocation = false
                         }
                     }
                 }

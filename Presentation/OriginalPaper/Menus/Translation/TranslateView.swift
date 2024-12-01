@@ -3,8 +3,6 @@ import Translation
 
 @available(iOS 18.0, *)
 struct TranslateView: View {
-    @EnvironmentObject private var flotingViewModel: FloatingViewModel
-
     @Binding var selectedText: String
     @Binding var translatePosition: CGRect
 
@@ -65,7 +63,7 @@ struct TranslateView: View {
                             isPopoverVisible = true
                         }
                     } catch {
-                        print(" 번역 중 에러 발생 ")
+                        print("translation do-catch")
                     }
                 }
                 .onAppear {
@@ -83,6 +81,12 @@ struct TranslateView: View {
                     if isTranslationComplete {
                         isPopoverVisible = true
                     }
+                }
+                .onDisappear {
+                    targetText = "" // 번역 결과 초기화
+                    isPopoverVisible = false // 팝업 숨기기
+                    configuration?.invalidate()
+                    configuration = nil
                 }
         }
     }

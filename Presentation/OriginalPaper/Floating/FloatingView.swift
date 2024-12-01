@@ -22,6 +22,8 @@ struct FloatingView: View {
     
     @State private var aspectRatio: CGFloat = 1.0
     
+    @State private var isSavedLocation: Bool = false
+    
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @ObservedObject var observableDocument: ObservableDocument
@@ -67,8 +69,10 @@ struct FloatingView: View {
                     
                     Menu {
                         Button(action: {
-                            floatingViewModel.saveFigImage(document: observableDocument)
-                            floatingViewModel.saveFigAlert()
+                            self.focusFigureViewModel.selectedID = id
+                            self.floatingViewModel.saveFigImage(document: observableDocument)
+                            self.floatingViewModel.saveFigAlert()
+                            self.isSavedLocation = true
                             
                             print("Download Image")
                             
@@ -110,7 +114,7 @@ struct FloatingView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 14)
                 
-                if floatingViewModel.isSaveImgAlert {
+                if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id && isSavedLocation {
                     VStack {
                         Text("사진 앱에 저장되었습니다")
                             .padding()
@@ -123,6 +127,9 @@ struct FloatingView: View {
                             .zIndex(1)                                  // ZStack에서의 순서 조정
                     }
                     .padding(.bottom, 48)
+                    .onDisappear {
+                        isSavedLocation = false
+                    }
                 }
             }
         }
