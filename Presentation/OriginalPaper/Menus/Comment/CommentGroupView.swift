@@ -111,6 +111,7 @@ private struct CommentInputView: View {
                             
                             _ = viewModel.commentService.editCommentData(for: viewModel.paperInfo.id, with: resultComment)
                             viewModel.comments[idx] = resultComment
+                            viewModel.tempCommentArray[idx] = resultComment
                             return
                         }
                         pdfViewModel.isCommentSaved = true

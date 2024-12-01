@@ -11,7 +11,7 @@ struct CommentCell: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
     @EnvironmentObject var viewModel: CommentViewModel
     
-    @State var comment: Comment // 선택된 comment
+    var comment: Comment // 선택된 comment
     
     var body: some View {
         HStack(alignment: .center) {
