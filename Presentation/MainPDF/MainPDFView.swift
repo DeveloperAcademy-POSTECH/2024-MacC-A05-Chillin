@@ -284,7 +284,7 @@ struct MainPDFView: View {
                                         .environmentObject(floatingViewModel)
                                         .environmentObject(focusFigureViewModel)
                                         .background(.white)
-                                        .frame(width: geometry.size.width * 0.22)
+                                        .frame(width: 252)
                                         .transition(.move(edge: .leading))
                                         .overlay(
                                             Rectangle()
@@ -295,50 +295,25 @@ struct MainPDFView: View {
                                     }
                                 }
                                 
-                                Spacer()
-                                
-                                ZStack {
-                                    if isFigSelected && !floatingViewModel.splitMode {
-                                        HStack(spacing: 0) {
-                                            FigureView(onSelect: { id, documentID, document, head in
-                                                floatingViewModel.isFigure = true
-                                                floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
-                                            })
-                                            .environmentObject(mainPDFViewModel)
-                                            .environmentObject(floatingViewModel)
-                                            .environmentObject(focusFigureViewModel)
-                                            .background(.white)
-                                            .frame(width: 252)
-                                            .transition(.move(edge: .leading))
-                                            .overlay(
-                                                Rectangle()
-                                                    .frame(width: 1.5)
-                                                    .foregroundStyle(.primary3),
-                                                alignment: .leading
-                                            )
-                                        }
-                                    }
-                                    
-                                    // TODO: - 모아보기 기능
-                                    if isCollectionSelected && !floatingViewModel.splitMode {
-                                        HStack(spacing: 0) {
-                                            CollectionView(onSelect: { id, documentID, document, head in
-                                                floatingViewModel.isFigure = false
-                                                floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
-                                            })
-                                            .environmentObject(mainPDFViewModel)
-                                            .environmentObject(floatingViewModel)
-                                            .environmentObject(focusFigureViewModel)
-                                            .background(.white)
-                                            .frame(width: 252)
-                                            .transition(.move(edge: .leading))
-                                            .overlay(
-                                                Rectangle()
-                                                    .frame(width: 1.5)
-                                                    .foregroundStyle(.primary3),
-                                                alignment: .leading
-                                            )
-                                        }
+                                // TODO: - 모아보기 기능
+                                if isCollectionSelected && !floatingViewModel.splitMode {
+                                    HStack(spacing: 0) {
+                                        CollectionView(onSelect: { id, documentID, document, head in
+                                            floatingViewModel.isFigure = false
+                                            floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
+                                        })
+                                        .environmentObject(mainPDFViewModel)
+                                        .environmentObject(floatingViewModel)
+                                        .environmentObject(focusFigureViewModel)
+                                        .background(.white)
+                                        .frame(width: 252)
+                                        .transition(.move(edge: .leading))
+                                        .overlay(
+                                            Rectangle()
+                                                .frame(width: 1.5)
+                                                .foregroundStyle(.primary3),
+                                            alignment: .leading
+                                        )
                                     }
                                 }
                             }
@@ -655,4 +630,3 @@ private struct MainView: View {
         }
     }
 }
-
