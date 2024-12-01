@@ -27,7 +27,7 @@ struct TranslateViewOlderVer: View {
             .padding(.vertical, 14)
             .padding(.horizontal, 18)
         }
-        .offset(x: 116, y: 16) 
+        .offset(y: 50)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // 화면 중간 상단에 고정
     }
 }
