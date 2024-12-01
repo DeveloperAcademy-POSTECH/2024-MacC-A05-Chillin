@@ -21,6 +21,7 @@ struct AppView: App {
             folderDataRepository: FolderDataRepositoryImpl()
         )
     )
+    @StateObject private var orientationManager: OrientationManager = .init()
     
     var body: some Scene {
         WindowGroup {
@@ -38,6 +39,7 @@ struct AppView: App {
             }
             .environmentObject(navigationCoordinator)
             .environmentObject(homeViewModel)
+            .environmentObject(orientationManager)
             .onAppear {
                 setSample()
             }

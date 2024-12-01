@@ -8,12 +8,8 @@
 import SwiftUI
 import PDFKit
 
-enum LayoutOrientation {
-    case vertical, horizontal
-}
 
 struct MainPDFView: View {
-    
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
@@ -42,7 +38,6 @@ struct MainPDFView: View {
     
     @State private var moveToFolderID: UUID? = nil
     
-    @State private var orientation: LayoutOrientation = .horizontal
     @State private var isModifyTitlePresented: Bool = false         // 타이틀 바꿀 때 활용하는 Bool값
     @State private var titleText: String = ""
     
@@ -50,7 +45,6 @@ struct MainPDFView: View {
     @State private var dragOffset: CGSize = .zero
     
     private let infoMenuHiddenPublisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
-    private let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         GeometryReader { geometry in
@@ -267,15 +261,14 @@ struct MainPDFView: View {
                             
                             Spacer()
                             
-
-                                MainOriginalView(orientation: $orientation, isFigSelected: $isFigSelected, isCollectionSelected: $isCollectionSelected, isReadMode: $isReadMode)
-                                    .environmentObject(mainPDFViewModel)
-                                    .environmentObject(floatingViewModel)
-                                    .environmentObject(commentViewModel)
-                                    .environmentObject(focusFigureViewModel)
-                                    .environmentObject(pageListViewModel)
-                                    .environmentObject(searchViewModel)
-                                    .environmentObject(indexViewModel)
+                            MainOriginalView(isFigSelected: $isFigSelected, isCollectionSelected: $isCollectionSelected, isReadMode: $isReadMode)
+                                .environmentObject(mainPDFViewModel)
+                                .environmentObject(floatingViewModel)
+                                .environmentObject(commentViewModel)
+                                .environmentObject(focusFigureViewModel)
+                                .environmentObject(pageListViewModel)
+                                .environmentObject(searchViewModel)
+                                .environmentObject(indexViewModel)
                             
                             
                             Spacer()
@@ -452,14 +445,6 @@ struct MainPDFView: View {
             }
             .navigationBarHidden(true)
             .onAppear {
-                switch UIDevice.current.orientation {
-                case .portrait, .portraitUpsideDown:
-                    self.orientation = .vertical
-                case .landscapeLeft, .landscapeRight:
-                    self.orientation = .horizontal
-                default:
-                    break
-                }
                 self.focusFigureViewModel.isFigureCaptured()
                 self.focusFigureViewModel.isCollectionCaptured()
             }
@@ -482,18 +467,6 @@ struct MainPDFView: View {
                     mainPDFViewModel.isMenuSelected = false
                 }
             }
-            .onReceive(orientationPublisher) { a in
-                let currentOrientation = UIDevice.current.orientation
-                
-                switch currentOrientation {
-                case .portrait, .portraitUpsideDown:
-                    self.orientation = .vertical
-                case .landscapeLeft, .landscapeRight:
-                    self.orientation = .horizontal
-                default:
-                    break
-                }
-            }
         }
     }
 }
@@ -504,15 +477,15 @@ private struct MainOriginalView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject private var orientationManager: OrientationManager
     
-    @Binding var orientation: LayoutOrientation
     @Binding var isFigSelected: Bool
     @Binding var isCollectionSelected: Bool
     @Binding var isReadMode: Bool
     
     
     var body: some View {
-        switch self.orientation {
+        switch self.orientationManager.type {
         case .vertical:
             VStack(spacing:0) {
                 if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
@@ -609,7 +582,7 @@ private struct MainOriginalView: View {
     }
     
     private var divider: some View {
-        if orientation == .vertical {
+        if orientationManager.type == .vertical {
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.gray300)
