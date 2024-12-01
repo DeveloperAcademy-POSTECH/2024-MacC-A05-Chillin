@@ -59,6 +59,8 @@ struct FigureCell: View {
     @State private var newFigName: String = ""
     @State private var isDeleteFigAlert: Bool = false
     
+    @State private var isSavedLocation: Bool = false
+    
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
@@ -93,10 +95,11 @@ struct FigureCell: View {
                             observableDocument: ObservableDocument(document: document),
                             newFigName: $newFigName,
                             isDeleteFigAlert: $isDeleteFigAlert,
+                            isSavedLocation: $isSavedLocation,
                             id: id
                         )
                         
-                        if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id {
+                        if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id && isSavedLocation {
                             VStack {
                                 Text("사진 앱에 저장되었습니다")
                                     .padding()
@@ -107,6 +110,9 @@ struct FigureCell: View {
                                     .cornerRadius(12)
                                     .transition(.opacity)
                                     .zIndex(1)
+                            }
+                            .onDisappear {
+                                isSavedLocation = false
                             }
                         }
                     }
