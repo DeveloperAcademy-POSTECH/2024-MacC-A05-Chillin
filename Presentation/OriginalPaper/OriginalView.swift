@@ -55,7 +55,7 @@ struct OriginalView: View {
                 // 코멘트뷰
                     ZStack {
                         if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
-                            CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
+                            CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
                         }
                     }
                     .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
@@ -63,7 +63,7 @@ struct OriginalView: View {
                     .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
                     .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
                 
-                // 코멘트 메뉴
+                // 코멘트 수정 삭제 뷰
                 if let comment = commentViewModel.comment {
                     if commentViewModel.isMenuTapped {
                         let position = commentViewModel.buttonPosition
@@ -73,7 +73,7 @@ struct OriginalView: View {
                             .map { $0.value }.first
                         if let point = position {
                             ZStack {
-                                CommentMenuView(viewModel: commentViewModel, comment: comment)
+                                CommentMenuView(comment: comment)
                             }
                             .position(x: point.x - 30, y: point.y - 110)
                             /// 애니메이션

@@ -10,7 +10,7 @@ import PDFKit
 
 struct CommentGroupView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
-    @StateObject var viewModel: CommentViewModel
+    @EnvironmentObject var viewModel: CommentViewModel
     @State var text: String = ""
     
     let changedSelection: PDFSelection
@@ -19,7 +19,7 @@ struct CommentGroupView: View {
         ZStack {
             VStack {
                 if pdfViewModel.isCommentTapped {
-                    CommentView(viewModel: viewModel, selectedComments: pdfViewModel.selectedComments)
+                    CommentView(selectedComments: pdfViewModel.selectedComments)
                 } else {
                     CommentInputView(viewModel: viewModel, changedSelection: changedSelection)
                 }
@@ -39,14 +39,12 @@ struct CommentGroupView: View {
 
 // MARK: - 저장된 코멘트 뷰
 private struct CommentView: View {
-    @StateObject var viewModel: CommentViewModel
-    
     var selectedComments: [Comment]
     
     var body: some View {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(selectedComments.indices, id: \.self) { index in
-                    CommentCell(viewModel: viewModel, comment: selectedComments[index])
+                    CommentCell(comment: selectedComments[index])
                         .padding(.leading, 22)
                         .padding(.trailing, 12)
                     
@@ -144,7 +142,7 @@ private struct CommentInputView: View {
 // MARK: - 수정,삭제 뷰
 struct CommentMenuView: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
-    @StateObject var viewModel: CommentViewModel
+    @EnvironmentObject var viewModel: CommentViewModel
     var comment: Comment    /// 선택된 comment
     
     var body: some View {

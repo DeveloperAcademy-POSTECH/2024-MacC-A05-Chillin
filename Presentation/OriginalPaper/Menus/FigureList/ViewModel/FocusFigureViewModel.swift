@@ -74,9 +74,10 @@ extension FocusFigureViewModel {
             
             let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
-            if let focusUrl = try? URL.init(resolvingBookmarkData: paperInfo!.focusURL!, bookmarkDataIsStale: &isStale) {
-                self.focusDocument = PDFDocument(url: focusUrl)
-            }
+            // 🔥
+//            if let focusUrl = try? URL.init(resolvingBookmarkData: paperInfo!.focusURL!, bookmarkDataIsStale: &isStale) {
+//                self.focusDocument = PDFDocument(url: focusUrl)
+//            }
             
             if result.isEmpty {
                 self.figureStatus = .empty

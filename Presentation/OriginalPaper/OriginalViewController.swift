@@ -227,16 +227,6 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-// 지워야 함 🔥
-//        self.searchViewModel.$searchDestination
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] destination in
-//                guard let destination = destination,
-//                      let page = destination.page else { return }
-//                self?.mainPDFView.go(to: page)
-//            }
-//            .store(in: &self.cancellable)
-        
         self.indexViewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
@@ -477,6 +467,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         
         if let tappedAnnotation = page.annotation(at: pageLocation) {
             viewModel.isCommentTapped.toggle()
+            commentViewModel.isMenuTapped = false
             
             if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
                     viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
