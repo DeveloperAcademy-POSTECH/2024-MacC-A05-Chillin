@@ -79,6 +79,7 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
+        self.focusFigureViewModel.fetchAnnotations()
     }
     // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
@@ -119,11 +120,6 @@ final class OriginalViewController: UIViewController {
         }
     }
     
-    
-    override func viewWillAppear(_ animated: Bool) {
-        // 집중모드 데이터 패치
-        self.focusFigureViewModel.fetchAnnotations()
-    }
     
     init(
         viewModel: MainPDFViewModel,

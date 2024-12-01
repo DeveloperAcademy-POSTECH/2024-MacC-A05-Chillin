@@ -15,6 +15,7 @@ struct OriginalView: View {
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject var commentViewModel: CommentViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject private var orientationManager: OrientationManager
     
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
@@ -90,15 +91,17 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    withAnimation {
-                        if viewModel.isCommentVisible {
-                            keyboardOffset = calculateOffset(
-                                for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
-                        }
-                        if commentViewModel.isEditMode {
-                            keyboardOffset = calculateOffset(
-                                for: commentViewModel.commentPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                if self.orientationManager.type == .horizontal {
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation {
+                            if viewModel.isCommentVisible {
+                                keyboardOffset = calculateOffset(
+                                    for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                            }
+                            if commentViewModel.isEditMode {
+                                keyboardOffset = calculateOffset(
+                                    for: commentViewModel.commentPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                            }
                         }
                     }
                 }
