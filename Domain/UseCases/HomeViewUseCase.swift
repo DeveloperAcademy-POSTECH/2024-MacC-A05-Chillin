@@ -71,10 +71,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
         
-        guard url.startAccessingSecurityScopedResource() else {
-            return nil
-        }
-        
+        let _ = url.startAccessingSecurityScopedResource()
         defer { url.stopAccessingSecurityScopedResource() }
         
         let tempDoc = PDFDocument(url: url)
@@ -309,11 +306,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
-            // TODO: url 오류 대응
-            if !isSample {
-                guard url.startAccessingSecurityScopedResource() else { return nil }
-                do { url.stopAccessingSecurityScopedResource() }
-            }
+            let _ = url.startAccessingSecurityScopedResource()
+            defer { url.stopAccessingSecurityScopedResource() }
             
             if let _ = try? Data(contentsOf: fileURL) {
                 var dupNum = 1
