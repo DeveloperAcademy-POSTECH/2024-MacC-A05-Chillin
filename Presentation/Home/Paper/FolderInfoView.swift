@@ -81,10 +81,7 @@ struct FolderInfoView: View {
                     }
                     
                     Button(role: .destructive) {
-                        // TODO: - Alert 오류 추후 수정 필요
-//                        self.isDeleteConfirm.toggle()
-                        self.homeViewModel.deleteFolder(at: id)
-                        onDelete()
+                        self.isDeleteConfirm.toggle()
                     } label: {
                         HStack(spacing: 0) {
                             Text("삭제")
@@ -261,19 +258,19 @@ struct FolderInfoView: View {
         .onChange(of: self.isEditingFolderMemo) {
             self.homeViewModel.memoText = homeViewModel.changedMemo ?? ""
         }
-        // TODO: - Alert 수정 필요
-//        .alert(isPresented: $isDeleteConfirm) {
-//            Alert(
-//                title: Text("정말 삭제하시겠습니까?"),
-//                message: Text("삭제된 파일은 복구할 수 없습니다."),
-//                primaryButton: .default(Text("취소")),
-//                secondaryButton: .destructive(Text("삭제")) {
-//                    let ids = [id]
-//                    self.homeViewModel.deleteFolder(ids: ids)
-//                    onDelete()
-//                }
-//            )
-//        }
+        .alert(
+            "정말 삭제하시겠습니까?",
+            isPresented: $isDeleteConfirm,
+            presenting: id
+        ) { id in
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                self.homeViewModel.deleteFolder(at: id)
+                onDelete()
+            }
+        } message: { id in
+            Text("삭제된 파일은 복구할 수 없습니다.")
+        }
     }
     
     @ViewBuilder

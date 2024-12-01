@@ -20,6 +20,8 @@ struct FigureMenu: View {
     
     let id: UUID
     
+    @State private var head: String = ""
+    
     var body: some View {
         VStack {
             Spacer()
@@ -80,11 +82,6 @@ struct FigureMenu: View {
                     // Fig 삭제
                     Button(role: .destructive, action: {
                         isDeleteFigAlert = true
-                        focusFigureViewModel.deleteFigure(at: id)
-                        floatingViewModel.deselect(uuid: id)
-                        
-                        print("Delete Fig")
-                        
                     }, label: {
                         HStack {
                             Text("삭제")
@@ -114,6 +111,24 @@ struct FigureMenu: View {
                 
                 Spacer()
             }
+        }
+        .onAppear {
+            if let figure = focusFigureViewModel.figures.first(where: { $0.uuid == id }) {
+                self.head = figure.head
+            }
+        }
+        .alert(
+            "\(head)을 삭제하시겠습니까?",
+            isPresented: $isDeleteFigAlert,
+            presenting: id
+        ) { id in
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                self.focusFigureViewModel.deleteFigure(at: id)
+                self.floatingViewModel.deselect(uuid: id)
+            }
+        } message: { id in
+            Text("삭제한 항목은 복구할 수 없습니다.")
         }
     }
 }

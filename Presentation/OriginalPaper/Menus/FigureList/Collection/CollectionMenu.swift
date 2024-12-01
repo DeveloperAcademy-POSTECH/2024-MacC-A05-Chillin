@@ -19,6 +19,8 @@ struct CollectionMenu: View {
     
     let id: UUID
     
+    @State private var head: String = ""
+    
     var body: some View {
         VStack {
             Spacer()
@@ -79,8 +81,6 @@ struct CollectionMenu: View {
                     // Fig 삭제
                     Button(role: .destructive, action: {
                         isDeleteFigAlert = true
-                        focusFigureViewModel.deleteCollection(at: id)
-                        floatingViewModel.deselect(uuid: id)
                     }, label: {
                         HStack {
                             Text("삭제")
@@ -110,6 +110,24 @@ struct CollectionMenu: View {
                 
                 Spacer()
             }
+        }
+        .onAppear {
+            if let collection = focusFigureViewModel.collections.first(where: { $0.uuid == id }) {
+                self.head = collection.head
+            }
+        }
+        .alert(
+            "\(head)을 삭제하시겠습니까?",
+            isPresented: $isDeleteFigAlert,
+            presenting: id
+        ) { id in
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                self.focusFigureViewModel.deleteCollection(at: id)
+                self.floatingViewModel.deselect(uuid: id)
+            }
+        } message: { id in
+            Text("삭제된 항목은 복구할 수 없습니다.")
         }
     }
 }

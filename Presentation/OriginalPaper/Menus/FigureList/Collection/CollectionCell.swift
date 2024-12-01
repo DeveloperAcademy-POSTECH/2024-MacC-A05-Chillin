@@ -61,7 +61,6 @@ struct CollectionCell: View {
                             id: id
                         )
                         
-                        // TODO: - [브리] 이미지 save 확인
                         if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id && isSavedLocation {
                             VStack {
                                 Text("사진 앱에 저장되었습니다")
