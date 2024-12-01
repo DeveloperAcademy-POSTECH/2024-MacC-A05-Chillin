@@ -190,24 +190,23 @@ extension MainPDFViewModel {
             var bounds = selection.bounds(for: page)
             let originBoundsHeight = bounds.size.height
             
-            print("Original bounds height: \(originBoundsHeight)")
-            
-            if originBoundsHeight > 18 {
+            switch originBoundsHeight {
+            case 18... :
                 bounds.size.height *= 0.45
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
-            } else if originBoundsHeight > 16 {
+            case 16..<18 :
                 bounds.size.height *= 0.5
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
-            } else if originBoundsHeight > 11 {
+            case 11..<16 :
                 bounds.size.height *= 0.55
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
-            } else if originBoundsHeight > 10 {
+            case 10..<11 :
                 bounds.size.height *= 0.6
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
-            } else if originBoundsHeight > 9 {
+            case 9..<10 :
                 bounds.size.height *= 0.7
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
-            } else {
+            default :
                 bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
             }
@@ -252,22 +251,23 @@ extension MainPDFViewModel {
                         /// 하이라이트 높이 조정
                         let originalBoundsHeight = bounds.size.height
                         
-                        if originalBoundsHeight > 18 {
+                        switch originalBoundsHeight {
+                        case 18... :
                             bounds.size.height *= 0.45
                             bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
-                        } else if originalBoundsHeight > 16 {
+                        case 16..<18 :
                             bounds.size.height *= 0.5
                             bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
-                        } else if originalBoundsHeight > 11 {
+                        case 11..<16 :
                             bounds.size.height *= 0.55
                             bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
-                        } else if originalBoundsHeight > 10 {
+                        case 10..<11 :
                             bounds.size.height *= 0.6
                             bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
-                        } else if originalBoundsHeight > 9 {
+                        case 9..<10 :
                             bounds.size.height *= 0.7
                             bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
-                        } else {
+                        default :
                             bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
                             bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
                         }
