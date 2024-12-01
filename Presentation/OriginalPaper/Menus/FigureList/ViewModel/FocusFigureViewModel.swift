@@ -32,7 +32,7 @@ class FocusFigureViewModel: ObservableObject {
     @Published public var figureDocuments: [PDFDocument] = []
     @Published public var collectionDocuments: [PDFDocument] = []
     @Published public var figureStatus: FigureStatus = .networkDisconnection
-    @Published public var changedPageNumber: Int?
+    @Published public var changedPageNumber: Int = 0
     
     @Published public var isEditFigName: Bool = false
     @Published public var selectedID: UUID?
@@ -46,6 +46,8 @@ class FocusFigureViewModel: ObservableObject {
     
     var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
+    
+    public var focusDocument: PDFDocument?
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
@@ -68,9 +70,13 @@ extension FocusFigureViewModel {
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
+            var isStale = false
             
             let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
+            if let focusUrl = try? URL.init(resolvingBookmarkData: paperInfo!.focusURL!, bookmarkDataIsStale: &isStale) {
+                self.focusDocument = PDFDocument(url: focusUrl)
+            }
             
             if result.isEmpty {
                 self.figureStatus = .empty
@@ -107,6 +113,8 @@ extension FocusFigureViewModel {
     
     
     private func downloadFocusFigure() {
+        if self.figureStatus == .loading { return }
+        
         NWPathMonitor().startMonitoring { isConnected in
             if !isConnected {
                 DispatchQueue.main.async {
@@ -145,6 +153,12 @@ extension FocusFigureViewModel {
                             self.figureStatus = .complete
                             
                             self.saveFigures(figures: layout.toCoreData())
+                            
+                            let url = self.focusFigureUseCase.makeFocusDocument(focusAnnotations: self.focusPages, fileName: paperInfo.title)
+                            self.focusDocument = PDFDocument(url: url)
+                            
+                            self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = try? url.bookmarkData(options: .minimalBookmark)
+                            paperInfo.focusURL = try? url.bookmarkData(options: .minimalBookmark)
                             
                             self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
                             paperInfo.isFigureSaved = true
@@ -284,34 +298,6 @@ extension FocusFigureViewModel {
             document.insert(page, at: pageIndex)
             pageIndex += 1
         }
-        
-        // TODO: 밑 주석 추후에 수정 예정
-        /*
-         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: "test.pdf")
-         
-         let renderer = UIGraphicsPDFRenderer(bounds: .zero)
-         try! renderer.writePDF(to: url) { context in
-         let pdfContext = context.cgContext
-         
-         self.focusPages.forEach { annotation in
-         guard let page = self.focusFigureUseCase.pdfSharedData.document?
-         .page(at: annotation.page - 1)?.copy() as? PDFPage else {
-         return
-         }
-         page.displaysAnnotations = false
-         
-         guard let pdfRef = page.pageRef else { return }
-         
-         var mediaBox = pdfRef.getBoxRect(.mediaBox)
-         pdfContext.beginPage(mediaBox: &mediaBox)
-         pdfContext.drawPDFPage(pdfRef)
-         }
-         
-         pdfContext.endPage()
-         }
-         
-         let resultDocument = PDFDocument(url: url)!
-         */
         
         return document
     }

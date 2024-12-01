@@ -169,7 +169,6 @@ struct CollectionView: View {
         }
         // 원문보기 페이지 변경시 자동 스크롤
         .onReceive(focusFigureViewModel.$changedPageNumber) { num in
-            guard let num = num else { return }
             updateScrollIndex(for: num)
         }
     }

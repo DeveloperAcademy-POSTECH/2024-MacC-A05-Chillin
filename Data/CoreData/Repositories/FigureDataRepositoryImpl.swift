@@ -134,6 +134,7 @@ class FigureDataRepositoryImpl: FigureDataRepository {
                 dataToEdit.isFavorite = info.isFavorite
                 dataToEdit.memo = info.memo
                 dataToEdit.isFigureSaved = info.isFigureSaved
+                dataToEdit.focusURL = info.focusURL
                 
                 try dataContext.save()
                 return .success(VoidResponse())

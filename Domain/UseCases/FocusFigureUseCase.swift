@@ -40,6 +40,8 @@ protocol FocusFigureUseCase {
         with figure: Figure
     ) -> Result<VoidResponse, any Error>
     
+    func makeFocusDocument(focusAnnotations: [FocusAnnotation], fileName: String) -> URL
+
     func loadCollections () -> Result<[Figure], any Error>
     
     @discardableResult
@@ -130,6 +132,118 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         return figureDataRepository.deleteFigureData(for: id, id: figure.id)
     }
     
+    public func makeFocusDocument(focusAnnotations: [FocusAnnotation], fileName: String) -> URL {
+        let tempPath = FileManager.default.temporaryDirectory
+            .appending(path: "combine.pdf")
+        
+        let widthArray: [CGFloat] = {
+            var result = [CGFloat]()
+            
+            var tempHead = focusAnnotations.first!.header
+            var tempWidth: CGFloat = -1
+            
+            for annotation in focusAnnotations {
+                if tempHead != annotation.header {
+                    result.append(tempWidth)
+                    tempWidth = -1
+                    tempHead = annotation.header
+                }
+                tempWidth = max(tempWidth, annotation.position.width)
+            }
+            
+            result.append(tempWidth)
+            return result
+        }()
+        
+        let heightArray: [CGFloat] = {
+            var result: [CGFloat] = []
+            var headString = focusAnnotations.first!.header
+            
+            var temp: CGFloat = 0
+            
+            for annotation in focusAnnotations {
+                if headString != annotation.header {
+                    headString = annotation.header
+                    result.append(temp)
+                    temp = 0
+                    continue
+                }
+                
+                temp += annotation.position.height
+            }
+            result.append(temp)
+            
+            return result
+        }()
+        
+        let annotationArray: [[FocusAnnotation]] = {
+            var resultArray: [[FocusAnnotation]] = []
+            
+            var head = focusAnnotations.first!.header
+            
+            var tempArray = [FocusAnnotation]()
+            
+            for annotation in focusAnnotations {
+                if annotation.header != head {
+                    head = annotation.header
+                    resultArray.append(tempArray)
+                    tempArray.removeAll()
+                    continue
+                }
+                
+                tempArray.append(annotation)
+            }
+            resultArray.append(tempArray)
+            return resultArray
+        }()
+        
+        
+        UIGraphicsBeginPDFContextToFile(tempPath.path(), .zero, nil)
+        
+        for (index, annotations) in annotationArray.enumerated() {
+            let width = widthArray[index]
+            let height = heightArray[index]
+            
+            UIGraphicsBeginPDFPageWithInfo(.init(origin: .zero, size: .init(width: width + 60, height: height)), nil)
+            
+            var currentY: CGFloat = 0
+            
+            for i in annotations {
+                // Render the page content
+                if let context = UIGraphicsGetCurrentContext() {
+                    let page = self.pdfSharedData.document!
+                        .page(at: i.page - 1)!.copy() as! PDFPage
+                    
+                    let crop = i.position
+                    
+                    let original = page.bounds(for: .mediaBox)
+                    let croppedRect = original.intersection(crop)
+                    page.displaysAnnotations = false
+                    
+                    page.setBounds(croppedRect, for: .mediaBox)
+                    
+                    context.saveGState()
+                    context.translateBy(x: 30, y: currentY + i.position.height) // Adjust y-position
+                    context.scaleBy(x: 1, y: -1) // Flip coordinate system
+                    page.draw(with: .mediaBox, to: context) // Draw the page
+                    context.restoreGState()
+                }
+                
+                // Move to the next page's position
+                currentY += i.position.height
+            }
+        }
+        
+        UIGraphicsEndPDFContext()
+        
+        let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            .appending(path: "\(fileName)_combine.pdf")
+        
+        try! FileManager.default.moveItem(at: tempPath, to: savingURL)
+        
+        return savingURL
+    }
+    
     public func loadCollections() -> Result<[Figure], any Error> {
         guard let id = self.pdfSharedData.paperInfo?.id else {
             return .failure(NetworkManagerError.badRequest)
@@ -161,7 +275,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         
         return collectionDataRepository.deleteCollectionData(for: id, id: collection.id)
     }
-
+    
     public func getPDFHeight() -> CGFloat {
         self.pdfSharedData.document!.page(at: 0)!.bounds(for: .mediaBox).height
     }
