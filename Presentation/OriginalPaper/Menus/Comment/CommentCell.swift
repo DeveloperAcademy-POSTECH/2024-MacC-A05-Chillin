@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CommentCell: View {
     @EnvironmentObject var pdfViewModel: MainPDFViewModel
-    @StateObject var viewModel: CommentViewModel
+    @EnvironmentObject var viewModel: CommentViewModel
     
     var comment: Comment // 선택된 comment
     
@@ -49,7 +49,7 @@ struct CommentCell: View {
                 GeometryReader { geometry in
                     Color.clear
                     /// 탭했을 때 누른 버튼의 위치 값을 가져와야 함
-                    .onAppear {
+                    .onChange(of: viewModel.isMenuTapped) {
                         let position = geometry.frame(in: .global).origin
                         /// 버튼 위치를 comment의 id와 함께 저장하기
                         viewModel.buttonPosition[comment.id] = position
