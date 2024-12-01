@@ -54,15 +54,15 @@ struct OriginalView: View {
                 }
                 
                 // 코멘트뷰
-                    ZStack {
-                        if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
-                            CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
-                        }
+                ZStack {
+                    if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
+                        CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
                     }
-                    .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
-                    .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
-                    .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
-                    .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
+                }
+                .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
+                .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
+                .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
+                .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
                 
                 // 코멘트 수정 삭제 뷰
                 if let comment = commentViewModel.comment {
@@ -91,7 +91,7 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if self.orientationManager.type == .horizontal {
+                if self.orientationManager.type == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation {
                             if viewModel.isCommentVisible {

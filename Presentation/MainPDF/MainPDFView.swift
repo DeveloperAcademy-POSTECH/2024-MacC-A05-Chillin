@@ -488,49 +488,57 @@ private struct MainOriginalView: View {
         switch self.orientationManager.type {
         case .vertical:
             VStack(spacing:0) {
-                if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
-                   let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                    FloatingSplitView(
-                        id: splitDetails.id,
-                        documentID: splitDetails.documentID,
-                        document: splitDetails.document,
-                        head: splitDetails.head,
-                        isFigSelected: isFigSelected,
-                        isCollectionSelected: isCollectionSelected,
-                        onSelect: {
-                            withAnimation {
-                                mainPDFViewModel.isPaperViewFirst.toggle()
+                ZStack {
+                    if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
+                       let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                        FloatingSplitView(
+                            id: splitDetails.id,
+                            documentID: splitDetails.documentID,
+                            document: splitDetails.document,
+                            head: splitDetails.head,
+                            isFigSelected: isFigSelected,
+                            isCollectionSelected: isCollectionSelected,
+                            onSelect: {
+                                withAnimation {
+                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                                }
                             }
-                        }
-                    )
-                    .environmentObject(floatingViewModel)
-                    .environmentObject(focusFigureViewModel)
-                    
-                    divider
+                        )
+                        .environmentObject(floatingViewModel)
+                        .environmentObject(focusFigureViewModel)
+                        
+                        divider
+                    }
+                }
+                .zIndex(1)
+                
+                ZStack {
+                    MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
                 }
                 
-                MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
-                
-                if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
-                   let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                    divider
-                    
-                    FloatingSplitView(
-                        id: splitDetails.id,
-                        documentID: splitDetails.documentID,
-                        document: splitDetails.document,
-                        head: splitDetails.head,
-                        isFigSelected: isFigSelected,
-                        isCollectionSelected: isCollectionSelected,
-                        onSelect: {
-                            withAnimation {
-                                mainPDFViewModel.isPaperViewFirst.toggle()
+                ZStack {
+                    if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
+                       let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                        divider
+                        
+                        FloatingSplitView(
+                            id: splitDetails.id,
+                            documentID: splitDetails.documentID,
+                            document: splitDetails.document,
+                            head: splitDetails.head,
+                            isFigSelected: isFigSelected,
+                            isCollectionSelected: isCollectionSelected,
+                            onSelect: {
+                                withAnimation {
+                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                                }
                             }
-                        }
-                    )
-                    .environmentObject(floatingViewModel)
-                    .environmentObject(focusFigureViewModel)
+                        )
+                        .environmentObject(floatingViewModel)
+                        .environmentObject(focusFigureViewModel)
+                    }
                 }
+                .zIndex(1)
             }
         case .horizontal:
             HStack(spacing:0) {
