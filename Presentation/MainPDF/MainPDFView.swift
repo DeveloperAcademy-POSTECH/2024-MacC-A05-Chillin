@@ -499,7 +499,8 @@ private struct MainOriginalView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
-    @EnvironmentObject private var orientationManager: OrientationManager
+    
+    @State private var orientation: LayoutOrientation = .horizontal
     
     @Binding var isFigSelected: Bool
     @Binding var isCollectionSelected: Bool
@@ -507,7 +508,7 @@ private struct MainOriginalView: View {
     
     
     var body: some View {
-        switch self.orientationManager.type {
+        switch self.orientation {
         case .vertical:
             VStack(spacing:0) {
                 ZStack {
@@ -608,11 +609,26 @@ private struct MainOriginalView: View {
                     .environmentObject(focusFigureViewModel)
                 }
             }
+            .onAppear {
+                getOrientationFromFace()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                switch UIDevice.current.orientation {
+                case .portrait, .portraitUpsideDown:
+                    self.orientation = .vertical
+                case .landscapeLeft, .landscapeRight:
+                    self.orientation = .horizontal
+                case .faceUp, .faceDown:
+                   self.getOrientationFromFace()
+                default:
+                    break
+                }
+            }
         }
     }
     
     private var divider: some View {
-        if orientationManager.type == .vertical {
+        if orientation == .vertical {
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.gray300)
@@ -620,6 +636,20 @@ private struct MainOriginalView: View {
             Rectangle()
                 .frame(width: 1)
                 .foregroundStyle(.gray300)
+        }
+    }
+    
+    private func getOrientationFromFace() {
+        guard let scene = UIApplication.shared.connectedScenes.first,
+              let sceneDelegate = scene as? UIWindowScene else { return }
+        
+        switch sceneDelegate.interfaceOrientation {
+        case .portrait, .portraitUpsideDown:
+            self.orientation = .vertical
+        case .landscapeLeft, .landscapeRight:
+            self.orientation = .horizontal
+        default:
+            self.orientation =  .horizontal
         }
     }
 }

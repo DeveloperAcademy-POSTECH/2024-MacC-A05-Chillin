@@ -15,11 +15,13 @@ struct OriginalView: View {
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject var commentViewModel: CommentViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
-    @EnvironmentObject private var orientationManager: OrientationManager
     
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
     @State private var pdfViewOffset: CGFloat = 50
+    
+    @State private var orientation: LayoutOrientation = .horizontal
+    
     private let screenHeight = UIScreen.main.bounds.height
     
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
@@ -89,7 +91,7 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if self.orientationManager.type == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
+                if self.orientation == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation {
                             if viewModel.isCommentVisible {
@@ -110,6 +112,21 @@ struct OriginalView: View {
                     keyboardOffset = 0
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                switch UIDevice.current.orientation {
+                case .portrait, .portraitUpsideDown:
+                    self.orientation = .vertical
+                case .landscapeLeft, .landscapeRight:
+                    self.orientation = .horizontal
+                case .faceUp, .faceDown:
+                   self.getOrientationFromFace()
+                default:
+                    break
+                }
+            }
+        }
+        .onAppear {
+            self.getOrientationFromFace()
         }
     }
     
@@ -122,6 +139,20 @@ struct OriginalView: View {
             return (position.y - keyboardTopY) + margin
         } else {
             return 0                                    /// 키보드에 안 가려짐
+        }
+    }
+    
+    private func getOrientationFromFace() {
+        guard let scene = UIApplication.shared.connectedScenes.first,
+              let sceneDelegate = scene as? UIWindowScene else { return }
+        
+        switch sceneDelegate.interfaceOrientation {
+        case .portrait, .portraitUpsideDown:
+            self.orientation = .vertical
+        case .landscapeLeft, .landscapeRight:
+            self.orientation = .horizontal
+        default:
+            self.orientation =  .horizontal
         }
     }
 }
