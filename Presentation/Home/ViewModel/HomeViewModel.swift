@@ -66,6 +66,7 @@ class HomeViewModel: ObservableObject {
     @Published public var selectedMenu: Options = .main
     
     @Published public var changedTitle: String?
+    @Published public var changedMemo: String?
     
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []

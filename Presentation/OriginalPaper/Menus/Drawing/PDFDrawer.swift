@@ -242,7 +242,10 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     endCaptureMode()
                 }
                 
-                let pageNum = PDFSharedData.shared.document?.index(for: page) ?? 0
+                let totalPageCount = PDFSharedData.shared.document?.pageCount ?? 0
+                print("🔔 current page Index : \(PDFSharedData.shared.document?.index(for: page) ?? 0)")
+                let pageNum = min(PDFSharedData.shared.document?.index(for: page) ?? 0, totalPageCount - 1)
+                
                 let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 
                 let coords = "\(pageNum + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"

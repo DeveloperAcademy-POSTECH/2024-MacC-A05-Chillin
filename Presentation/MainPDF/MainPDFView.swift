@@ -162,7 +162,7 @@ struct MainPDFView: View {
                                     )
                             }
                             .padding(.trailing, 25)
-
+                            
                             Button(action: {
                                 withAnimation {
                                     mainPDFViewModel.isMenuSelected.toggle()
@@ -284,7 +284,7 @@ struct MainPDFView: View {
                                         .environmentObject(floatingViewModel)
                                         .environmentObject(focusFigureViewModel)
                                         .background(.white)
-                                        .frame(width: geometry.size.width * 0.22)
+                                        .frame(width: 252)
                                         .transition(.move(edge: .leading))
                                         .overlay(
                                             Rectangle()
@@ -306,7 +306,7 @@ struct MainPDFView: View {
                                         .environmentObject(floatingViewModel)
                                         .environmentObject(focusFigureViewModel)
                                         .background(.white)
-                                        .frame(width: geometry.size.width * 0.22)
+                                        .frame(width: 252)
                                         .transition(.move(edge: .leading))
                                         .overlay(
                                             Rectangle()
@@ -325,10 +325,7 @@ struct MainPDFView: View {
                 }
                 .blur(radius: isEditingTitle || isEditingMemo || createMovingFolder ? 20 : 0)
                 
-                Color.black
-                    .opacity(isEditingTitle || isEditingMemo || isMovingFolder || createMovingFolder ? 0.5 : 0)
-                    .ignoresSafeArea(edges: .bottom)
-                
+                // MARK: - 드로잉 툴바
                 if mainPDFViewModel.toolMode == .drawing {
                     GeometryReader { gp in
                         ZStack {
@@ -368,6 +365,30 @@ struct MainPDFView: View {
                         .padding(.leading, isListSelected || isSearchSelected ? 272 : 20)
                     }
                 }
+                
+                
+                if #unavailable(iOS 18.0) {
+                    if mainPDFViewModel.toolMode == .translate {
+                        TranslateViewOlderVer() // 번역 모드가 활성화되었을 때 표시
+                    }
+                } else {
+                    if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
+                        TemporaryAlertView(mode: "translate") // 번역 모드에서 선택된 텍스트가 없을 때 표시
+                    }
+                }
+                
+                if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
+                    TemporaryAlertView(mode: "comment") // 코멘트 모드에서 선택된 텍스트가 없을 때 표시
+                }
+                
+                if isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
+                    TemporaryAlertView(mode: "lasso") // Lasso 도구가 활성화되어 있고 캡처 모드일 때 표시
+                }
+                
+                
+                Color.black
+                    .opacity(isEditingTitle || isEditingMemo || isMovingFolder || createMovingFolder ? 0.5 : 0)
+                    .ignoresSafeArea(edges: .bottom)
                 
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
@@ -447,6 +468,7 @@ struct MainPDFView: View {
             .onAppear {
                 self.focusFigureViewModel.isFigureCaptured()
                 self.focusFigureViewModel.isCollectionCaptured()
+                self.floatingViewModel.subscribeToFocusFigureViewModel(focusFigureViewModel)
             }
             .onDisappear {
                 self.searchViewModel.removeAllAnnotations()
@@ -455,12 +477,12 @@ struct MainPDFView: View {
             }
             .gesture(
                 mainPDFViewModel.isMenuSelected
-                    ? DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
-                            print("터치 감지됨!")
-                            NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
-                        }
-                    : nil
+                ? DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        print("터치 감지됨!")
+                        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
+                    }
+                : nil
             )
             .onReceive(infoMenuHiddenPublisher) { a in
                 if let _ = a.userInfo?["hitted"] as? Bool {
@@ -617,24 +639,6 @@ private struct MainView: View {
             if isReadMode {
                 ConcentrateView()
             }
-            
-            // 18 미만 버전에서 번역 모드 on 일 때 말풍선 띄우기
-            if #unavailable(iOS 18.0) {
-                if mainPDFViewModel.toolMode == .translate {
-                    TranslateViewOlderVer()
-                }
-            } else {
-                if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
-                    TemporaryAlertView(mode: "translate")
-                }
-            }
-            if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
-                TemporaryAlertView(mode: "comment")
-            }
-            if isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
-                TemporaryAlertView(mode: "lasso")
-            }
         }
     }
 }
-

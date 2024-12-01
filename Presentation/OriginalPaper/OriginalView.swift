@@ -48,8 +48,6 @@ struct OriginalView: View {
                 if viewModel.toolMode == .translate {
                     if #available(iOS 18.0, *) {
                         TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
-                    } else {
-                        
                     }
                 }
                 
