@@ -20,6 +20,8 @@ struct CollectionCell: View {
     @State private var newFigName: String = ""
     @State private var isDeleteFigAlert: Bool = false
     
+    @State private var isSavedLocation: Bool = false
+    
     var body: some View {
         VStack(spacing: 0) {
             ZStack  {
@@ -55,11 +57,12 @@ struct CollectionCell: View {
                             observableDocument: ObservableDocument(document: document),
                             newFigName: $newFigName,
                             isDeleteFigAlert: $isDeleteFigAlert,
+                            isSavedLocation: $isSavedLocation,
                             id: id
                         )
                         
                         // TODO: - [브리] 이미지 save 확인
-                        if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id {
+                        if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id && isSavedLocation {
                             VStack {
                                 Text("사진 앱에 저장되었습니다")
                                     .padding()
@@ -70,6 +73,9 @@ struct CollectionCell: View {
                                     .cornerRadius(12)
                                     .transition(.opacity)
                                     .zIndex(1)
+                            }
+                            .onDisappear {
+                                isSavedLocation = false
                             }
                         }
                     }

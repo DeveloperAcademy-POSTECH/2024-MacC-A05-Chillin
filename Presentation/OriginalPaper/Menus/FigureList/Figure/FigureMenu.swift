@@ -16,6 +16,7 @@ struct FigureMenu: View {
     
     @Binding var newFigName: String
     @Binding var isDeleteFigAlert: Bool
+    @Binding var isSavedLocation: Bool
     
     let id: UUID
     
@@ -55,6 +56,7 @@ struct FigureMenu: View {
                         floatingViewModel.saveFigImage(document: observableDocument)
                         floatingViewModel.saveFigAlert()
                         self.focusFigureViewModel.selectedID = id
+                        self.isSavedLocation = true
                         
                         print("Save Fig")
                         
