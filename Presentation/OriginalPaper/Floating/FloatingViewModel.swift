@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PDFKit
+import Combine
 
 struct DroppedFigure: Identifiable {
     var id: UUID
@@ -31,6 +32,8 @@ class FloatingViewModel: ObservableObject {
     
     @Published var splitMode: Bool = false
     @Published var isSaveImgAlert: Bool = false
+    
+    var cancellables = Set<AnyCancellable>()
     
     func toggleSelection(id: UUID, for documentID: String, document: PDFDocument, head: String) {
         if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
@@ -235,6 +238,47 @@ class FloatingViewModel: ObservableObject {
         let previousIndex = (currentIndex - 1 + array.count) % array.count
         
         return array[previousIndex].uuid
+    }
+}
+
+extension FloatingViewModel {
+    @MainActor
+    func subscribeToFocusFigureViewModel(_ focusFigureViewModel: FocusFigureViewModel) {
+        focusFigureViewModel.figureUpdatedPublisher
+            .sink { [weak self] figure in
+                self?.handleNewFigure(figure, from: focusFigureViewModel)
+            }
+            .store(in: &cancellables)
+        
+        focusFigureViewModel.collectionUpdatedPublisher
+            .sink { [weak self] collection in
+                self?.handleNewCollection(collection, from: focusFigureViewModel)
+            }
+            .store(in: &cancellables)
+    }
+    
+    @MainActor
+    private func handleNewFigure(_ figure: FigureAnnotation, from focusFigureViewModel: FocusFigureViewModel) {
+        
+        if let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == figure.uuid }) {
+            guard let document = focusFigureViewModel.setFigureDocument(for: index) else { return }
+            
+            self.isFigure = true
+                    
+            toggleSelection(id: figure.uuid, for: figure.id, document: document, head: figure.head)
+        }
+    }
+    
+    @MainActor
+    private func handleNewCollection(_ collection: FigureAnnotation, from focusFigureViewModel: FocusFigureViewModel) {
+        
+        if let index = focusFigureViewModel.collections.firstIndex(where: { $0.uuid == collection.uuid }) {
+            guard let document = focusFigureViewModel.setCollectionDocument(for: index) else { return }
+            
+            self.isFigure = false
+            
+            toggleSelection(id: collection.uuid, for: collection.id, document: document, head: collection.head)
+        }
     }
 }
 

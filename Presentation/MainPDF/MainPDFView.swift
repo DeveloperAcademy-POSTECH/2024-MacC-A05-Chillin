@@ -463,6 +463,7 @@ struct MainPDFView: View {
                 updateOrientation(with: geometry)
                 self.focusFigureViewModel.isFigureCaptured()
                 self.focusFigureViewModel.isCollectionCaptured()
+                self.floatingViewModel.subscribeToFocusFigureViewModel(focusFigureViewModel)
             }
             .onDisappear {
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)

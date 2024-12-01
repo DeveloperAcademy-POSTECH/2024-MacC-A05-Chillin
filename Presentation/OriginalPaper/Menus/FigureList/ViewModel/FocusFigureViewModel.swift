@@ -43,6 +43,8 @@ class FocusFigureViewModel: ObservableObject {
     
     let figurePublisher = NotificationCenter.default.publisher(for: .isFigureCaptured)
     let collectionPublisher = NotificationCenter.default.publisher(for: .isCollectionCaptured)
+    let figureUpdatedPublisher = PassthroughSubject<FigureAnnotation, Never>()
+    let collectionUpdatedPublisher = PassthroughSubject<FigureAnnotation, Never>()
     
     var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
@@ -325,10 +327,13 @@ extension FocusFigureViewModel {
                     head: "\(figure.head ?? "New") \(newFigureCount)", // head에 "New 1", "New 2" 형식으로 넘버링
                     coords: figure.coords
                 )
+                let updateEntity = updatedFigure.toEntity(pageHeight: height)
                 
                 // Figure를 저장하고, figures에 변환된 엔티티를 추가
                 self?.focusFigureUseCase.saveFigures(with: updatedFigure)
-                self?.figures.append(updatedFigure.toEntity(pageHeight: height))
+                self?.figures.append(updateEntity)
+                
+                self?.figureUpdatedPublisher.send(updateEntity)
             }
             .store(in: &self.cancellables)
     }
@@ -354,9 +359,12 @@ extension FocusFigureViewModel {
                     head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
                     coords: collection.coords
                 )
+                let updateEntity = updateCollection.toEntity(pageHeight: height)
                 
                 self?.focusFigureUseCase.saveCollections(with: updateCollection)
-                self?.collections.append(updateCollection.toEntity(pageHeight: height))
+                self?.collections.append(updateEntity)
+                
+                self?.collectionUpdatedPublisher.send(updateEntity)
             }
             .store(in: &self.cancellables)
     }
