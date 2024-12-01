@@ -14,22 +14,22 @@ struct TemporaryAlertView: View {
     private var alertWidth: CGFloat {
         switch mode {
         case "translate":
-            return 200
+            return 235
         case "comment":
-            return 230
+            return 255
         case "lasso":
             return 250
         default:
-            return 200
+            return 250
         }
     }
     
     private var alertMessage: String {
         switch mode {
         case "translate":
-            return "번역할 텍스트를 드래그하세요"
+            return "번역할 텍스트를 꾹 눌러 선택하세요"
         case "comment":
-            return "코멘트를 남길 부분을 드래그하세요"
+            return "코멘트를 남길 부분을 꾹 눌러 선택하세요"
         case "lasso":
             return "추가할 figure 영역을 드래그하세요"
         default:
@@ -51,13 +51,14 @@ struct TemporaryAlertView: View {
         }
         .onAppear {
             isPresented = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 withAnimation(.easeInOut(duration: 0.1)) {
                     isPresented = false
                 }
             }
         }
-        .offset(y: 16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .offset(y: 30)
+        .position(x: UIScreen.main.bounds.width / 2)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
