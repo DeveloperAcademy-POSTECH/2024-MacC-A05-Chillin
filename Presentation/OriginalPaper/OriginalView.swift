@@ -28,7 +28,7 @@ struct OriginalView: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
+                    OriginalViewControllerRepresent() // PDF 뷰를 표시
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .onReceive(publisher) { a in
@@ -39,8 +39,8 @@ struct OriginalView: View {
                             viewModel.isCommentTapped = true
                         } else {                                    /// 뷰 바깥 영역을 탭했을 때 메뉴가 꺼져있으면
                             viewModel.isCommentTapped = false       /// 코멘트 뷰가 닫히게
+                            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                         }
-                        viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: false)
                     }
                 }
                 
@@ -52,17 +52,17 @@ struct OriginalView: View {
                 }
                 
                 // 코멘트뷰
-                    ZStack {
-                        if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
-                            CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
-                        }
+                ZStack {
+                    if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
+                        CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
                     }
-                    .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
-                    .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
-                    .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
-                    .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
+                }
+                .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
+                .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
+                .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
+                .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
                 
-                // 코멘트 메뉴
+                // 코멘트 수정 삭제 뷰
                 if let comment = commentViewModel.comment {
                     if commentViewModel.isMenuTapped {
                         let position = commentViewModel.buttonPosition
@@ -72,7 +72,7 @@ struct OriginalView: View {
                             .map { $0.value }.first
                         if let point = position {
                             ZStack {
-                                CommentMenuView(viewModel: commentViewModel, comment: comment)
+                                CommentMenuView(comment: comment)
                             }
                             .position(x: point.x - 30, y: point.y - 110)
                             /// 애니메이션
@@ -89,7 +89,7 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if self.orientationManager.type == .horizontal {
+                if self.orientationManager.type == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation {
                             if viewModel.isCommentVisible {
