@@ -76,7 +76,7 @@ struct CollectionView: View {
                         Spacer()
                         
                         Text("플로팅 리스트")
-                            .reazyFont(.body3)
+                            .reazyFont(.body1)
                             .foregroundStyle(.gray800)
                         
                         Spacer()
