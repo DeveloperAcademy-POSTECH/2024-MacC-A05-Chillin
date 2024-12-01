@@ -13,7 +13,6 @@ struct PaperInfoView: View {
     let id: UUID
     let image: Data
     let title: String
-//    @State var memo: String?
     var isFavorite: Bool
     
     @State var isStarSelected: Bool
