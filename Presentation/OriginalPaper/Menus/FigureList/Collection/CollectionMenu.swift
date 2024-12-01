@@ -80,6 +80,7 @@ struct CollectionMenu: View {
                     Button(role: .destructive, action: {
                         isDeleteFigAlert = true
                         focusFigureViewModel.deleteCollection(at: id)
+                        floatingViewModel.deselect(uuid: id)
                     }, label: {
                         HStack {
                             Text("삭제")

@@ -81,6 +81,7 @@ struct FigureMenu: View {
                     Button(role: .destructive, action: {
                         isDeleteFigAlert = true
                         focusFigureViewModel.deleteFigure(at: id)
+                        floatingViewModel.deselect(uuid: id)
                         
                         print("Delete Fig")
                         
