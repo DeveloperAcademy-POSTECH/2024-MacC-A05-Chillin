@@ -18,6 +18,8 @@ final class ThumbnailTableViewController: UIViewController {
     
     var cancellables: Set<AnyCancellable> = []
     
+    var preRenderedCells: [ThumbnailTableViewCell] = []
+    
     init(pageListViewModel: PageListViewModel) {
         self.pageListViewModel = pageListViewModel
         
@@ -40,7 +42,7 @@ final class ThumbnailTableViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        cacheCells()
         setUI()
         setBinding()
     }
@@ -52,6 +54,12 @@ final class ThumbnailTableViewController: UIViewController {
 
 // MARK: - UI 초기 설정
 extension ThumbnailTableViewController {
+    private func cacheCells() {
+        self.preRenderedCells = pageListViewModel.thumnailImages.enumerated().map { index, thumbnail in
+            ThumbnailTableViewCell(pageNum: index, thumbnail: thumbnail)
+        }
+    }
+    
     private func setUI() {
         self.view.addSubview(self.thumbnailTableView)
         NSLayoutConstraint.activate([
@@ -67,9 +75,25 @@ extension ThumbnailTableViewController {
         
         self.pageListViewModel.$changedPageNumber
             .sink { [weak self] num in
-                guard let num = num else { return }
+                guard let self = self, let num = num else { return }
+                
                 NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": num])
-                self?.thumbnailTableView.scrollToRow(at: .init(row: num, section: 0), at: .top, animated: true)
+                DispatchQueue.main.async {
+                    self.thumbnailTableView.reloadData() /// 데이터 리로드
+                    DispatchQueue.main.async {
+                        let totalRows = self.thumbnailTableView.numberOfRows(inSection: 0)
+                        let targetRow = num
+                        if targetRow < totalRows && targetRow >= 0 {
+                            self.thumbnailTableView.scrollToRow(
+                                at: IndexPath(row: targetRow, section: 0),
+                                at: .top,
+                                animated: true
+                            )
+                        } else {
+                            print("Invalid row: \(targetRow). Total rows: \(totalRows)")
+                        }
+                    }
+                }
             }
             .store(in: &self.cancellables)
         
@@ -96,17 +120,8 @@ extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSour
     
     /// 들어갈 셀 추가
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let row = indexPath.row
-        
-        let cell = ThumbnailTableViewCell(pageNum: row, thumbnail: self.pageListViewModel.thumnailImages[row])
-        if self.pageListViewModel.changedPageNumber == row {
-            cell.selectCell()
-        } else if self.pageListViewModel.changedPageNumber == nil, row == 0 {
-            cell.selectCell()
+            return preRenderedCells[indexPath.row]
         }
-        
-        return cell
-    }
     
     /// 셀 높이
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -115,8 +130,6 @@ extension ThumbnailTableViewController: UITableViewDelegate, UITableViewDataSour
     
     /// 셀 선택 되었을 때
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        guard let cell = tableView.cellForRow(at: indexPath) as? ThumbnailTableViewCell else { return }
-        
         NotificationCenter.default.post(name: .didSelectThumbnail, object: self, userInfo: ["num": indexPath.row])
         self.pageListViewModel.changedPageNumber = indexPath.row
         self.pageListViewModel.goToPage(at: indexPath.row)

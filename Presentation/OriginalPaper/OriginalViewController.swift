@@ -123,8 +123,6 @@ final class OriginalViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         // 집중모드 데이터 패치
         self.focusFigureViewModel.fetchAnnotations()
-        
-//        pageListViewModel.goToPage(at: viewModel.changedPageNumber)
     }
     
     init(
@@ -273,13 +271,15 @@ extension OriginalViewController {
                     return
                 }
                 guard let page = self?.mainPDFView.currentPage else { return }
-                guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
-                
-                // TODO: 반복 호출 수정 필요
-//                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
-                
-                self?.pageListViewModel.changedPageNumber = num
-                self?.focusFigureViewModel.changedPageNumber = num
+                if let document = PDFSharedData.shared.document {
+                    let num = Int(page.label ?? "") ?? -1
+                    
+                    self?.pageLabelView.text = "\(num) / \(document.pageCount)"
+                    self?.pageListViewModel.changedPageNumber = num - 1
+                    self?.focusFigureViewModel.changedPageNumber = num - 1
+                } else {
+                    print("Document or page is nil")
+                }
             }
             .store(in: &self.cancellable)
         
