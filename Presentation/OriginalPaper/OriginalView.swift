@@ -27,7 +27,7 @@ struct OriginalView: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
+                    OriginalViewControllerRepresent() // PDF 뷰를 표시
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .onReceive(publisher) { a in

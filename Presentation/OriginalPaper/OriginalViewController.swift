@@ -190,6 +190,7 @@ extension OriginalViewController {
         
         // pdfView midX 가져오기
         self.commentViewModel.getPDFCoordinates(pdfView: mainPDFView)
+        
         // PDF 문서 로드 완료 후 드로잉 데이터 패치
         DispatchQueue.main.async {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
@@ -229,14 +230,15 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        self.searchViewModel.$searchDestination
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] destination in
-                guard let destination = destination,
-                      let page = destination.page else { return }
-                self?.mainPDFView.go(to: page)
-            }
-            .store(in: &self.cancellable)
+// 지워야 함 🔥
+//        self.searchViewModel.$searchDestination
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] destination in
+//                guard let destination = destination,
+//                      let page = destination.page else { return }
+//                self?.mainPDFView.go(to: page)
+//            }
+//            .store(in: &self.cancellable)
         
         self.indexViewModel.$selectedDestination
             .receive(on: DispatchQueue.main)

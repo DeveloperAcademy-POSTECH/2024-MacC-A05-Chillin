@@ -16,8 +16,7 @@ struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
     @EnvironmentObject private var pageListViewModel: PageListViewModel
     @EnvironmentObject private var searchViewModel: SearchViewModel
     @EnvironmentObject private var indexViewModel: IndexViewModel
-    
-    @StateObject var commentViewModel: CommentViewModel
+    @EnvironmentObject var commentViewModel: CommentViewModel
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
         OriginalViewController(
