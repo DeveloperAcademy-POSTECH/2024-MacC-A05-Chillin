@@ -38,27 +38,29 @@ struct TemporaryAlertView: View {
     }
     
     var body: some View {
-        ZStack {
-            if isPresented {
-                RoundedRectangle(cornerRadius: 12)
-                    .frame(width: alertWidth, height: 40)
-                    .foregroundStyle(.gray700)
-                
-                Text(alertMessage)
-                    .foregroundStyle(.gray100)
-                    .reazyFont(.button2)
+        GeometryReader { geometry in
+            ZStack {
+                if isPresented {
+                    RoundedRectangle(cornerRadius: 12)
+                        .frame(width: alertWidth, height: 40)
+                        .foregroundStyle(.gray700)
+                        .position(x: geometry.size.width / 2, y: 100)
+                    
+                    Text(alertMessage)
+                        .foregroundStyle(.gray100)
+                        .reazyFont(.button2)
+                        .position(x: geometry.size.width / 2, y: 100)
+                }
             }
-        }
-        .onAppear {
-            isPresented = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPresented = false
+            .onAppear {
+                isPresented = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        isPresented = false
+                    }
                 }
             }
         }
-        .offset(y: 30)
-        .position(x: UIScreen.main.bounds.width / 2)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .edgesIgnoringSafeArea(.all)
     }
 }
