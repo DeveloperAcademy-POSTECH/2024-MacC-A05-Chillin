@@ -40,7 +40,11 @@ protocol FocusFigureUseCase {
         with figure: Figure
     ) -> Result<VoidResponse, any Error>
     
-    func makeFocusDocument(focusAnnotations: [FocusAnnotation], fileName: String) -> URL
+    func makeFocusDocument(
+        focusAnnotations: [FocusAnnotation],
+        fileName: String,
+        completion: @escaping (URL) -> Void
+    )
 
     func loadCollections () -> Result<[Figure], any Error>
     
@@ -132,7 +136,11 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         return figureDataRepository.deleteFigureData(for: id, id: figure.id)
     }
     
-    public func makeFocusDocument(focusAnnotations: [FocusAnnotation], fileName: String) -> URL {
+    public func makeFocusDocument(
+        focusAnnotations: [FocusAnnotation],
+        fileName: String,
+        completion: @escaping (URL) -> Void
+    ) {
         let tempPath = FileManager.default.temporaryDirectory
             .appending(path: "combine.pdf")
         
@@ -197,51 +205,52 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
             return resultArray
         }()
         
-        
-        UIGraphicsBeginPDFContextToFile(tempPath.path(), .zero, nil)
-        
-        for (index, annotations) in annotationArray.enumerated() {
-            let width = widthArray[index]
-            let height = heightArray[index]
+        DispatchQueue.global().async {
+            UIGraphicsBeginPDFContextToFile(tempPath.path(), .zero, nil)
             
-            UIGraphicsBeginPDFPageWithInfo(.init(origin: .zero, size: .init(width: width + 60, height: height)), nil)
-            
-            var currentY: CGFloat = 0
-            
-            for i in annotations {
-                // Render the page content
-                if let context = UIGraphicsGetCurrentContext() {
-                    let page = self.pdfSharedData.document!
-                        .page(at: i.page - 1)!.copy() as! PDFPage
-                    
-                    let crop = i.position
-                    
-                    let original = page.bounds(for: .mediaBox)
-                    let croppedRect = original.intersection(crop)
-                    page.displaysAnnotations = false
-                    
-                    page.setBounds(croppedRect, for: .mediaBox)
-                    
-                    context.saveGState()
-                    context.translateBy(x: 30, y: currentY + i.position.height) // Adjust y-position
-                    context.scaleBy(x: 1, y: -1) // Flip coordinate system
-                    page.draw(with: .mediaBox, to: context) // Draw the page
-                    context.restoreGState()
-                }
+            for (index, annotations) in annotationArray.enumerated() {
+                let width = widthArray[index]
+                let height = heightArray[index]
                 
-                // Move to the next page's position
-                currentY += i.position.height
+                UIGraphicsBeginPDFPageWithInfo(.init(origin: .zero, size: .init(width: width + 60, height: height)), nil)
+                
+                var currentY: CGFloat = 0
+                
+                for i in annotations {
+                    // Render the page content
+                    if let context = UIGraphicsGetCurrentContext() {
+                        let page = self.pdfSharedData.document!
+                            .page(at: i.page - 1)!.copy() as! PDFPage
+                        
+                        let crop = i.position
+                        
+                        let original = page.bounds(for: .mediaBox)
+                        let croppedRect = original.intersection(crop)
+                        page.displaysAnnotations = false
+                        
+                        page.setBounds(croppedRect, for: .mediaBox)
+                        
+                        context.saveGState()
+                        context.translateBy(x: 30, y: currentY + i.position.height) // Adjust y-position
+                        context.scaleBy(x: 1, y: -1) // Flip coordinate system
+                        page.draw(with: .mediaBox, to: context) // Draw the page
+                        context.restoreGState()
+                    }
+                    
+                    // Move to the next page's position
+                    currentY += i.position.height
+                }
             }
+            
+            UIGraphicsEndPDFContext()
+            
+            let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                .appending(path: "\(fileName)_combine.pdf")
+            
+            try! FileManager.default.moveItem(at: tempPath, to: savingURL)
+            
+            completion(savingURL)
         }
-        
-        UIGraphicsEndPDFContext()
-        
-        let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            .appending(path: "\(fileName)_combine.pdf")
-        
-        try! FileManager.default.moveItem(at: tempPath, to: savingURL)
-        
-        return savingURL
     }
     
     public func loadCollections() -> Result<[Figure], any Error> {

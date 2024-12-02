@@ -54,6 +54,10 @@ class FocusFigureViewModel: ObservableObject {
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
     }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
+    }
 }
 
 
@@ -156,7 +160,12 @@ extension FocusFigureViewModel {
                             
                             self.saveFigures(figures: layout.toCoreData())
                             
-                            let url = self.focusFigureUseCase.makeFocusDocument(focusAnnotations: self.focusPages, fileName: paperInfo.title)
+                            self.focusFigureUseCase.makeFocusDocument(
+                                focusAnnotations: self.focusPages,
+                                fileName: paperInfo.title) {
+                                    self.focusDocument = PDFDocument(url: $0)
+                                }
+                            
                             self.focusDocument = PDFDocument(url: url)
                             
                             self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = try? url.bookmarkData(options: .minimalBookmark)
@@ -164,8 +173,6 @@ extension FocusFigureViewModel {
                             
                             self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
                             paperInfo.isFigureSaved = true
-                            
-                            NotificationCenter.default.post(name: .changeHomePaperInfo, object: paperInfo, userInfo: nil)
                             
                             self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         }
