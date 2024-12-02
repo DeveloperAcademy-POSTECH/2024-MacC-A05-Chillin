@@ -261,8 +261,6 @@ struct MainPDFView: View {
                                     .transition(.move(edge: .leading))
                             }
                             
-                            Spacer()
-                            
                             MainOriginalView(isFigSelected: $isFigSelected, isCollectionSelected: $isCollectionSelected, isReadMode: $isReadMode)
                                 .environmentObject(mainPDFViewModel)
                                 .environmentObject(floatingViewModel)
@@ -272,52 +270,43 @@ struct MainPDFView: View {
                                 .environmentObject(searchViewModel)
                                 .environmentObject(indexViewModel)
                             
+                            if isFigSelected && !floatingViewModel.splitMode {
+                                FigureView(onSelect: { id, documentID, document, head in
+                                    floatingViewModel.isFigure = true
+                                    floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
+                                })
+                                .environmentObject(mainPDFViewModel)
+                                .environmentObject(floatingViewModel)
+                                .environmentObject(focusFigureViewModel)
+                                .background(.white)
+                                .frame(width: 252)
+                                .transition(.move(edge: .leading))
+                                .overlay(
+                                    Rectangle()
+                                        .frame(width: 1.5)
+                                        .foregroundStyle(.primary3),
+                                    alignment: .leading
+                                )
+                            }
                             
-                            Spacer()
-                            
-                            ZStack {
-                                if isFigSelected && !floatingViewModel.splitMode {
-                                    HStack(spacing: 0) {
-                                        FigureView(onSelect: { id, documentID, document, head in
-                                            floatingViewModel.isFigure = true
-                                            floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
-                                        })
-                                        .environmentObject(mainPDFViewModel)
-                                        .environmentObject(floatingViewModel)
-                                        .environmentObject(focusFigureViewModel)
-                                        .background(.white)
-                                        .frame(width: 252)
-                                        .transition(.move(edge: .leading))
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(width: 1.5)
-                                                .foregroundStyle(.primary3),
-                                            alignment: .leading
-                                        )
-                                    }
-                                }
-                                
-                                // TODO: - 모아보기 기능
-                                if isCollectionSelected && !floatingViewModel.splitMode {
-                                    HStack(spacing: 0) {
-                                        CollectionView(onSelect: { id, documentID, document, head in
-                                            floatingViewModel.isFigure = false
-                                            floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
-                                        })
-                                        .environmentObject(mainPDFViewModel)
-                                        .environmentObject(floatingViewModel)
-                                        .environmentObject(focusFigureViewModel)
-                                        .background(.white)
-                                        .frame(width: 252)
-                                        .transition(.move(edge: .leading))
-                                        .overlay(
-                                            Rectangle()
-                                                .frame(width: 1.5)
-                                                .foregroundStyle(.primary3),
-                                            alignment: .leading
-                                        )
-                                    }
-                                }
+                            // TODO: - 모아보기 기능
+                            if isCollectionSelected && !floatingViewModel.splitMode {
+                                CollectionView(onSelect: { id, documentID, document, head in
+                                    floatingViewModel.isFigure = false
+                                    floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
+                                })
+                                .environmentObject(mainPDFViewModel)
+                                .environmentObject(floatingViewModel)
+                                .environmentObject(focusFigureViewModel)
+                                .background(.white)
+                                .frame(width: 252)
+                                .transition(.move(edge: .leading))
+                                .overlay(
+                                    Rectangle()
+                                        .frame(width: 1.5)
+                                        .foregroundStyle(.primary3),
+                                    alignment: .leading
+                                )
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

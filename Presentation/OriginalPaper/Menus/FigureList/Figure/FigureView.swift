@@ -142,13 +142,14 @@ struct FigureView: View {
                                 ForEach(focusFigureViewModel.figures, id: \.self) { item in
                                     let id = item.uuid
                                     FigureCell(id: id, onSelect: onSelect)
+                                        .listRowBackground(Color.list)
                                         .padding(.bottom, 21)
                                         .listRowSeparator(.hidden)
                                         .id(id)
                                 }
                             }
-                            .padding(.horizontal, 10)
                             .listStyle(.plain)
+                            .padding(.horizontal, 10)
                             .onChange(of: scrollToIndex) { _, newValue in
                                 if let index = newValue, index < focusFigureViewModel.figures.count {
                                     let id = focusFigureViewModel.figures[index].uuid // `uuid`를 사용
@@ -162,6 +163,7 @@ struct FigureView: View {
                                 }
                             }
                         }
+                        .background(.list)
                     }
                     
                     VStack(spacing: 0){

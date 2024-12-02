@@ -154,6 +154,11 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         let tempPath = FileManager.default.temporaryDirectory
             .appending(path: "combine.pdf")
         
+        let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            .appending(path: "\(fileName)_combine.pdf")
+        
+        if let _ = try? Data.init(contentsOf: savingURL) { return }
+        
         let widthArray: [CGFloat] = {
             var result = [CGFloat]()
             
@@ -254,11 +259,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
             
             UIGraphicsEndPDFContext()
             
-            let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                .appending(path: "\(fileName)_combine.pdf")
-            
             try! FileManager.default.moveItem(at: tempPath, to: savingURL)
-            
             completion(savingURL)
         }
     }
