@@ -34,4 +34,8 @@ class PDFSharedData {
             self.paperInfo = paperInfo
         }
     }
+    
+    public func updatePaperInfo() {
+        NotificationCenter.default.post(name: .changeHomePaperInfo, object: self.paperInfo!)
+    }
 }

@@ -54,6 +54,10 @@ class FocusFigureViewModel: ObservableObject {
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
     }
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
+    }
 }
 
 
@@ -169,8 +173,6 @@ extension FocusFigureViewModel {
                             
                             self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
                             paperInfo.isFigureSaved = true
-                            
-                            NotificationCenter.default.post(name: .changeHomePaperInfo, object: paperInfo, userInfo: nil)
                             
                             self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         }
