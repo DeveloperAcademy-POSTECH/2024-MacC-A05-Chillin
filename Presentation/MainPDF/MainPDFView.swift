@@ -180,41 +180,43 @@ struct MainPDFView: View {
                             }
                         }
                         
-                        HStack(spacing: 0) {
-                            Spacer()
-                            
-                            ForEach(Buttons.allCases, id: \.self) { btn in
-                                ButtonsView(button: $mainPDFViewModel.selectedButton, selectedButton: btn) {
-                                    if mainPDFViewModel.selectedButton == btn {
-                                        mainPDFViewModel.selectedButton = nil
-                                        mainPDFViewModel.toolMode = .none
-                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                    } else {
-                                        mainPDFViewModel.selectedButton = btn
-                                        mainPDFViewModel.pdfDrawer.endCaptureMode()
-                                        focusFigureViewModel.isCaptureMode = false
+                        if !isReadMode {
+                            HStack(spacing: 0) {
+                                Spacer()
+                                
+                                ForEach(Buttons.allCases, id: \.self) { btn in
+                                    ButtonsView(button: $mainPDFViewModel.selectedButton, selectedButton: btn) {
+                                        if mainPDFViewModel.selectedButton == btn {
+                                            mainPDFViewModel.selectedButton = nil
+                                            mainPDFViewModel.toolMode = .none
+                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                        } else {
+                                            mainPDFViewModel.selectedButton = btn
+                                            mainPDFViewModel.pdfDrawer.endCaptureMode()
+                                            focusFigureViewModel.isCaptureMode = false
+                                        }
+                                        
+                                        switch mainPDFViewModel.selectedButton {
+                                        case .drawing:
+                                            mainPDFViewModel.toolMode = .drawing
+                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                        case .comment:
+                                            mainPDFViewModel.toolMode = .comment
+                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                        case .translate:
+                                            NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
+                                            mainPDFViewModel.toolMode = .translate
+                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                        default:
+                                            mainPDFViewModel.toolMode = .none
+                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                        }
                                     }
-                                    
-                                    switch mainPDFViewModel.selectedButton {
-                                    case .drawing:
-                                        mainPDFViewModel.toolMode = .drawing
-                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                    case .comment:
-                                        mainPDFViewModel.toolMode = .comment
-                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                    case .translate:
-                                        NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                                        mainPDFViewModel.toolMode = .translate
-                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                    default:
-                                        mainPDFViewModel.toolMode = .none
-                                        mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                    }
+                                    .padding(.horizontal, 18)
                                 }
-                                .padding(.horizontal, 18)
+                                
+                                Spacer()
                             }
-                            
-                            Spacer()
                         }
                     }
                     .padding(.top, 10)
