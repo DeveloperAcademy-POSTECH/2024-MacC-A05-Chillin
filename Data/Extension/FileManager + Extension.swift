@@ -17,8 +17,7 @@ extension FileManager {
         guard !fileExists(atPath: newUrl.path()) else { return false }
         
         do {
-            try copyItem(at: fileURL, to: newUrl)
-            try removeItem(at: fileURL)
+            try moveItem(at: fileURL, to: newUrl)
         } catch {
             print(error)
             return false

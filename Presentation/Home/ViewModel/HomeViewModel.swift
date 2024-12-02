@@ -65,7 +65,7 @@ class HomeViewModel: ObservableObject {
     @Published public var selectedFilter: SearchFilter = .total
     @Published public var selectedMenu: Options = .main
     
-    @Published public var changedTitle: String?
+    public var changedTitle: String?
     @Published public var changedMemo: String?
     
     // 진입 경로 추적 스택
@@ -167,7 +167,16 @@ extension HomeViewModel {
             .sink { [weak self] noti in
                 if let paper = noti.object as? PaperInfo,
                    let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
-                    self?.paperInfos[idx] = paper
+                    guard var toChangePaper = self?.paperInfos[idx] else { return }
+                    
+                    toChangePaper.isFavorite = paper.isFavorite
+                    toChangePaper.isFigureSaved = paper.isFigureSaved
+                    toChangePaper.memo = paper.memo
+                    toChangePaper.focusURL = paper.focusURL
+                    
+                    self?.paperInfos[idx] = toChangePaper
+                    
+                    self?.homeViewUseCase.editPDF(toChangePaper)
                 }
             }
             .store(in: &self.cancellables)
@@ -239,6 +248,7 @@ extension HomeViewModel {
             switch result {
             case .success:
                 paperInfos[index].title = title
+                PDFSharedData.shared.paperInfo?.title = title
             case .failure(let error):
                 print(error)
                 self.errorStatus = .fileNameDuplication
