@@ -36,7 +36,7 @@ struct OriginalView: View {
                 .gesture(
                     viewModel.isCommentTapped
                     ? DragGesture(minimumDistance: 0)
-                        .onChanged { newValue in
+                        .onChanged { _ in
                             NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
                         }
                     : nil
@@ -89,6 +89,11 @@ struct OriginalView: View {
                         }
                     }
                 }
+            }
+            .onChange(of: geometry.size) {
+                commentViewModel.isMenuTapped = false
+                viewModel.isCommentTapped = false
+                viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
             }
             .offset(y: -keyboardOffset)
             .animation(.smooth(duration: 0.5), value: keyboardOffset)
