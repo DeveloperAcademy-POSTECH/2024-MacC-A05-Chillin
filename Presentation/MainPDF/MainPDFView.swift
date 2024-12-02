@@ -374,11 +374,13 @@ struct MainPDFView: View {
                         TranslateViewOlderVer() // 번역 모드가 활성화되었을 때 표시
                     }
                 } else {
-                    if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
-                        TemporaryAlertView(mode: "translate") // 번역 모드에서 선택된 텍스트가 없을 때 표시
-                    } else {
-                        TranslateView()
-                            .environmentObject(mainPDFViewModel)
+                    if mainPDFViewModel.toolMode == .translate {
+                        if mainPDFViewModel.selectedText.isEmpty {
+                            TemporaryAlertView(mode: "translate") // 번역 모드에서 선택된 텍스트가 없을 때 표시
+                        } else {
+                            TranslateView()
+                                .environmentObject(mainPDFViewModel)
+                        }
                     }
                 }
                 
