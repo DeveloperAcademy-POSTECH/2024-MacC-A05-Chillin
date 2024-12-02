@@ -50,6 +50,7 @@ class FocusFigureViewModel: ObservableObject {
     private var focusFigureUseCase: FocusFigureUseCase
     
     public var focusDocument: PDFDocument?
+    private var isStartFetching: Bool = false
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
@@ -63,6 +64,8 @@ class FocusFigureViewModel: ObservableObject {
 
 extension FocusFigureViewModel {
     public func fetchAnnotations() {
+        if self.isStartFetching { return }
+        defer { self.isStartFetching = false }
         
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
@@ -157,25 +160,25 @@ extension FocusFigureViewModel {
                         DispatchQueue.main.async {
                             self.figures = layout.toFigureEntities(pageHeight: height)
                             self.focusPages = layout.toFocusEntities(pageHeight: height)
-                            self.figureStatus = .complete
-                            
-                            self.saveFigures(figures: layout.toCoreData())
                             
                             self.focusFigureUseCase.makeFocusDocument(
                                 focusAnnotations: self.focusPages,
                                 fileName: paperInfo.title) {
                                     self.focusDocument = PDFDocument(url: $0)
+                                    
+                                    let focusURLData = try? $0.bookmarkData(options: .minimalBookmark)
+                                    
+                                    self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
+                                    paperInfo.focusURL = focusURLData
+                                    
+                                    self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                                    paperInfo.isFigureSaved = true
+                                    
+                                    self.saveFigures(figures: layout.toCoreData())
+                                    self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                                    
+                                    self.figureStatus = .complete
                                 }
-                            
-                            self.focusDocument = PDFDocument(url: url)
-                            
-                            self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = try? url.bookmarkData(options: .minimalBookmark)
-                            paperInfo.focusURL = try? url.bookmarkData(options: .minimalBookmark)
-                            
-                            self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
-                            paperInfo.isFigureSaved = true
-                            
-                            self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         }
                     case .failure(let error):
                         DispatchQueue.main.async {
