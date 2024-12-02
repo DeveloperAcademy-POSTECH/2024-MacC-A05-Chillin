@@ -74,6 +74,8 @@ class PDFDrawer {
     
     // 올가미로 선택한 영역 좌표
     @State private var selectedRect: CGRect = .zero
+    private var totalPageCount: Int = 0
+    private var pageNum: Int = 0
     
     // 새로운 주석 히스토리에 저장
     private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
@@ -156,6 +158,9 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             lassoRectangleLayer?.lineDashPattern = [6, 6] // 점선
             lassoRectangleLayer?.fillColor = UIColor.init(hex: "CFD9FF").withAlphaComponent(0.2).cgColor // 하늘색 채우기
             pdfView.layer.addSublayer(lassoRectangleLayer!)
+            
+            totalPageCount = PDFSharedData.shared.document?.pageCount ?? 0
+            pageNum = min(PDFSharedData.shared.document?.index(for: page) ?? 0, totalPageCount - 1)
             return
         }
         
@@ -240,10 +245,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     print("PDF is captured: \(newFigure)")
                     endCaptureMode()
                 }
-                
-                let totalPageCount = PDFSharedData.shared.document?.pageCount ?? 0
-                print("🔔 current page Index : \(PDFSharedData.shared.document?.index(for: page) ?? 0)")
-                let pageNum = min(PDFSharedData.shared.document?.index(for: page) ?? 0, totalPageCount - 1)
                 
                 let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 
