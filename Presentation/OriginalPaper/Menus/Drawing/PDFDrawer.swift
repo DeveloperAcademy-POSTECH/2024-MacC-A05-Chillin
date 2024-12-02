@@ -60,7 +60,6 @@ class PDFDrawer {
     
     var startPoint: CGPoint? // lasso 영역을 저장할 경로 추가
     var endPoint: CGPoint? // lasso 영역을 저장할 경로 추가
-    var endPage: PDFPage? // lasso 영역을 저장할 경로 추가
     var checkButton: UIButton = UIButton()
     
     private var lassoRectangleLayer: CAShapeLayer? // 점선 사각형을 그리기 위한 레이어
@@ -264,7 +263,6 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             }
             
             guard let startPoint = self.startPoint else { return }
-            self.endPage = page
 
             // 현재 위치에 따라 실시간으로 사각형의 위치와 크기를 계산
             let topLeft = CGPoint(x: min(startPoint.x, location.x), y: min(startPoint.y, location.y))
@@ -284,7 +282,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             
             // 올가미 하단에 뜨는 체크 버튼
             checkButton = UIButton(type: .system)
-            checkButton.frame = CGRect(x: topLeft.x + width / 2, y: topLeft.y + height + 8, width: 36, height: 28)
+            checkButton.frame = CGRect(x: topLeft.x + width / 2 - 18, y: topLeft.y + height + 8, width: 36, height: 28)
             checkButton.setImage(UIImage(named: "check"), for: .normal) // 버튼 이미지 설정
             checkButton.imageView?.contentMode = .scaleAspectFit
             checkButton.tintColor = .gray100
