@@ -14,7 +14,7 @@ struct TemporaryAlertView: View {
     private var alertWidth: CGFloat {
         switch mode {
         case "drawing":
-            return 280
+            return 295
         case "comment":
             return 255
         case "translate":
