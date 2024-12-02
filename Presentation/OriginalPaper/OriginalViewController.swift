@@ -203,10 +203,6 @@ extension OriginalViewController {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
         
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
-        gesture.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(gesture)
-        
         let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
         commentTapGesture.delegate = self
         self.view.addGestureRecognizer(commentTapGesture)
@@ -415,11 +411,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             return true
         }
         return false
-    }
-    
-    @objc
-    func postScreenTouch() {
-        NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
     }
     
     private func updateGestureRecognizer(mode: DrawingTool) {

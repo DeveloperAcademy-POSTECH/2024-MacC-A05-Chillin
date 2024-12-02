@@ -33,6 +33,14 @@ struct OriginalView: View {
                     OriginalViewControllerRepresent() // PDF 뷰를 표시
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
+                .gesture(
+                    viewModel.isCommentTapped
+                    ? DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                        }
+                    : nil
+                )
                 .onReceive(publisher) { a in
                     if let _ = a.userInfo?["hitted"] as? Bool {
                         
