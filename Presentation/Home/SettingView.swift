@@ -10,6 +10,7 @@ import StoreKit
 import Translation
 
 struct SettingView: View {
+    let url = "https://apps.apple.com/app/id6737178157?action=write-review"
     private var email = SupportEmail()
     private var appVersion: String {
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -65,7 +66,10 @@ struct SettingView: View {
                     .foregroundStyle(.gray800)
                     
                     Button(action: {
-                        requestReview()
+                        guard let writeReviewURL = URL(string: url) else {
+                            fatalError("Expected a valid URL")
+                        }
+                        openURL(writeReviewURL)
                     }, label: {
                         HStack {
                             Text("앱스토어 리뷰 남기기")

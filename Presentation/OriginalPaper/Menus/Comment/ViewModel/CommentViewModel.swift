@@ -232,7 +232,7 @@ extension CommentViewModel {
             if bounds.size.height < comment.bounds.size.height {
                 bounds = comment.bounds
             } else if bounds.size.height == comment.bounds.size.height {
-                if bounds.origin.x < comment.bounds.origin.x {
+                if bounds.origin.x > comment.bounds.origin.x {
                     bounds.size.width = bounds.maxX - comment.bounds.minX
                     bounds.origin.x = comment.bounds.origin.x
                 } else {
