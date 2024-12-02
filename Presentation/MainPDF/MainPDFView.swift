@@ -473,6 +473,7 @@ struct MainPDFView: View {
             .onDisappear {
                 self.searchViewModel.removeAllAnnotations()
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+                self.focusFigureViewModel.stopTask()
                 self.focusFigureViewModel.cancellables.removeAll()
             }
             .gesture(

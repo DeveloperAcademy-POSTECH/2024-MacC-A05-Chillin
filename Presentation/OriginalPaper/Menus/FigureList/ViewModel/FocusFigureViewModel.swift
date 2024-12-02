@@ -180,6 +180,10 @@ extension FocusFigureViewModel {
         }
     }
     
+    public func stopTask() {
+        self.focusFigureUseCase.stopTask()
+    }
+    
     // figure 리스트가 바뀔 때 마다 썸네일을 업데이트하는 메서드
     private func updateThumbnails() {
         // 정렬

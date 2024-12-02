@@ -18,6 +18,8 @@ protocol FocusFigureUseCase {
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async
     
+    func stopTask()
+    
     func loadFigures () -> Result<[Figure], any Error>
     
     @discardableResult
@@ -72,6 +74,8 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
     private let figureDataRepository: FigureDataRepository
     private let collectionDataRepository: CollectionDataRepository
     
+    private var currentTask: Task<Void, any Error>?
+    
     init(
         focusFigureRepository: FocusFigureRepository,
         figureDataRepository: FigureDataRepository,
@@ -87,14 +91,20 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         url: URL,
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async {
-        await self.focusFigureRepository.fetchFocusAndFigures(process: process, url: url) { result in
-            switch result {
-            case .success(let layout):
-                completion(.success(layout))
-            case .failure(let error):
-                completion(.failure(error))
+        self.currentTask = Task {
+            await self.focusFigureRepository.fetchFocusAndFigures(process: process, url: url) { result in
+                switch result {
+                case .success(let layout):
+                    completion(.success(layout))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
         }
+    }
+    
+    public func stopTask() {
+        self.currentTask?.cancel()
     }
     
     public func saveFigures(with figure: Figure) -> Result<VoidResponse, any Error> {
