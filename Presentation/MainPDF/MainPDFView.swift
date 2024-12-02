@@ -472,6 +472,10 @@ struct MainPDFView: View {
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
                 self.focusFigureViewModel.stopTask()
                 self.focusFigureViewModel.cancellables.removeAll()
+                
+                if self.homeViewModel.isSearching && !homeViewModel.searchText.isEmpty {
+                    self.homeViewModel.updateSearchList(with: homeViewModel.selectedFilter)
+                }
             }
             .gesture(
                 mainPDFViewModel.isMenuSelected
