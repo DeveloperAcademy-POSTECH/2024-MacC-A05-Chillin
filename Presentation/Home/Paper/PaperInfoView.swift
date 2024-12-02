@@ -268,7 +268,7 @@ struct PaperInfoView: View {
                             .foregroundStyle(.gray550)
                         
                         VStack {
-                            Text(homeViewModel.changedMemo!)
+                            Text(self.homeViewModel.changedMemo!)
                                 .lineLimit(4)
                                 .reazyFont(.body2)
                                 .foregroundStyle(.gray700)

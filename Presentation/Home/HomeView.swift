@@ -467,7 +467,11 @@ struct RenamePaperTitleView: View {
                         } else {
                             isEditingMemo = false
                         }
-                        self.homeViewModel.changedMemo = nil
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
                         isTextFieldFocused = false
                     } label: {
                         Image(systemName: "xmark")
@@ -749,7 +753,11 @@ private struct FolderMemoView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        self.homeViewModel.changedMemo = nil
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
                         self.isEditingFolderMemo.toggle()
                         self.isTextFieldFocused = false
                     }) {
