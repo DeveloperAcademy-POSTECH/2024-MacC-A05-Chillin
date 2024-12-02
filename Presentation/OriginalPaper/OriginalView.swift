@@ -36,7 +36,7 @@ struct OriginalView: View {
                 .gesture(
                     viewModel.isCommentTapped
                     ? DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
+                        .onChanged { newValue in
                             NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
                         }
                     : nil
@@ -85,8 +85,6 @@ struct OriginalView: View {
                                 CommentMenuView(comment: comment)
                             }
                             .position(x: point.x - 30, y: point.y - 110)
-                            /// 애니메이션
-                            .scaleEffect(commentViewModel.isMenuTapped ? 1.0 : 0.5, anchor: UnitPoint(x: point.x - 30, y: point.y - 110))
                             .opacity(commentViewModel.isMenuTapped ? 1.0 : 0.0)
                         }
                     }

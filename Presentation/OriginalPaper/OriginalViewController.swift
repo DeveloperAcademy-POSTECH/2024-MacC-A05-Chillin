@@ -202,7 +202,7 @@ extension OriginalViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-        
+
         let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
         commentTapGesture.delegate = self
         self.view.addGestureRecognizer(commentTapGesture)
