@@ -76,6 +76,9 @@ struct FigureCell: View {
                         let documentID = figure.id
                         let id = figure.uuid
                         
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.white)
+                        
                         PDFKitView(document: document, isScrollEnabled: false)
                             .edgesIgnoringSafeArea(.all)                    // 전체 화면에 맞추기
                             .padding(8)
