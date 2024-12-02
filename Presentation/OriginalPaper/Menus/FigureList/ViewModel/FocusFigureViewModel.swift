@@ -156,7 +156,12 @@ extension FocusFigureViewModel {
                             
                             self.saveFigures(figures: layout.toCoreData())
                             
-                            let url = self.focusFigureUseCase.makeFocusDocument(focusAnnotations: self.focusPages, fileName: paperInfo.title)
+                            self.focusFigureUseCase.makeFocusDocument(
+                                focusAnnotations: self.focusPages,
+                                fileName: paperInfo.title) {
+                                    self.focusDocument = PDFDocument(url: $0)
+                                }
+                            
                             self.focusDocument = PDFDocument(url: url)
                             
                             self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = try? url.bookmarkData(options: .minimalBookmark)
