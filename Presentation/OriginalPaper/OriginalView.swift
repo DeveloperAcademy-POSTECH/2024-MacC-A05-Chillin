@@ -45,14 +45,6 @@ struct OriginalView: View {
                         }
                     }
                 }
-                
-                // 번역에 사용되는 말풍선뷰
-                if viewModel.toolMode == .translate {
-                    if #available(iOS 18.0, *) {
-                        TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
-                    }
-                }
-                
                 // 코멘트뷰
                 ZStack {
                     if viewModel.isCommentVisible == true || commentViewModel.isEditMode {

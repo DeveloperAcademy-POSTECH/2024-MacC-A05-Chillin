@@ -376,6 +376,9 @@ struct MainPDFView: View {
                 } else {
                     if mainPDFViewModel.toolMode == .translate && mainPDFViewModel.selectedText.isEmpty {
                         TemporaryAlertView(mode: "translate") // 번역 모드에서 선택된 텍스트가 없을 때 표시
+                    } else {
+                        TranslateView()
+                            .environmentObject(mainPDFViewModel)
                     }
                 }
                 
