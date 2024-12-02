@@ -380,10 +380,6 @@ private struct EditMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            let items: [FileSystemItem] = selectedItems.compactMap { id in
-                homeViewModel.filteredLists.first(where: { $0.id == id })
-            }
-            
             /*
             let containsFolder = items.contains { file in
                 if case .folder = file {
