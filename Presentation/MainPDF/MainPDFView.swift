@@ -476,6 +476,7 @@ struct MainPDFView: View {
                 self.searchViewModel.removeAllAnnotations()
                 PDFSharedData.shared.updatePaperInfo()
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+                self.focusFigureViewModel.stopTask()
                 self.focusFigureViewModel.cancellables.removeAll()
             }
             .gesture(
