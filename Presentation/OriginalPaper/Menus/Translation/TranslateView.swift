@@ -3,9 +3,7 @@ import Translation
 
 @available(iOS 18.0, *)
 struct TranslateView: View {
-    @Binding var selectedText: String
-    @Binding var translatePosition: CGRect
-
+    @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @State private var targetText = "" // 번역 결과 텍스트
     @State private var configuration: TranslationSession.Configuration?
 
@@ -23,7 +21,7 @@ struct TranslateView: View {
             Color.clear
                 .foregroundStyle(.gray200)
                 .popover(isPresented: $isPopoverVisible) {
-                    ZStack(alignment: .top) {
+                    ZStack(alignment: .bottom) {
                         ScrollView(showsIndicators: false) {
                             Text(targetText)
                                 .foregroundColor(.point2)
@@ -54,7 +52,7 @@ struct TranslateView: View {
                 .position(updatedBubblePosition)
                 .translationTask(configuration) { session in
                     do {
-                        let cleanedText = removeHyphen(in: selectedText)
+                        let cleanedText = removeHyphen(in: mainPDFViewModel.selectedText)
                         let response = try await session.translate(cleanedText)
                         
                         targetText = response.targetText
@@ -67,13 +65,13 @@ struct TranslateView: View {
                     }
                 }
                 .onAppear {
-                    bubblePositionForScreen(translatePosition, in: geometry.size)
+                    bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
                     triggerTranslation()
                 }
-                .onChange(of: selectedText) {
-                    if !selectedText.isEmpty {
+                .onChange(of: mainPDFViewModel.selectedText) {
+                    if !mainPDFViewModel.selectedText.isEmpty {
                         isTranslationComplete = false
-                        bubblePositionForScreen(translatePosition, in: geometry.size)
+                        bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
                         triggerTranslation()
                     }
                 }
