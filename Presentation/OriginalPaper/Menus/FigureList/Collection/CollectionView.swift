@@ -75,7 +75,7 @@ struct CollectionView: View {
                     HStack(spacing: 0) {
                         Spacer()
                         
-                        Text("플로팅 리스트")
+                        Text("모아보기")
                             .reazyFont(.body1)
                             .foregroundStyle(.gray800)
                         
