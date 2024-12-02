@@ -499,18 +499,74 @@ private struct MainOriginalView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
-    @EnvironmentObject private var orientationManager: OrientationManager
+    
+    @State private var orientation: LayoutOrientation = .horizontal
     
     @Binding var isFigSelected: Bool
     @Binding var isCollectionSelected: Bool
     @Binding var isReadMode: Bool
     
+    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
-        switch self.orientationManager.type {
-        case .vertical:
-            VStack(spacing:0) {
-                ZStack {
+        Group {
+            switch self.orientation {
+            case .vertical:
+                VStack(spacing:0) {
+                    ZStack {
+                        if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
+                           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                            FloatingSplitView(
+                                id: splitDetails.id,
+                                documentID: splitDetails.documentID,
+                                document: splitDetails.document,
+                                head: splitDetails.head,
+                                isFigSelected: isFigSelected,
+                                isCollectionSelected: isCollectionSelected,
+                                onSelect: {
+                                    withAnimation {
+                                        mainPDFViewModel.isPaperViewFirst.toggle()
+                                    }
+                                }
+                            )
+                            .environmentObject(floatingViewModel)
+                            .environmentObject(focusFigureViewModel)
+                            
+                            divider
+                        }
+                    }
+                    .zIndex(1)
+                    
+                    ZStack {
+                        MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
+                    }
+                    
+                    ZStack {
+                        if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
+                           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                            divider
+                            
+                            FloatingSplitView(
+                                id: splitDetails.id,
+                                documentID: splitDetails.documentID,
+                                document: splitDetails.document,
+                                head: splitDetails.head,
+                                isFigSelected: isFigSelected,
+                                isCollectionSelected: isCollectionSelected,
+                                onSelect: {
+                                    withAnimation {
+                                        mainPDFViewModel.isPaperViewFirst.toggle()
+                                    }
+                                }
+                            )
+                            .environmentObject(floatingViewModel)
+                            .environmentObject(focusFigureViewModel)
+                        }
+                    }
+                    .zIndex(1)
+                }
+            case .horizontal:
+                HStack(spacing:0) {
                     if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
                        let splitDetails = floatingViewModel.getSplitDocumentDetails() {
                         FloatingSplitView(
@@ -531,14 +587,9 @@ private struct MainOriginalView: View {
                         
                         divider
                     }
-                }
-                .zIndex(1)
-                
-                ZStack {
+                    
                     MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
-                }
-                
-                ZStack {
+                    
                     if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
                        let splitDetails = floatingViewModel.getSplitDocumentDetails() {
                         divider
@@ -560,59 +611,27 @@ private struct MainOriginalView: View {
                         .environmentObject(focusFigureViewModel)
                     }
                 }
-                .zIndex(1)
             }
-        case .horizontal:
-            HStack(spacing:0) {
-                if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
-                   let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                    FloatingSplitView(
-                        id: splitDetails.id,
-                        documentID: splitDetails.documentID,
-                        document: splitDetails.document,
-                        head: splitDetails.head,
-                        isFigSelected: isFigSelected,
-                        isCollectionSelected: isCollectionSelected,
-                        onSelect: {
-                            withAnimation {
-                                mainPDFViewModel.isPaperViewFirst.toggle()
-                            }
-                        }
-                    )
-                    .environmentObject(floatingViewModel)
-                    .environmentObject(focusFigureViewModel)
-                    
-                    divider
-                }
-                
-                MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
-                
-                if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
-                   let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                    divider
-                    
-                    FloatingSplitView(
-                        id: splitDetails.id,
-                        documentID: splitDetails.documentID,
-                        document: splitDetails.document,
-                        head: splitDetails.head,
-                        isFigSelected: isFigSelected,
-                        isCollectionSelected: isCollectionSelected,
-                        onSelect: {
-                            withAnimation {
-                                mainPDFViewModel.isPaperViewFirst.toggle()
-                            }
-                        }
-                    )
-                    .environmentObject(floatingViewModel)
-                    .environmentObject(focusFigureViewModel)
-                }
+        }
+        .onAppear {
+            getOrientationFromFace()
+        }
+        .onReceive(publisher) { _ in
+            switch UIDevice.current.orientation {
+            case .portrait, .portraitUpsideDown:
+                self.orientation = .vertical
+            case .landscapeLeft, .landscapeRight:
+                self.orientation = .horizontal
+            case .faceUp, .faceDown:
+               self.getOrientationFromFace()
+            default:
+                break
             }
         }
     }
     
     private var divider: some View {
-        if orientationManager.type == .vertical {
+        if orientation == .vertical {
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.gray300)
@@ -620,6 +639,20 @@ private struct MainOriginalView: View {
             Rectangle()
                 .frame(width: 1)
                 .foregroundStyle(.gray300)
+        }
+    }
+    
+    private func getOrientationFromFace() {
+        guard let scene = UIApplication.shared.connectedScenes.first,
+              let sceneDelegate = scene as? UIWindowScene else { return }
+        
+        switch sceneDelegate.interfaceOrientation {
+        case .portrait, .portraitUpsideDown:
+            self.orientation = .vertical
+        case .landscapeLeft, .landscapeRight:
+            self.orientation = .horizontal
+        default:
+            self.orientation =  .horizontal
         }
     }
 }
