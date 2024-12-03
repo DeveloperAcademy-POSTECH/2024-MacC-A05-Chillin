@@ -376,13 +376,10 @@ private struct EditMenuView: View {
     @Binding var isEditing: Bool
     @Binding var isMovingFolder: Bool
     
+    @State var isDeleteConfirm: Bool = false
     
     var body: some View {
         HStack(spacing: 0) {
-            let items: [FileSystemItem] = selectedItems.compactMap { id in
-                homeViewModel.filteredLists.first(where: { $0.id == id })
-            }
-            
             /*
             let containsFolder = items.contains { file in
                 if case .folder = file {
@@ -412,21 +409,21 @@ private struct EditMenuView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
-                    .foregroundStyle(.gray100)
+                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
             })
             .padding(.trailing, 28)
             
             Button(action: {
-                homeViewModel.deleteFiles(items)
-                selectedItems.removeAll()
+                self.isDeleteConfirm.toggle()
             }, label: {
                 Image(.trash)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
-                    .foregroundStyle(.gray100)
+                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
             })
+            .disabled(self.selectedItems.isEmpty)
             .padding(.trailing, 28)
             
             Button(action: {
@@ -439,6 +436,23 @@ private struct EditMenuView: View {
                     .foregroundStyle(.gray100)
             })
             .padding(.trailing, 28)
+        }
+        .alert(
+            "정말 삭제하시겠습니까?",
+            isPresented: $isDeleteConfirm,
+            presenting: selectedItems
+        ) { itemList in
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                let items: [FileSystemItem] = itemList.compactMap { id in
+                    homeViewModel.filteredLists.first(where: { $0.id == id })
+                }
+                
+                homeViewModel.deleteFiles(items)
+                selectedItems.removeAll()
+            }
+        } message: { itemList in
+            Text("삭제된 파일은 복구할 수 없습니다.")
         }
     }
 }
@@ -467,7 +481,11 @@ struct RenamePaperTitleView: View {
                         } else {
                             isEditingMemo = false
                         }
-                        self.homeViewModel.changedMemo = nil
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
                         isTextFieldFocused = false
                     } label: {
                         Image(systemName: "xmark")
@@ -749,7 +767,11 @@ private struct FolderMemoView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        self.homeViewModel.changedMemo = nil
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
                         self.isEditingFolderMemo.toggle()
                         self.isTextFieldFocused = false
                     }) {
