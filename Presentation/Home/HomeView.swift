@@ -499,7 +499,6 @@ struct RenamePaperTitleView: View {
                     Button(action: {
                         if isEditingTitle {
                             homeViewModel.updateTitle(at: paperInfo.id, title: text)
-                            homeViewModel.changedTitle = text
                             isEditingTitle = false
                         } else {
                             homeViewModel.updateMemo(at: paperInfo.id, memo: text)

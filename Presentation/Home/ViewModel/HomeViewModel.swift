@@ -77,6 +77,7 @@ class HomeViewModel: ObservableObject {
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     @Published public var isSettingMenu: Bool = false
+    public var isInHomeView: Bool = true
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -173,6 +174,7 @@ extension HomeViewModel {
                     toChangePaper.isFigureSaved = paper.isFigureSaved
                     toChangePaper.memo = paper.memo
                     toChangePaper.focusURL = paper.focusURL
+                    toChangePaper.title = paper.title
                     
                     self?.paperInfos[idx] = toChangePaper
                     
@@ -247,8 +249,13 @@ extension HomeViewModel {
             
             switch result {
             case .success:
-                paperInfos[index].title = title
+                if isInHomeView {
+                    paperInfos[index].title = title
+                }
+                
                 PDFSharedData.shared.paperInfo?.title = title
+                
+                self.changedTitle = title
             case .failure(let error):
                 print(error)
                 self.errorStatus = .fileNameDuplication

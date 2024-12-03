@@ -220,7 +220,7 @@ struct PDFInfoMenu: View {
                     y: 0)
         )
         .onAppear {
-            if let paperInfo = pdfSharedData.paperInfo {
+            if let paperInfo = PDFSharedData.shared.paperInfo {
                 self.isStarSelected = paperInfo.isFavorite
                 
                 if title == nil {

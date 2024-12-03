@@ -401,8 +401,7 @@ struct MainPDFView: View {
                                 isEditingTitle: $isEditingTitle,
                                 isEditingMemo: $isEditingMemo,
                                 isMovingFolder: $isMovingFolder,
-                                createMovingFolder: $createMovingFolder,
-                                title: homeViewModel.changedTitle
+                                createMovingFolder: $createMovingFolder
                             )
                             .environmentObject(homeViewModel)
                             .environmentObject(mainPDFViewModel)
@@ -465,11 +464,13 @@ struct MainPDFView: View {
             }
             .navigationBarHidden(true)
             .onAppear {
+                self.homeViewModel.isInHomeView = false
                 self.focusFigureViewModel.isFigureCaptured()
                 self.focusFigureViewModel.isCollectionCaptured()
                 self.floatingViewModel.subscribeToFocusFigureViewModel(focusFigureViewModel)
             }
             .onDisappear {
+                self.homeViewModel.isInHomeView = true
                 self.searchViewModel.removeAllAnnotations()
                 PDFSharedData.shared.updatePaperInfo()
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
