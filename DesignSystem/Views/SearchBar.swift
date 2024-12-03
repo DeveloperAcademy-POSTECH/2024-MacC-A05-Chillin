@@ -31,8 +31,6 @@ struct SearchBar: View {
                         Image(systemName: "xmark.circle.fill")
                         
                     })
-                } else {
-                    EmptyView()
                 }
             }
             .padding(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))

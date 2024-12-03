@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct AppView: App {
@@ -48,6 +49,9 @@ struct AppView: App {
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        // for Google Analytics
+        FirebaseApp.configure()
+        
         // 전체 Tint Color 설정
         UIView.appearance().tintColor = UIColor.primary1
 
@@ -78,10 +82,7 @@ extension AppView {
             let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
                 id: $0.id,
                 head: $0.head,
-                label: $0.label,
-                figDesc: $0.figDesc,
-                coords: $0.coords,
-                graphicCoord: $0.graphicCoord))
+                coords: $0.coords))
         }
         
         UserDefaults.standard.set(true, forKey: "sample")
@@ -96,7 +97,7 @@ extension AppView {
         
         for item in items {
             if let containerFileURL = containerURL?.appending(path: item.value!),
-               manager.fileExists(atPath: containerFileURL.path()) {
+               let _ = try? Data(contentsOf: containerFileURL) {
                 let _ = homeViewModel.uploadPDF(url: [containerFileURL])
                 
                 try! manager.removeItem(at: containerFileURL)

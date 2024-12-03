@@ -37,9 +37,16 @@ enum PDFAction {
     case remove(PDFAnnotation)
 }
 
+enum Storage {
+    case figure
+    case collection
+}
+
 class PDFDrawer {
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @Published var drawingTool: DrawingTool = .none
+    
+    @Published var selectedStorage: Storage = .figure
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
@@ -53,7 +60,6 @@ class PDFDrawer {
     
     var startPoint: CGPoint? // lasso 영역을 저장할 경로 추가
     var endPoint: CGPoint? // lasso 영역을 저장할 경로 추가
-    var endPage: PDFPage? // lasso 영역을 저장할 경로 추가
     var checkButton: UIButton = UIButton()
     
     private var lassoRectangleLayer: CAShapeLayer? // 점선 사각형을 그리기 위한 레이어
@@ -68,6 +74,8 @@ class PDFDrawer {
     
     // 올가미로 선택한 영역 좌표
     @State private var selectedRect: CGRect = .zero
+    private var totalPageCount: Int = 0
+    private var pageNum: Int = 0
     
     // 새로운 주석 히스토리에 저장
     private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
@@ -150,6 +158,9 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             lassoRectangleLayer?.lineDashPattern = [6, 6] // 점선
             lassoRectangleLayer?.fillColor = UIColor.init(hex: "CFD9FF").withAlphaComponent(0.2).cgColor // 하늘색 채우기
             pdfView.layer.addSublayer(lassoRectangleLayer!)
+            
+            totalPageCount = PDFSharedData.shared.document?.pageCount ?? 0
+            pageNum = min(PDFSharedData.shared.document?.index(for: page) ?? 0, totalPageCount - 1)
             return
         }
         
@@ -235,20 +246,24 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     endCaptureMode()
                 }
                 
-                let pageNum = PDFSharedData.shared.document?.index(for: page) ?? 0
                 let pageHeight = PDFSharedData.shared.document!.page(at: 0)!.bounds(for: .mediaBox).height
                 
                 let coords = "\(pageNum + 1),\(topLeft.x),\(pageHeight - bottomRight.y),\(width),\(-height)"
-
-                let result = Figure(id: "New", head: "New", label: nil, figDesc: nil, coords: [coords], graphicCoord: nil)
                 
-                NotificationCenter.default.post(name: .isPDFCaptured, object: result)
+                if selectedStorage == .figure {
+                    let result = Figure(id: "New", head: "New", coords: [coords])
+                    
+                    NotificationCenter.default.post(name: .isFigureCaptured, object: result)
+                } else {
+                    let result = Figure(id: "Bookmark", head: "New", coords: [coords])
+                    
+                    NotificationCenter.default.post(name: .isCollectionCaptured, object: result)
+                }
                 
                 return
             }
             
             guard let startPoint = self.startPoint else { return }
-            self.endPage = page
 
             // 현재 위치에 따라 실시간으로 사각형의 위치와 크기를 계산
             let topLeft = CGPoint(x: min(startPoint.x, location.x), y: min(startPoint.y, location.y))
@@ -268,7 +283,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             
             // 올가미 하단에 뜨는 체크 버튼
             checkButton = UIButton(type: .system)
-            checkButton.frame = CGRect(x: topLeft.x + width / 2, y: topLeft.y + height + 8, width: 36, height: 28)
+            checkButton.frame = CGRect(x: topLeft.x + width / 2 - 18, y: topLeft.y + height + 8, width: 36, height: 28)
             checkButton.setImage(UIImage(named: "check"), for: .normal) // 버튼 이미지 설정
             checkButton.imageView?.contentMode = .scaleAspectFit
             checkButton.tintColor = .gray100

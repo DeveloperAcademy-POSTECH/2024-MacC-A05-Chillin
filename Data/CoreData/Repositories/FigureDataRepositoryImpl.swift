@@ -24,10 +24,7 @@ class FigureDataRepositoryImpl: FigureDataRepository {
                 return Figure(
                     id: figureData.id,
                     head: figureData.head,
-                    label: figureData.label,
-                    figDesc: figureData.figDesc,
-                    coords: figureData.coords,
-                    graphicCoord: figureData.graphicCoord
+                    coords: figureData.coords
                 )
             }
             return .success(figures)
@@ -55,10 +52,7 @@ class FigureDataRepositoryImpl: FigureDataRepository {
                     
                     newFigureData.id = figure.id
                     newFigureData.head = figure.head
-                    newFigureData.label = figure.label
-                    newFigureData.figDesc = figure.figDesc
                     newFigureData.coords = figure.coords
-                    newFigureData.graphicCoord = figure.graphicCoord
                     
                     newFigureData.paperData = paperData
                     
@@ -94,10 +88,7 @@ class FigureDataRepositoryImpl: FigureDataRepository {
             if let figureToEdit = result.first {
                 
                 figureToEdit.head = figure.head
-                figureToEdit.label = figure.label
-                figureToEdit.figDesc = figure.figDesc
                 figureToEdit.coords = figure.coords
-                figureToEdit.graphicCoord = figure.graphicCoord
                 
                 try dataContext.save()
                 return .success(VoidResponse())
@@ -143,6 +134,7 @@ class FigureDataRepositoryImpl: FigureDataRepository {
                 dataToEdit.isFavorite = info.isFavorite
                 dataToEdit.memo = info.memo
                 dataToEdit.isFigureSaved = info.isFigureSaved
+                dataToEdit.focusURL = info.focusURL
                 
                 try dataContext.save()
                 return .success(VoidResponse())

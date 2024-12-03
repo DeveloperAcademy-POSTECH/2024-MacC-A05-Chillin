@@ -77,12 +77,16 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             let results = try dataContext.fetch(fetchRequest)
             if let dataToEdit = results.first {
                 if info.title != dataToEdit.title {
-                    let url = try URL(resolvingBookmarkData: dataToEdit.url, bookmarkDataIsStale: &isStale)
-                    let newURL = url.deletingLastPathComponent().appending(path: "\(info.title).pdf")
-                    
-                    try FileManager.default.moveItem(at: url, to: newURL)
-                    
-                    dataToEdit.url = try newURL.bookmarkData(options: .minimalBookmark)
+                    if let url = try? URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale) {
+                        // 실제 파일 이름 변경
+                        let newUrl = url.deletingLastPathComponent().appending(path: info.title + ".pdf")
+                        
+                        if let _ = try? FileManager.default.moveItem(at: url, to: newUrl) {
+                            dataToEdit.url = try! newUrl.bookmarkData(options: .minimalBookmark)
+                        } else {
+                            return .failure(PDFUploadError.fileNameDuplication)
+                        }
+                    }
                 }
                 
                 // 기존 데이터 수정
@@ -100,7 +104,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
             }
         } catch {
-            print(error)
             return .failure(error)
         }
     }
@@ -111,15 +114,22 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
-        var isStale: Bool = false
+        var isStaleOriginal = false
+        var isStaleConcentrate = false
         
         do {
             let results = try dataContext.fetch(fetchRequest)
             
             if let dataToDelete = results.first {
                 // 실제 파일 삭제
-                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStale),
-                   FileManager.default.fileExists(atPath: url.path()) {
+                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStaleOriginal),
+                   let _ = try? Data(contentsOf: url) {
+                    try FileManager.default.removeItem(at: url)
+                }
+
+                if let focusURL = dataToDelete.focusURL,
+                   let url = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStaleConcentrate),
+                   let _ = try? Data(contentsOf: url) {
                     try FileManager.default.removeItem(at: url)
                 }
                 
@@ -168,12 +178,9 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                     for figure in figures {
                         let temp = FigureData(context: dataContext)
                         temp.coords = figure.coords
-                        temp.figDesc = figure.figDesc
-                        temp.graphicCoord = figure.graphicCoord
                         temp.head = figure.head
                         temp.id = figure.id
                         temp.paperData = newPaperData
-                        temp.label = figure.label
                         
                         figureData.insert(temp)
                     }

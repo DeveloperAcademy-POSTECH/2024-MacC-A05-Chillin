@@ -79,9 +79,9 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
+        self.focusFigureViewModel.fetchAnnotations()
     }
-    
-    // menu 관련
+    // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
         
@@ -120,13 +120,6 @@ final class OriginalViewController: UIViewController {
         }
     }
     
-    
-    override func viewWillAppear(_ animated: Bool) {
-        // 집중모드 데이터 패치
-        self.focusFigureViewModel.fetchAnnotations()
-        
-//        pageListViewModel.goToPage(at: viewModel.changedPageNumber)
-    }
     
     init(
         viewModel: MainPDFViewModel,
@@ -190,6 +183,7 @@ extension OriginalViewController {
         
         // pdfView midX 가져오기
         self.commentViewModel.getPDFCoordinates(pdfView: mainPDFView)
+        
         // PDF 문서 로드 완료 후 드로잉 데이터 패치
         DispatchQueue.main.async {
             self.viewModel.pdfDrawer.pdfView = self.mainPDFView
@@ -208,11 +202,7 @@ extension OriginalViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-        
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
-        gesture.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(gesture)
-        
+
         let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
         commentTapGesture.delegate = self
         self.view.addGestureRecognizer(commentTapGesture)
@@ -225,15 +215,6 @@ extension OriginalViewController {
             .sink { [weak self] destination in
                 guard let destination = destination else { return }
                 guard let page = destination.page else { return }
-                self?.mainPDFView.go(to: page)
-            }
-            .store(in: &self.cancellable)
-        
-        self.searchViewModel.$searchDestination
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] destination in
-                guard let destination = destination,
-                      let page = destination.page else { return }
                 self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)
@@ -274,12 +255,15 @@ extension OriginalViewController {
                     return
                 }
                 guard let page = self?.mainPDFView.currentPage else { return }
-                guard let num = PDFSharedData.shared.document?.index(for: page) else { return }
-                
-                self?.pageLabelView.text = "\(num + 1) / \(PDFSharedData.shared.document!.pageCount)"
-                
-                self?.pageListViewModel.changedPageNumber = num
-                self?.focusFigureViewModel.changedPageNumber = num
+                if let document = PDFSharedData.shared.document {
+                    let num = Int(page.label ?? "") ?? -1
+                    
+                    self?.pageLabelView.text = "\(num) / \(document.pageCount)"
+                    self?.pageListViewModel.changedPageNumber = num - 1
+                    self?.focusFigureViewModel.changedPageNumber = num - 1
+                } else {
+                    print("Document or page is nil")
+                }
             }
             .store(in: &self.cancellable)
         
@@ -429,12 +413,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         return false
     }
     
-    @objc
-    func postScreenTouch() {
-        NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
-        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
-    }
-    
     private func updateGestureRecognizer(mode: DrawingTool) {
         // 현재 설정된 제스처 인식기를 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
@@ -476,11 +454,12 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         
         if let tappedAnnotation = page.annotation(at: pageLocation) {
             viewModel.isCommentTapped.toggle()
+            commentViewModel.isMenuTapped = false
             
             if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
                     viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                     commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
-                }
+            }
             viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
         } else {
             print("No match comment annotation")

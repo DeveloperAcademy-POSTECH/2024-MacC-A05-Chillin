@@ -241,6 +241,18 @@ private struct MainMenuView: View {
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
+                createFolder.toggle()
+            }) {
+                Image(.newfolder)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 21, height: 20)
+                    .foregroundStyle(.gray100)
+            }
+            .padding(.trailing, 28)
+            
+            Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     selectedMenu = .search
                 }
@@ -251,18 +263,6 @@ private struct MainMenuView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 22, height: 22)
-                    .foregroundStyle(.gray100)
-            }
-            .padding(.trailing, 28)
-            
-            Button(action: {
-                createFolder.toggle()
-            }) {
-                Image(.newfolder)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 21, height: 20)
                     .foregroundStyle(.gray100)
             }
             .padding(.trailing, 28)
@@ -285,7 +285,7 @@ private struct MainMenuView: View {
                     homeViewModel.isSettingMenu = true
                 }
             }) {
-                Image(.morecircle)
+                Image(.setting)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
@@ -376,13 +376,11 @@ private struct EditMenuView: View {
     @Binding var isEditing: Bool
     @Binding var isMovingFolder: Bool
     
+    @State var isDeleteConfirm: Bool = false
     
     var body: some View {
         HStack(spacing: 0) {
-            let items: [FileSystemItem] = selectedItems.compactMap { id in
-                homeViewModel.filteredLists.first(where: { $0.id == id })
-            }
-            
+            /*
             let containsFolder = items.contains { file in
                 if case .folder = file {
                     return true
@@ -390,7 +388,6 @@ private struct EditMenuView: View {
                 return false
             }
             
-            /*
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
@@ -412,21 +409,21 @@ private struct EditMenuView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
-                    .foregroundStyle(.gray100)
+                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
             })
             .padding(.trailing, 28)
             
             Button(action: {
-                homeViewModel.deleteFiles(items)
-                selectedItems.removeAll()
+                self.isDeleteConfirm.toggle()
             }, label: {
                 Image(.trash)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 17, height: 17)
-                    .foregroundStyle(.gray100)
+                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
             })
+            .disabled(self.selectedItems.isEmpty)
             .padding(.trailing, 28)
             
             Button(action: {
@@ -439,6 +436,23 @@ private struct EditMenuView: View {
                     .foregroundStyle(.gray100)
             })
             .padding(.trailing, 28)
+        }
+        .alert(
+            "정말 삭제하시겠습니까?",
+            isPresented: $isDeleteConfirm,
+            presenting: selectedItems
+        ) { itemList in
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                let items: [FileSystemItem] = itemList.compactMap { id in
+                    homeViewModel.filteredLists.first(where: { $0.id == id })
+                }
+                
+                homeViewModel.deleteFiles(items)
+                selectedItems.removeAll()
+            }
+        } message: { itemList in
+            Text("삭제된 파일은 복구할 수 없습니다.")
         }
     }
 }
@@ -455,6 +469,8 @@ struct RenamePaperTitleView: View {
     
     let paperInfo: PaperInfo
     
+    @FocusState private var isTextFieldFocused: Bool
+    
     var body: some View {
         ZStack {
             VStack {
@@ -465,6 +481,12 @@ struct RenamePaperTitleView: View {
                         } else {
                             isEditingMemo = false
                         }
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
+                        isTextFieldFocused = false
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -477,13 +499,13 @@ struct RenamePaperTitleView: View {
                     Button(action: {
                         if isEditingTitle {
                             homeViewModel.updateTitle(at: paperInfo.id, title: text)
-                            homeViewModel.changedTitle = text
                             isEditingTitle = false
                         } else {
                             homeViewModel.updateMemo(at: paperInfo.id, memo: text)
                             self.homeViewModel.memoText = text
                             isEditingMemo = false
                         }
+                        isTextFieldFocused = false
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -518,7 +540,7 @@ struct RenamePaperTitleView: View {
                     }
                     .frame(width: 400, height: isEditingTitle ? 52 : 180)
                     .overlay(alignment: isEditingTitle ? .center : .topLeading) {
-                        TextField( isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: .vertical)
+                        TextField(isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: isEditingTitle ? .horizontal : .vertical)
                             .lineLimit( isEditingTitle ? 1 : 6)
                             .padding(.horizontal, 16)
                             .padding(.vertical, isEditingTitle ? 0 : 16)
@@ -530,6 +552,7 @@ struct RenamePaperTitleView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 18))
                                 .foregroundStyle(.gray600)
+                                .background(.gray100)
                                 .padding(.bottom, isEditingTitle ? 0 : 15)
                                 .padding(.trailing, isEditingTitle ? 10 : 15)
                                 .onTapGesture {
@@ -537,6 +560,7 @@ struct RenamePaperTitleView: View {
                                 }
                         }
                     }
+                    .focused($isTextFieldFocused)
                     
                     Text(isEditingTitle ? "논문 제목을 입력해 주세요" : "논문에 대한 메모를 남겨주세요")
                         .reazyFont(.button1)
@@ -554,6 +578,8 @@ struct RenamePaperTitleView: View {
             } else {
                 self.text = paperInfo.memo ?? ""
             }
+            
+            isTextFieldFocused = true
         }
     }
 }
@@ -677,7 +703,7 @@ struct FolderView: View {
                     }
                     .frame(width: 400, height: 52)
                     .overlay(alignment: .leading) {
-                        TextField("폴더 제목을 입력해주세요.", text: $text, axis: .vertical)
+                        TextField("폴더 제목을 입력해주세요.", text: $text, axis: .horizontal)
                             .lineLimit(1)
                             .padding(.horizontal, 16)
                             .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
@@ -725,6 +751,8 @@ private struct FolderMemoView: View {
     
     let folder: Folder
     
+    @FocusState private var isTextFieldFocused: Bool
+    
     init(
         isEditingFolderMemo: Binding<Bool>,
         folder: Folder
@@ -739,7 +767,13 @@ private struct FolderMemoView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
                         self.isEditingFolderMemo.toggle()
+                        self.isTextFieldFocused = false
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -752,6 +786,7 @@ private struct FolderMemoView: View {
                         self.homeViewModel.updateFolderMemo(at: folder.id, memo: text)
                         self.homeViewModel.memoText = text
                         self.isEditingFolderMemo.toggle()
+                        self.isTextFieldFocused = false
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -815,6 +850,7 @@ private struct FolderMemoView: View {
                         }
                     }
                     .padding(.bottom, 16)
+                    .focused($isTextFieldFocused)
                     
                     Text("폴더 제목을 입력해 주세요")
                         .reazyFont(.button1)
@@ -826,6 +862,7 @@ private struct FolderMemoView: View {
             if isEditingFolderMemo {
                 self.text = folder.memo ?? ""
             }
+            self.isTextFieldFocused = true
         }
     }
 }

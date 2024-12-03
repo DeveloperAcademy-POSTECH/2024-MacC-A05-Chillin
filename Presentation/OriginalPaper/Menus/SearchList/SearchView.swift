@@ -214,9 +214,8 @@ private struct SearchListView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 0) {
+                LazyVStack(spacing: 0) {
                     ForEach(Array(zip(0 ..< self.viewModel.searchResults.count, self.viewModel.searchResults)), id: \.0) { index, search in
-                        LazyVStack(spacing: 0) {
                             SearchListCell(result: search)
                                 .onTapGesture {
                                     self.isTapGesture = true
@@ -230,7 +229,6 @@ private struct SearchListView: View {
                                 .id(index)
                             seperator
                                 .padding(.horizontal, 18)
-                        }
                     }
                 }
             }

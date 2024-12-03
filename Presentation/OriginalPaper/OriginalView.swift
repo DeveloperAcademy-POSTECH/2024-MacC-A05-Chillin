@@ -19,6 +19,9 @@ struct OriginalView: View {
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
     @State private var pdfViewOffset: CGFloat = 50
+    
+    @State private var orientation: LayoutOrientation = .horizontal
+    
     private let screenHeight = UIScreen.main.bounds.height
     
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
@@ -27,9 +30,17 @@ struct OriginalView: View {
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    OriginalViewControllerRepresent(commentViewModel: commentViewModel) // PDF 뷰를 표시
+                    OriginalViewControllerRepresent() // PDF 뷰를 표시
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
+                .gesture(
+                    viewModel.isCommentTapped
+                    ? DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                        }
+                    : nil
+                )
                 .onReceive(publisher) { a in
                     if let _ = a.userInfo?["hitted"] as? Bool {
                         
@@ -38,32 +49,22 @@ struct OriginalView: View {
                             viewModel.isCommentTapped = true
                         } else {                                    /// 뷰 바깥 영역을 탭했을 때 메뉴가 꺼져있으면
                             viewModel.isCommentTapped = false       /// 코멘트 뷰가 닫히게
+                            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
                         }
-                        viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: false)
                     }
                 }
-                
-                // 번역에 사용되는 말풍선뷰
-                if viewModel.toolMode == .translate {
-                    if #available(iOS 18.0, *) {
-                        TranslateView(selectedText: $viewModel.selectedText, translatePosition: $viewModel.translateViewPosition)
-                    } else {
-                        
-                    }
-                }
-                
                 // 코멘트뷰
-                    ZStack {
-                        if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
-                            CommentGroupView(viewModel: commentViewModel, changedSelection: viewModel.commentSelection ?? PDFSelection())
-                        }
+                ZStack {
+                    if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
+                        CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
                     }
-                    .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
-                    .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
-                    .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
-                    .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
+                }
+                .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
+                .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
+                .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
+                .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
                 
-                // 코멘트 메뉴
+                // 코멘트 수정 삭제 뷰
                 if let comment = commentViewModel.comment {
                     if commentViewModel.isMenuTapped {
                         let position = commentViewModel.buttonPosition
@@ -73,15 +74,18 @@ struct OriginalView: View {
                             .map { $0.value }.first
                         if let point = position {
                             ZStack {
-                                CommentMenuView(viewModel: commentViewModel, comment: comment)
+                                CommentMenuView(comment: comment)
                             }
                             .position(x: point.x - 30, y: point.y - 110)
-                            /// 애니메이션
-                            .scaleEffect(commentViewModel.isMenuTapped ? 1.0 : 0.5, anchor: UnitPoint(x: point.x - 30, y: point.y - 110))
                             .opacity(commentViewModel.isMenuTapped ? 1.0 : 0.0)
                         }
                     }
                 }
+            }
+            .onChange(of: geometry.size) {
+                commentViewModel.isMenuTapped = false
+                viewModel.isCommentTapped = false
+                viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
             }
             .offset(y: -keyboardOffset)
             .animation(.smooth(duration: 0.5), value: keyboardOffset)
@@ -90,15 +94,17 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    withAnimation {
-                        if viewModel.isCommentVisible {
-                            keyboardOffset = calculateOffset(
-                                for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
-                        }
-                        if commentViewModel.isEditMode {
-                            keyboardOffset = calculateOffset(
-                                for: commentViewModel.commentPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                if self.orientation == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation {
+                            if viewModel.isCommentVisible {
+                                keyboardOffset = calculateOffset(
+                                    for: viewModel.commentInputPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                            }
+                            if commentViewModel.isEditMode {
+                                keyboardOffset = calculateOffset(
+                                    for: commentViewModel.commentPosition, keyboardFrame: keyboardFrame, screenHeight: geometry.size.height)
+                            }
                         }
                     }
                 }
@@ -109,6 +115,21 @@ struct OriginalView: View {
                     keyboardOffset = 0
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                switch UIDevice.current.orientation {
+                case .portrait, .portraitUpsideDown:
+                    self.orientation = .vertical
+                case .landscapeLeft, .landscapeRight:
+                    self.orientation = .horizontal
+                case .faceUp, .faceDown:
+                   self.getOrientationFromFace()
+                default:
+                    break
+                }
+            }
+        }
+        .onAppear {
+            self.getOrientationFromFace()
         }
     }
     
@@ -121,6 +142,20 @@ struct OriginalView: View {
             return (position.y - keyboardTopY) + margin
         } else {
             return 0                                    /// 키보드에 안 가려짐
+        }
+    }
+    
+    private func getOrientationFromFace() {
+        guard let scene = UIApplication.shared.connectedScenes.first,
+              let sceneDelegate = scene as? UIWindowScene else { return }
+        
+        switch sceneDelegate.interfaceOrientation {
+        case .portrait, .portraitUpsideDown:
+            self.orientation = .vertical
+        case .landscapeLeft, .landscapeRight:
+            self.orientation = .horizontal
+        default:
+            self.orientation =  .horizontal
         }
     }
 }

@@ -53,24 +53,27 @@ final class NavigationCoordinator: CoordinatorProtocol {
         case .home:
             HomeView()
         case .mainPDF(let paperInfo):
-            let _ = PDFSharedData.shared.makeDocument(from: paperInfo)
-            
-            MainPDFView(
-                pdfInfoMenuViewModel: .init(pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(paperDataRepository: PaperDataRepositoryImpl())), mainPDFViewModel: .init(),
-                commentViewModel: .init(
-                    commentService: CommentDataRepositoryImpl(),
-                    buttonGroupService: ButtonGroupDataRepositoryImpl()
-                ),
-                focusFigureViewModel: .init(
-                    focusFigureUseCase:
-                        DefaultFocusFigureUseCase(
-                            focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument),
-                            figureDataRepository: FigureDataRepositoryImpl())
-                ),
-                pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
-                searchViewModel: .init(),
-                indexViewModel: .init(indexUseCase: DefaultIndexUseCase())
-            )
+            if path.count != 0 {
+                let _ = PDFSharedData.shared.makeDocument(from: paperInfo)
+                
+                MainPDFView(
+                    pdfInfoMenuViewModel: .init(pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(paperDataRepository: PaperDataRepositoryImpl())), mainPDFViewModel: .init(),
+                    commentViewModel: .init(
+                        commentService: CommentDataRepositoryImpl(),
+                        buttonGroupService: ButtonGroupDataRepositoryImpl()
+                    ),
+                    focusFigureViewModel: .init(
+                        focusFigureUseCase:
+                            DefaultFocusFigureUseCase(
+                                focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument),
+                                figureDataRepository: FigureDataRepositoryImpl(),
+                                collectionDataRepository: CollectionDataRepositoryImpl())
+                    ),
+                    pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
+                    searchViewModel: .init(),
+                    indexViewModel: .init(indexUseCase: DefaultIndexUseCase())
+                )
+            }
         }
     }
     

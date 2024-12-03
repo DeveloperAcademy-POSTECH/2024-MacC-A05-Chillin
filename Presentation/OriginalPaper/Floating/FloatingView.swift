@@ -10,6 +10,8 @@ import PDFKit
 
 struct FloatingView: View {
     
+    let id: UUID
+    let isFigure: Bool
     let documentID: String
     let document: PDFDocument
     let head: String
@@ -20,13 +22,18 @@ struct FloatingView: View {
     
     @State private var aspectRatio: CGFloat = 1.0
     
+    @State private var isSavedLocation: Bool = false
+    
+    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @ObservedObject var observableDocument: ObservableDocument
     
-    init(documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
+    init(id: UUID, isFigure: Bool, documentID: String, document: PDFDocument, head: String, isSelected: Binding<Bool>, viewOffset: Binding<CGSize>, viewWidth: Binding<CGFloat>) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
+        self.id = id
+        self.isFigure = isFigure
         self.documentID = documentID
         self.head = head
         self._isSelected = isSelected
@@ -36,51 +43,68 @@ struct FloatingView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            ZStack {
-                HStack(spacing: 0) {
-                    Button(action: {
-                        floatingViewModel.setSplitDocument(documentID: documentID)
-                    }, label: {
-                        Image(systemName: "rectangle.split.2x1")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.gray600)
-                    })
-                    .padding(.leading, 20)
+            HStack(spacing: 0) {
+                Button(action: {
+                    floatingViewModel.isFigure = isFigure
                     
-                    Spacer()
-                    
-                    Menu {
-                        Button(action: {
-                            floatingViewModel.saveFigImage(document: observableDocument)
-                            floatingViewModel.saveFigAlert()
-                            
-                            print("Download Image")
-                            
-                        }, label: {
-                            Text("사진 앱에 저장")
-                                .reazyFont(.body1)
-                                .foregroundStyle(.gray800)
-                                .frame(width: 148)
-                        })
-                    } label: {
-                        Image(systemName: "square.and.arrow.down")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(.gray600)
-                    }
-                    
-                    Button(action: {
-                        floatingViewModel.deselect(documentID: documentID)
-                    }, label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.gray600)
-                    })
-                    .padding(.horizontal, 20)
-                }
+                    let uuid = {
+                        if isFigure { return focusFigureViewModel.figures.first(where: { $0.id == documentID })?.uuid }
+                        else { return focusFigureViewModel.collections.first(where: { $0.id == documentID })?.uuid }
+                    }()
+                    let index = {
+                        if isFigure { return focusFigureViewModel.getFigureIndex(id: uuid!) }
+                        else { return focusFigureViewModel.getCollectionIndex(id: uuid!) }
+                    }()
+                    floatingViewModel.selectedFigureCellID = uuid
+                    floatingViewModel.setSplitDocument(at: index, uuid: id)
+                }, label: {
+                    Image(systemName: "rectangle.split.2x1")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.gray600)
+                })
+                .padding(.leading, 20)
+                
+                Rectangle()
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(.clear)
+                
+                Spacer()
                 
                 Text(head)
                     .reazyFont(.body1)
                     .foregroundStyle(.gray800)
+                
+                Spacer()
+                
+                Menu {
+                    Button(action: {
+                        self.focusFigureViewModel.selectedID = id
+                        self.floatingViewModel.saveFigImage(document: observableDocument)
+                        self.floatingViewModel.saveFigAlert()
+                        self.isSavedLocation = true
+                        
+                        print("Download Image")
+                        
+                    }, label: {
+                        Text("사진 앱에 저장")
+                            .reazyFont(.body1)
+                            .foregroundStyle(.gray800)
+                            .frame(width: 148)
+                    })
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.gray600)
+                }
+                
+                Button(action: {
+                    floatingViewModel.deselect(uuid: id)
+                }, label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.gray600)
+                })
+                .padding(.horizontal, 20)
             }
             .padding(.bottom, 10)
             .frame(height: 40)
@@ -94,7 +118,7 @@ struct FloatingView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 14)
                 
-                if floatingViewModel.isSaveImgAlert {
+                if floatingViewModel.isSaveImgAlert && focusFigureViewModel.selectedID == id && isSavedLocation {
                     VStack {
                         Text("사진 앱에 저장되었습니다")
                             .padding()
@@ -107,6 +131,9 @@ struct FloatingView: View {
                             .zIndex(1)                                  // ZStack에서의 순서 조정
                     }
                     .padding(.bottom, 48)
+                    .onDisappear {
+                        isSavedLocation = false
+                    }
                 }
             }
         }

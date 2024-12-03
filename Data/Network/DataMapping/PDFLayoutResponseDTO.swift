@@ -72,10 +72,7 @@ struct PDFLayoutResponseDTO: Codable {
                     y: pageHeight - y1,
                     width: x1 - x0,
                     height: y1 - y0),
-                label: coords.label,
-                figDesc: coords.figDesc,
-                coords: coords.coords,
-                graphicCoord: coords.graphicCoord
+                coords: coords.coords
             ))
         }
         
@@ -87,25 +84,24 @@ struct PDFLayoutResponseDTO: Codable {
         
         for division in self.div {
             let head = division.header
-            var page = -1
             
             for coord in division.coords {
                 let array = coord.split(separator: ",")
                 
-                page = Int(array[0])!
-                let tempX0 = Double(array[1])!
-                let tempX1 = Double(array[1])! + Double(array[3])!
-                let tempY0 = Double(array[2])!
-                let tempY1 = Double(array[2])! + Double(array[4])!
-                
+                let page = Int(array[0])!
+                let x = Double(array[1])!
+                let y = Double(array[2])!
+                let width = Double(array[3])!
+                let height = Double(array[4])!
+
                 result.append(.init(
                     page: page,
                     header: head,
                     position: .init(
-                        x: tempX0,
-                        y: pageHeight - tempY1,
-                        width: tempX1 - tempX0,
-                        height: tempY1 - tempY0)))
+                        x: x,
+                        y: pageHeight - (y + height),
+                        width: width,
+                        height: height)))
             }
         }
         
@@ -117,10 +113,7 @@ struct PDFLayoutResponseDTO: Codable {
             .init(
                 id: $0.id,
                 head: $0.head,
-                label: $0.label,
-                figDesc: $0.figDesc,
-                coords: $0.coords,
-                graphicCoord: $0.graphicCoord)
+                coords: $0.coords)
         }
     }
 }
@@ -128,10 +121,7 @@ struct PDFLayoutResponseDTO: Codable {
 struct Figure: Codable {
     let id: String
     var head: String?
-    let label: String?
-    let figDesc: String?
     let coords: [String]
-    let graphicCoord: [String]?
     
     public func toEntity(pageHeight: CGFloat) -> FigureAnnotation {
         let id = self.id
@@ -177,10 +167,7 @@ struct Figure: Codable {
                 y: pageHeight - y1,
                 width: x1 - x0,
                 height: y1 - y0),
-            label: label,
-            figDesc: figDesc,
-            coords: coords,
-            graphicCoord: graphicCoord
+            coords: coords
         )
             
     }
