@@ -27,5 +27,6 @@ extension PaperData {
     @NSManaged public var folderID: UUID?
     
     @NSManaged public var figureData: Set<FigureData>?
+    @NSManaged public var collectionData: Set<CollectionData>?
     @NSManaged public var commentData: Set<CommentData>?
 }

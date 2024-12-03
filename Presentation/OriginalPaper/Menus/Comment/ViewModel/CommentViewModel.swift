@@ -11,15 +11,15 @@ import SwiftUI
 
 class CommentViewModel: ObservableObject {
     
+    // pdfView 관련
     public var paperInfo: PaperInfo
-    
     public var document: PDFDocument?
     var pdfCoordinates: CGRect = .zero
     
-    @Published var comments: [Comment] = []             /// 전체 코멘트 배열
-    @Published var buttonGroup: [ButtonGroup] = []      /// 전체 버튼 배열
+    // 코멘트 저장 관련
+    @Published var comments: [Comment] = []
+    @Published var buttonGroup: [ButtonGroup] = []
     var tempCommentArray: [Comment] = []
-    
     var commentService: CommentDataRepositoryImpl
     private var buttonGroupService: ButtonGroupDataRepositoryImpl
     
@@ -27,7 +27,8 @@ class CommentViewModel: ObservableObject {
     private var newButtonId = UUID()                    /// 새로 추가되는 버튼의 id
     private var isNewButton: Bool = true                /// 해당 줄의 첫 코멘트인지 확인
     
-    @Published var commentPosition: CGPoint = .zero     /// 저장된 comment.bounds로부터 얻은 position
+    // 저장된 comment.bounds로부터 얻은 position
+    @Published var commentPosition: CGPoint = .zero
     
     // Comment Model
     @Published var selectedText: String = ""
@@ -66,14 +67,30 @@ class CommentViewModel: ObservableObject {
     }
     
     func loadComments() {
-        for comment in tempCommentArray {
-            comments.append(comment)
-            drawUnderline(newComment: comment)
-        }
+        comments = []                       // 초기화
         
-        for button in buttonGroup {
-            drawCommentIcon(button: button)
-            loadCommentcount(button: button)
+        if let pdfDocument = document {
+            
+            //코멘트랑 관련된 주석만 몽땅 지우기
+            for pageIndex in 0..<pdfDocument.pageCount {
+                if let page = pdfDocument.page(at: pageIndex) {
+                    let annotations = page.annotations
+                    for annotation in annotations {
+                        if annotation.type == "FreeText" || annotation.type == "Underline" || annotation.type == "Stamp" {
+                            page.removeAnnotation(annotation)
+                        }
+                    }
+                }
+            }
+            
+            for comment in tempCommentArray {
+                comments.append(comment)
+                drawUnderline(newComment: comment)
+            }
+            for button in buttonGroup {
+                drawCommentIcon(button: button)
+                loadCommentcount(button: button)
+            }
         }
     }
     
@@ -116,7 +133,9 @@ class CommentViewModel: ObservableObject {
                                  bounds: selectedBounds
         )
         _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
+        
         comments.append(newComment)
+        tempCommentArray.append(newComment)
         
         drawUnderline(newComment: newComment)
         
@@ -138,7 +157,10 @@ class CommentViewModel: ObservableObject {
         let buttonList = comments.filter { $0.buttonId == comment.buttonId } ///전체 코멘트 그룹에서 삭제할 코멘트와 같은 버튼 id를 공유하는 코멘트들 리스트 찾음
         let currentButtonId = comment.buttonId // 삭제할 코멘트의 버튼 id를 변수에 담음
         _ = commentService.deleteCommentData(for: paperInfo.id, id: commentId)
-        comments.removeAll(where: { $0.id == commentId }) //전체 코멘트 그룹에서 코멘트 삭제
+        
+        // 전체 코멘트 그룹에서 id가 일치하는 코멘트만 삭제
+        comments.removeAll(where: { $0.id == commentId })
+        tempCommentArray.removeAll(where: { $0.id == commentId })
         
         // annotation 삭제
         deleteCommentAnnotation(comment: comment, currentButtonId: currentButtonId, buttonList: buttonList)
@@ -210,7 +232,7 @@ extension CommentViewModel {
             if bounds.size.height < comment.bounds.size.height {
                 bounds = comment.bounds
             } else if bounds.size.height == comment.bounds.size.height {
-                if bounds.origin.x < comment.bounds.origin.x {
+                if bounds.origin.x > comment.bounds.origin.x {
                     bounds.size.width = bounds.maxX - comment.bounds.minX
                     bounds.origin.x = comment.bounds.origin.x
                 } else {
@@ -450,8 +472,27 @@ extension CommentViewModel {
                 
                 /// 밑줄 높이 조정
                 let originalBoundsHeight = bounds.size.height
-                bounds.size.height *= 0.6
-                bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2.5
+                
+                switch originalBoundsHeight {
+                case 18... :
+                    bounds.size.height *= 0.45
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
+                case 16..<18 :
+                    bounds.size.height *= 0.5
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
+                case 11..<16 :
+                    bounds.size.height *= 0.55
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
+                case 10..<11 :
+                    bounds.size.height *= 0.6
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
+                case 9..<10 :
+                    bounds.size.height *= 0.7
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
+                default :
+                    bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
+                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3          // 줄인 높인만큼 y축 이동
+                }
                 
                 let underline = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
                 underline.color = .gray600

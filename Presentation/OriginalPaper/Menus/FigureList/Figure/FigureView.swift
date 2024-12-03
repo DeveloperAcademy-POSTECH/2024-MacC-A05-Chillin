@@ -17,7 +17,7 @@ struct FigureView: View {
     
     @State private var scrollToIndex: Int? = nil
     
-    let onSelect: (String, PDFDocument, String) -> Void
+    let onSelect: (UUID, String, PDFDocument, String) -> Void
     
     var body: some View {
         ZStack {
@@ -67,11 +67,16 @@ struct FigureView: View {
                             HStack(spacing: 0) {
                                 Button(action: {
                                     if let figure = focusFigureViewModel.figures.first {
-                                        let document = focusFigureViewModel.setFigureDocument(for: 0)!
+                                        guard let document = focusFigureViewModel.setFigureDocument(for: 0) else {
+                                            print("Failed to set figure document.")
+                                            return
+                                        }
                                         let head = figure.head
                                         let documentID = figure.id
+                                        let id = figure.uuid
                                         
                                         let newFigure = DroppedFigure(
+                                            id: id,
                                             documentID: documentID,
                                             document: document,
                                             head: head,
@@ -79,11 +84,14 @@ struct FigureView: View {
                                             viewOffset: CGSize(width: 0, height: 0),
                                             lastOffset: CGSize(width: 0, height: 0),
                                             viewWidth: 300,
-                                            isInSplitMode: true
+                                            isInSplitMode: true,
+                                            isFigure: true
                                         )
                                         floatingViewModel.droppedFigures.append(newFigure)
                                         
-                                        floatingViewModel.setSplitDocument(documentID: documentID)
+                                        floatingViewModel.isFigure = true
+                                        floatingViewModel.selectedFigureCellID = id
+                                        floatingViewModel.setSplitDocument(at: 0, uuid: id)
                                     }
                                 }) {
                                     Image(.dualwindow)
@@ -137,13 +145,14 @@ struct FigureView: View {
                                 ForEach(focusFigureViewModel.figures, id: \.self) { item in
                                     let id = item.uuid
                                     FigureCell(id: id, onSelect: onSelect)
+                                        .listRowBackground(Color.list)
                                         .padding(.bottom, 21)
                                         .listRowSeparator(.hidden)
                                         .id(id)
                                 }
                             }
-                            .padding(.horizontal, 10)
                             .listStyle(.plain)
+                            .padding(.horizontal, 10)
                             .onChange(of: scrollToIndex) { _, newValue in
                                 if let index = newValue, index < focusFigureViewModel.figures.count {
                                     let id = focusFigureViewModel.figures[index].uuid // `uuid`를 사용
@@ -157,12 +166,14 @@ struct FigureView: View {
                                 }
                             }
                         }
+                        .background(.list)
                     }
                     
                     VStack(spacing: 0){
                         Button(action: {
                             focusFigureViewModel.isCaptureMode.toggle()
                             if focusFigureViewModel.isCaptureMode {
+                                mainPDFViewModel.pdfDrawer.selectedStorage = .figure
                                 mainPDFViewModel.pdfDrawer.drawingTool = .lasso
                                 mainPDFViewModel.toolMode = .lasso
                             } else {
@@ -204,7 +215,6 @@ struct FigureView: View {
         }
         // 원문보기 페이지 변경시 자동 스크롤
         .onReceive(focusFigureViewModel.$changedPageNumber) { num in
-            guard let num = num else { return }
             updateScrollIndex(for: num)
         }
     }

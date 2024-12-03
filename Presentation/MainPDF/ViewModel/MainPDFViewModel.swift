@@ -176,24 +176,40 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     // 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
+        
         guard pdfDrawer.drawingTool == .highlights else { return }
-
-        // PDFView 안에서 스크롤 영역 파악
-        guard let currentSelection = pdfView.currentSelection else { return }
-
-        // 선택된 텍스트를 줄 단위로 나눔
-        let selections = currentSelection.selectionsByLine()
-
+        
+        guard let currentSelection = pdfView.currentSelection else { return }               // PDFView 안에서 스크롤 영역 파악
+        let selections = currentSelection.selectionsByLine()                                // 선택된 텍스트를 줄 단위로 나눔
         guard let page = selections.first?.pages.first else { return }
 
         let highlightColor = color.uiColor
 
         selections.forEach { selection in
-            var bounds = selection.bounds(for: page)
             
+            var bounds = selection.bounds(for: page)
             let originBoundsHeight = bounds.size.height
-            bounds.size.height *= 0.6                                                   // bounds 높이 조정하기
-            bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+            
+            switch originBoundsHeight {
+            case 18... :
+                bounds.size.height *= 0.45
+                bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
+            case 16..<18 :
+                bounds.size.height *= 0.5
+                bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
+            case 11..<16 :
+                bounds.size.height *= 0.55
+                bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
+            case 10..<11 :
+                bounds.size.height *= 0.6
+                bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
+            case 9..<10 :
+                bounds.size.height *= 0.7
+                bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2
+            default :
+                bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
+                bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+            }
 
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
@@ -234,8 +250,27 @@ extension MainPDFViewModel {
                         
                         /// 하이라이트 높이 조정
                         let originalBoundsHeight = bounds.size.height
-                        bounds.size.height *= 0.6
-                        bounds.origin.y += (originalBoundsHeight - bounds.height) / 2
+                        
+                        switch originalBoundsHeight {
+                        case 18... :
+                            bounds.size.height *= 0.45
+                            bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
+                        case 16..<18 :
+                            bounds.size.height *= 0.5
+                            bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
+                        case 11..<16 :
+                            bounds.size.height *= 0.55
+                            bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
+                        case 10..<11 :
+                            bounds.size.height *= 0.6
+                            bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
+                        case 9..<10 :
+                            bounds.size.height *= 0.7
+                            bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2
+                        default :
+                            bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
+                            bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
+                        }
                         
                         let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
                         highlight.color = UIColor.comment

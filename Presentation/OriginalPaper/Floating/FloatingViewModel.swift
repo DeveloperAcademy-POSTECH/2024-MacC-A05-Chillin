@@ -7,9 +7,10 @@
 
 import SwiftUI
 import PDFKit
+import Combine
 
 struct DroppedFigure: Identifiable {
-    let id: UUID = UUID()
+    var id: UUID
     var documentID: String
     var document: PDFDocument
     var head: String
@@ -18,18 +19,23 @@ struct DroppedFigure: Identifiable {
     var lastOffset: CGSize
     var viewWidth: CGFloat
     var isInSplitMode: Bool
+    var isFigure: Bool
 }
 
 class FloatingViewModel: ObservableObject {
     @Published var droppedFigures: [DroppedFigure] = []
     @Published var topmostIndex: Int?
-    @Published var selectedFigureCellID: String?
+    
+    @Published var selectedFigureCellID: UUID?
     @Published var selectedFigureIndex: Int = 0
+    @Published var isFigure: Bool = false
     
     @Published var splitMode: Bool = false
     @Published var isSaveImgAlert: Bool = false
     
-    func toggleSelection(for documentID: String, document: PDFDocument, head: String) {
+    var cancellables = Set<AnyCancellable>()
+    
+    func toggleSelection(id: UUID, for documentID: String, document: PDFDocument, head: String) {
         if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
             droppedFigures[index].isSelected.toggle()
             
@@ -38,6 +44,7 @@ class FloatingViewModel: ObservableObject {
             }
         } else {
             let newFigure = DroppedFigure(
+                id: id,
                 documentID: documentID,
                 document: document,
                 head: head,
@@ -45,7 +52,8 @@ class FloatingViewModel: ObservableObject {
                 viewOffset: CGSize(width: 0, height: 0),
                 lastOffset: CGSize(width: 0, height: 0),
                 viewWidth: 300,
-                isInSplitMode: false
+                isInSplitMode: false,
+                isFigure: isFigure
             )
             droppedFigures.append(newFigure)
             
@@ -53,12 +61,12 @@ class FloatingViewModel: ObservableObject {
         }
     }
     
-    func deselect(documentID: String) {
-        if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
+    func deselect(uuid: UUID) {
+        if let index = droppedFigures.firstIndex(where: { $0.id == uuid }) {
             droppedFigures[index].isSelected = false
             droppedFigures[index].isInSplitMode = false
             
-            if splitMode && selectedFigureCellID == documentID {
+            if splitMode && selectedFigureCellID == uuid {
                 splitMode = false
                 selectedFigureCellID = nil
             }
@@ -71,49 +79,48 @@ class FloatingViewModel: ObservableObject {
         return droppedFigures.first { $0.documentID == documentID }?.isSelected ?? false
     }
     
-    func setSplitDocument(documentID: String) {
+    func setSplitDocument(at index: Int, uuid: UUID) {
         DispatchQueue.main.async {
-            self.selectedFigureCellID = documentID
+            self.selectedFigureCellID = uuid
             self.splitMode = true
             
-            if let index = Int(documentID.components(separatedBy: "-").last ?? "") {
-                self.selectedFigureIndex = index
-            }
+            self.selectedFigureIndex = index
             
-            if let index = self.droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
+            if let index = self.droppedFigures.firstIndex(where: { $0.id == uuid }) {
                 self.droppedFigures[index].isInSplitMode = true
             }
             
-            for i in 0..<self.droppedFigures.count where self.droppedFigures[i].documentID != documentID {
-                self.droppedFigures[i].isSelected = false
-            }
+            self.droppedFigures = self.droppedFigures.filter { $0.id == uuid }
             
-            self.selectedFigureCellID = documentID
+            self.selectedFigureCellID = uuid
         }
     }
         
-    func setFloatingDocument(documentID: String) {
-        self.selectedFigureCellID = documentID
+    func setFloatingDocument(uuid: UUID) {
+        self.selectedFigureCellID = uuid
         self.splitMode = false
         
-        if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {
+        if let index = droppedFigures.firstIndex(where: { $0.id == uuid }) {
             droppedFigures[index].isInSplitMode = false
         }
     }
     
-    func updateSplitDocument(with newDocument: PDFDocument, documentID: String, head: String) {
+    func updateSplitDocument(isFigure: Bool, with newDocument: PDFDocument, uuid: UUID, documentID: String, head: String) {
         guard splitMode, let currentSelectedID = selectedFigureCellID else { return }
-            
-        if currentSelectedID != documentID {
-            if let existingIndex = droppedFigures.firstIndex(where: { $0.documentID == selectedFigureCellID }) {
+        
+        self.isFigure = isFigure
+        
+        if currentSelectedID != uuid {
+            if let existingIndex = droppedFigures.firstIndex(where: { $0.id == selectedFigureCellID }) {
+                droppedFigures[existingIndex].id = uuid
                 droppedFigures[existingIndex].documentID = documentID
                 droppedFigures[existingIndex].document = newDocument
                 droppedFigures[existingIndex].head = head
                 droppedFigures[existingIndex].isSelected = true
                 droppedFigures[existingIndex].isInSplitMode = true
                 
-                selectedFigureCellID = documentID
-                selectedFigureIndex = Int(documentID.components(separatedBy: "-").last ?? "") ?? 0
+                selectedFigureCellID = uuid
+                selectedFigureIndex = existingIndex
             }
         }
     }
@@ -162,48 +169,124 @@ class FloatingViewModel: ObservableObject {
     
     @MainActor
     func moveToNextFigure(focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        let newIndex = (selectedFigureIndex + 1) % focusFigureViewModel.figures.count
-        DispatchQueue.main.async {
-            self.selectedFigureIndex = newIndex
-            self.moveToFigure(at: newIndex, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+        let lists = isFigure ? focusFigureViewModel.figures : focusFigureViewModel.collections
+        
+        guard let nextUUID = getNextUUID(currentUUID: selectedFigureCellID!, in: lists) else {
+            return
         }
+        
+        moveToFigure(at: nextUUID, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
     }
     
     @MainActor
     func moveToPreviousFigure(focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        let newIndex = (selectedFigureIndex - 1 + focusFigureViewModel.figures.count) % focusFigureViewModel.figures.count
-        DispatchQueue.main.async {
-            self.selectedFigureIndex = newIndex
-            self.moveToFigure(at: newIndex, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
-        }
-    }
-    
-    @MainActor
-    private func moveToFigure(at index: Int, focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
-        guard index < focusFigureViewModel.figures.count, index < focusFigureViewModel.documents.count else {
-            print("Invalid index")
+        let lists = isFigure ? focusFigureViewModel.figures : focusFigureViewModel.collections
+        
+        guard let previousUUID = getPreviousUUID(currentUUID: selectedFigureCellID ?? UUID(), in: lists) else {
             return
         }
         
-        let figure = focusFigureViewModel.figures[index]
-        let document = focusFigureViewModel.documents[index]
+        moveToFigure(at: previousUUID, focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+    }
+    
+    @MainActor
+    private func moveToFigure(at uuid: UUID, focusFigureViewModel: FocusFigureViewModel, observableDocument: ObservableDocument) {
+        let lists = isFigure ? focusFigureViewModel.figures : focusFigureViewModel.collections
+        
+        guard let index = lists.firstIndex(where: { $0.uuid == uuid }) else {
+            return
+        }
+        
+        let figure = lists[index]
+        let document = isFigure ? focusFigureViewModel.figureDocuments[index] : focusFigureViewModel.collectionDocuments[index]
 
-        updateSplitDocument(with: document, documentID: figure.id, head: figure.head)
+        updateSplitDocument(isFigure: isFigure, with: document, uuid: figure.uuid, documentID: figure.id, head: figure.head)
         observableDocument.updateDocument(to: document)
         
         selectedFigureIndex = index
+        selectedFigureCellID = uuid
     }
     
     func getSplitDocumentDetails() -> SplitDocumentDetails? {
         guard splitMode, let selectedID = selectedFigureCellID else { return nil }
-        if let selectedFigure = droppedFigures.first(where: { $0.documentID == selectedID }) {
+        if let selectedFigure = droppedFigures.first(where: { $0.id == selectedID }) {
             return SplitDocumentDetails(
+                id: selectedFigure.id,
                 documentID: selectedFigure.documentID,
                 document: selectedFigure.document,
                 head: selectedFigure.head
             )
         }
         return nil
+    }
+    
+    func getNextUUID(currentUUID: UUID, in array: [FigureAnnotation]) -> UUID? {
+        guard let currentIndex = array.firstIndex(where: { $0.uuid == currentUUID }) else {
+            return nil
+        }
+        
+        let nextIndex = (currentIndex + 1) % array.count
+        
+        return array[nextIndex].uuid
+    }
+    
+    func getPreviousUUID(currentUUID: UUID, in array: [FigureAnnotation]) -> UUID? {
+        guard let currentIndex = array.firstIndex(where: { $0.uuid == currentUUID }) else {
+            return nil
+        }
+        
+        let previousIndex = (currentIndex - 1 + array.count) % array.count
+        
+        return array[previousIndex].uuid
+    }
+}
+
+extension FloatingViewModel {
+    @MainActor
+    func subscribeToFocusFigureViewModel(_ focusFigureViewModel: FocusFigureViewModel) {
+        focusFigureViewModel.figureUpdatedPublisher
+            .sink { [weak self] figure in
+                self?.handleNewFigure(figure, from: focusFigureViewModel)
+            }
+            .store(in: &cancellables)
+        
+        focusFigureViewModel.collectionUpdatedPublisher
+            .sink { [weak self] collection in
+                self?.handleNewCollection(collection, from: focusFigureViewModel)
+            }
+            .store(in: &cancellables)
+    }
+    
+    @MainActor
+    private func handleNewFigure(_ figure: FigureAnnotation, from focusFigureViewModel: FocusFigureViewModel) {
+        
+        if let index = focusFigureViewModel.figures.firstIndex(where: { $0.uuid == figure.uuid }) {
+            guard let document = focusFigureViewModel.setFigureDocument(for: index) else { return }
+            
+            self.isFigure = true
+                    
+            toggleSelection(id: figure.uuid, for: figure.id, document: document, head: figure.head)
+        }
+    }
+    
+    @MainActor
+    private func handleNewCollection(_ collection: FigureAnnotation, from focusFigureViewModel: FocusFigureViewModel) {
+        
+        if let index = focusFigureViewModel.collections.firstIndex(where: { $0.uuid == collection.uuid }) {
+            guard let document = focusFigureViewModel.setCollectionDocument(for: index) else { return }
+            
+            self.isFigure = false
+            
+            toggleSelection(id: collection.uuid, for: collection.id, document: document, head: collection.head)
+        }
+    }
+}
+
+extension FloatingViewModel {
+    public func updateFloatingTitle(at id: UUID, head: String) {
+        if let index = droppedFigures.firstIndex(where: { $0.id == id }) {
+            droppedFigures[index].head = head
+        }
     }
 }
 

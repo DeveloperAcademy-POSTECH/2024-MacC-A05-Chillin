@@ -56,7 +56,6 @@ struct PDFInfoMenu: View {
                     VStack(alignment: .leading) {
                         Text(title ?? "알 수 없음")
                             .multilineTextAlignment(.leading)
-                            .padding(.bottom, 5)
                             .lineLimit(2)
                             .reazyFont(.h3)
                             .foregroundStyle(.gray900)
@@ -141,7 +140,7 @@ struct PDFInfoMenu: View {
                 
                 Button(action: {
                     self.isStarSelected.toggle()
-                    homeViewModel.updatePaperFavorite(at: pdfSharedData.paperInfo?.id ?? UUID(), isFavorite: isStarSelected)
+                    PDFSharedData.shared.paperInfo?.isFavorite = isStarSelected
                 }, label: {
                     HStack{
                         Text("즐겨찾기")
@@ -187,8 +186,8 @@ struct PDFInfoMenu: View {
                 
                 Button(role: .destructive, action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
                     navigationCoordinator.pop()
+                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
                 }, label: {
                     HStack{
                         Text("삭제")
@@ -221,7 +220,7 @@ struct PDFInfoMenu: View {
                     y: 0)
         )
         .onAppear {
-            if let paperInfo = pdfSharedData.paperInfo {
+            if let paperInfo = PDFSharedData.shared.paperInfo {
                 self.isStarSelected = paperInfo.isFavorite
                 
                 if title == nil {

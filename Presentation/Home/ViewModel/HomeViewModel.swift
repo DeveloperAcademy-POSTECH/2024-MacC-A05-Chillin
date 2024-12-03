@@ -65,7 +65,8 @@ class HomeViewModel: ObservableObject {
     @Published public var selectedFilter: SearchFilter = .total
     @Published public var selectedMenu: Options = .main
     
-    @Published public var changedTitle: String?
+    public var changedTitle: String?
+    @Published public var changedMemo: String?
     
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
@@ -76,6 +77,7 @@ class HomeViewModel: ObservableObject {
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     @Published public var isSettingMenu: Bool = false
+    public var isInHomeView: Bool = true
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -166,7 +168,17 @@ extension HomeViewModel {
             .sink { [weak self] noti in
                 if let paper = noti.object as? PaperInfo,
                    let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
-                    self?.paperInfos[idx] = paper
+                    guard var toChangePaper = self?.paperInfos[idx] else { return }
+                    
+                    toChangePaper.isFavorite = paper.isFavorite
+                    toChangePaper.isFigureSaved = paper.isFigureSaved
+                    toChangePaper.memo = paper.memo
+                    toChangePaper.focusURL = paper.focusURL
+                    toChangePaper.title = paper.title
+                    
+                    self?.paperInfos[idx] = toChangePaper
+                    
+                    self?.homeViewUseCase.editPDF(toChangePaper)
                 }
             }
             .store(in: &self.cancellables)
@@ -237,7 +249,13 @@ extension HomeViewModel {
             
             switch result {
             case .success:
-                paperInfos[index].title = title
+                if isInHomeView {
+                    paperInfos[index].title = title
+                }
+                
+                PDFSharedData.shared.paperInfo?.title = title
+                
+                self.changedTitle = title
             case .failure(let error):
                 print(error)
                 self.errorStatus = .fileNameDuplication
@@ -246,11 +264,18 @@ extension HomeViewModel {
             }
         }
     }
+    
+    public func updateFocusURL(at id: UUID, focusURL: Data) {
+        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
+            paperInfos[index].focusURL = focusURL
+            self.homeViewUseCase.editPDF(paperInfos[index])
+        }
+    }
 }
 
 
 extension HomeViewModel {
-    public func uploadSampleData() {
+    public func uploadSampleData(focuses: [FocusAnnotation]) {
         let sampleUrl = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
         self.paperInfos.append(PaperInfo(
             title: "A review of the global climate change impacts, adaptation, and sustainable mitigation measures",
