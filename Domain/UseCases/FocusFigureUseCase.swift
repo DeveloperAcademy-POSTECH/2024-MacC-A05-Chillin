@@ -259,7 +259,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
             
             UIGraphicsEndPDFContext()
             
-            try! FileManager.default.moveItem(at: tempPath, to: savingURL)
+            try? FileManager.default.moveItem(at: tempPath, to: savingURL)
             completion(savingURL)
         }
     }

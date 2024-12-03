@@ -474,7 +474,6 @@ struct MainPDFView: View {
                 PDFSharedData.shared.updatePaperInfo()
                 mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
                 self.focusFigureViewModel.stopTask()
-                self.focusFigureViewModel.cancellables.removeAll()
             }
             .gesture(
                 mainPDFViewModel.isMenuSelected
