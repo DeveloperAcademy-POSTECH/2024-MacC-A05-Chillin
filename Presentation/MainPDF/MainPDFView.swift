@@ -144,6 +144,7 @@ struct MainPDFView: View {
                             Button(action: {
                                 isCollectionSelected.toggle()
                                 isFigSelected = false
+                                mainPDFViewModel.isMenuSelected = false
                                 
                                 mainPDFViewModel.pdfDrawer.drawingTool = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
@@ -167,6 +168,7 @@ struct MainPDFView: View {
                                 withAnimation {
                                     mainPDFViewModel.isMenuSelected.toggle()
                                     isFigSelected = false
+                                    isCollectionSelected = false
                                 }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
