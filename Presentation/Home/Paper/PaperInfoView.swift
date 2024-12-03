@@ -294,8 +294,9 @@ struct PaperInfoView: View {
                 .frame(height: 185)
         }
         .onAppear {
-            let paperInfo = self.homeViewModel.paperInfos.first { $0.id == self.id }!
-            self.homeViewModel.changedMemo = paperInfo.memo
+            if let paperInfo = self.homeViewModel.paperInfos.first(where: { $0.id == self.id }) {
+                self.homeViewModel.changedMemo = paperInfo.memo
+            }
         }
         .onChange(of: self.id) {
             let paperInfo = self.homeViewModel.paperInfos.first { $0.id == self.id }!

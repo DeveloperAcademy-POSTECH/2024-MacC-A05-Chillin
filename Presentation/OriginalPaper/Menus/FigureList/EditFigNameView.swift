@@ -9,6 +9,7 @@ import SwiftUI
 
 struct EditFigNameView: View {
     
+    @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
     @State private var newFigName: String = ""
     
@@ -68,6 +69,7 @@ struct EditFigNameView: View {
                         } else {
                             focusFigureViewModel.editColletionTitle(at: id, head: newFigName)
                         }
+                        self.floatingViewModel.updateFloatingTitle(at: id, head: newFigName)
                         focusFigureViewModel.isEditFigName = false
                     }, label: {
                         ZStack {

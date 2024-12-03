@@ -186,8 +186,8 @@ struct PDFInfoMenu: View {
                 
                 Button(role: .destructive, action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
                     navigationCoordinator.pop()
+                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
                 }, label: {
                     HStack{
                         Text("삭제")

@@ -282,6 +282,14 @@ extension FloatingViewModel {
     }
 }
 
+extension FloatingViewModel {
+    public func updateFloatingTitle(at id: UUID, head: String) {
+        if let index = droppedFigures.firstIndex(where: { $0.id == id }) {
+            droppedFigures[index].head = head
+        }
+    }
+}
+
 class ObservableDocument: ObservableObject {
     @Published var document: PDFDocument
     
