@@ -541,7 +541,7 @@ struct RenamePaperTitleView: View {
                     }
                     .frame(width: 400, height: isEditingTitle ? 52 : 180)
                     .overlay(alignment: isEditingTitle ? .center : .topLeading) {
-                        TextField(isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: .vertical)
+                        TextField(isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: isEditingTitle ? .horizontal : .vertical)
                             .lineLimit( isEditingTitle ? 1 : 6)
                             .padding(.horizontal, 16)
                             .padding(.vertical, isEditingTitle ? 0 : 16)
@@ -553,6 +553,7 @@ struct RenamePaperTitleView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 18))
                                 .foregroundStyle(.gray600)
+                                .background(.gray100)
                                 .padding(.bottom, isEditingTitle ? 0 : 15)
                                 .padding(.trailing, isEditingTitle ? 10 : 15)
                                 .onTapGesture {
@@ -703,7 +704,7 @@ struct FolderView: View {
                     }
                     .frame(width: 400, height: 52)
                     .overlay(alignment: .leading) {
-                        TextField("폴더 제목을 입력해주세요.", text: $text, axis: .vertical)
+                        TextField("폴더 제목을 입력해주세요.", text: $text, axis: .horizontal)
                             .lineLimit(1)
                             .padding(.horizontal, 16)
                             .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
