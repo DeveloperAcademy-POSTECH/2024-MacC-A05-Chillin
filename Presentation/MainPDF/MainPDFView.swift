@@ -384,11 +384,6 @@ struct MainPDFView: View {
                     TemporaryAlertView(mode: "lasso")                               // Lasso 도구가 활성화되어 있고 캡처 모드일 때 표시
                 }
                 
-                
-                Color.black
-                    .opacity(isEditingTitle || isEditingMemo || isMovingFolder || createMovingFolder ? 0.5 : 0)
-                    .ignoresSafeArea(edges: .bottom)
-                
                 // MARK: - Floating 뷰
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
@@ -416,11 +411,13 @@ struct MainPDFView: View {
                     }
                 }
                 
+                Color.black
+                    .opacity(isEditingTitle || isEditingMemo || isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .ignoresSafeArea(edges: .bottom)
+                
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
-                    Color.black.opacity(0.5)
-                        .ignoresSafeArea(edges: .all)
-                    
                     EditFigNameView(id: id)
+                        .environmentObject(floatingViewModel)
                         .environmentObject(focusFigureViewModel)
                         .zIndex(1)
                 }
