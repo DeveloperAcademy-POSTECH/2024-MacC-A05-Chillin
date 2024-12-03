@@ -67,7 +67,10 @@ struct FigureView: View {
                             HStack(spacing: 0) {
                                 Button(action: {
                                     if let figure = focusFigureViewModel.figures.first {
-                                        let document = focusFigureViewModel.setFigureDocument(for: 0)!
+                                        guard let document = focusFigureViewModel.setFigureDocument(for: 0) else {
+                                            print("Failed to set figure document.")
+                                            return
+                                        }
                                         let head = figure.head
                                         let documentID = figure.id
                                         let id = figure.uuid

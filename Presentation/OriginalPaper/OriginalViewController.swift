@@ -202,11 +202,7 @@ extension OriginalViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-        
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(postScreenTouch))
-        gesture.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(gesture)
-        
+
         let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
         commentTapGesture.delegate = self
         self.view.addGestureRecognizer(commentTapGesture)
@@ -417,11 +413,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         return false
     }
     
-    @objc
-    func postScreenTouch() {
-        NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
-    }
-    
     private func updateGestureRecognizer(mode: DrawingTool) {
         // 현재 설정된 제스처 인식기를 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
@@ -468,9 +459,8 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
                     viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
                     commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
-                    viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
-                }
-            
+            }
+            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
         } else {
             print("No match comment annotation")
         }

@@ -357,28 +357,31 @@ struct MainPDFView: View {
                     }
                 }
                 
+                if mainPDFViewModel.toolMode == .drawing && mainPDFViewModel.pdfDrawer.drawingTool == .highlights {
+                    TemporaryAlertView(mode: "drawing")
+                }
+                
+                if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
+                    TemporaryAlertView(mode: "comment")                             // 코멘트 모드에서 선택된 텍스트가 없을 때 표시
+                }
                 
                 if #unavailable(iOS 18.0) {
                     if mainPDFViewModel.toolMode == .translate {
-                        TranslateViewOlderVer() // 번역 모드가 활성화되었을 때 표시
+                        TranslateViewOlderVer()                                     // 번역 모드가 활성화되었을 때 표시
                     }
                 } else {
                     if mainPDFViewModel.toolMode == .translate {
                         if mainPDFViewModel.selectedText.isEmpty {
-                            TemporaryAlertView(mode: "translate") // 번역 모드에서 선택된 텍스트가 없을 때 표시
+                            TemporaryAlertView(mode: "translate")                   // 번역 모드에서 선택된 텍스트가 없을 때 표시
                         } else {
                             TranslateView()
                                 .environmentObject(mainPDFViewModel)
                         }
                     }
                 }
-                
-                if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
-                    TemporaryAlertView(mode: "comment") // 코멘트 모드에서 선택된 텍스트가 없을 때 표시
-                }
-                
+                                
                 if isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
-                    TemporaryAlertView(mode: "lasso") // Lasso 도구가 활성화되어 있고 캡처 모드일 때 표시
+                    TemporaryAlertView(mode: "lasso")                               // Lasso 도구가 활성화되어 있고 캡처 모드일 때 표시
                 }
                 
                 

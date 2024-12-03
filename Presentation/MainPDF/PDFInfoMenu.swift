@@ -140,7 +140,7 @@ struct PDFInfoMenu: View {
                 
                 Button(action: {
                     self.isStarSelected.toggle()
-                    homeViewModel.updatePaperFavorite(at: pdfSharedData.paperInfo?.id ?? UUID(), isFavorite: isStarSelected)
+                    PDFSharedData.shared.paperInfo?.isFavorite = isStarSelected
                 }, label: {
                     HStack{
                         Text("즐겨찾기")

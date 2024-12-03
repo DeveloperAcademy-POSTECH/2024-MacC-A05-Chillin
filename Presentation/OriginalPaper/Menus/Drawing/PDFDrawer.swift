@@ -255,7 +255,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                     
                     NotificationCenter.default.post(name: .isFigureCaptured, object: result)
                 } else {
-                    let result = Figure(id: "Bookmark", head: "Bookmark", coords: [coords])
+                    let result = Figure(id: "Bookmark", head: "New", coords: [coords])
                     
                     NotificationCenter.default.post(name: .isCollectionCaptured, object: result)
                 }

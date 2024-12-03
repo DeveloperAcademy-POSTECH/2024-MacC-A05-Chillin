@@ -79,8 +79,11 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 if info.title != dataToEdit.title {
                     if let url = try? URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale) {
                         // 실제 파일 이름 변경
-                        if !FileManager.default.renameFile(fileURL: url, to: info.title) {
-                            print("Failed to rename file")
+                        let newUrl = url.deletingLastPathComponent().appending(path: info.title + ".pdf")
+                        
+                        if let _ = try? FileManager.default.moveItem(at: url, to: newUrl) {
+                            dataToEdit.url = try! newUrl.bookmarkData(options: .minimalBookmark)
+                        } else {
                             return .failure(PDFUploadError.fileNameDuplication)
                         }
                     }
@@ -88,7 +91,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 
                 // 기존 데이터 수정
                 dataToEdit.title = info.title
-                dataToEdit.url = info.url
                 dataToEdit.focusURL = info.focusURL
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite

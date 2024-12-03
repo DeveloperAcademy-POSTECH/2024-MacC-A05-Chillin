@@ -50,6 +50,7 @@ class FocusFigureViewModel: ObservableObject {
     private var focusFigureUseCase: FocusFigureUseCase
     
     public var focusDocument: PDFDocument?
+    private var isStartFetching: Bool = false
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
@@ -63,6 +64,8 @@ class FocusFigureViewModel: ObservableObject {
 
 extension FocusFigureViewModel {
     public func fetchAnnotations() {
+        if self.isStartFetching { return }
+        defer { self.isStartFetching = false }
         
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
@@ -80,7 +83,8 @@ extension FocusFigureViewModel {
             
             let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
-            if let focusUrl = try? URL.init(resolvingBookmarkData: paperInfo!.focusURL!, bookmarkDataIsStale: &isStale) {
+            if let focusURL = paperInfo?.focusURL,
+               let focusUrl = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStale) {
                 self.focusDocument = PDFDocument(url: focusUrl)
             }
             
@@ -156,25 +160,25 @@ extension FocusFigureViewModel {
                         DispatchQueue.main.async {
                             self.figures = layout.toFigureEntities(pageHeight: height)
                             self.focusPages = layout.toFocusEntities(pageHeight: height)
-                            self.figureStatus = .complete
-                            
-                            self.saveFigures(figures: layout.toCoreData())
                             
                             self.focusFigureUseCase.makeFocusDocument(
                                 focusAnnotations: self.focusPages,
                                 fileName: paperInfo.title) {
                                     self.focusDocument = PDFDocument(url: $0)
+                                    
+                                    let focusURLData = try? $0.bookmarkData(options: .minimalBookmark)
+                                    
+                                    self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
+                                    paperInfo.focusURL = focusURLData
+                                    
+                                    self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                                    paperInfo.isFigureSaved = true
+                                    
+                                    self.saveFigures(figures: layout.toCoreData())
+                                    self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                                    
+                                    self.figureStatus = .complete
                                 }
-                            
-                            self.focusDocument = PDFDocument(url: url)
-                            
-                            self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = try? url.bookmarkData(options: .minimalBookmark)
-                            paperInfo.focusURL = try? url.bookmarkData(options: .minimalBookmark)
-                            
-                            self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
-                            paperInfo.isFigureSaved = true
-                            
-                            self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         }
                     case .failure(let error):
                         DispatchQueue.main.async {
@@ -367,7 +371,7 @@ extension FocusFigureViewModel {
                 
                 let updateCollection = Figure(
                     id: collection.id + "_\(newCollectionCount)",
-                    head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
+                    head: "\(collection.head ?? "New") \(newCollectionCount)", // head에 "New 1", "New 2"로 넘버링
                     coords: collection.coords
                 )
                 let updateEntity = updateCollection.toEntity(pageHeight: height)

@@ -33,6 +33,14 @@ struct OriginalView: View {
                     OriginalViewControllerRepresent() // PDF 뷰를 표시
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
+                .gesture(
+                    viewModel.isCommentTapped
+                    ? DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                        }
+                    : nil
+                )
                 .onReceive(publisher) { a in
                     if let _ = a.userInfo?["hitted"] as? Bool {
                         
@@ -69,12 +77,15 @@ struct OriginalView: View {
                                 CommentMenuView(comment: comment)
                             }
                             .position(x: point.x - 30, y: point.y - 110)
-                            /// 애니메이션
-                            .scaleEffect(commentViewModel.isMenuTapped ? 1.0 : 0.5, anchor: UnitPoint(x: point.x - 30, y: point.y - 110))
                             .opacity(commentViewModel.isMenuTapped ? 1.0 : 0.0)
                         }
                     }
                 }
+            }
+            .onChange(of: geometry.size) {
+                commentViewModel.isMenuTapped = false
+                viewModel.isCommentTapped = false
+                viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
             }
             .offset(y: -keyboardOffset)
             .animation(.smooth(duration: 0.5), value: keyboardOffset)
