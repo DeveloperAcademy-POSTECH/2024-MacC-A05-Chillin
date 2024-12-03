@@ -13,10 +13,12 @@ struct TemporaryAlertView: View {
     
     private var alertWidth: CGFloat {
         switch mode {
-        case "translate":
-            return 235
+        case "drawing":
+            return 295
         case "comment":
             return 255
+        case "translate":
+            return 235
         case "lasso":
             return 250
         default:
@@ -26,10 +28,12 @@ struct TemporaryAlertView: View {
     
     private var alertMessage: String {
         switch mode {
-        case "translate":
-            return "번역할 텍스트를 꾹 눌러 선택하세요"
+        case "drawing":
+            return "하이라이트 사용 시 텍스트를 꾹 눌러 선택하세요"
         case "comment":
             return "코멘트를 남길 부분을 꾹 눌러 선택하세요"
+        case "translate":
+            return "번역할 텍스트를 꾹 눌러 선택하세요"
         case "lasso":
             return "추가할 figure 영역을 드래그하세요"
         default:
