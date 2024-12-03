@@ -367,7 +367,7 @@ extension FocusFigureViewModel {
                 
                 let updateCollection = Figure(
                     id: collection.id + "_\(newCollectionCount)",
-                    head: "\(collection.head ?? "Bookmark") \(newCollectionCount)", // head에 "Bookmark 1", "Bookmark 2"로 넘버링
+                    head: "\(collection.head ?? "New") \(newCollectionCount)", // head에 "New 1", "New 2"로 넘버링
                     coords: collection.coords
                 )
                 let updateEntity = updateCollection.toEntity(pageHeight: height)
