@@ -580,8 +580,7 @@ extension HomeViewModel {
     }
     
     public func resetViewModel() {
-        let context = PersistantContainer.shared.container.viewContext
-        context.reset()
+        PersistantContainer.shared.resetContainer()
         
         let fileManager = FileManager.default
         
