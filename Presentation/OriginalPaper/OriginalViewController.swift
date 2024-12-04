@@ -256,11 +256,11 @@ extension OriginalViewController {
                 }
                 guard let page = self?.mainPDFView.currentPage else { return }
                 if let document = PDFSharedData.shared.document {
-                    let num = Int(page.label ?? "") ?? -1
+                    let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
                     
-                    self?.pageLabelView.text = "\(num) / \(document.pageCount)"
-                    self?.pageListViewModel.changedPageNumber = num - 1
-                    self?.focusFigureViewModel.changedPageNumber = num - 1
+                    self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
+                    self?.pageListViewModel.changedPageNumber = num
+                    self?.focusFigureViewModel.changedPageNumber = num
                 } else {
                     print("Document or page is nil")
                 }

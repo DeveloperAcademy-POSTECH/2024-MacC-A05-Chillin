@@ -177,7 +177,9 @@ extension FocusFigureViewModel {
                                     self.saveFigures(figures: layout.toCoreData())
                                     self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                                     
-                                    self.figureStatus = .complete
+                                    DispatchQueue.main.async {
+                                        self.figureStatus = .complete
+                                    }
                                 }
                         }
                     case .failure(let error):
