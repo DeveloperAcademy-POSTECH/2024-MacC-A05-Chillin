@@ -22,6 +22,9 @@ struct AppView: App {
         )
     )
     
+    @State private var isReset: Bool = false
+    let resetPublisher = NotificationCenter.default.publisher(for: .resetFlag)
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $navigationCoordinator.path) {
@@ -39,9 +42,17 @@ struct AppView: App {
             .environmentObject(navigationCoordinator)
             .environmentObject(homeViewModel)
             .onAppear {
-                setSample()
+                self.homeViewModel.setSample()
             }
             .onOpenURL(perform: openUrlScheme)
+            .onReceive(resetPublisher) { _ in
+                self.isReset.toggle()
+            }
+            .alert("초기화 하시겠습니까?", isPresented: $isReset) {
+                Button("초기화", role: .destructive) {
+                    self.homeViewModel.resetViewModel()
+                }
+            }
         }
     }
 }
@@ -61,32 +72,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 
 extension AppView {
-    private func setSample() {
-        let isFirst = UserDefaults.standard.bool(forKey: "sample")
-        
-        if isFirst {
-            return
-        }
-        
-        let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
-        
-        let layout = try! JSONDecoder().decode(PDFLayoutResponseDTO.self, from: .init(contentsOf: url))
-        
-        let id = homeViewModel.uploadSamplePDF()!
-        UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
-        homeViewModel.updateIsFigureSaved(at: id, isFigureSaved: true)
-        
-        
-        
-        layout.fig.forEach {
-            let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
-                id: $0.id,
-                head: $0.head,
-                coords: $0.coords))
-        }
-        
-        UserDefaults.standard.set(true, forKey: "sample")
-    }
     
     private func openUrlScheme(_ url: URL) {
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)

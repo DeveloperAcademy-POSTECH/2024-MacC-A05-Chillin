@@ -53,6 +53,9 @@ struct HomeView: View {
                             .scaledToFit()
                             .frame(width: 62, height: 50)
                             .padding(.trailing, 36)
+                            .onTapGesture(count: 5) {
+                                NotificationCenter.default.post(name: .resetFlag, object: nil)
+                            }
                         
                         if !homeViewModel.isSearching {
                             Button(action: {

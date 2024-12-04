@@ -550,3 +550,73 @@ enum SearchFilter: CaseIterable {
         }
     }
 }
+
+extension HomeViewModel {
+    public func setSample() {
+        let isFirst = UserDefaults.standard.bool(forKey: "sample")
+        
+        if isFirst {
+            return
+        }
+        
+        let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
+        
+        let layout = try! JSONDecoder().decode(PDFLayoutResponseDTO.self, from: .init(contentsOf: url))
+        
+        let id = self.uploadSamplePDF()!
+        UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
+        self.updateIsFigureSaved(at: id, isFigureSaved: true)
+        
+        
+        
+        layout.fig.forEach {
+            let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
+                id: $0.id,
+                head: $0.head,
+                coords: $0.coords))
+        }
+        
+        UserDefaults.standard.set(true, forKey: "sample")
+    }
+    
+    public func resetViewModel() {
+        let context = PersistantContainer.shared.container.viewContext
+        context.reset()
+        
+        let fileManager = FileManager.default
+        
+        let documentURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURLs = try! fileManager.contentsOfDirectory(
+            at: documentURL,
+            includingPropertiesForKeys: nil)
+        
+        fileURLs.forEach { try! fileManager.removeItem(at: $0)}
+        
+        pdfSharedData.paperInfo = nil
+        pdfSharedData.document = nil
+        self.paperInfos.removeAll()
+        self.folders.removeAll()
+        self.currentFolder = nil
+        self.newFolderID = nil
+        self.newFolderParentID = nil
+        self.filteredLists.removeAll()
+        self.isFavoriteSelected = false
+        self.isSearching = false
+        self.searchText.removeAll()
+        self.recentSearches.removeAll()
+        self.selectedFilter = .total
+        self.selectedMenu = .main
+        self.changedTitle = nil
+        self.changedMemo = nil
+        self.navigationStack.removeAll()
+        self.isLoading = false
+        self.memoText.removeAll()
+        self.isErrorOccured = false
+        self.errorStatus = .failedToAccessingSecurityScope
+        self.isSettingMenu = false
+        self.isInHomeView = false
+        
+        UserDefaults.standard.set(false, forKey: "sample")
+        self.setSample()
+    }
+}
