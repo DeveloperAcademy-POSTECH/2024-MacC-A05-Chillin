@@ -495,6 +495,11 @@ struct MainPDFView: View {
                 }
             }
         }
+        .overlay {
+            if self.focusFigureViewModel.figureStatus == .loading {
+                FigureLoadingView()
+            }
+        }
     }
 }
 
@@ -677,6 +682,41 @@ private struct MainView: View {
             if isReadMode {
                 ConcentrateView()
             }
+        }
+    }
+}
+
+private struct FigureLoadingView: View {
+    @State private var timer: Timer?
+    @State private var loadingTextFlag: Bool = false
+    
+    var body: some View {
+        ZStack {
+            Color.gray900
+                .opacity(0.4)
+                .ignoresSafeArea()
+            
+            RoundedRectangle(cornerRadius: 16)
+                .frame(width: 306, height: 128)
+                .foregroundStyle(.white)
+            
+            VStack {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(.primary1)
+                
+                Text( self.loadingTextFlag ? "Figure 추출은 10초 ~ 20초 정도 소요됩니다" : "Figure와 Table을 불러오는 중입니다")
+                    .reazyFont(.body1)
+                    .foregroundStyle(.primary1)
+            }
+        }
+        .onAppear {
+            self.timer = .scheduledTimer(withTimeInterval: 4, repeats: true) { _ in
+                self.loadingTextFlag.toggle()
+            }
+        }
+        .onDisappear {
+            self.timer?.invalidate()
         }
     }
 }
