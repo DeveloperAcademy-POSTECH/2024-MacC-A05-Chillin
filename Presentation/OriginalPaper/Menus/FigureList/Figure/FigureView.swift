@@ -23,9 +23,28 @@ struct FigureView: View {
         ZStack {
             Color.list
             VStack(spacing: 0) {
-                // TODO: 처음 들어오는지 여부 판단 필요
-                
                 switch focusFigureViewModel.figureStatus {
+                case .beforeStart:
+                    VStack(spacing: 8) {
+                        Text("Figure와 Table을 자동추출해서\n필요할 때 꺼내볼 수 있어요")
+                            .reazyFont(.body3)
+                            .foregroundStyle(.gray600)
+                            .multilineTextAlignment(.center)
+                        
+                        Button {
+                            
+                        } label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .foregroundStyle(.gray300)
+                                    .frame(width: 85, height: 32)
+                                
+                                Text("추출 시작")
+                                    .reazyFont(.button4)
+                                    .foregroundStyle(.primary1)
+                            }
+                        }
+                    }
                 case .networkDisconnection:
                     VStack(spacing: 12) {
                         Text("Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다.")

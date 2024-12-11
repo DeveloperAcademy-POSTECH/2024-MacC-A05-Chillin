@@ -31,7 +31,7 @@ class FocusFigureViewModel: ObservableObject {
     
     @Published public var figureDocuments: [PDFDocument] = []
     @Published public var collectionDocuments: [PDFDocument] = []
-    @Published public var figureStatus: FigureStatus = .networkDisconnection
+    @Published public var figureStatus: FigureStatus = .beforeStart
     @Published public var changedPageNumber: Int = 0
     
     @Published public var isEditFigName: Bool = false
@@ -290,6 +290,7 @@ extension FocusFigureViewModel {
     }
     
     enum FigureStatus {
+        case beforeStart
         case networkDisconnection
         case loading
         case empty
