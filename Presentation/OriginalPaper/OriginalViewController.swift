@@ -79,7 +79,7 @@ final class OriginalViewController: UIViewController {
         self.setData()
         self.setGestures()
         self.setBinding()
-//        self.focusFigureViewModel.fetchAnnotations()
+        self.focusFigureViewModel.fetchAnnotations()
     }
     // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {

@@ -711,7 +711,7 @@ private struct FigureLoadingView: View {
             }
         }
         .onAppear {
-            self.timer = .scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+            self.timer = .scheduledTimer(withTimeInterval: 4, repeats: true) { _ in
                 self.loadingTextFlag.toggle()
             }
         }

@@ -70,12 +70,7 @@ extension FocusFigureViewModel {
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
         
-        if let isFigureSaved = paperInfo?.isFigureSaved ,
-           !isFigureSaved {
-            downloadFocusFigure()
-            paperInfo?.isFigureSaved = true
-            return
-        }
+        if let paper = paperInfo?.isFigureSaved, !paper { return }
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
@@ -89,7 +84,9 @@ extension FocusFigureViewModel {
             }
             
             if result.isEmpty {
-                self.figureStatus = .empty
+                DispatchQueue.main.async {
+                    self.figureStatus = .empty
+                }
                 return
             }
             
@@ -122,8 +119,15 @@ extension FocusFigureViewModel {
     }
     
     
-    private func downloadFocusFigure() {
+    public func downloadFocusFigure() {
         if self.figureStatus == .loading { return }
+        
+        var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
+        
+        guard let isFigureSaved = paperInfo?.isFigureSaved,
+              !isFigureSaved else { return }
+        
+        paperInfo?.isFigureSaved = true
         
         NWPathMonitor().startMonitoring { isConnected in
             if !isConnected {
@@ -164,9 +168,17 @@ extension FocusFigureViewModel {
                             self.focusFigureUseCase.makeFocusDocument(
                                 focusAnnotations: self.focusPages,
                                 fileName: paperInfo.title) {
-                                    self.focusDocument = PDFDocument(url: $0)
+                                    if !$1 {
+                                        self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                                        paperInfo.isFigureSaved = true
+                                        self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                                        self.figureStatus = .empty
+                                        return
+                                    }
                                     
-                                    let focusURLData = try? $0.bookmarkData(options: .minimalBookmark)
+                                    self.focusDocument = PDFDocument(url: $0!)
+                                    
+                                    let focusURLData = try? $0!.bookmarkData(options: .minimalBookmark)
                                     
                                     self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
                                     paperInfo.focusURL = focusURLData

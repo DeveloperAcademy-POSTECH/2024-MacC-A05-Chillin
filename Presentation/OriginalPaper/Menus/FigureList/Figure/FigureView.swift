@@ -31,7 +31,7 @@ struct FigureView: View {
                         .multilineTextAlignment(.center)
                     
                     Button {
-                        self.focusFigureViewModel.figureStatus = .loading
+                        focusFigureViewModel.downloadFocusFigure()
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
@@ -52,7 +52,7 @@ struct FigureView: View {
                             .foregroundStyle(.gray600)
                         
                         Button {
-                            focusFigureViewModel.fetchAnnotations()
+                            focusFigureViewModel.downloadFocusFigure()
                         } label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 8)
