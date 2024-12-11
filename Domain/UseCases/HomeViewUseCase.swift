@@ -114,6 +114,42 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     }
     
     public func uploadSamplePDFFile() -> PaperInfo? {
+        let pdfURL = Bundle.main.url(forResource: "Reazy 사용 가이드", withExtension: "pdf")!
+        
+        let tempDoc = PDFDocument(url: pdfURL)
+        let urlData = try! self.savePDFIntoDirectory(url: pdfURL, isSample: true)!
+        
+        let title = urlData.1.deletingPathExtension().lastPathComponent
+        
+        if let firstPage = tempDoc?.page(at: 0) {
+            let width = firstPage.bounds(for: .mediaBox).width
+            let height = firstPage.bounds(for: .mediaBox).height
+            
+            let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
+            let thumbnailData = image.pngData()
+            
+            let paperInfo = PaperInfo(
+                title: title,
+                thumbnail: thumbnailData!,
+                url: urlData.0,
+                isFigureSaved: true
+            )
+
+            self.paperDataRepository.savePDFInfo(paperInfo)
+
+            return paperInfo
+        } else {
+            let paperInfo = PaperInfo(
+                title: title,
+                thumbnail: UIImage(resource: .testThumbnail).pngData()!,
+                url: urlData.0,
+                isFigureSaved: true
+            )
+
+            self.paperDataRepository.savePDFInfo(paperInfo)
+            return paperInfo
+        }
+        /*
         let pdfURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
         
         let tempDoc = PDFDocument(url: pdfURL)
@@ -253,6 +289,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             self.paperDataRepository.savePDFInfo(paperInfo)
             return paperInfo
         }
+         */
     }
     
     public func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo? {
