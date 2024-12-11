@@ -183,6 +183,10 @@ extension FocusFigureViewModel {
                                 }
                         }
                     case .failure(let error):
+                        self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                        paperInfo.isFigureSaved = true
+                        self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                        
                         DispatchQueue.main.async {
                             self.figureStatus = .empty
                             print(error)
