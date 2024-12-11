@@ -48,11 +48,6 @@ struct AppView: App {
             .onReceive(resetPublisher) { _ in
                 self.isReset.toggle()
             }
-            .alert("초기화 하시겠습니까?", isPresented: $isReset) {
-                Button("초기화", role: .destructive) {
-                    self.homeViewModel.resetViewModel()
-                }
-            }
         }
     }
 }

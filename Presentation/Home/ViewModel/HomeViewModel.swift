@@ -579,6 +579,7 @@ extension HomeViewModel {
         UserDefaults.standard.set(true, forKey: "sample")
     }
     
+    /// Deprecated
     public func resetViewModel() {
         PersistantContainer.shared.resetContainer()
         
