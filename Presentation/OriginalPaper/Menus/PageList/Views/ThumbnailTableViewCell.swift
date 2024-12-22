@@ -39,6 +39,12 @@ class ThumbnailTableViewCell: UITableViewCell {
         return label
     }()
     
+    // thumbnailView 제약조건
+    private var thumbnailConstraints: [NSLayoutConstraint] = []
+    
+    // pageNumLabelView 제약조건
+    private var pageNumConstraints: [NSLayoutConstraint] = []
+    
     init(pageNum: Int, thumbnail: UIImage) {
         self.pageNum = pageNum
         self.thumbnail = thumbnail
@@ -74,22 +80,36 @@ extension ThumbnailTableViewCell {
         self.addSubview(pageNumLabel)
         self.addSubview(thumbnailView)
         
-        let viewWidth = UIScreen.main.bounds.width * 0.22 * 0.7
+        let viewWidth = UIScreen.main.bounds.width * 0.22 * 0.65
         
         let ratio = thumbnail.size.width / thumbnail.size.height
         
-        NSLayoutConstraint.activate([
-            thumbnailView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            thumbnailView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            thumbnailView.heightAnchor.constraint(equalToConstant: viewWidth ),
-            thumbnailView.widthAnchor.constraint(equalToConstant: viewWidth * ratio)
-        ])
+        if ratio > 1 {
+            let heightRatio = thumbnail.size.height / thumbnail.size.width
+            
+            self.thumbnailConstraints.append(contentsOf: [
+                thumbnailView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+                thumbnailView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+                thumbnailView.heightAnchor.constraint(equalToConstant: viewWidth * heightRatio ),
+                thumbnailView.widthAnchor.constraint(equalToConstant: viewWidth )
+            ])
+        } else {
+            self.thumbnailConstraints.append(contentsOf: [
+                thumbnailView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+                thumbnailView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+                thumbnailView.heightAnchor.constraint(equalToConstant: viewWidth ),
+                thumbnailView.widthAnchor.constraint(equalToConstant: viewWidth * ratio )
+            ])
+        }
         
-        NSLayoutConstraint.activate([
+        self.pageNumConstraints.append(contentsOf: [
             pageNumLabel.trailingAnchor.constraint(equalTo: thumbnailView.leadingAnchor),
             pageNumLabel.topAnchor.constraint(equalTo: thumbnailView.topAnchor),
             pageNumLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
+        
+        NSLayoutConstraint.activate(thumbnailConstraints)
+        NSLayoutConstraint.activate(pageNumConstraints)
     }
     
     /// Notification에 따른 Cell UI 수정
@@ -116,5 +136,24 @@ extension ThumbnailTableViewCell {
         thumbnailView.layer.borderColor = UIColor.primary3.cgColor
         pageNumLabel.textColor = .init(hex: "9092A9")
         pageNumLabel.font = .reazyManualFont(.medium, size: 14)
+    }
+    
+    // 화면이 회전되었을 때 레이아웃 수정
+    public func updateOrientationConstraints() {
+        let heightAnchor = self.thumbnailConstraints.first { $0.firstAttribute == .height }
+        let widthAnchor = self.thumbnailConstraints.first { $0.firstAttribute == .width }
+        
+        let viewWidth = UIScreen.main.bounds.width * 0.22 * 0.65
+
+        let ratio = thumbnail.size.width / thumbnail.size.height
+
+        if ratio > 1 {
+            let newRatio = thumbnail.size.height / thumbnail.size.width
+            heightAnchor?.constant = viewWidth * newRatio
+            widthAnchor?.constant = viewWidth
+        } else {
+            heightAnchor?.constant = viewWidth
+            widthAnchor?.constant = viewWidth * ratio
+        }
     }
 }
