@@ -73,13 +73,12 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let _ = url.startAccessingSecurityScopedResource()
         defer { url.stopAccessingSecurityScopedResource() }
-        
-        let tempDoc = PDFDocument(url: url)
 
-        
         guard let urlData = try? self.savePDFIntoDirectory(url: url, isSample: false) else {
             throw PDFUploadError.fileNameDuplication
         }
+        
+        let tempDoc = PDFDocument(url: urlData.1)
         
         let title = urlData.1.deletingPathExtension().lastPathComponent
         
@@ -340,9 +339,16 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
-            
+                        
             let _ = url.startAccessingSecurityScopedResource()
             defer { url.stopAccessingSecurityScopedResource() }
+            
+            var error: NSError?
+            
+            // 업로드 전 로컬에 다운로드 진행
+            NSFileCoordinator().coordinate(readingItemAt: url, options: .forUploading, error: &error) { _ in
+//                print("coordinated URL: \(cloudURL)")
+            }
             
             if let _ = try? Data(contentsOf: fileURL) {
                 var dupNum = 1

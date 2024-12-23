@@ -114,6 +114,8 @@ class HomeViewModel: ObservableObject {
 
 extension HomeViewModel {
     public func uploadPDF(url: [URL]) -> UUID? {
+        defer { self.isLoading = false }
+        
         do {
             let currentFolderID = currentFolder?.id
             
