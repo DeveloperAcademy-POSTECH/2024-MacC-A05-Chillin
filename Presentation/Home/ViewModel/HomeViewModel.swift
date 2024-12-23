@@ -134,11 +134,13 @@ extension HomeViewModel {
     public func uploadSamplePDF() -> UUID? {
         let paperInfo = self.homeViewUseCase.uploadSamplePDFFile()
         
-        if paperInfo != nil {
-            self.paperInfos.append(paperInfo!)
+        paperInfo.forEach {
+            if $0 != nil {
+                self.paperInfos.append($0!)
+            }
         }
         
-        return paperInfo?.id
+        return paperInfo[1]?.id
     }
     
     public func deletePDF(at id: UUID) {
