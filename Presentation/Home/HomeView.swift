@@ -198,6 +198,12 @@ struct HomeView: View {
             if homeViewModel.isSettingMenu {
                 SettingView()
             }
+            
+            if homeViewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(.primary1)
+            }
         }
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
@@ -299,6 +305,7 @@ private struct MainMenuView: View {
             
             Button(action: {
                 self.isFileImporterPresented.toggle()
+                self.homeViewModel.isLoading = true
             }) {
                 Text("가져오기")
                     .reazyFont(.button1)
@@ -311,6 +318,11 @@ private struct MainMenuView: View {
             allowedContentTypes: [.pdf],
             allowsMultipleSelection: false,
             onCompletion: importPDFToDevice)
+        .onChange(of: isFileImporterPresented) { _, newValue in
+            if !newValue {
+                self.homeViewModel.isLoading = false
+            }
+        }
     }
     
     private enum ErrorStatus {
