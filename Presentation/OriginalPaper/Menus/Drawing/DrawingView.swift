@@ -9,20 +9,16 @@ import SwiftUI
 
 struct DrawingView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
-    @State private var selectedHighlightColor: HighlightColors?
-    @State private var selectedPenColor: PenColors?
-
-    @State var isHighlight: Bool = false
-    @State var isPencil: Bool = false
-    @State var isEraser: Bool = false
-    @Binding var selectedButton: Buttons? 
+    @State var selectedHighlightColor: HighlightColors?
+    @State var selectedPenColor: PenColors?
+    @Binding var selectedButton: Buttons?
 
     var body: some View {
         VStack(spacing: 0) {
             Button(action: {
-                isHighlight.toggle()
+                mainPDFViewModel.toggleHighlight()
                 
-                if isHighlight {
+                if mainPDFViewModel.isHighlight {
                     mainPDFViewModel.pdfDrawer.drawingTool = .highlights
                     mainPDFViewModel.toolMode = .drawing
                 } else {
@@ -35,12 +31,12 @@ struct DrawingView: View {
                     selectedHighlightColor = nil
                 }
 
-                isPencil = false
-                selectedPenColor = nil
-                isEraser = false
+                mainPDFViewModel.isPencil = false
+                mainPDFViewModel.selectedPenColor = nil
+                mainPDFViewModel.isEraser = false
             }) {
                 RoundedRectangle(cornerRadius: 6)
-                    .foregroundStyle(isHighlight ? .primary3 : .clear)
+                    .foregroundStyle(mainPDFViewModel.isHighlight ? .primary3 : .clear)
                     .frame(width: 26, height: 26)
                     .overlay(
                         Image(.highlight)
@@ -55,14 +51,14 @@ struct DrawingView: View {
 
             ForEach(HighlightColors.allCases, id: \.self) { color in
                 HighlightColorButton(button: $selectedHighlightColor, selectedButton: color) {
-                    isHighlight = true
+                    mainPDFViewModel.isHighlight = true
                     selectedHighlightColor = color
                     mainPDFViewModel.pdfDrawer.drawingTool = .highlights
                     mainPDFViewModel.selectedHighlightColor = color
 
-                    isPencil = false
-                    selectedPenColor = nil
-                    isEraser = false
+                    mainPDFViewModel.isPencil = false
+                    mainPDFViewModel.selectedPenColor = nil
+                    mainPDFViewModel.isEraser = false
                 }
                 .padding(.bottom, color == .blue ? 16 : 10)
             }
@@ -73,9 +69,9 @@ struct DrawingView: View {
                 .padding(.bottom, 12)
 
             Button(action: {
-                isPencil.toggle()
+                mainPDFViewModel.togglePencil()
                 
-                if isPencil {
+                if mainPDFViewModel.isPencil {
                     mainPDFViewModel.toolMode = .drawing
                     mainPDFViewModel.pdfDrawer.drawingTool = .pencil
                 } else {
@@ -85,16 +81,18 @@ struct DrawingView: View {
                 
                 if selectedPenColor == nil {
                     selectedPenColor = .black
+                    mainPDFViewModel.selectedPenColor = .black
                 } else {
                     selectedPenColor = nil
+                    mainPDFViewModel.selectedPenColor = nil
                 }
 
-                isHighlight = false
+                mainPDFViewModel.isHighlight = false
                 selectedHighlightColor = nil
-                isEraser = false
+                mainPDFViewModel.isEraser = false
             }) {
                 RoundedRectangle(cornerRadius: 6)
-                    .foregroundStyle(isPencil ? .primary3 : .clear)
+                    .foregroundStyle(mainPDFViewModel.isPencil ? .primary3 : .clear)
                     .frame(width: 26, height: 26)
                     .overlay(
                         Image(.pencil)
@@ -109,14 +107,14 @@ struct DrawingView: View {
 
             ForEach(PenColors.allCases, id: \.self) { color in
                 PenColorButton(button: $selectedPenColor, selectedButton: color) {
-                    isPencil = true
-                    selectedPenColor = color
+                    mainPDFViewModel.isPencil = true
+                    mainPDFViewModel.selectedPenColor = color
                     mainPDFViewModel.pdfDrawer.drawingTool = .pencil
-                    mainPDFViewModel.pdfDrawer.penColor = selectedPenColor!
+                    mainPDFViewModel.pdfDrawer.penColor = mainPDFViewModel.selectedPenColor!
 
-                    isHighlight = false
+                    mainPDFViewModel.isHighlight = false
                     selectedHighlightColor = nil
-                    isEraser = false
+                    mainPDFViewModel.isEraser = false
                 }
                 .padding(.bottom, color == .green ? 16 : 10)
             }
@@ -127,22 +125,22 @@ struct DrawingView: View {
                 .padding(.bottom, 12)
 
             Button(action: {
-                isEraser.toggle()
+                mainPDFViewModel.toggleEraser()
                 
-                if isEraser {
+                if mainPDFViewModel.isEraser {
                     mainPDFViewModel.pdfDrawer.drawingTool = .eraser
                 } else {
                     mainPDFViewModel.pdfDrawer.drawingTool = .none
                 }
 
-                isPencil = false
-                selectedPenColor = nil
+                mainPDFViewModel.isPencil = false
+                mainPDFViewModel.selectedPenColor = nil
 
-                isHighlight = false
+                mainPDFViewModel.isHighlight = false
                 selectedHighlightColor = nil
             }) {
                 RoundedRectangle(cornerRadius: 6)
-                    .foregroundStyle(isEraser ? .primary3 : .clear)
+                    .foregroundStyle(mainPDFViewModel.isEraser ? .primary3 : .clear)
                     .frame(width: 26, height: 26)
                     .overlay(
                         Image(systemName: "eraser")
@@ -206,5 +204,11 @@ struct DrawingView: View {
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 10)
+        .onAppear {
+            selectedPenColor = mainPDFViewModel.selectedPenColor
+        }
+        .onChange(of: mainPDFViewModel.selectedPenColor){
+            selectedPenColor = mainPDFViewModel.selectedPenColor
+        }
     }
 }

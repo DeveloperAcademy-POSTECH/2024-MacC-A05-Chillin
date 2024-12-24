@@ -51,6 +51,28 @@ final class MainPDFViewModel: ObservableObject {
     
     // pencil tool
     public var pdfDrawer: PDFDrawer = .init()
+    @Published var isHighlight: Bool = false
+    @Published var isPencil: Bool = false
+    @Published var isEraser: Bool = false
+    
+    @Published var selectedPenColor: PenColors?
+    @Published var tempPenColor: PenColors?
+    
+    
+    func toggleHighlight() {
+        isHighlight.toggle()
+        pdfDrawer.drawingTool = isHighlight ? .highlights : .none
+    }
+
+    func togglePencil() {
+        isPencil.toggle()
+        pdfDrawer.drawingTool = isPencil ? .pencil : .none
+    }
+    
+    func toggleEraser() {
+        isEraser.toggle()
+        pdfDrawer.drawingTool = isEraser ? .eraser : .none
+    }
     
     // 현재 undo와 redo 가능 여부
     @Published var canUndo: Bool = false

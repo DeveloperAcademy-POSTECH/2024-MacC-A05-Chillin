@@ -500,9 +500,15 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         print("Double tap detected")
         if self.viewModel.pdfDrawer.drawingTool == .pencil {
             self.viewModel.pdfDrawer.drawingTool = .eraser
+            self.viewModel.isPencil = false
+            self.viewModel.isEraser = true
+            self.viewModel.tempPenColor = self.viewModel.selectedPenColor ?? .black
+            self.viewModel.selectedPenColor = nil
         } else if self.viewModel.pdfDrawer.drawingTool == .eraser {
             self.viewModel.pdfDrawer.drawingTool = .pencil
+            self.viewModel.isPencil = true
+            self.viewModel.isEraser = false
+            self.viewModel.selectedPenColor = self.viewModel.tempPenColor ?? .black
         }
-        print("Pencil mode toggled to: \(self.viewModel.pdfDrawer.drawingTool)")
     }
 }
