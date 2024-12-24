@@ -202,6 +202,7 @@ extension OriginalViewController {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
         
+        // 애플 펜슬 제스처
         let pencilInteraction = UIPencilInteraction()
         pencilInteraction.isEnabled = true
         pencilInteraction.delegate = self
@@ -497,7 +498,6 @@ class CustomPDFView: PDFView {
 // MARK: - 애플 펜슬 더블 탭 처리
 extension OriginalViewController: UIPencilInteractionDelegate {
     func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {
-        print("Double tap detected")
         if self.viewModel.pdfDrawer.drawingTool == .pencil {
             self.viewModel.pdfDrawer.drawingTool = .eraser
             self.viewModel.isPencil = false
