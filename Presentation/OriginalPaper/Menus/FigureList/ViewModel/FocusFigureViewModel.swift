@@ -124,9 +124,6 @@ extension FocusFigureViewModel {
         
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         
-        guard let isFigureSaved = paperInfo?.isFigureSaved,
-              !isFigureSaved else { return }
-        
         paperInfo?.isFigureSaved = true
         
         NWPathMonitor().startMonitoring { isConnected in

@@ -188,12 +188,33 @@ private struct FigureCompleteView: View {
         .padding(.bottom, 24)
 
         if focusFigureViewModel.figures.isEmpty {
-            VStack(spacing: 0) {
+            VStack(spacing: 14) {
                 Spacer()
-                Text("Figure와 Table이 있으면,\n여기에 표시됩니다")
+                
+                Text("논문의 레이아웃에 따라\nFigure 추출의 정확도가\n상이할 수 있어요")
                     .multilineTextAlignment(.center)
                     .reazyFont(.body3)
                     .foregroundStyle(.gray600)
+                
+                Button {
+                    focusFigureViewModel.downloadFocusFigure()
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .foregroundStyle(.gray200)
+                            .frame(width: 72, height: 28)
+                        
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray500)
+                            .frame(width: 72, height: 28)
+                        
+                        Text("다시 시도")
+                            .reazyFont(.body3)
+                            .foregroundStyle(.gray600)
+                    }
+                }
+                
                 Spacer()
             }
         } else {

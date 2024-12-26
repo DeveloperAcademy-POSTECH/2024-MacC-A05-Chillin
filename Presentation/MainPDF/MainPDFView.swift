@@ -700,7 +700,7 @@ private struct FigureLoadingView: View {
                 .frame(width: 306, height: 128)
                 .foregroundStyle(.white)
             
-            VStack(spacing: 14) {
+            VStack(spacing: 16) {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .tint(.primary1)
