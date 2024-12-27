@@ -89,7 +89,7 @@ struct CollectionView: View {
                 if focusFigureViewModel.collections.isEmpty {
                     VStack(spacing: 0) {
                         Spacer()
-                        Text("플로팅 창으로 띄운 영역을\n저장해 모아볼 수 있어요")
+                        Text("원하는 영역을 캡쳐해 저장하고\n플로팅 창으로 볼 수 있어요")
                             .multilineTextAlignment(.center)
                             .reazyFont(.body3)
                             .foregroundStyle(.gray600)

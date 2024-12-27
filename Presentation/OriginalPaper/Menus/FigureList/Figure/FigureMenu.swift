@@ -102,7 +102,7 @@ struct FigureMenu: View {
                     Image(.editfigure)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 20, height: 20)
+                        .frame(width: 24, height: 24)
                         .foregroundStyle(.gray600)
                 }
                 .foregroundStyle(.primary2)

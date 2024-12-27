@@ -26,4 +26,25 @@ final class PersistantContainer {
             }
         }
     }
+    
+    public func resetContainer() {
+        let coordinator = self._container.persistentStoreCoordinator
+        
+        for store in coordinator.persistentStores {
+            do {
+                if let storeURL = store.url {
+                    try coordinator.destroyPersistentStore(at: storeURL, ofType: store.type, options: nil)
+                }
+            } catch {
+                print("Failed to reset Core Data: \(error.localizedDescription)")
+            }
+        }
+        
+        self._container.loadPersistentStores {
+            (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        }
+    }
 }

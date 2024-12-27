@@ -45,7 +45,7 @@ protocol FocusFigureUseCase {
     func makeFocusDocument(
         focusAnnotations: [FocusAnnotation],
         fileName: String,
-        completion: @escaping (URL) -> Void
+        completion: @escaping (URL?, Bool) -> Void
     )
 
     func loadCollections () -> Result<[Figure], any Error>
@@ -149,7 +149,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
     public func makeFocusDocument(
         focusAnnotations: [FocusAnnotation],
         fileName: String,
-        completion: @escaping (URL) -> Void
+        completion: @escaping (URL?, Bool) -> Void
     ) {
         let tempPath = FileManager.default.temporaryDirectory
             .appending(path: "combine.pdf")
@@ -157,7 +157,10 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             .appending(path: "\(fileName)_combine.pdf")
         
-        if let _ = try? Data.init(contentsOf: savingURL) { return }
+        if let _ = try? Data.init(contentsOf: savingURL) {
+            completion(nil, false)
+            return
+        }
         
         let widthArray: [CGFloat] = {
             var result = [CGFloat]()
@@ -260,7 +263,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
             UIGraphicsEndPDFContext()
             
             try? FileManager.default.moveItem(at: tempPath, to: savingURL)
-            completion(savingURL)
+            completion(savingURL, true)
         }
     }
     

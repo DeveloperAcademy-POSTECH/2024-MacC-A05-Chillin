@@ -31,7 +31,7 @@ class FocusFigureViewModel: ObservableObject {
     
     @Published public var figureDocuments: [PDFDocument] = []
     @Published public var collectionDocuments: [PDFDocument] = []
-    @Published public var figureStatus: FigureStatus = .networkDisconnection
+    @Published public var figureStatus: FigureStatus = .beforeStart
     @Published public var changedPageNumber: Int = 0
     
     @Published public var isEditFigName: Bool = false
@@ -70,12 +70,7 @@ extension FocusFigureViewModel {
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
         
-        if let isFigureSaved = paperInfo?.isFigureSaved ,
-           !isFigureSaved {
-            downloadFocusFigure()
-            paperInfo?.isFigureSaved = true
-            return
-        }
+        if let paper = paperInfo?.isFigureSaved, !paper { return }
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
@@ -89,7 +84,9 @@ extension FocusFigureViewModel {
             }
             
             if result.isEmpty {
-                self.figureStatus = .empty
+                DispatchQueue.main.async {
+                    self.figureStatus = .empty
+                }
                 return
             }
             
@@ -122,8 +119,12 @@ extension FocusFigureViewModel {
     }
     
     
-    private func downloadFocusFigure() {
+    public func downloadFocusFigure() {
         if self.figureStatus == .loading { return }
+        
+        var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
+        
+        paperInfo?.isFigureSaved = true
         
         NWPathMonitor().startMonitoring { isConnected in
             if !isConnected {
@@ -164,9 +165,17 @@ extension FocusFigureViewModel {
                             self.focusFigureUseCase.makeFocusDocument(
                                 focusAnnotations: self.focusPages,
                                 fileName: paperInfo.title) {
-                                    self.focusDocument = PDFDocument(url: $0)
+                                    if !$1 {
+                                        self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                                        paperInfo.isFigureSaved = true
+                                        self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                                        self.figureStatus = .empty
+                                        return
+                                    }
                                     
-                                    let focusURLData = try? $0.bookmarkData(options: .minimalBookmark)
+                                    self.focusDocument = PDFDocument(url: $0!)
+                                    
+                                    let focusURLData = try? $0!.bookmarkData(options: .minimalBookmark)
                                     
                                     self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
                                     paperInfo.focusURL = focusURLData
@@ -177,10 +186,16 @@ extension FocusFigureViewModel {
                                     self.saveFigures(figures: layout.toCoreData())
                                     self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                                     
-                                    self.figureStatus = .complete
+                                    DispatchQueue.main.async {
+                                        self.figureStatus = .complete
+                                    }
                                 }
                         }
                     case .failure(let error):
+                        self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                        paperInfo.isFigureSaved = true
+                        self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                        
                         DispatchQueue.main.async {
                             self.figureStatus = .empty
                             print(error)
@@ -284,6 +299,7 @@ extension FocusFigureViewModel {
     }
     
     enum FigureStatus {
+        case beforeStart
         case networkDisconnection
         case loading
         case empty

@@ -494,11 +494,18 @@ extension CommentViewModel {
                     bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3          // 줄인 높인만큼 y축 이동
                 }
                 
-                let underline = PDFAnnotation(bounds: bounds, forType: .underline, withProperties: nil)
-                underline.color = .gray600
-                underline.border = PDFBorder()
-                underline.border?.lineWidth = 1.2
-                underline.border?.style = .solid
+                let underline = PDFAnnotation(bounds: bounds, forType: .line, withProperties: nil)
+                
+                // 두께
+                let border = PDFBorder()
+                border.lineWidth = 2.4
+                underline.border = border
+                
+                // line 시작,끝
+                underline.startPoint = .zero
+                underline.endPoint = CGPoint(x: bounds.width, y: 0)
+                
+                underline.color = .point4.withAlphaComponent(0.4)
                 
                 underline.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
                 page.addAnnotation(underline)
