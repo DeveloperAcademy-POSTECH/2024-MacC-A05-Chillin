@@ -37,10 +37,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // BubbleView의 상태와 위치
     @Published var translateViewPosition: CGRect = .zero
-    
-    // 하이라이트 색상
-    @Published var selectedHighlightColor: HighlightColors = .yellow
-    
+
     // Comment
     @Published var isCommentTapped: Bool = false
     @Published var selectedComments: [Comment] = []
@@ -49,14 +46,17 @@ final class MainPDFViewModel: ObservableObject {
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
     
-    // pencil tool
+    // Drawing tool
     public var pdfDrawer: PDFDrawer = .init()
     @Published var isHighlight: Bool = false
     @Published var isPencil: Bool = false
     @Published var isEraser: Bool = false
     
+    @Published var previousTool: DrawingTool?
     @Published var selectedPenColor: PenColors?
+    @Published var selectedHighlightColor: HighlightColors?
     @Published var tempPenColor: PenColors?
+    @Published var tempHighlightColor: HighlightColors?
     
     
     func toggleHighlight() {

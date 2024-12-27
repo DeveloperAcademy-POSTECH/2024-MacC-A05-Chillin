@@ -52,9 +52,9 @@ struct DrawingView: View {
             ForEach(HighlightColors.allCases, id: \.self) { color in
                 HighlightColorButton(button: $selectedHighlightColor, selectedButton: color) {
                     mainPDFViewModel.isHighlight = true
-                    selectedHighlightColor = color
                     mainPDFViewModel.pdfDrawer.drawingTool = .highlights
                     mainPDFViewModel.selectedHighlightColor = color
+                    selectedHighlightColor = color
 
                     mainPDFViewModel.isPencil = false
                     mainPDFViewModel.selectedPenColor = nil
@@ -206,9 +206,13 @@ struct DrawingView: View {
         .padding(.horizontal, 10)
         .onAppear {
             selectedPenColor = mainPDFViewModel.selectedPenColor
+            selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
         }
         .onChange(of: mainPDFViewModel.selectedPenColor){
             selectedPenColor = mainPDFViewModel.selectedPenColor
+        }
+        .onChange(of: mainPDFViewModel.selectedHighlightColor){
+            selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
         }
     }
 }

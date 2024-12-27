@@ -281,7 +281,7 @@ extension OriginalViewController {
                 guard let self = self else { return }
                 
                 DispatchQueue.main.async {
-                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)
+                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
                 }
             }
             .store(in: &self.cancellable)
@@ -498,17 +498,59 @@ class CustomPDFView: PDFView {
 // MARK: - 애플 펜슬 더블 탭 처리
 extension OriginalViewController: UIPencilInteractionDelegate {
     func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {
-        if self.viewModel.pdfDrawer.drawingTool == .pencil {
-            self.viewModel.pdfDrawer.drawingTool = .eraser
-            self.viewModel.isPencil = false
-            self.viewModel.isEraser = true
+        switch self.viewModel.pdfDrawer.drawingTool {
+        case .pencil:
+            switchToEraser(from: .pencil)
+
+        case .highlights:
+            switchToEraser(from: .highlights)
+
+        case .eraser:
+            switchToPreviousTool()
+
+        default:
+            break
+        }
+    }
+
+    private func switchToEraser(from tool: DrawingTool) {
+        self.viewModel.pdfDrawer.drawingTool = .eraser
+        self.viewModel.isPencil = false
+        self.viewModel.isHighlight = false
+        self.viewModel.isEraser = true
+
+        switch tool {
+        case .pencil:
             self.viewModel.tempPenColor = self.viewModel.selectedPenColor ?? .black
             self.viewModel.selectedPenColor = nil
-        } else if self.viewModel.pdfDrawer.drawingTool == .eraser {
+        case .highlights:
+            self.viewModel.tempHighlightColor = self.viewModel.selectedHighlightColor ?? .yellow
+            self.viewModel.selectedHighlightColor = nil
+        default:
+            break
+        }
+
+        self.viewModel.previousTool = tool
+    }
+
+    private func switchToPreviousTool() {
+        guard let previousTool = self.viewModel.previousTool else { return }
+
+        switch previousTool {
+        case .pencil:
             self.viewModel.pdfDrawer.drawingTool = .pencil
             self.viewModel.isPencil = true
-            self.viewModel.isEraser = false
             self.viewModel.selectedPenColor = self.viewModel.tempPenColor ?? .black
+
+        case .highlights:
+            self.viewModel.pdfDrawer.drawingTool = .highlights
+            self.viewModel.isHighlight = true
+            self.viewModel.selectedHighlightColor = self.viewModel.tempHighlightColor ?? .yellow
+
+        default:
+            break
         }
+
+        self.viewModel.isEraser = false
     }
 }
