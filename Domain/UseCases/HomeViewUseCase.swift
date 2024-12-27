@@ -28,7 +28,7 @@ protocol HomeViewUseCase {
   
     func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)?
     
-    func uploadSamplePDFFile() -> PaperInfo?
+    func uploadSamplePDFFile() -> [PaperInfo?]
     
     func loadFolders() -> Result<[Folder], any Error>
     
@@ -73,13 +73,12 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let _ = url.startAccessingSecurityScopedResource()
         defer { url.stopAccessingSecurityScopedResource() }
-        
-        let tempDoc = PDFDocument(url: url)
 
-        
         guard let urlData = try? self.savePDFIntoDirectory(url: url, isSample: false) else {
             throw PDFUploadError.fileNameDuplication
         }
+        
+        let tempDoc = PDFDocument(url: urlData.1)
         
         let title = urlData.1.deletingPathExtension().lastPathComponent
         
@@ -113,14 +112,76 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         }
     }
     
-    public func uploadSamplePDFFile() -> PaperInfo? {
-        let pdfURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
+    public func uploadSamplePDFFile() -> [PaperInfo?] {
+        let guideURL = Bundle.main.url(forResource: "Reazy 사용 가이드", withExtension: "pdf")!
+        let sampleURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
         
-        let tempDoc = PDFDocument(url: pdfURL)
-        let urlData = try! self.savePDFIntoDirectory(url: pdfURL, isSample: true)!
+        let guideTempDoc = PDFDocument(url: guideURL)
+        let sampleTempDoc = PDFDocument(url: sampleURL)
         
-        let title = urlData.1.deletingPathExtension().lastPathComponent
+        let guideURLData = try! self.savePDFIntoDirectory(url: guideURL, isSample: true)!
+        let sampleURLData = try! self.savePDFIntoDirectory(url: sampleURL, isSample: true)!
+        
+        let guideTitle = guideURLData.1.deletingPathExtension().lastPathComponent
+        let sampleTitle = sampleURLData.1.deletingPathExtension().lastPathComponent
+        
+        let sampleFocusURLData = self.makeSampleFocus(tempDoc: sampleTempDoc)
+        
+        if let guideFirstPage = guideTempDoc?.page(at: 0), let sampleFirstPage = sampleTempDoc?.page(at: 0) {
+            let guideWidth = guideFirstPage.bounds(for: .mediaBox).width
+            let guideHeight = guideFirstPage.bounds(for: .mediaBox).height
+            let sampleWidth = sampleFirstPage.bounds(for: .mediaBox).width
+            let sampleHeight = sampleFirstPage.bounds(for: .mediaBox).height
+            
+            let guideImage = guideFirstPage.thumbnail(of: .init(width: guideWidth, height: guideHeight), for: .mediaBox)
+            let sampleImage = sampleFirstPage.thumbnail(of: .init(width: sampleWidth, height: sampleHeight), for: .mediaBox)
+            
+            let guideThumbnailData = guideImage.pngData()
+            let sampleThumbnailData = sampleImage.pngData()
+            
+            let guidePaperInfo = PaperInfo(
+                title: guideTitle,
+                thumbnail: guideThumbnailData!,
+                url: guideURLData.0,
+                isFigureSaved: true
+            )
+            
+            let samplePaperInfo = PaperInfo(
+                title: sampleTitle,
+                thumbnail: sampleThumbnailData!,
+                url: sampleURLData.0,
+                focusURL: sampleFocusURLData,
+                isFigureSaved: true
+            )
 
+            self.paperDataRepository.savePDFInfo(guidePaperInfo)
+            self.paperDataRepository.savePDFInfo(samplePaperInfo)
+
+            return [guidePaperInfo, samplePaperInfo]
+        } else {
+            let guidePaperInfo = PaperInfo(
+                title: guideTitle,
+                thumbnail: UIImage(resource: .testThumbnail).pngData()!,
+                url: guideURLData.0,
+                isFigureSaved: true
+            )
+            
+            let samplePaperInfo = PaperInfo(
+                title: sampleTitle,
+                thumbnail: UIImage(resource: .testThumbnail).pngData()!,
+                url: sampleFocusURLData,
+                focusURL: sampleFocusURLData,
+                isFigureSaved: true
+            )
+
+            self.paperDataRepository.savePDFInfo(guidePaperInfo)
+            self.paperDataRepository.savePDFInfo(samplePaperInfo)
+            
+            return [guidePaperInfo, samplePaperInfo]
+        }
+    }
+    
+    private func makeSampleFocus(tempDoc: PDFDocument?) -> Data {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             .appending(path: "ReazySamplePaper_combine.pdf")
 
@@ -224,35 +285,8 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         try! FileManager.default.moveItem(at: tempPath, to: path)
 
         let focusURLData = try! path.bookmarkData(options: .minimalBookmark)
-
-        if let firstPage = tempDoc?.page(at: 0) {
-            let width = firstPage.bounds(for: .mediaBox).width
-            let height = firstPage.bounds(for: .mediaBox).height
-            
-            let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
-            let thumbnailData = image.pngData()
-            
-            let paperInfo = PaperInfo(
-                title: title,
-                thumbnail: thumbnailData!,
-                url: urlData.0,
-                focusURL: focusURLData
-            )
-
-            self.paperDataRepository.savePDFInfo(paperInfo)
-
-            return paperInfo
-        } else {
-            let paperInfo = PaperInfo(
-                title: title,
-                thumbnail: UIImage(resource: .testThumbnail).pngData()!,
-                url: urlData.0,
-                focusURL: focusURLData
-            )
-
-            self.paperDataRepository.savePDFInfo(paperInfo)
-            return paperInfo
-        }
+        
+        return focusURLData
     }
     
     public func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo? {
@@ -305,9 +339,16 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
-            
+                        
             let _ = url.startAccessingSecurityScopedResource()
             defer { url.stopAccessingSecurityScopedResource() }
+            
+            var error: NSError?
+            
+            // 업로드 전 로컬에 다운로드 진행
+            NSFileCoordinator().coordinate(readingItemAt: url, options: .forUploading, error: &error) { _ in
+//                print("coordinated URL: \(cloudURL)")
+            }
             
             if let _ = try? Data(contentsOf: fileURL) {
                 var dupNum = 1

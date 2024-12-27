@@ -68,11 +68,9 @@ extension ThumbnailTableViewController {
             self.thumbnailTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.thumbnailTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
-        
     }
     
     private func setBinding() {
-        
         self.pageListViewModel.$changedPageNumber
             .sink { [weak self] num in
                 guard let self = self, let num = num else { return }
@@ -99,12 +97,12 @@ extension ThumbnailTableViewController {
         
         NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
             .sink { [weak self] _ in
+                self?.preRenderedCells.forEach { $0.updateOrientationConstraints() }
                 self?.redrawScreen()
             }
             .store(in: &self.cancellables)
     }
     
-
     private func redrawScreen() {
         self.thumbnailTableView.reloadData()
     }
