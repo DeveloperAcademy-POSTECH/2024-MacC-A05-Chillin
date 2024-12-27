@@ -700,10 +700,11 @@ private struct FigureLoadingView: View {
                 .frame(width: 306, height: 128)
                 .foregroundStyle(.white)
             
-            VStack {
+            VStack(spacing: 16) {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .tint(.primary1)
+                    .frame(width: 16)
                 
                 Text( self.loadingTextFlag ? "Figure 추출은 10초 ~ 20초 정도 소요됩니다" : "Figure와 Table을 불러오는 중입니다")
                     .reazyFont(.body1)
