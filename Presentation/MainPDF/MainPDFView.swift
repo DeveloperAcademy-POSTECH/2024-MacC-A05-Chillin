@@ -526,23 +526,25 @@ private struct MainOriginalView: View {
                     ZStack {
                         if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
                            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                            FloatingSplitView(
-                                id: splitDetails.id,
-                                documentID: splitDetails.documentID,
-                                document: splitDetails.document,
-                                head: splitDetails.head,
-                                isFigSelected: isFigSelected,
-                                isCollectionSelected: isCollectionSelected,
-                                onSelect: {
-                                    withAnimation {
-                                        mainPDFViewModel.isPaperViewFirst.toggle()
+                            VStack(spacing: 0) {
+                                FloatingSplitView(
+                                    id: splitDetails.id,
+                                    documentID: splitDetails.documentID,
+                                    document: splitDetails.document,
+                                    head: splitDetails.head,
+                                    isFigSelected: isFigSelected,
+                                    isCollectionSelected: isCollectionSelected,
+                                    onSelect: {
+                                        withAnimation {
+                                            mainPDFViewModel.isPaperViewFirst.toggle()
+                                        }
                                     }
-                                }
-                            )
-                            .environmentObject(floatingViewModel)
-                            .environmentObject(focusFigureViewModel)
-                            
-                            divider
+                                )
+                                .environmentObject(floatingViewModel)
+                                .environmentObject(focusFigureViewModel)
+                                
+                                divider
+                            }
                         }
                     }
                     .zIndex(1)
@@ -554,23 +556,25 @@ private struct MainOriginalView: View {
                     ZStack {
                         if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
                            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                            divider
-                            
-                            FloatingSplitView(
-                                id: splitDetails.id,
-                                documentID: splitDetails.documentID,
-                                document: splitDetails.document,
-                                head: splitDetails.head,
-                                isFigSelected: isFigSelected,
-                                isCollectionSelected: isCollectionSelected,
-                                onSelect: {
-                                    withAnimation {
-                                        mainPDFViewModel.isPaperViewFirst.toggle()
+                            VStack(spacing: 0) {
+                                divider
+                                
+                                FloatingSplitView(
+                                    id: splitDetails.id,
+                                    documentID: splitDetails.documentID,
+                                    document: splitDetails.document,
+                                    head: splitDetails.head,
+                                    isFigSelected: isFigSelected,
+                                    isCollectionSelected: isCollectionSelected,
+                                    onSelect: {
+                                        withAnimation {
+                                            mainPDFViewModel.isPaperViewFirst.toggle()
+                                        }
                                     }
-                                }
-                            )
-                            .environmentObject(floatingViewModel)
-                            .environmentObject(focusFigureViewModel)
+                                )
+                                .environmentObject(floatingViewModel)
+                                .environmentObject(focusFigureViewModel)
+                            }
                         }
                     }
                     .zIndex(1)
