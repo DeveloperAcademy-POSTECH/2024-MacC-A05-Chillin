@@ -543,7 +543,8 @@ private struct MainOriginalView: View {
                                                 withAnimation {
                                                     mainPDFViewModel.isPaperViewFirst.toggle()
                                                 }
-                                            }
+                                            },
+                                            isVertical: true
                                         )
                                         .environmentObject(floatingViewModel)
                                         .environmentObject(focusFigureViewModel)
@@ -578,7 +579,6 @@ private struct MainOriginalView: View {
                         
                         ZStack {
                             MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
-                                .frame(height: floatingViewModel.splitMode ? geometry.size.height - dynamicHeight : geometry.size.height)
                         }
                         
                         ZStack {
@@ -599,7 +599,8 @@ private struct MainOriginalView: View {
                                                 withAnimation {
                                                     mainPDFViewModel.isPaperViewFirst.toggle()
                                                 }
-                                            }
+                                            },
+                                            isVertical: true
                                         )
                                         .environmentObject(floatingViewModel)
                                         .environmentObject(focusFigureViewModel)
@@ -633,6 +634,9 @@ private struct MainOriginalView: View {
                     .onAppear {
                         dynamicHeight = geometry.size.height / 2
                     }
+                    .onChange(of: geometry.size) {
+                        dynamicHeight = geometry.size.height / 2
+                    }
                 }
             case .horizontal:
                 GeometryReader { geometry in
@@ -652,7 +656,8 @@ private struct MainOriginalView: View {
                                             withAnimation {
                                                 mainPDFViewModel.isPaperViewFirst.toggle()
                                             }
-                                        }
+                                        },
+                                        isVertical: false
                                     )
                                     .environmentObject(floatingViewModel)
                                     .environmentObject(focusFigureViewModel)
@@ -702,7 +707,8 @@ private struct MainOriginalView: View {
                                             withAnimation {
                                                 mainPDFViewModel.isPaperViewFirst.toggle()
                                             }
-                                        }
+                                        },
+                                        isVertical: false
                                     )
                                     .environmentObject(floatingViewModel)
                                     .environmentObject(focusFigureViewModel)
@@ -732,6 +738,9 @@ private struct MainOriginalView: View {
                         }
                     }
                     .onAppear {
+                        dynamicWidth = geometry.size.width / 2
+                    }
+                    .onChange(of: geometry.size) {
                         dynamicWidth = geometry.size.width / 2
                     }
                 }
