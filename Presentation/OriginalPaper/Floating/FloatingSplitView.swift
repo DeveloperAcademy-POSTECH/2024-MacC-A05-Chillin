@@ -21,6 +21,7 @@ struct FloatingSplitView: View {
     
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     
     @ObservedObject var observableDocument: ObservableDocument
     
@@ -31,10 +32,11 @@ struct FloatingSplitView: View {
     let isFigSelected: Bool
     let isCollectionSelected: Bool
     let onSelect: () -> Void
+    let isVertical: Bool
     
     @State private var isSavedLocation: Bool = false
     
-    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void) {
+    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void, isVertical: Bool) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
@@ -44,9 +46,8 @@ struct FloatingSplitView: View {
         self.isFigSelected = isFigSelected
         self.isCollectionSelected = isCollectionSelected
         self.onSelect = onSelect
+        self.isVertical = isVertical
     }
-    
-    @State private var isVertical = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -66,7 +67,7 @@ struct FloatingSplitView: View {
                         Button(action: {
                             onSelect()
                         }, label: {
-                            Image(systemName: isVertical ? "arrow.left.arrow.right" : "arrow.up.arrow.down")
+                            Image(systemName: isVertical ? "arrow.up.arrow.down" : "arrow.left.arrow.right")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
@@ -238,17 +239,6 @@ struct FloatingSplitView: View {
                 }
             }
             .background(.gray100)
-            .onAppear {
-                updateOrientation(with: geometry)
-            }
-            .onChange(of: geometry.size) {
-                updateOrientation(with: geometry)
-            }
         }
-    }
-    
-    // 기기의 방향에 따라 isVertical 상태를 업데이트하는 함수
-    private func updateOrientation(with geometry: GeometryProxy) {
-        isVertical = geometry.size.height > geometry.size.width
     }
 }
