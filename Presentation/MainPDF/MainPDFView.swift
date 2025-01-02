@@ -546,8 +546,6 @@ private struct MainOriginalView: View {
                                             },
                                             isVertical: true
                                         )
-                                        .environmentObject(floatingViewModel)
-                                        .environmentObject(focusFigureViewModel)
                                         
                                         VStack(spacing: 0) {
                                             Spacer()
@@ -602,8 +600,6 @@ private struct MainOriginalView: View {
                                             },
                                             isVertical: true
                                         )
-                                        .environmentObject(floatingViewModel)
-                                        .environmentObject(focusFigureViewModel)
                                         
                                         VStack(spacing: 0) {
                                             Rectangle()
@@ -659,8 +655,6 @@ private struct MainOriginalView: View {
                                         },
                                         isVertical: false
                                     )
-                                    .environmentObject(floatingViewModel)
-                                    .environmentObject(focusFigureViewModel)
                                     
                                     HStack(spacing: 0) {
                                         Spacer()
@@ -710,8 +704,6 @@ private struct MainOriginalView: View {
                                         },
                                         isVertical: false
                                     )
-                                    .environmentObject(floatingViewModel)
-                                    .environmentObject(focusFigureViewModel)
                                     
                                     HStack(spacing: 0) {
                                         Rectangle()
