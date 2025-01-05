@@ -51,7 +51,7 @@ class FloatingViewModel: ObservableObject {
                 isSelected: true,
                 viewOffset: CGSize(width: 0, height: 0),
                 lastOffset: CGSize(width: 0, height: 0),
-                viewWidth: 300,
+                viewWidth: 500,
                 isInSplitMode: false,
                 isFigure: isFigure
             )
