@@ -42,12 +42,12 @@ struct AppView: App {
             .environmentObject(homeViewModel)
             .task {
                 self.homeViewModel.setSample()
-                await checkAppVersion()
+                await self.checkAppVersion()
             }
             .onOpenURL(perform: openUrlScheme)
             .alert("Reazy의 최신 버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
                 Button("취소", role: .cancel, action: {})
-                Button("업데이트", role: .none, action: {})
+                Button("업데이트", role: .none, action: openAppStore)
             }
         }
     }
@@ -68,7 +68,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 
 extension AppView {
-    
+    /// 외부 앱에서 업로드 시 실행 메소드
     private func openUrlScheme(_ url: URL) {
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let items = components!.queryItems!
@@ -86,6 +86,7 @@ extension AppView {
         }
     }
     
+    /// 설치된 버전과 앱스토어 버전을 비교하는 메소드
     private func checkAppVersion() async {
         guard let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"]
                 as? String else { return }
@@ -99,11 +100,20 @@ extension AppView {
             else { return }
             
             if let appStoreVersion = results[0]["version"] as? String {
+                // TODO: 임시 테스트용, 조건 수정
                 if currentVersion == appStoreVersion {
-                    print("Current Version: \(currentVersion), App Store Version: \(appStoreVersion)")
+                    print("🔔Current Version: \(currentVersion), App Store Version: \(appStoreVersion)")
                     self.isUpdateAlertPresented.toggle()
                 }
             }
+        }
+    }
+    
+    /// 앱스토어 여는 메소드
+    private func openAppStore() {
+        if let appStoreURL = URL(string: "itms-apps://itunes.apple.com/app/6737178157"),
+           UIApplication.shared.canOpenURL(appStoreURL) {
+            UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
         }
     }
 }

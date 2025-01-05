@@ -37,14 +37,6 @@ final class OriginalViewController: UIViewController {
         return view
     }()
     
-    let testPDFView: PDFView = {
-        let view = PDFView()
-        view.backgroundColor = .gray200
-        view.autoScales = false
-        view.pageShadowsEnabled = false
-        return view
-    }()
-    
     let labelBackgroundView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
