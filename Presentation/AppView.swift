@@ -22,9 +22,6 @@ struct AppView: App {
         )
     )
     
-    @State private var isReset: Bool = false
-    let resetPublisher = NotificationCenter.default.publisher(for: .resetFlag)
-    
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $navigationCoordinator.path) {
@@ -45,9 +42,6 @@ struct AppView: App {
                 self.homeViewModel.setSample()
             }
             .onOpenURL(perform: openUrlScheme)
-            .onReceive(resetPublisher) { _ in
-                self.isReset.toggle()
-            }
         }
     }
 }
