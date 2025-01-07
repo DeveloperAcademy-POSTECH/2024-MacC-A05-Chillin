@@ -100,8 +100,7 @@ extension AppView {
             else { return }
             
             if let appStoreVersion = results[0]["version"] as? String {
-                // TODO: 임시 테스트용, 조건 수정
-                if currentVersion == appStoreVersion {
+                if currentVersion != appStoreVersion {
                     print("🔔Current Version: \(currentVersion), App Store Version: \(appStoreVersion)")
                     self.isUpdateAlertPresented.toggle()
                 }
