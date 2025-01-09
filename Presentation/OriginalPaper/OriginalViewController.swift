@@ -14,7 +14,6 @@ import Combine
  */
 
 final class OriginalViewController: UIViewController {
-    
     let viewModel: MainPDFViewModel
     let commentViewModel: CommentViewModel
     
@@ -74,7 +73,7 @@ final class OriginalViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         self.setUI()
         self.setData()
         self.setGestures()
@@ -202,14 +201,20 @@ extension OriginalViewController {
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
-
+        
+        // 애플 펜슬 제스처
+        let pencilInteraction = UIPencilInteraction()
+        pencilInteraction.isEnabled = true
+        pencilInteraction.delegate = self
+        self.view.addInteraction(pencilInteraction)
+        
         let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
         commentTapGesture.delegate = self
         self.view.addGestureRecognizer(commentTapGesture)
     }
     
     /// 데이터 Binding
-    private func setBinding() {        
+    private func setBinding() {
         self.pageListViewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
@@ -256,11 +261,11 @@ extension OriginalViewController {
                 }
                 guard let page = self?.mainPDFView.currentPage else { return }
                 if let document = PDFSharedData.shared.document {
-                    let num = Int(page.label ?? "") ?? -1
+                    let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
                     
-                    self?.pageLabelView.text = "\(num) / \(document.pageCount)"
-                    self?.pageListViewModel.changedPageNumber = num - 1
-                    self?.focusFigureViewModel.changedPageNumber = num - 1
+                    self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
+                    self?.pageListViewModel.changedPageNumber = num
+                    self?.focusFigureViewModel.changedPageNumber = num
                 } else {
                     print("Document or page is nil")
                 }
@@ -276,11 +281,11 @@ extension OriginalViewController {
                 guard let self = self else { return }
                 
                 DispatchQueue.main.async {
-                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor)
+                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
                 }
             }
             .store(in: &self.cancellable)
-
+        
         
         // 번역 및 코멘트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
@@ -355,13 +360,13 @@ extension OriginalViewController {
                         self.viewModel.commentSelection = selection
                         self.viewModel.commentInputPosition = commentPosition
                         self.commentViewModel.selectedBounds = bound
-
+                        
                     }
                 }
             }
             .store(in: &self.cancellable)
         
-                
+        
         // 저장하면 currentSelection 해제
         self.viewModel.$isCommentSaved
             .sink { [weak self] isCommentSaved in
@@ -421,27 +426,28 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             }
         }
         
-        // drawingToolMode에 따라 제스처 인식기를 추가
-        if mode == .pencil || mode == .eraser || mode == .lasso {
-            let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-            if mode == .lasso {
-                pdfDrawingGestureRecognizer.allowedTouchTypes = [
-                    NSNumber(value: UITouch.TouchType.indirect.rawValue),
-                    NSNumber(value: UITouch.TouchType.direct.rawValue),
-                    NSNumber(value: UITouch.TouchType.pencil.rawValue)
-                ]
-            } else if mode == .pencil || mode == .eraser {
-                pdfDrawingGestureRecognizer.allowedTouchTypes = [
-                    NSNumber(value: UITouch.TouchType.indirect.rawValue),
-                    NSNumber(value: UITouch.TouchType.pencil.rawValue)
-                ]
-            } else {
-                pdfDrawingGestureRecognizer.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
-            }
-            self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-            pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
-            viewModel.pdfDrawer.pdfView = self.mainPDFView
+        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
+        switch mode {
+        case .lasso:
+            pdfDrawingGestureRecognizer.allowedTouchTypes = [
+                NSNumber(value: UITouch.TouchType.indirect.rawValue),
+                NSNumber(value: UITouch.TouchType.direct.rawValue),
+                NSNumber(value: UITouch.TouchType.pencil.rawValue)
+            ]
+        case .pencil, .eraser:
+            pdfDrawingGestureRecognizer.allowedTouchTypes = [
+                NSNumber(value: UITouch.TouchType.indirect.rawValue),
+                NSNumber(value: UITouch.TouchType.pencil.rawValue)
+            ]
+        default:
+            pdfDrawingGestureRecognizer.allowedTouchTypes = [
+                NSNumber(value: UITouch.TouchType.indirect.rawValue)
+            ]
         }
+        
+        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
+        viewModel.pdfDrawer.pdfView = self.mainPDFView
     }
     
     // 코멘트 버튼 annotation 제스처
@@ -457,8 +463,8 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             commentViewModel.isMenuTapped = false
             
             if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
-                    viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                    commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
+                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
             }
             viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
         } else {
@@ -486,5 +492,65 @@ class CustomPDFView: PDFView {
             }
             return false
         }
+    }
+}
+
+// MARK: - 애플 펜슬 더블 탭 처리
+extension OriginalViewController: UIPencilInteractionDelegate {
+    func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {
+        switch self.viewModel.pdfDrawer.drawingTool {
+        case .pencil:
+            switchToEraser(from: .pencil)
+
+        case .highlights:
+            switchToEraser(from: .highlights)
+
+        case .eraser:
+            switchToPreviousTool()
+
+        default:
+            break
+        }
+    }
+
+    private func switchToEraser(from tool: DrawingTool) {
+        self.viewModel.pdfDrawer.drawingTool = .eraser
+        self.viewModel.isPencil = false
+        self.viewModel.isHighlight = false
+        self.viewModel.isEraser = true
+
+        switch tool {
+        case .pencil:
+            self.viewModel.tempPenColor = self.viewModel.selectedPenColor ?? .black
+            self.viewModel.selectedPenColor = nil
+        case .highlights:
+            self.viewModel.tempHighlightColor = self.viewModel.selectedHighlightColor ?? .yellow
+            self.viewModel.selectedHighlightColor = nil
+        default:
+            break
+        }
+
+        self.viewModel.previousTool = tool
+    }
+
+    private func switchToPreviousTool() {
+        guard let previousTool = self.viewModel.previousTool else { return }
+
+        switch previousTool {
+        case .pencil:
+            self.viewModel.pdfDrawer.drawingTool = .pencil
+            self.viewModel.isPencil = true
+            self.viewModel.selectedPenColor = self.viewModel.tempPenColor ?? .black
+
+        case .highlights:
+            self.viewModel.pdfDrawer.drawingTool = .highlights
+            self.viewModel.isHighlight = true
+            self.viewModel.selectedHighlightColor = self.viewModel.tempHighlightColor ?? .yellow
+
+        default:
+            break
+        }
+
+        self.viewModel.isEraser = false
     }
 }
