@@ -463,6 +463,27 @@ extension CommentViewModel {
     }
     
     /// 밑줄 그리기
+    class lineAnnotation: PDFAnnotation {
+        override func draw(with box: PDFDisplayBox, in context: CGContext) {
+            context.saveGState()
+            
+            // 스타일 설정
+            context.setLineWidth(2.4)
+            context.setLineCap(.round)
+            context.setStrokeColor(UIColor.point4.withAlphaComponent(0.4).cgColor)
+            
+            // 라인 그리기
+            let start = CGPoint(x: bounds.minX, y: bounds.minY)
+            let end = CGPoint(x: bounds.maxX, y: bounds.minY)
+            
+            context.move(to: start)
+            context.addLine(to: end)
+            context.strokePath()
+            
+            context.restoreGState()
+        }
+    }
+    
     func drawUnderline(newComment: Comment) {
         for index in newComment.pages {
             guard let page = document?.page(at: index) else { continue }
@@ -494,18 +515,7 @@ extension CommentViewModel {
                     bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3          // 줄인 높인만큼 y축 이동
                 }
                 
-                let underline = PDFAnnotation(bounds: bounds, forType: .line, withProperties: nil)
-                
-                // 두께
-                let border = PDFBorder()
-                border.lineWidth = 2.4
-                underline.border = border
-                
-                // line 시작,끝
-                underline.startPoint = .zero
-                underline.endPoint = CGPoint(x: bounds.width, y: 0)
-                
-                underline.color = .point4.withAlphaComponent(0.4)
+                let underline = lineAnnotation(bounds: bounds, forType: .line, withProperties: nil)
                 
                 underline.setValue(newComment.id.uuidString, forAnnotationKey: .contents)
                 page.addAnnotation(underline)
