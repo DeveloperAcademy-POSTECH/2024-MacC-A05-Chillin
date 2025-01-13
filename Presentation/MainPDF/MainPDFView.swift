@@ -516,109 +516,224 @@ private struct MainOriginalView: View {
     @Binding var isCollectionSelected: Bool
     @Binding var isReadMode: Bool
     
+    @State private var dynamicWidth: CGFloat = 0
+    @State private var dynamicHeight: CGFloat = 0
+    
     let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         Group {
             switch self.orientation {
             case .vertical:
-                VStack(spacing:0) {
-                    ZStack {
-                        if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
-                           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                            FloatingSplitView(
-                                id: splitDetails.id,
-                                documentID: splitDetails.documentID,
-                                document: splitDetails.document,
-                                head: splitDetails.head,
-                                isFigSelected: isFigSelected,
-                                isCollectionSelected: isCollectionSelected,
-                                onSelect: {
-                                    withAnimation {
-                                        mainPDFViewModel.isPaperViewFirst.toggle()
+                GeometryReader { geometry in
+                    VStack(spacing:0) {
+                        ZStack {
+                            if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
+                               let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                                VStack(spacing: 0) {
+                                    ZStack {
+                                        FloatingSplitView(
+                                            id: splitDetails.id,
+                                            documentID: splitDetails.documentID,
+                                            document: splitDetails.document,
+                                            head: splitDetails.head,
+                                            isFigSelected: isFigSelected,
+                                            isCollectionSelected: isCollectionSelected,
+                                            onSelect: {
+                                                withAnimation {
+                                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                                                }
+                                            },
+                                            isVertical: true
+                                        )
+                                        
+                                        VStack(spacing: 0) {
+                                            Spacer()
+                                            Rectangle()
+                                                .frame(width: 120, height: 20)
+                                                .foregroundStyle(.clear)
+                                                .contentShape(Rectangle())
+                                                .overlay {
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .frame(width: 120, height: 4)
+                                                        .padding(.vertical, 5)
+                                                }
+                                                .gesture(
+                                                    DragGesture()
+                                                        .onChanged { value in
+                                                            let newHeight = dynamicHeight + value.translation.height
+                                                            dynamicHeight = max(50, min(newHeight, geometry.size.height - 50))
+                                                        }
+                                                )
+                                        }
+                                    }
+                                    
+                                    divider
+                                }
+                                .frame(height: dynamicHeight)
+                            }
+                        }
+                        .zIndex(1)
+                        
+                        ZStack {
+                            MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
+                        }
+                        
+                        ZStack {
+                            if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
+                               let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                                VStack(spacing: 0) {
+                                    divider
+                                    
+                                    ZStack {
+                                        FloatingSplitView(
+                                            id: splitDetails.id,
+                                            documentID: splitDetails.documentID,
+                                            document: splitDetails.document,
+                                            head: splitDetails.head,
+                                            isFigSelected: isFigSelected,
+                                            isCollectionSelected: isCollectionSelected,
+                                            onSelect: {
+                                                withAnimation {
+                                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                                                }
+                                            },
+                                            isVertical: true
+                                        )
+                                        
+                                        VStack(spacing: 0) {
+                                            Rectangle()
+                                                .frame(width: 120, height: 20)
+                                                .foregroundStyle(.clear)
+                                                .contentShape(Rectangle())
+                                                .overlay {
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .frame(width: 120, height: 4)
+                                                        .padding(.vertical, 5)
+                                                }
+                                                .gesture(
+                                                    DragGesture()
+                                                        .onChanged { value in
+                                                            let newHeight = dynamicHeight - value.translation.height
+                                                            dynamicHeight = max(50, min(newHeight, geometry.size.height - 50))
+                                                        }
+                                                )
+                                            Spacer()
+                                        }
                                     }
                                 }
-                            )
-                            .environmentObject(floatingViewModel)
-                            .environmentObject(focusFigureViewModel)
-                            
-                            divider
+                                .frame(height: dynamicHeight)
+                            }
                         }
+                        .zIndex(1)
                     }
-                    .zIndex(1)
-                    
-                    ZStack {
-                        MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
+                    .onAppear {
+                        dynamicHeight = geometry.size.height / 2
                     }
-                    
-                    ZStack {
-                        if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
-                           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                            divider
-                            
-                            FloatingSplitView(
-                                id: splitDetails.id,
-                                documentID: splitDetails.documentID,
-                                document: splitDetails.document,
-                                head: splitDetails.head,
-                                isFigSelected: isFigSelected,
-                                isCollectionSelected: isCollectionSelected,
-                                onSelect: {
-                                    withAnimation {
-                                        mainPDFViewModel.isPaperViewFirst.toggle()
-                                    }
-                                }
-                            )
-                            .environmentObject(floatingViewModel)
-                            .environmentObject(focusFigureViewModel)
-                        }
+                    .onChange(of: geometry.size) {
+                        dynamicHeight = geometry.size.height / 2
                     }
-                    .zIndex(1)
                 }
             case .horizontal:
-                HStack(spacing:0) {
-                    if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
-                       let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                        FloatingSplitView(
-                            id: splitDetails.id,
-                            documentID: splitDetails.documentID,
-                            document: splitDetails.document,
-                            head: splitDetails.head,
-                            isFigSelected: isFigSelected,
-                            isCollectionSelected: isCollectionSelected,
-                            onSelect: {
-                                withAnimation {
-                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                GeometryReader { geometry in
+                    HStack(spacing:0) {
+                        if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
+                           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                            HStack(spacing: 0) {
+                                ZStack {
+                                    FloatingSplitView(
+                                        id: splitDetails.id,
+                                        documentID: splitDetails.documentID,
+                                        document: splitDetails.document,
+                                        head: splitDetails.head,
+                                        isFigSelected: isFigSelected,
+                                        isCollectionSelected: isCollectionSelected,
+                                        onSelect: {
+                                            withAnimation {
+                                                mainPDFViewModel.isPaperViewFirst.toggle()
+                                            }
+                                        },
+                                        isVertical: false
+                                    )
+                                    
+                                    HStack(spacing: 0) {
+                                        Spacer()
+                                        Rectangle()
+                                            .frame(width: 20, height: 120)
+                                            .foregroundStyle(.clear)
+                                            .contentShape(Rectangle())
+                                            .overlay {
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .frame(width: 4, height: 120)
+                                                    .padding(.horizontal, 5)
+                                            }
+                                            .gesture(
+                                                DragGesture()
+                                                    .onChanged { value in
+                                                        let newWidth = dynamicWidth + value.translation.width
+                                                        dynamicWidth = max(50, min(newWidth, geometry.size.width - 50))
+                                                    }
+                                            )
+                                    }
+                                }
+                                
+                                divider
+                            }
+                            .frame(width: dynamicWidth)
+                        }
+                        
+                        MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
+                        
+                        if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
+                           let splitDetails = floatingViewModel.getSplitDocumentDetails() {
+                            HStack(spacing: 0) {
+                                divider
+                                
+                                ZStack {
+                                    FloatingSplitView(
+                                        id: splitDetails.id,
+                                        documentID: splitDetails.documentID,
+                                        document: splitDetails.document,
+                                        head: splitDetails.head,
+                                        isFigSelected: isFigSelected,
+                                        isCollectionSelected: isCollectionSelected,
+                                        onSelect: {
+                                            withAnimation {
+                                                mainPDFViewModel.isPaperViewFirst.toggle()
+                                            }
+                                        },
+                                        isVertical: false
+                                    )
+                                    
+                                    HStack(spacing: 0) {
+                                        Rectangle()
+                                            .frame(width: 20, height: 120)
+                                            .foregroundStyle(.clear)
+                                            .contentShape(Rectangle())
+                                            .overlay {
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .frame(width: 4, height: 120)
+                                                    .padding(.horizontal, 5)
+                                            }
+                                            .gesture(
+                                                DragGesture()
+                                                    .onChanged { value in
+                                                        let newWidth = dynamicWidth - value.translation.width
+                                                        dynamicWidth = max(50, min(newWidth, geometry.size.width - 50))
+                                                    }
+                                            )
+                                        Spacer()
+                                    }
                                 }
                             }
-                        )
-                        .environmentObject(floatingViewModel)
-                        .environmentObject(focusFigureViewModel)
-                        
-                        divider
+                            .frame(width: dynamicWidth)
+                        }
                     }
-                    
-                    MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
-                    
-                    if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
-                       let splitDetails = floatingViewModel.getSplitDocumentDetails() {
-                        divider
-                        
-                        FloatingSplitView(
-                            id: splitDetails.id,
-                            documentID: splitDetails.documentID,
-                            document: splitDetails.document,
-                            head: splitDetails.head,
-                            isFigSelected: isFigSelected,
-                            isCollectionSelected: isCollectionSelected,
-                            onSelect: {
-                                withAnimation {
-                                    mainPDFViewModel.isPaperViewFirst.toggle()
-                                }
-                            }
-                        )
-                        .environmentObject(floatingViewModel)
-                        .environmentObject(focusFigureViewModel)
+                    .onAppear {
+                        dynamicWidth = geometry.size.width / 2
+                    }
+                    .onChange(of: geometry.size) {
+                        dynamicWidth = geometry.size.width / 2
                     }
                 }
             }
