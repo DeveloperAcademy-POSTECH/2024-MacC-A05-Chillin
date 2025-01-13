@@ -99,11 +99,17 @@ struct FigureMenu: View {
                     })
                     
                 } label: {
-                    Image(.editfigure)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(.gray600)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.clear)
+                            .frame(width: 24, height: 24)
+                        
+                        Image(.editfigure)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(.gray600)
+                    }
                 }
                 .foregroundStyle(.primary2)
                 .padding(.leading, 10)
