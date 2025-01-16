@@ -187,10 +187,6 @@ extension OriginalViewController {
     }
     
     private func setGestures() {
-        // 기본 설정: 제스처 추가
-        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
         
@@ -411,13 +407,14 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
     
     private func updateGestureRecognizer(mode: DrawingTool) {
-        // 현재 설정된 제스처 인식기를 제거
+        // 기존 제스처 인식기만 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
-                self.mainPDFView.removeGestureRecognizer(recognizer)
+                if recognizer is DrawingGestureRecognizer {
+                    self.mainPDFView.removeGestureRecognizer(recognizer)
+                }
             }
         }
-        
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
         switch mode {
         case .lasso:
