@@ -19,7 +19,7 @@ struct IndexView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 if indexViewModel.tableItems.isEmpty {
-                    Text("개요가 있으면,\n여기에 표시됩니다")
+                    Text("목차가 있으면,\n여기에 표시됩니다")
                         .multilineTextAlignment(.center)
                         .reazyFont(.body3)
                         .foregroundStyle(.gray600)
