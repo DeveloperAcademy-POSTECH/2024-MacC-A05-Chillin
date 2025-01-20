@@ -560,7 +560,7 @@ private struct MainOriginalView: View {
                                                         .foregroundStyle(.gray200)
                                                         .padding(.vertical, 5)
                                                 }
-                                                .gesture(
+                                                .highPriorityGesture(
                                                     DragGesture()
                                                         .onChanged { value in
                                                             let newHeight = dynamicHeight + value.translation.height
@@ -615,7 +615,7 @@ private struct MainOriginalView: View {
                                                         .foregroundStyle(.gray200)
                                                         .padding(.vertical, 5)
                                                 }
-                                                .gesture(
+                                                .highPriorityGesture(
                                                     DragGesture()
                                                         .onChanged { value in
                                                             let newHeight = dynamicHeight - value.translation.height
@@ -673,7 +673,7 @@ private struct MainOriginalView: View {
                                                     .foregroundStyle(.gray200)
                                                     .padding(.horizontal, 5)
                                             }
-                                            .gesture(
+                                            .highPriorityGesture(
                                                 DragGesture()
                                                     .onChanged { value in
                                                         let newWidth = dynamicWidth + value.translation.width
@@ -723,7 +723,7 @@ private struct MainOriginalView: View {
                                                     .foregroundStyle(.gray200)
                                                     .padding(.horizontal, 5)
                                             }
-                                            .gesture(
+                                            .highPriorityGesture(
                                                 DragGesture()
                                                     .onChanged { value in
                                                         let newWidth = dynamicWidth - value.translation.width

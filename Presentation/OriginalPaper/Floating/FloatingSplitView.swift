@@ -237,7 +237,7 @@ struct FloatingSplitView: View {
                             }
                         }
                     }
-                    .frame(height: isVertical ? geometry.size.height * 0.2 : geometry.size.height * 0.3)
+                    .frame(height: isVertical ? geometry.size.height * 0.3 : geometry.size.height * 0.2)
                 }
             }
             .background(.gray100)
