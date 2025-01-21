@@ -67,7 +67,7 @@ extension FocusFigureViewModel {
         if self.isStartFetching { return }
         defer { self.isStartFetching = false }
         
-        var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
+        let paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         let document = self.focusFigureUseCase.pdfSharedData.document
         
         if let paper = paperInfo?.isFigureSaved, !paper { return }

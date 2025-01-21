@@ -35,8 +35,9 @@ struct FloatingSplitView: View {
     let isVertical: Bool
     
     @State private var isSavedLocation: Bool = false
+    @Binding private var dynamicHeight: CGFloat
     
-    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void, isVertical: Bool) {
+    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void, isVertical: Bool, dynamicHeight: Binding<CGFloat>) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
@@ -47,6 +48,7 @@ struct FloatingSplitView: View {
         self.isCollectionSelected = isCollectionSelected
         self.onSelect = onSelect
         self.isVertical = isVertical
+        self._dynamicHeight = dynamicHeight
     }
     
     var body: some View {
@@ -167,7 +169,7 @@ struct FloatingSplitView: View {
                 }
                 
                 
-                if isFigSelected || isCollectionSelected {
+                if (isFigSelected || isCollectionSelected) && !(isVertical && dynamicHeight <= 400) {
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(.gray300)
@@ -235,7 +237,7 @@ struct FloatingSplitView: View {
                             }
                         }
                     }
-                    .frame(height: isVertical ? geometry.size.height * 0.2 : geometry.size.height * 0.3)
+                    .frame(height: isVertical ? geometry.size.height * 0.3 : geometry.size.height * 0.2)
                 }
             }
             .background(.gray100)

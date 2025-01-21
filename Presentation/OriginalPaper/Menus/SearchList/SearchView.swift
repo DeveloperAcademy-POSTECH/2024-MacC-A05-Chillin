@@ -173,7 +173,6 @@ private struct SearchTopView: View {
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12))
-                    .frame(width: 9)
                     .foregroundStyle(.gray700)
             }
         }
