@@ -25,7 +25,7 @@ struct SearchView: View {
     var body: some View {
         VStack {
             ZStack {
-                VStack {
+                VStack(spacing: 0) {
                     SearchTextFieldView(viewModel: viewModel)
                     
                     if !viewModel.searchText.isEmpty && !viewModel.searchResults.isEmpty {
@@ -33,13 +33,15 @@ struct SearchView: View {
                             viewModel: viewModel,
                             isTapGesture: $isTapGesture,
                             selectedIndex: $selectedIndex)
+                        .padding(.top, 10)
+                        .padding(.bottom, 16)
                     }
                     
                     
                     if viewModel.isNoMatchTextVisible {
                         Spacer()
                         Text("일치하는 결과 없음")
-                            .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
+                            .reazyFont(.text5)
                             .foregroundStyle(.gray800)
                     }
                     
@@ -111,19 +113,26 @@ private struct SearchTextFieldView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(.gray200)
+                .foregroundStyle(.gray600)
             
             HStack(spacing: 0) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 14))
                     .padding(.leading, 8)
-                    .foregroundStyle(Color(hex: "9092A9"))
+                    .foregroundStyle(.gray600)
                 
-                TextField("검색", text: $viewModel.searchText)
+                TextField(
+                    "",
+                    text: $viewModel.searchText,
+                    prompt:
+                        Text("검색")
+                            .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
+                            .foregroundStyle(.gray600)
+                )
                     .padding(.leading, 4)
                     .padding(.trailing, 10)
-                    .foregroundStyle(.gray800)
-                    .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
+                    .reazyFont(.button3)
+                    .foregroundStyle(.black)
                     .focused($focus)
             }
         }
@@ -154,9 +163,7 @@ private struct SearchTopView: View {
                 previousResult()
             } label: {
                 Image(systemName: "chevron.left")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 9)
+                    .font(.system(size: 12))
                     .foregroundStyle(.gray700)
             }
             .padding(.trailing, 16)
@@ -165,8 +172,7 @@ private struct SearchTopView: View {
                 nextResult()
             } label: {
                 Image(systemName: "chevron.right")
-                    .resizable()
-                    .scaledToFit()
+                    .font(.system(size: 12))
                     .frame(width: 9)
                     .foregroundStyle(.gray700)
             }

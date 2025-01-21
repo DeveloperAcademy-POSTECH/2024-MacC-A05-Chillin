@@ -123,9 +123,6 @@ extension SearchViewModel {
     private func fetchKeywordContainedString(index: Int, textArray: [String.SubSequence], keyword: String) -> AttributedString {
         
         var resultText: AttributedString = .init()
-        // TODO: 필요 시 행간 조절 필요
-//        let paragraphStyle: NSMutableParagraphStyle = .init()
-//        paragraphStyle.lineSpacing = -10
         
         // 찾으려는 String 배열이 10보다 작을 경우
         if textArray.count < 10 {
