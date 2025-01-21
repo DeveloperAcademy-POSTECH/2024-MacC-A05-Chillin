@@ -544,21 +544,23 @@ private struct MainOriginalView: View {
                                                     mainPDFViewModel.isPaperViewFirst.toggle()
                                                 }
                                             },
-                                            isVertical: true
+                                            isVertical: true,
+                                            dynamicHeight: $dynamicHeight
                                         )
                                         
                                         VStack(spacing: 0) {
                                             Spacer()
                                             Rectangle()
-                                                .frame(width: 120, height: 20)
-                                                .foregroundStyle(.clear)
+                                                .frame(height: 8)
+                                                .foregroundStyle(.gray550)
                                                 .contentShape(Rectangle())
                                                 .overlay {
-                                                    RoundedRectangle(cornerRadius: 12)
-                                                        .frame(width: 120, height: 4)
+                                                    RoundedRectangle(cornerRadius: 2)
+                                                        .frame(width: 44, height: 4)
+                                                        .foregroundStyle(.gray200)
                                                         .padding(.vertical, 5)
                                                 }
-                                                .gesture(
+                                                .highPriorityGesture(
                                                     DragGesture()
                                                         .onChanged { value in
                                                             let newHeight = dynamicHeight + value.translation.height
@@ -598,20 +600,22 @@ private struct MainOriginalView: View {
                                                     mainPDFViewModel.isPaperViewFirst.toggle()
                                                 }
                                             },
-                                            isVertical: true
+                                            isVertical: true,
+                                            dynamicHeight: $dynamicHeight
                                         )
                                         
                                         VStack(spacing: 0) {
                                             Rectangle()
-                                                .frame(width: 120, height: 20)
-                                                .foregroundStyle(.clear)
+                                                .frame(height: 8)
+                                                .foregroundStyle(.gray550)
                                                 .contentShape(Rectangle())
                                                 .overlay {
-                                                    RoundedRectangle(cornerRadius: 12)
-                                                        .frame(width: 120, height: 4)
+                                                    RoundedRectangle(cornerRadius: 2)
+                                                        .frame(width: 44, height: 4)
+                                                        .foregroundStyle(.gray200)
                                                         .padding(.vertical, 5)
                                                 }
-                                                .gesture(
+                                                .highPriorityGesture(
                                                     DragGesture()
                                                         .onChanged { value in
                                                             let newHeight = dynamicHeight - value.translation.height
@@ -653,21 +657,23 @@ private struct MainOriginalView: View {
                                                 mainPDFViewModel.isPaperViewFirst.toggle()
                                             }
                                         },
-                                        isVertical: false
+                                        isVertical: false,
+                                        dynamicHeight: $dynamicHeight
                                     )
                                     
                                     HStack(spacing: 0) {
                                         Spacer()
                                         Rectangle()
-                                            .frame(width: 20, height: 120)
-                                            .foregroundStyle(.clear)
+                                            .frame(width: 8)
+                                            .foregroundStyle(.gray550)
                                             .contentShape(Rectangle())
                                             .overlay {
                                                 RoundedRectangle(cornerRadius: 12)
-                                                    .frame(width: 4, height: 120)
+                                                    .frame(width: 4, height: 44)
+                                                    .foregroundStyle(.gray200)
                                                     .padding(.horizontal, 5)
                                             }
-                                            .gesture(
+                                            .highPriorityGesture(
                                                 DragGesture()
                                                     .onChanged { value in
                                                         let newWidth = dynamicWidth + value.translation.width
@@ -702,20 +708,22 @@ private struct MainOriginalView: View {
                                                 mainPDFViewModel.isPaperViewFirst.toggle()
                                             }
                                         },
-                                        isVertical: false
+                                        isVertical: false,
+                                        dynamicHeight: $dynamicHeight
                                     )
                                     
                                     HStack(spacing: 0) {
                                         Rectangle()
-                                            .frame(width: 20, height: 120)
-                                            .foregroundStyle(.clear)
+                                            .frame(width: 8)
+                                            .foregroundStyle(.gray550)
                                             .contentShape(Rectangle())
                                             .overlay {
                                                 RoundedRectangle(cornerRadius: 12)
-                                                    .frame(width: 4, height: 120)
+                                                    .frame(width: 4, height: 44)
+                                                    .foregroundStyle(.gray200)
                                                     .padding(.horizontal, 5)
                                             }
-                                            .gesture(
+                                            .highPriorityGesture(
                                                 DragGesture()
                                                     .onChanged { value in
                                                         let newWidth = dynamicWidth - value.translation.width
