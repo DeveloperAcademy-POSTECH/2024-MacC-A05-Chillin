@@ -40,9 +40,12 @@ struct SearchView: View {
                     
                     if viewModel.isNoMatchTextVisible {
                         Spacer()
+                        Spacer()
                         Text("일치하는 결과 없음")
                             .reazyFont(.text5)
                             .foregroundStyle(.gray800)
+                            .padding(.bottom, 60)
+                        Spacer()
                     }
                     
                     if viewModel.isLoading {

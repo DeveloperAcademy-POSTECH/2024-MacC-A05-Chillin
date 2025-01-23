@@ -178,7 +178,7 @@ extension SearchViewModel {
                     attributedText.setAttributes(attributes)
                     
                     let range = attributedText.range(of: keyword, options: .caseInsensitive)
-                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 14)
                     
                     resultText.append(attributedText + " ")
                     continue
@@ -210,7 +210,7 @@ extension SearchViewModel {
                     attributedText.setAttributes(attributes)
                     
                     let range = attributedText.range(of: keyword, options: .caseInsensitive)
-                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 14)
                     
                     resultText.append(attributedText + " ")
                     continue
@@ -242,7 +242,7 @@ extension SearchViewModel {
                     attributedText.setAttributes(attributes)
                     
                     let range = attributedText.range(of: keyword, options: .caseInsensitive)
-                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 12)
+                    attributedText[range!].font = .custom(ReazyFontType.pretendardBoldFont, size: 14)
                     
                     resultText.append(attributedText + " ")
                     continue
