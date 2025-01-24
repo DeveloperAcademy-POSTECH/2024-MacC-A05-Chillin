@@ -76,6 +76,32 @@ struct FloatingSplitView: View {
                         
                         Spacer()
                         
+                        Button(action: {
+                            floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+                        }, label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.gray600)
+                        })
+                        .padding(.leading, 24)
+                        
+                        Text(head)
+                            .reazyFont(.text1)
+                            .foregroundStyle(.gray800)
+                            .lineLimit(1)
+                            .padding(.horizontal, 24)
+                        
+                        Button(action: {
+                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+                        }, label: {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.gray600)
+                        })
+                        .padding(.trailing, 24)
+                        
+                        Spacer()
+                        
                         Menu {
                             Button(action: {
                                 self.focusFigureViewModel.selectedID = id
@@ -106,33 +132,6 @@ struct FloatingSplitView: View {
                         })
                         .padding(.leading, 24)
                         .padding(.trailing, 20)
-                    }
-                    
-                    HStack(spacing: 0) {
-                        Spacer()
-                        
-                        Button(action: {
-                            floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
-                        }, label: {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.gray600)
-                        })
-                        
-                        Text(head)
-                            .reazyFont(.text1)
-                            .foregroundStyle(.gray800)
-                            .padding(.horizontal, 24)
-                        
-                        Button(action: {
-                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
-                        }, label: {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.gray600)
-                        })
-                        
-                        Spacer()
                     }
                 }
                 .padding(.vertical, 12)
