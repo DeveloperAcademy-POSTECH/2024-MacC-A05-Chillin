@@ -473,8 +473,8 @@ extension CommentViewModel {
             context.setStrokeColor(UIColor.point4.withAlphaComponent(0.4).cgColor)
             
             // 라인 그리기
-            let start = CGPoint(x: bounds.minX, y: bounds.minY)
-            let end = CGPoint(x: bounds.maxX, y: bounds.minY)
+            let start = CGPoint(x: bounds.minX + 0.4, y: bounds.minY + 0.4)
+            let end = CGPoint(x: bounds.maxX - 0.4, y: bounds.minY + 0.4)
             
             context.move(to: start)
             context.addLine(to: end)
@@ -492,28 +492,25 @@ extension CommentViewModel {
                 var bounds = selection.bounds
                 
                 /// 밑줄 높이 조정
+                let adjustment: CGFloat = -0.4
                 let originalBoundsHeight = bounds.size.height
                 
                 switch originalBoundsHeight {
                 case 18... :
                     bounds.size.height *= 0.45
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
                 case 16..<18 :
                     bounds.size.height *= 0.5
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
                 case 11..<16 :
                     bounds.size.height *= 0.55
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
                 case 10..<11 :
                     bounds.size.height *= 0.6
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
                 case 9..<10 :
                     bounds.size.height *= 0.7
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3
                 default :
-                    bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
-                    bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3          // 줄인 높인만큼 y축 이동
+                    bounds.size.height *= 0.8           // bounds 높이 조정하기
                 }
+                
+                bounds.origin.y += (originalBoundsHeight - bounds.size.height) / 3 + adjustment
                 
                 let underline = lineAnnotation(bounds: bounds, forType: .line, withProperties: nil)
                 
