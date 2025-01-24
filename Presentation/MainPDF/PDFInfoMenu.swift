@@ -46,7 +46,10 @@ struct PDFInfoMenu: View {
     @State var title: String?
     @State var isStarSelected: Bool = false
     
-    private let fileURL: URL = FileManager.default.temporaryDirectory.appending(path: "temp.pdf")
+    private let fileURL: URL = {
+        let fileName = PDFSharedData.shared.paperInfo?.title ?? "Untitled"
+        return FileManager.default.temporaryDirectory.appending(path: "\(fileName).pdf")
+    }()
 
     var body: some View {
         VStack(spacing: 12) {
