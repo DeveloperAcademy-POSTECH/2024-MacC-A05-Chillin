@@ -90,6 +90,7 @@
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
+		B3EE45672D43EFA8007804B9 /* PreviousButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE45662D43EFA8007804B9 /* PreviousButton.swift */; };
 		B56A56A02CF4680D000BE384 /* EditFigNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56A569F2CF4680D000BE384 /* EditFigNameView.swift */; };
 /* End PBXBuildFile section */
 
@@ -219,6 +220,7 @@
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		B3EE45662D43EFA8007804B9 /* PreviousButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviousButton.swift; sourceTree = "<group>"; };
 		B56A569F2CF4680D000BE384 /* EditFigNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFigNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -637,6 +639,7 @@
 				2C14741F2CE8FF8E00B35D92 /* ViewModel */,
 				2C1473682CE73B6F00B35D92 /* MainPDFView.swift */,
 				B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */,
+				B3EE45662D43EFA8007804B9 /* PreviousButton.swift */,
 			);
 			path = MainPDF;
 			sourceTree = "<group>";
@@ -1058,6 +1061,7 @@
 				2C1473CE2CE73B6F00B35D92 /* TranslateView.swift in Sources */,
 				2C1473CF2CE73B6F00B35D92 /* TranslateViewOlderVer.swift in Sources */,
 				2C1473D02CE73B6F00B35D92 /* CommentCell.swift in Sources */,
+				B3EE45672D43EFA8007804B9 /* PreviousButton.swift in Sources */,
 				6E241BDE2CEDF47600AE3EB4 /* MoveFolderView.swift in Sources */,
 				6ED2F1FA2CF1A10A00C5DE95 /* SearchWordView.swift in Sources */,
 				2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */,
