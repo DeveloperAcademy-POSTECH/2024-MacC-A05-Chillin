@@ -195,10 +195,10 @@ extension OriginalViewController {
         pencilInteraction.isEnabled = true
         pencilInteraction.delegate = self
         self.view.addInteraction(pencilInteraction)
-        
-        let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
-        commentTapGesture.delegate = self
-        self.view.addGestureRecognizer(commentTapGesture)
+    }
+    
+    private func clickAnnotation(_ pdfView: PDFView, didSelect annotation: PDFAnnotation) {
+        print("Annotation clicked: \(annotation)")
     }
     
     /// 데이터 Binding
@@ -240,6 +240,26 @@ extension OriginalViewController {
                 self?.updateGestureRecognizer(mode: drawingTool)
             }
             .store(in: &cancellable)
+        
+        NotificationCenter.default.addObserver(forName: .PDFViewAnnotationHit, object: nil, queue: nil) { (notification) in
+              if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
+                  if let type = annotation.type {
+                      if type == "Stamp" {      // 코멘트 탭횄을 때
+                          self.viewModel.isCommentTapped.toggle()
+                          self.commentViewModel.isMenuTapped = false
+                          
+                          if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
+                              self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                              self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
+                          }
+                          self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
+                      } else if type == "Link" {        // 링크 탭횄을 때
+                          
+                      }
+                  }
+                
+              }
+            }
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
@@ -439,27 +459,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
     }
     
-    // 코멘트 버튼 annotation 제스처
-    @objc
-    func handleCommentTap(_ sender: UITapGestureRecognizer) {
-        let location = sender.location(in: mainPDFView)
-        
-        guard let page = mainPDFView.page(for: location, nearest: true) else { return }
-        let pageLocation = mainPDFView.convert(location, to: page)
-        
-        if let tappedAnnotation = page.annotation(at: pageLocation) {
-            viewModel.isCommentTapped.toggle()
-            commentViewModel.isMenuTapped = false
-            
-            if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
-                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
-            }
-            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
-        } else {
-            print("No match comment annotation")
-        }
-    }
 }
 
 //canPerformAction()으로 menuAction 제한
