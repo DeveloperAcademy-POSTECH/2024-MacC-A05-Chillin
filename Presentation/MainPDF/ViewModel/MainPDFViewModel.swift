@@ -37,6 +37,8 @@ final class MainPDFViewModel: ObservableObject {
     
     // BubbleView의 상태와 위치
     @Published var translateViewPosition: CGRect = .zero
+    
+    @Published var previousPage: PDFDestination?
 
     // Comment
     @Published var isCommentTapped: Bool = false

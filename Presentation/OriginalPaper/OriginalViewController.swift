@@ -242,24 +242,27 @@ extension OriginalViewController {
             .store(in: &cancellable)
         
         NotificationCenter.default.addObserver(forName: .PDFViewAnnotationHit, object: nil, queue: nil) { (notification) in
-              if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
-                  if let type = annotation.type {
-                      if type == "Stamp" {      // 코멘트 탭횄을 때
-                          self.viewModel.isCommentTapped.toggle()
-                          self.commentViewModel.isMenuTapped = false
-                          
-                          if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
-                              self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                              self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
-                          }
-                          self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
-                      } else if type == "Link" {        // 링크 탭횄을 때
-                          
-                      }
-                  }
+            if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
+                if let type = annotation.type {
+                    if type == "Stamp" {      // 코멘트 탭횄을 때
+                        self.viewModel.isCommentTapped.toggle()
+                        self.commentViewModel.isMenuTapped = false
+                        
+                        if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
+                            self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                            self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
+                        }
+                        self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
+                    } else if type == "Link" {        // 링크 탭횄을 때
+                        if let destination = self.mainPDFView.currentDestination {
+                            self.viewModel.previousPage = destination
+                            print(destination)
+                        }
+                    }
+                }
                 
-              }
             }
+        }
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
