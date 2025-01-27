@@ -259,89 +259,80 @@ struct PaperListView: View {
                             }
                         }
                     }
-                    .frame(width: {
-                        if isEditing || homeViewModel.isSearching {
-                            return geometry.size.width
-                        } else if isIPadMini && isVertical {
-                            return geometry.size.width * 0.6
-                        } else {
-                            return geometry.size.width * 0.7
-                        }
-                    }())
                     .background(.gray300)
                     
-                    // 편집 모드 & 검색 모드에서는 문서 정보가 보이지 않아야 함
-                    if !isEditing && !homeViewModel.isSearching {
-                        Rectangle()
-                            .frame(width: 1)
-                            .foregroundStyle(.primary3)
-                        
-                        VStack(spacing: 0) {
-                            if !homeViewModel.filteredLists.isEmpty,
-                               let selectedItem = homeViewModel.filteredLists.first(where: { $0.id == selectedItemID }) {
-                                switch selectedItem {
-                                case .paper(let paperInfo):
-                                    PaperInfoView(
-                                        id: paperInfo.id,
-                                        image: paperInfo.thumbnail,
-                                        title: paperInfo.title,
-                                        isFavorite: paperInfo.isFavorite,
-                                        isStarSelected: paperInfo.isFavorite,
-                                        isEditingTitle: $isEditingTitle,
-                                        isEditingMemo: $isEditingMemo,
-                                        isMovingFolder: $isMovingFolder,
-                                        onNavigate: {
-                                            if !isEditing && !isNavigationPushed {
-                                                self.isNavigationPushed = true
-                                                navigateToPaper()
-                                            }
-                                        },
-                                        onDelete: {
-                                            if homeViewModel.filteredLists.isEmpty {
-                                                selectedItemID = nil
-                                            } else {
-                                                selectedItemID = homeViewModel.filteredLists.first?.id
-                                            }
-                                        }
-                                    )
-                                    
-                                case .folder(let folder):
-                                    FolderInfoView(
-                                        id: folder.id,
-                                        title: folder.title,
-                                        color: FolderColors(rawValue: folder.color) ?? .folder1,
-                                        isFavorite: folder.isFavorite,
-                                        isStarSelected: folder.isFavorite,
-                                        isEditingFolder: $isEditingFolder,
-                                        isEditingFolderMemo: $isEditingFolderMemo,
-                                        isMovingFolder: $isMovingFolder,
-                                        onNavigate: {
-                                            homeViewModel.navigateTo(folder: folder)
-                                        },
-                                        onDelete: {
-                                            if homeViewModel.filteredLists.isEmpty {
-                                                selectedItemID = nil
-                                            } else {
-                                                selectedItemID = homeViewModel.filteredLists.first?.id
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        .animation(.easeInOut, value: isEditing)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: .gray300, location: 0),
-                                    .init(color: Color(hex: "DADBEA"), location: isEditing ? 3.5 : 4)
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    }
+                    // TODO: - [브리] 문서 정보 탭 삭제 예정
+//                    if !isEditing && !homeViewModel.isSearching {
+//                        Rectangle()
+//                            .frame(width: 1)
+//                            .foregroundStyle(.primary3)
+//                        
+//                        VStack(spacing: 0) {
+//                            if !homeViewModel.filteredLists.isEmpty,
+//                               let selectedItem = homeViewModel.filteredLists.first(where: { $0.id == selectedItemID }) {
+//                                switch selectedItem {
+//                                case .paper(let paperInfo):
+//                                    PaperInfoView(
+//                                        id: paperInfo.id,
+//                                        image: paperInfo.thumbnail,
+//                                        title: paperInfo.title,
+//                                        isFavorite: paperInfo.isFavorite,
+//                                        isStarSelected: paperInfo.isFavorite,
+//                                        isEditingTitle: $isEditingTitle,
+//                                        isEditingMemo: $isEditingMemo,
+//                                        isMovingFolder: $isMovingFolder,
+//                                        onNavigate: {
+//                                            if !isEditing && !isNavigationPushed {
+//                                                self.isNavigationPushed = true
+//                                                navigateToPaper()
+//                                            }
+//                                        },
+//                                        onDelete: {
+//                                            if homeViewModel.filteredLists.isEmpty {
+//                                                selectedItemID = nil
+//                                            } else {
+//                                                selectedItemID = homeViewModel.filteredLists.first?.id
+//                                            }
+//                                        }
+//                                    )
+//                                    
+//                                case .folder(let folder):
+//                                    FolderInfoView(
+//                                        id: folder.id,
+//                                        title: folder.title,
+//                                        color: FolderColors(rawValue: folder.color) ?? .folder1,
+//                                        isFavorite: folder.isFavorite,
+//                                        isStarSelected: folder.isFavorite,
+//                                        isEditingFolder: $isEditingFolder,
+//                                        isEditingFolderMemo: $isEditingFolderMemo,
+//                                        isMovingFolder: $isMovingFolder,
+//                                        onNavigate: {
+//                                            homeViewModel.navigateTo(folder: folder)
+//                                        },
+//                                        onDelete: {
+//                                            if homeViewModel.filteredLists.isEmpty {
+//                                                selectedItemID = nil
+//                                            } else {
+//                                                selectedItemID = homeViewModel.filteredLists.first?.id
+//                                            }
+//                                        }
+//                                    )
+//                                }
+//                            }
+//                        }
+//                        .animation(.easeInOut, value: isEditing)
+//                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                        .background(
+//                            LinearGradient(
+//                                gradient: Gradient(stops: [
+//                                    .init(color: .gray300, location: 0),
+//                                    .init(color: Color(hex: "DADBEA"), location: isEditing ? 3.5 : 4)
+//                                ]),
+//                                startPoint: .top,
+//                                endPoint: .bottom
+//                            )
+//                        )
+//                    }
                 }
                 
                 if isMenuOpen {
