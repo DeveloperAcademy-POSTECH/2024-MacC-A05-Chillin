@@ -564,7 +564,7 @@ private struct MainOriginalView: View {
                                                     DragGesture()
                                                         .onChanged { value in
                                                             let newHeight = dynamicHeight + value.translation.height
-                                                            dynamicHeight = max(50, min(newHeight, geometry.size.height - 50))
+                                                            dynamicHeight = max(geometry.size.height * 2 / 7, min(newHeight, geometry.size.height - 50))
                                                         }
                                                 )
                                         }
@@ -619,7 +619,7 @@ private struct MainOriginalView: View {
                                                     DragGesture()
                                                         .onChanged { value in
                                                             let newHeight = dynamicHeight - value.translation.height
-                                                            dynamicHeight = max(50, min(newHeight, geometry.size.height - 50))
+                                                            dynamicHeight = max(geometry.size.height * 2 / 7, min(newHeight, geometry.size.height - 50))
                                                         }
                                                 )
                                             Spacer()
@@ -677,7 +677,7 @@ private struct MainOriginalView: View {
                                                 DragGesture()
                                                     .onChanged { value in
                                                         let newWidth = dynamicWidth + value.translation.width
-                                                        dynamicWidth = max(50, min(newWidth, geometry.size.width - 50))
+                                                        dynamicWidth = max(geometry.size.width * 2 / 7, min(newWidth, geometry.size.width - 50))
                                                     }
                                             )
                                     }
@@ -727,7 +727,7 @@ private struct MainOriginalView: View {
                                                 DragGesture()
                                                     .onChanged { value in
                                                         let newWidth = dynamicWidth - value.translation.width
-                                                        dynamicWidth = max(50, min(newWidth, geometry.size.width - 50))
+                                                        dynamicWidth = max(geometry.size.width * 2 / 7, min(newWidth, geometry.size.width - 50))
                                                     }
                                             )
                                         Spacer()
