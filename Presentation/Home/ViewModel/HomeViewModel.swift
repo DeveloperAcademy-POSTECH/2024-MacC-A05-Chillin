@@ -49,6 +49,12 @@ class HomeViewModel: ObservableObject {
             updateFilteredList()
         }
     }
+    @Published public var isTagSelected: Bool = false {
+        didSet {
+            resetToRoot()
+            updateFilteredList()
+        }
+    }
     
     @Published public var isSearching: Bool = false
     @Published public var searchText: String = "" {

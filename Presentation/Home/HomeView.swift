@@ -54,29 +54,6 @@ struct HomeView: View {
                             .frame(width: 62, height: 50)
                             .padding(.trailing, 36)
                         
-                        if !homeViewModel.isSearching {
-                            Button(action: {
-                                homeViewModel.isFavoriteSelected = false
-                            }) {
-                                Text("전체")
-                                    .reazyFont(homeViewModel.isFavoriteSelected ? .text1 : .button1)
-                                    .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray600 : .gray100)
-                            }
-                            
-                            Rectangle()
-                                .frame(width: 1, height: 16)
-                                .foregroundStyle(.gray700)
-                                .padding(.horizontal, 14)
-                            
-                            Button(action: {
-                                homeViewModel.isFavoriteSelected = true
-                            }) {
-                                Text("즐겨찾기")
-                                    .reazyFont(homeViewModel.isFavoriteSelected ? .button1 : .text1)
-                                    .foregroundStyle(homeViewModel.isFavoriteSelected ? .gray100 : .gray600)
-                            }
-                        }
-                        
                         Spacer()
                         
                         switch homeViewModel.selectedMenu {
@@ -105,19 +82,31 @@ struct HomeView: View {
                 }
                 .frame(height: 80)
                 
-                if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
-                    SearchWordView()
-                } else {
-                    PaperListView(
-                        selectedItemID: $selectedItemID,
-                        selectedItems: $selectedItems,
-                        isEditing: $isEditing,
-                        isEditingTitle: $isEditingTitle,
-                        isEditingFolder: $isEditingFolder,
-                        isEditingMemo: $isEditingMemo,
-                        isEditingFolderMemo: $isEditingFolderMemo,
-                        isMovingFolder: $isMovingFolder
-                    )
+                GeometryReader { geometry in
+                    if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
+                        SearchWordView()
+                    } else {
+                        HStack(spacing: 0) {
+                            HomeListView()
+                                .frame(width: geometry.size.width / 4)
+                            
+                            if homeViewModel.isTagSelected {
+                                // TODO: - [쿠로] 태그 뷰 위치
+                                TagView()
+                            } else {
+                                PaperListView(
+                                    selectedItemID: $selectedItemID,
+                                    selectedItems: $selectedItems,
+                                    isEditing: $isEditing,
+                                    isEditingTitle: $isEditingTitle,
+                                    isEditingFolder: $isEditingFolder,
+                                    isEditingMemo: $isEditingMemo,
+                                    isEditingFolderMemo: $isEditingFolderMemo,
+                                    isMovingFolder: $isMovingFolder
+                                )
+                            }
+                        }
+                    }
                 }
             }
             .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
