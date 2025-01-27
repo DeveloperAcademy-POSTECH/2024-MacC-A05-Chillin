@@ -7,10 +7,17 @@
 
 import SwiftUI
 
-struct PreviousButton: View {
+struct BackPageButton: View {
+    
+    @EnvironmentObject private var viewModel: MainPDFViewModel
+    
     var body: some View {
         Button(action: {
+            viewModel.isLinkTapped = false
             
+            print("버튼 누르기 전 : \(viewModel.backPageDestination)")
+            viewModel.updateBackDestination()
+            print("버튼 누른 후 : \(viewModel.backPageDestination)")
         }, label: {
             HStack {
                 Image(systemName: "arrow.uturn.backward")
@@ -34,5 +41,5 @@ struct PreviousButton: View {
 }
 
 #Preview {
-    PreviousButton()
+    BackPageButton()
 }

@@ -221,6 +221,20 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
+        self.viewModel.$backPageDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                guard let destination = destination else { return }
+                guard let page = destination.page else { return }
+                let rect = CGRect(origin: destination.point, size: CGSize(width: 10, height: 10))
+                guard let scale = self?.viewModel.backScaleFactor else { return }
+                print("ㄹㅇ 이동 직전")
+                print(page)
+                self?.mainPDFView.go(to: rect, on: page)
+                self?.mainPDFView.scaleFactor = scale
+            }
+            .store(in: &self.cancellable)
+        
         
         self.searchViewModel.$searchSelection
             .receive(on: DispatchQueue.main)
@@ -254,13 +268,14 @@ extension OriginalViewController {
                         }
                         self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
                     } else if type == "Link" {        // 링크 탭횄을 때
+                        self.viewModel.isLinkTapped = true
                         if let destination = self.mainPDFView.currentDestination {
-                            self.viewModel.previousPage = destination
-                            print(destination)
+                            self.viewModel.updateTempDestination(destination)
+                            print("현재 위치 : \(destination)")
                         }
+                        self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
                     }
                 }
-                
             }
         }
         

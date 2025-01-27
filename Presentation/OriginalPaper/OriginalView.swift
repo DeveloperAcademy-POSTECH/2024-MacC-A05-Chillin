@@ -81,6 +81,12 @@ struct OriginalView: View {
                         }
                     }
                 }
+                
+                if viewModel.isLinkTapped {
+                    ZStack {
+                        BackPageButton()
+                    }
+                }
             }
             .onChange(of: geometry.size) {
                 commentViewModel.isMenuTapped = false

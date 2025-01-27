@@ -38,7 +38,44 @@ final class MainPDFViewModel: ObservableObject {
     // BubbleView의 상태와 위치
     @Published var translateViewPosition: CGRect = .zero
     
-    @Published var previousPage: PDFDestination?
+    // 이전 페이지로 버튼
+    private var tempDestination: PDFDestination?
+    @Published var backPageDestination: PDFDestination?
+    @Published var backScaleFactor: CGFloat = .zero
+    @Published var isLinkTapped: Bool = false
+    var isBackButtonTapped: Bool {
+        isLinkTapped
+    }
+    
+    func updateTempDestination(_ destination: PDFDestination) {
+        tempDestination = destination
+    }
+    func updateBackDestination() {
+        if let page = tempDestination?.page {
+            backPageDestination = goToPage(page: page, at: tempDestination!.point)
+        }
+    }
+    
+    public func goToPage(page num: PDFPage, at point: CGPoint) -> PDFDestination {
+        print("함수 실행")
+        print(num)
+        
+        guard let pageNum = self.pdfSharedData.document?.index(for: num) else {
+            return . init()
+        }
+
+        guard let convertPage = self.pdfSharedData.document?.page(at: pageNum) else {
+            return .init()
+        }
+        
+        print("페이지 변환")
+        print(convertPage)
+        print(point)
+        
+        let destination = PDFDestination(page: convertPage, at: point)
+        
+        return destination
+    }
 
     // Comment
     @Published var isCommentTapped: Bool = false
