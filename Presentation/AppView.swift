@@ -46,7 +46,7 @@ struct AppView: App {
             }
             .onOpenURL(perform: openUrlScheme)
             .alert("Reazy의 최신 버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
-                Button("취소", role: .cancel, action: {})
+                Button("취소", role: .none, action: {})
                 Button("업데이트", role: .none, action: openAppStore)
             }
         }
