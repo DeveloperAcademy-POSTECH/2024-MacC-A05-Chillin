@@ -392,7 +392,7 @@ private struct EditMenuView: View {
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
-                Image(.copy)
+                Image(.copyLight)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
