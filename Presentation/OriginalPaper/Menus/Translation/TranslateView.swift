@@ -40,70 +40,71 @@ struct TranslateView: View {
                     }
                 }
                 .popover(isPresented: $isPopoverVisible) {
-                        VStack(spacing: 10) {
-                            // MARK: 번역 결과
-                            ScrollView(showsIndicators: false) {
-                                Text(targetText)
-                                    .foregroundColor(.point2)
-                                    .lineSpacing(8)
-                                    .font(.system(size: 16, weight: .regular))
-                                    .frame(minWidth: minBubbleWidth, maxWidth: maxBubbleWidth, alignment: .leading)
-                                    .fixedSize(horizontal: false, vertical: true) // 텍스트 크기에 맞게 높이 조절
-                                    .background(
-                                        GeometryReader { textGeometry in
-                                            Color.clear
-                                                .preference(key: ViewHeightKey.self, value: textGeometry.size.height)
-                                        }
+                    VStack(spacing: 10) {
+                        // MARK: 번역 결과
+                        ScrollView(showsIndicators: false) {
+                            Text(targetText)
+                                .foregroundColor(.point2)
+                                .lineSpacing(8)
+                                .font(.system(size: 16, weight: .regular))
+                                .frame(minWidth: minBubbleWidth, maxWidth: maxBubbleWidth, alignment: .leading)
+                                .fixedSize(horizontal: false, vertical: true) // 텍스트 크기에 맞게 높이 조절
+                                .background(
+                                    GeometryReader { textGeometry in
+                                        Color.clear
+                                            .preference(key: ViewHeightKey.self, value: textGeometry.size.height)
+                                    }
+                                )
+                        }
+                        .frame(height: min(textHeight, maxBubbleHeight))
+                        .frame(maxWidth: maxBubbleWidth, maxHeight: maxBubbleHeight)
+                        .onPreferenceChange(ViewHeightKey.self) { height in
+                            DispatchQueue.main.async {
+                                textHeight = height + 16
+                            }
+                        }
+                        HStack(alignment: .center){
+                            Spacer()
+                            Text("번역 결과가 클립보드에 저장되었습니다")
+                                .padding(.horizontal, 8)
+                                .font(.system(size: 12, weight: .light))
+                                .foregroundColor(.gray600)
+                                .opacity(isCopySuccess ? 1 : 0)
+                                .animation(.easeInOut(duration: 0.1), value: isCopySuccess)
+                            // MARK: 복사 버튼
+                            Button(action: {
+                                copyToClipboard()
+                            }) {
+                                RoundedRectangle(cornerRadius: 0)
+                                    .foregroundStyle(.clear)
+                                    .frame(width: 20, height: 20)
+                                    .overlay(
+                                        Image(.copyDark)
+                                            .font(.system(size: 20))
+                                            .foregroundStyle(.gray600)
                                     )
                             }
-                            .frame(height: min(textHeight, maxBubbleHeight))
-                            .frame(maxWidth: maxBubbleWidth, maxHeight: maxBubbleHeight)
-                            .onPreferenceChange(ViewHeightKey.self) { height in
-                                DispatchQueue.main.async {
-                                    textHeight = height + 16
-                                }
-                            }
-                            HStack(alignment: .center){
-                                Spacer()
-                                if isCopySuccess {
-                                    Text("번역 결과가 클립보드에 저장되었습니다")
-                                        .animation(.easeInOut, value: isCopySuccess)
-                                        .padding(.horizontal, 8)
-                                        .font(.system(size: 12, weight: .light))
-                                        .foregroundColor(.gray600)
-                                        .opacity(isCopySuccess ? 1 : 0)
-                                        .animation(.easeInOut(duration: 1.5), value: isCopySuccess)
-                                }
-                                // MARK: 복사 버튼
-                                Button(action: {
-                                    copyToClipboard()
-                                }) {
-                                    RoundedRectangle(cornerRadius: 0)
-                                        .foregroundStyle(.clear)
-                                        .frame(width: 20, height: 20)
-                                        .overlay(
-                                            Image(.copyDark)
-                                                .font(.system(size: 20))
-                                                .foregroundStyle(.gray600)
-                                        )
-                                }
-                            }
-                            .foregroundStyle(.clear)
                         }
-                        .padding(.vertical, 20)
-                        .padding(.horizontal, 22)
+                        .foregroundStyle(.clear)
+                    }
+                    .padding(.vertical, 20)
+                    .padding(.horizontal, 22)
                     
                 }
                 .position(updatedBubblePosition)
                 .frame(height: min(textHeight + 16, maxBubbleHeight))
                 .onAppear {
-                    bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
+                    DispatchQueue.main.async {
+                        bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
+                    }
                     triggerTranslation()
                 }
                 .onChange(of: mainPDFViewModel.selectedText) {
                     if !mainPDFViewModel.selectedText.isEmpty {
                         isTranslationComplete = false
-                        bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
+                        DispatchQueue.main.async {
+                            bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
+                        }
                         triggerTranslation()
                     }
                 }
@@ -120,7 +121,7 @@ struct TranslateView: View {
                 }
         }
     }
-
+    
     // 번역
     private func triggerTranslation() {
         guard configuration == nil else {
@@ -158,9 +159,8 @@ struct TranslateView: View {
     func copyToClipboard(){
         pasteboard.string = self.targetText
         isCopySuccess = true
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation(.easeOut(duration: 1.5)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation(.easeOut(duration: 1.0)) {
                 isCopySuccess = false
             }
         }
