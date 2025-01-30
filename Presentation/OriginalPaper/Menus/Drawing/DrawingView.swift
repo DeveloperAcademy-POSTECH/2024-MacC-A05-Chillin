@@ -12,9 +12,40 @@ struct DrawingView: View {
     @State var selectedHighlightColor: HighlightColors?
     @State var selectedPenColor: PenColors?
     @Binding var selectedButton: Buttons?
+    
+    @State private var isHorizontal = false
 
     var body: some View {
-        VStack(spacing: 0) {
+        Group {
+            if isHorizontal {
+                HStack(spacing: 10) {
+                    DrawingToolBar()
+                }
+                .padding(.horizontal, 6)
+            } else {
+                VStack(spacing: 10) {
+                    DrawingToolBar()
+                }
+                .padding(.vertical, 6)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
+        .onAppear {
+            selectedPenColor = mainPDFViewModel.selectedPenColor
+            selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
+        }
+        .onChange(of: mainPDFViewModel.selectedPenColor){
+            selectedPenColor = mainPDFViewModel.selectedPenColor
+        }
+        .onChange(of: mainPDFViewModel.selectedHighlightColor){
+            selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
+        }
+    }
+    
+    
+    @ViewBuilder
+    private func DrawingToolBar() -> some View {
             Button(action: {
                 mainPDFViewModel.toggleHighlight()
                 
@@ -47,7 +78,6 @@ struct DrawingView: View {
                             .foregroundStyle(.gray800)
                     )
             }
-            .padding(.bottom, 10)
 
             ForEach(HighlightColors.allCases, id: \.self) { color in
                 HighlightColorButton(button: $selectedHighlightColor, selectedButton: color) {
@@ -60,13 +90,9 @@ struct DrawingView: View {
                     mainPDFViewModel.selectedPenColor = nil
                     mainPDFViewModel.isEraser = false
                 }
-                .padding(.bottom, color == .blue ? 16 : 10)
             }
 
-            Rectangle()
-                .frame(width: 32, height: 1)
-                .foregroundStyle(.primary3)
-                .padding(.bottom, 12)
+            divider()
 
             Button(action: {
                 mainPDFViewModel.togglePencil()
@@ -103,7 +129,6 @@ struct DrawingView: View {
                             .foregroundStyle(.gray800)
                     )
             }
-            .padding(.bottom, 10)
 
             ForEach(PenColors.allCases, id: \.self) { color in
                 PenColorButton(button: $selectedPenColor, selectedButton: color) {
@@ -116,13 +141,9 @@ struct DrawingView: View {
                     selectedHighlightColor = nil
                     mainPDFViewModel.isEraser = false
                 }
-                .padding(.bottom, color == .green ? 16 : 10)
             }
 
-            Rectangle()
-                .frame(width: 32, height: 1)
-                .foregroundStyle(.primary3)
-                .padding(.bottom, 12)
+            divider()
 
             Button(action: {
                 mainPDFViewModel.toggleEraser()
@@ -148,12 +169,8 @@ struct DrawingView: View {
                             .foregroundStyle(.gray800)
                     )
             }
-            .padding(.bottom, 12)
 
-            Rectangle()
-                .frame(width: 32, height: 1)
-                .foregroundStyle(.primary3)
-                .padding(.bottom, 12)
+            divider()
 
             Button(action: {
                 mainPDFViewModel.pdfDrawer.undo()
@@ -168,7 +185,6 @@ struct DrawingView: View {
                     )
             }
             .disabled(!mainPDFViewModel.canUndo) // 비활성화
-            .padding(.bottom, 9)
             .opacity(mainPDFViewModel.canUndo ? 1.0 : 0.5) 
 
             Button(action: {
@@ -186,6 +202,21 @@ struct DrawingView: View {
             .disabled(!mainPDFViewModel.canRedo) // 비활성화
             .opacity(mainPDFViewModel.canRedo ? 1.0 : 0.5)
             
+            divider()
+
+            // MARK: 툴바 방향 전환
+            Button(action: {
+                isHorizontal.toggle()
+            }) {
+                RoundedRectangle(cornerRadius: 6)
+                    .foregroundStyle(.clear)
+                    .frame(width: 26, height: 26)
+                    .overlay(
+                        Image(systemName: isHorizontal ? "arrow.left.and.right" : "arrow.up.and.down")
+                            .font(.system(size: 15))
+                            .foregroundStyle(.gray700)
+                    )
+            }
             Button(action: {
                 selectedButton = nil
                 mainPDFViewModel.toolMode = .none
@@ -200,19 +231,25 @@ struct DrawingView: View {
                             .foregroundStyle(.gray700)
                     )
             }
-            .padding(.top, 18)
+    
+    }
+    
+    @ViewBuilder
+    private func divider() -> some View {
+        if isHorizontal {
+            // 가로 툴바
+            Rectangle()
+                .frame(width: 1, height: 32)
+                .foregroundStyle(.primary3)
+                .padding(.horizontal, 6)
+        } else {
+            // 세로 툴바
+            Rectangle()
+                .frame(width: 32, height: 1)
+                .foregroundStyle(.primary3)
+                .padding(.vertical, 6)
         }
-        .padding(.vertical, 16)
-        .padding(.horizontal, 10)
-        .onAppear {
-            selectedPenColor = mainPDFViewModel.selectedPenColor
-            selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
-        }
-        .onChange(of: mainPDFViewModel.selectedPenColor){
-            selectedPenColor = mainPDFViewModel.selectedPenColor
-        }
-        .onChange(of: mainPDFViewModel.selectedHighlightColor){
-            selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
-        }
+        
     }
 }
+
