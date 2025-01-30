@@ -14,7 +14,7 @@ struct DrawingView: View {
     @Binding var selectedButton: Buttons?
     
     @State private var isHorizontal = false
-
+    
     var body: some View {
         Group {
             if isHorizontal {
@@ -41,6 +41,7 @@ struct DrawingView: View {
         .onChange(of: mainPDFViewModel.selectedHighlightColor){
             selectedHighlightColor = mainPDFViewModel.selectedHighlightColor
         }
+        .animation(.easeInOut(duration: 1.0), value: isHorizontal)
     }
     
     
@@ -206,13 +207,15 @@ struct DrawingView: View {
 
             // MARK: 툴바 방향 전환
             Button(action: {
-                isHorizontal.toggle()
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isHorizontal.toggle()
+                }
             }) {
                 RoundedRectangle(cornerRadius: 6)
                     .foregroundStyle(.clear)
                     .frame(width: 26, height: 26)
                     .overlay(
-                        Image(systemName: isHorizontal ? "arrow.left.and.right" : "arrow.up.and.down")
+                        Image(systemName: isHorizontal ? "arrow.up.and.down" : "arrow.left.and.right")
                             .font(.system(size: 15))
                             .foregroundStyle(.gray700)
                     )
