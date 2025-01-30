@@ -65,9 +65,9 @@ struct TranslateView: View {
                         }
                         HStack(alignment: .center){
                             Spacer()
-                            Text("번역 결과가 클립보드에 저장되었습니다")
+                            Text("번역 내용이 복사되었어요")
                                 .padding(.horizontal, 8)
-                                .font(.system(size: 12, weight: .light))
+                                .reazyFont(.body2)
                                 .foregroundColor(.gray600)
                                 .opacity(isCopySuccess ? 1 : 0)
                                 .animation(.easeInOut(duration: 0.1), value: isCopySuccess)
@@ -159,8 +159,8 @@ struct TranslateView: View {
     func copyToClipboard(){
         pasteboard.string = self.targetText
         isCopySuccess = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation(.easeOut(duration: 1.0)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            withAnimation(.easeOut(duration: 1.3)) {
                 isCopySuccess = false
             }
         }
