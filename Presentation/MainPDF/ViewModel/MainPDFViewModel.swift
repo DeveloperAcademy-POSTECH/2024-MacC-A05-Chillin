@@ -49,11 +49,8 @@ final class MainPDFViewModel: ObservableObject {
     
     func updateTempDestination(_ destination: PDFDestination) {
         tempDestination = destination
-//        if let cropBox = tempDestination?.page?.bounds(for: .cropBox) {
-//            print("✅ 페이지 cropBox: \(cropBox)")
-//            print("✅ 좌표가 유효한가? \(cropBox.contains(tempDestination!.point))")
-//        }
     }
+    
     func updateBackDestination() {
         if let destination = tempDestination {
             backPageDestination = convertDestination(for: destination)
@@ -71,26 +68,25 @@ final class MainPDFViewModel: ObservableObject {
         var pageIndex = document.index(for: page)
         let pageHeight = page.bounds(for: .cropBox).maxY
         
+        // 왼쪽 상단 좌표값 구하기
         let rect = pdfView.convert(page.bounds(for: .cropBox), from: page)
-        var adjustY = rect.maxY
+        var adjustY = rect.maxY / self.backScaleFactor
 
         print("🔥 페이지 높이: \(pageHeight)")
         print("🔥 왼쪽 상단 좌표: (\(rect.minX), \(adjustY))")
 
-        // 현재 좌표가 페이지 높이를 넘어가면 이전 페이지로 이동
-        if adjustY > pageHeight, pageIndex > 0 {
-            if adjustY > pageHeight * 2 {
-                print("🔥한번 더 빼주기🔥")
-                adjustY -= pageHeight * 2
-                pageIndex -= 2
-            } else {
-                adjustY -= pageHeight
-                pageIndex -= 1
-            }
+        // 현재 좌표가 페이지 높이 이상이면 이전 페이지로 index 설정
+        var num = Int(adjustY / pageHeight) // 넘어가야 하는 페이지 개수 계산
+
+        while num > 0, pageIndex > 0 {
+            print("🔥 \(num)번 더 빼주기🔥")
+            adjustY -= pageHeight * CGFloat(num) // 한 번에 조정
+            pageIndex -= num
+            num = Int(adjustY / pageHeight) // 다시 계산 (오차 방지)
         }
 
         guard let targetPage = document.page(at: pageIndex) else { return nil }
-        return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY))
+        return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x / self.backScaleFactor, y: adjustY))
     }
     
     public func convertDestination(for destination: PDFDestination) -> PDFDestination {

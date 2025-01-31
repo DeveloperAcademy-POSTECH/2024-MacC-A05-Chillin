@@ -277,11 +277,11 @@ extension OriginalViewController {
                         print("🔥 링크 주석 누름")
 
                             print("🔥 현재 위치 : \(self.mainPDFView.currentDestination)")
+                        self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
+                        
                         if let destination = self.viewModel.getTopLeadingDestination(pdfView: self.mainPDFView) {
                             self.viewModel.updateTempDestination(destination)
                         }
-                        
-                        self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
                             self?.viewModel.isLinkTapped = true
