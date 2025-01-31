@@ -65,7 +65,7 @@ final class OriginalViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         self.setUI()
         self.setData()
         self.setGestures()
@@ -217,7 +217,6 @@ extension OriginalViewController {
             .sink { [weak self] destination in
                 guard let destination = destination,
                       let page = destination.page else { return }
-                print("✅🔥 이동할 목차 페이지. : \(page)")
                 self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)
@@ -225,19 +224,14 @@ extension OriginalViewController {
         self.viewModel.$backPageDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
-                print("🔥 backPageDestination 값 업데이트 되었음 🔥")
                 
                 guard let destination = destination,
-                let scale = self?.viewModel.backScaleFactor else { return }
-                print("🔥 저장된 scale 값 : \(scale)")
-                print("🔥이동할 destination : \(destination)")
+                      let scale = self?.viewModel.backScaleFactor else { return }
+                
                 if let pdfView = self?.mainPDFView {
                     pdfView.scaleFactor = scale
                     pdfView.go(to: destination)
                 }
-                print("🔥 페이지 이동 끝")
-                print("🔥=====================================🔥")
-                print("🔥=====================================🔥")
             }
             .store(in: &self.cancellable)
         
@@ -274,9 +268,7 @@ extension OriginalViewController {
                         }
                         self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
                     } else if type == "Link" {        // 링크 탭횄을 때
-                        print("🔥 링크 주석 누름")
-
-                            print("🔥 현재 위치 : \(self.mainPDFView.currentDestination)")
+                        
                         self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
                         
                         if let destination = self.viewModel.getTopLeadingDestination(pdfView: self.mainPDFView) {
@@ -363,7 +355,7 @@ extension OriginalViewController {
                     /// 코멘트 뷰가 아래 화면 초과
                     if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 && !(convertedBounds.maxX > self.mainPDFView.bounds.maxX * 0.6) {
                         commentY = convertedBounds.minY - 80
-                    /// 코멘트 뷰가 두 컬럼 모두 선택일 때
+                        /// 코멘트 뷰가 두 컬럼 모두 선택일 때
                     } else {
                         if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
                             let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
@@ -519,24 +511,24 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         switch self.viewModel.pdfDrawer.drawingTool {
         case .pencil:
             switchToEraser(from: .pencil)
-
+            
         case .highlights:
             switchToEraser(from: .highlights)
-
+            
         case .eraser:
             switchToPreviousTool()
-
+            
         default:
             break
         }
     }
-
+    
     private func switchToEraser(from tool: DrawingTool) {
         self.viewModel.pdfDrawer.drawingTool = .eraser
         self.viewModel.isPencil = false
         self.viewModel.isHighlight = false
         self.viewModel.isEraser = true
-
+        
         switch tool {
         case .pencil:
             self.viewModel.tempPenColor = self.viewModel.selectedPenColor ?? .black
@@ -547,28 +539,28 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         default:
             break
         }
-
+        
         self.viewModel.previousTool = tool
     }
-
+    
     private func switchToPreviousTool() {
         guard let previousTool = self.viewModel.previousTool else { return }
-
+        
         switch previousTool {
         case .pencil:
             self.viewModel.pdfDrawer.drawingTool = .pencil
             self.viewModel.isPencil = true
             self.viewModel.selectedPenColor = self.viewModel.tempPenColor ?? .black
-
+            
         case .highlights:
             self.viewModel.pdfDrawer.drawingTool = .highlights
             self.viewModel.isHighlight = true
             self.viewModel.selectedHighlightColor = self.viewModel.tempHighlightColor ?? .yellow
-
+            
         default:
             break
         }
-
+        
         self.viewModel.isEraser = false
     }
 }

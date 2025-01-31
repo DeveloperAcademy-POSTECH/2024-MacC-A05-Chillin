@@ -24,7 +24,7 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
-
+    
     @Published var toolMode: ToolMode = .none {
         didSet {
             if isCommentVisible {
@@ -55,7 +55,6 @@ final class MainPDFViewModel: ObservableObject {
         if let destination = tempDestination {
             backPageDestination = convertDestination(for: destination)
         }
-        print("🔥함수 실행 끝")
     }
     
     func getTopLeadingDestination(pdfView: PDFView) -> PDFDestination? {
@@ -64,58 +63,47 @@ final class MainPDFViewModel: ObservableObject {
               let document = pdfView.document else {
             return nil
         }
-
+        
         var pageIndex = document.index(for: page)
         let pageHeight = page.bounds(for: .cropBox).maxY
         
         // 왼쪽 상단 좌표값 구하기
         let rect = pdfView.convert(page.bounds(for: .cropBox), from: page)
         var adjustY = rect.maxY / self.backScaleFactor
-
-        print("🔥 페이지 높이: \(pageHeight)")
-        print("🔥 왼쪽 상단 좌표: (\(rect.minX), \(adjustY))")
-
-        // 현재 좌표가 페이지 높이 이상이면 이전 페이지로 index 설정
-        var num = Int(adjustY / pageHeight) // 넘어가야 하는 페이지 개수 계산
-
-        while num > 0, pageIndex > 0 {
-            print("🔥 \(num)번 더 빼주기🔥")
-            adjustY -= pageHeight * CGFloat(num) // 한 번에 조정
-            pageIndex -= num
-            num = Int(adjustY / pageHeight) // 다시 계산 (오차 방지)
+        
+        // 넘어가야 하는 페이지 수 계산
+        var pagesToMove = Int(adjustY / pageHeight)
+        
+        while pagesToMove > 0, pageIndex > 0 {
+            adjustY -= pageHeight * CGFloat(pagesToMove)
+            pageIndex -= pagesToMove
         }
-
+        
         guard let targetPage = document.page(at: pageIndex) else { return nil }
         return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x / self.backScaleFactor, y: adjustY))
     }
     
     public func convertDestination(for destination: PDFDestination) -> PDFDestination {
-        print("🔥함수 실행")
         
         guard let page = destination.page else {
             return .init()
         }
         let point = destination.point
         
-        print("🔥받아온 PDFPage : \(page)")
-        
         // PDFPage -> Int
         guard let pageNum = self.pdfSharedData.document?.index(for: page) else {
             return . init()
         }
-        
-        print("✅🔥index 값 : \(pageNum)")
         
         guard let convertPage = self.pdfSharedData.document?.page(at: pageNum) else {
             return .init()
         }
         
         let destination = PDFDestination(page: convertPage, at: point)
-        print("🔥페이지 변환된 값 :\(destination)")
         
         return destination
     }
-
+    
     // Comment
     @Published var isCommentTapped: Bool = false
     @Published var selectedComments: [Comment] = []
@@ -141,7 +129,7 @@ final class MainPDFViewModel: ObservableObject {
         isHighlight.toggle()
         pdfDrawer.drawingTool = isHighlight ? .highlights : .none
     }
-
+    
     func togglePencil() {
         isPencil.toggle()
         pdfDrawer.drawingTool = isPencil ? .pencil : .none
@@ -165,27 +153,27 @@ final class MainPDFViewModel: ObservableObject {
     @Published public var paperInfo: PaperInfo = PDFSharedData.shared.paperInfo!
     
     @Published public var selectedButton: Buttons?
-        
+    
     init() {
         pdfDrawer.onHistoryChange = { [weak self] in
             self?.updateUndoRedoState()
         }
         
-//        self.paperInfo = paperInfo
-//        
-//        var isStale = false
-//        
-//        // TODO: 경로 바뀔 시 모델에 Update 필요
-//        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
-//        url.startAccessingSecurityScopedResource() {
-//            self.document = PDFDocument(url: url)
-//            url.stopAccessingSecurityScopedResource()
-//        } else {
-//            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
-//               id == paperInfo.id.uuidString {
-//                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
-//            }
-//        }
+        //        self.paperInfo = paperInfo
+        //        
+        //        var isStale = false
+        //        
+        //        // TODO: 경로 바뀔 시 모델에 Update 필요
+        //        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
+        //        url.startAccessingSecurityScopedResource() {
+        //            self.document = PDFDocument(url: url)
+        //            url.stopAccessingSecurityScopedResource()
+        //        } else {
+        //            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
+        //               id == paperInfo.id.uuidString {
+        //                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
+        //            }
+        //        }
     }
     
     deinit {
@@ -226,40 +214,40 @@ extension MainPDFViewModel {
     }
     
     // 텍스트 PDF 붙이는 함수
-//    public func setFocusDocument() {
-//        
-//        let document = PDFDocument()
-//        
-//        var pageIndex = 0
-//
-//        self.focusAnnotations.forEach { annotation in
-//            guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
-//                return
-//            }
-//            
-//            let original = page.bounds(for: .mediaBox)
-//            let croppedRect = original.intersection(annotation.position)
-//            
-//            page.setBounds(croppedRect, for: .mediaBox)
-//            document.insert(page, at: pageIndex)
-//            pageIndex += 1
-//        }
-//        
-//        self.focusDocument = document
-//    }
+    //    public func setFocusDocument() {
+    //        
+    //        let document = PDFDocument()
+    //        
+    //        var pageIndex = 0
+    //
+    //        self.focusAnnotations.forEach { annotation in
+    //            guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
+    //                return
+    //            }
+    //            
+    //            let original = page.bounds(for: .mediaBox)
+    //            let croppedRect = original.intersection(annotation.position)
+    //            
+    //            page.setBounds(croppedRect, for: .mediaBox)
+    //            document.insert(page, at: pageIndex)
+    //            pageIndex += 1
+    //        }
+    //        
+    //        self.focusDocument = document
+    //    }
 }
 
 /// Sample 메소드
 extension MainPDFViewModel {
     
-//    public func fetchSampleFocusAnnotations() {
-//        guard let page = self.document?.page(at: 0) else {
-//            return
-//        }
-//        let input = try! NetworkManager.getSamplePDFData()
-//        
-//        self.figureAnnotations = NetworkManager.filterFigure(input: input)
-//    }
+    //    public func fetchSampleFocusAnnotations() {
+    //        guard let page = self.document?.page(at: 0) else {
+    //            return
+    //        }
+    //        let input = try! NetworkManager.getSamplePDFData()
+    //        
+    //        self.figureAnnotations = NetworkManager.filterFigure(input: input)
+    //    }
 }
 
 // MARK: - 뷰 상호작용 메소드
@@ -282,9 +270,9 @@ extension MainPDFViewModel {
         guard let currentSelection = pdfView.currentSelection else { return }               // PDFView 안에서 스크롤 영역 파악
         let selections = currentSelection.selectionsByLine()                                // 선택된 텍스트를 줄 단위로 나눔
         guard let page = selections.first?.pages.first else { return }
-
+        
         let highlightColor = color.uiColor
-
+        
         selections.forEach { selection in
             
             var bounds = selection.bounds(for: page)
@@ -310,11 +298,11 @@ extension MainPDFViewModel {
                 bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
             }
-
+            
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
             highlight.color = highlightColor
-
+            
             page.addAnnotation(highlight)
             pdfDrawer.annotationHistory.append((action: .add(highlight), annotation: highlight, page: page))
         }
