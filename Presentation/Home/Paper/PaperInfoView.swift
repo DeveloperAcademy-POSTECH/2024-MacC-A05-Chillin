@@ -79,7 +79,7 @@ struct PaperInfoView: View {
                                 .reazyFont(.body1)
                                 .foregroundStyle(.gray800)
                             Spacer()
-                            Image(.copy)
+                            Image(.copyLight)
                                 .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
