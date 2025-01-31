@@ -86,6 +86,7 @@ struct OriginalView: View {
                     ZStack {
                         BackPageButton()
                     }
+                    .position(x: geometry.size.width / 2 ,y: geometry.size.height * 0.92)
                 }
             }
             .onChange(of: geometry.size) {

@@ -94,13 +94,11 @@ final class MainPDFViewModel: ObservableObject {
         guard let pageNum = self.pdfSharedData.document?.index(for: page) else {
             return . init()
         }
-        
         guard let convertPage = self.pdfSharedData.document?.page(at: pageNum) else {
             return .init()
         }
         
         let destination = PDFDestination(page: convertPage, at: point)
-        
         return destination
     }
     

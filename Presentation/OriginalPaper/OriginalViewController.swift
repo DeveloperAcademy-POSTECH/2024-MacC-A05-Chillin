@@ -137,6 +137,9 @@ final class OriginalViewController: UIViewController {
     
     deinit {
         self.cancellable.forEach { $0.cancel() }
+        
+        NotificationCenter.default.removeObserver(self, name: .PDFViewAnnotationHit, object: nil)
+        
     }
 }
 
@@ -255,33 +258,37 @@ extension OriginalViewController {
             }
             .store(in: &cancellable)
         
-        NotificationCenter.default.addObserver(forName: .PDFViewAnnotationHit, object: nil, queue: nil) { (notification) in
-            if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
-                if let type = annotation.type {
-                    if type == "Stamp" {      // 코멘트 탭횄을 때
-                        self.viewModel.isCommentTapped.toggle()
-                        self.commentViewModel.isMenuTapped = false
-                        
-                        if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
-                            self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                            self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
-                        }
-                        self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
-                    } else if type == "Link" {        // 링크 탭횄을 때
-                        
-                        self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
-                        
-                        if let destination = self.viewModel.getTopLeadingDestination(pdfView: self.mainPDFView) {
-                            self.viewModel.updateTempDestination(destination)
-                        }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
-                            self?.viewModel.isLinkTapped = true
+        NotificationCenter.default.publisher(for: .PDFViewAnnotationHit)
+            .sink { [weak self] notification in
+                guard let self = self else { return }
+                
+                if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
+                    if let type = annotation.type {
+                        if type == "Stamp" {      // 코멘트 탭횄을 때
+                            self.viewModel.isCommentTapped.toggle()
+                            self.commentViewModel.isMenuTapped = false
+                            
+                            if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
+                                self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                                self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
+                            }
+                            self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
+                        } else if type == "Link" {        // 링크 탭횄을 때
+                            self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
+                            
+                            if let destination = self.viewModel.getTopLeadingDestination(pdfView: self.mainPDFView) {
+                                self.viewModel.updateTempDestination(destination)
+                            }
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                                self?.viewModel.isLinkTapped = true
+                            }
                         }
                     }
                 }
             }
-        }
+        .store(in: &self.cancellable)
+
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
