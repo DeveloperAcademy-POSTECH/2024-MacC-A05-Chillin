@@ -63,7 +63,7 @@ final class MainPDFViewModel: ObservableObject {
               let document = pdfView.document else {
             return nil
         }
-        
+        print("🔥 현재 위치 : \(currentDestination)")
         var pageIndex = document.index(for: page)
         let pageHeight = page.bounds(for: .cropBox).maxY
         
@@ -72,15 +72,17 @@ final class MainPDFViewModel: ObservableObject {
         var adjustY = rect.maxY / self.backScaleFactor
         
         // 넘어가야 하는 페이지 수 계산
-        var pagesToMove = Int(adjustY / pageHeight)
+        let pagesToMove = Int(adjustY / pageHeight)
         
         while pagesToMove > 0, pageIndex > 0 {
             adjustY -= pageHeight * CGFloat(pagesToMove)
             pageIndex -= pagesToMove
         }
-        
+        print("🔥 너비 : \(page.bounds(for: .cropBox).maxX)")
+        print("🔥 x좌표 : \(currentDestination.point.x)")
+        print("🔥 y좌표 : \(adjustY)")
         guard let targetPage = document.page(at: pageIndex) else { return nil }
-        return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x / self.backScaleFactor, y: adjustY))
+        return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY))
     }
     
     public func convertDestination(for destination: PDFDestination) -> PDFDestination {
