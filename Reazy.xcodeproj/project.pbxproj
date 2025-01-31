@@ -330,6 +330,11 @@
 			path = "share-extension";
 			sourceTree = "<group>";
 		};
+		2C3A2B5B2D4B776300ED121D /* Test */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Test;
+			sourceTree = "<group>";
+		};
 		2C5C24142CE9DB6A00C37A1B /* Preview Content */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Preview Content";
@@ -384,6 +389,7 @@
 		2C1473D72CE73C2100B35D92 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				2C3A2B5B2D4B776300ED121D /* Test */,
 				2C1472FA2CE73B6F00B35D92 /* AppView.swift */,
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
 				2C1474212CE8FFB600B35D92 /* Home */,
@@ -871,6 +877,7 @@
 				2C1474322CE9007700B35D92 /* DesignSystem */,
 				2C14744C2CE900C300B35D92 /* Resources */,
 				2C14745F2CE900FE00B35D92 /* DTO */,
+				2C3A2B5B2D4B776300ED121D /* Test */,
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
 				6ED57AD02CF6F33C00358561 /* Figure */,
 				6ED57AD12CF6F34C00358561 /* Collection */,
