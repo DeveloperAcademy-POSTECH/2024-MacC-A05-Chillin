@@ -28,6 +28,9 @@ struct HomeView: View {
     @State private var isEditingTitle: Bool = false
     @State private var isEditingMemo: Bool = false
     
+    // 폴더 선택 변수
+    @State private var selectedFolderID: UUID? = nil
+    
     // 폴더 추가 페이지 변수
     @State private var createFolder: Bool = false
     @State private var createMovingFolder: Bool = false
@@ -62,8 +65,8 @@ struct HomeView: View {
                                 selectedMenu: $homeViewModel.selectedMenu,
                                 isEditing: $isEditing,
                                 selectedItems: $selectedItems,
-                                selectedItemID: $selectedItemID,
-                                createFolder: $createFolder)
+                                selectedItemID: $selectedItemID
+                            )
                             
                         case .search:
                             SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
@@ -87,8 +90,11 @@ struct HomeView: View {
                         SearchWordView()
                     } else {
                         HStack(spacing: 0) {
-                            HomeListView()
-                                .frame(width: geometry.size.width / 4)
+                            HomeListView(
+                                createFolder: $createFolder,
+                                selectedFolderID: $selectedFolderID
+                            )
+                            .frame(width: geometry.size.width / 4)
                             
                             if homeViewModel.isTagSelected {
                                 // TODO: - [쿠로] 태그 뷰 위치
@@ -231,22 +237,9 @@ private struct MainMenuView: View {
     
     @Binding var selectedItems: Set<UUID>
     @Binding var selectedItemID: UUID?
-    @Binding var createFolder: Bool
     
     var body: some View {
         HStack(spacing: 0) {
-            Button(action: {
-                createFolder.toggle()
-            }) {
-                Image(.newfolder)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 21, height: 20)
-                    .foregroundStyle(.gray100)
-            }
-            .padding(.trailing, 28)
-            
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     selectedMenu = .search
