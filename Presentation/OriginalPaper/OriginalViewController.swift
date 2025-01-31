@@ -217,6 +217,7 @@ extension OriginalViewController {
             .sink { [weak self] destination in
                 guard let destination = destination,
                       let page = destination.page else { return }
+                print("✅🔥 이동할 목차 페이지. : \(page)")
                 self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)
@@ -224,14 +225,19 @@ extension OriginalViewController {
         self.viewModel.$backPageDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
-                guard let destination = destination else { return }
-                guard let page = destination.page else { return }
-                let rect = CGRect(origin: destination.point, size: CGSize(width: 10, height: 10))
-                guard let scale = self?.viewModel.backScaleFactor else { return }
-                print("ㄹㅇ 이동 직전")
-                print(page)
-                self?.mainPDFView.go(to: rect, on: page)
-                self?.mainPDFView.scaleFactor = scale
+                print("🔥 backPageDestination 값 업데이트 되었음 🔥")
+                
+                guard let destination = destination,
+                let scale = self?.viewModel.backScaleFactor else { return }
+                print("🔥 저장된 scale 값 : \(scale)")
+                print("🔥이동할 destination : \(destination)")
+                if let pdfView = self?.mainPDFView {
+                    pdfView.scaleFactor = scale
+                    pdfView.go(to: destination)
+                }
+                print("🔥 페이지 이동 끝")
+                print("🔥=====================================🔥")
+                print("🔥=====================================🔥")
             }
             .store(in: &self.cancellable)
         
@@ -268,12 +274,18 @@ extension OriginalViewController {
                         }
                         self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
                     } else if type == "Link" {        // 링크 탭횄을 때
-                        self.viewModel.isLinkTapped = true
-                        if let destination = self.mainPDFView.currentDestination {
+                        print("🔥 링크 주석 누름")
+
+                            print("🔥 현재 위치 : \(self.mainPDFView.currentDestination)")
+                        if let destination = self.viewModel.getTopLeadingDestination(pdfView: self.mainPDFView) {
                             self.viewModel.updateTempDestination(destination)
-                            print("현재 위치 : \(destination)")
                         }
+                        
                         self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                            self?.viewModel.isLinkTapped = true
+                        }
                     }
                 }
             }

@@ -15,9 +15,12 @@ struct BackPageButton: View {
         Button(action: {
             viewModel.isLinkTapped = false
             
-            print("버튼 누르기 전 : \(viewModel.backPageDestination)")
+            print("🔥backPageDestination 업데이트 시작 : \(viewModel.backPageDestination)")
+            
             viewModel.updateBackDestination()
-            print("버튼 누른 후 : \(viewModel.backPageDestination)")
+            
+            print("🔥backPageDestination 업데이트 끝 : \(viewModel.backPageDestination)")
+            
         }, label: {
             HStack {
                 Image(systemName: "arrow.uturn.backward")

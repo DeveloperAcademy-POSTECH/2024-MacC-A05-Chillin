@@ -49,30 +49,73 @@ final class MainPDFViewModel: ObservableObject {
     
     func updateTempDestination(_ destination: PDFDestination) {
         tempDestination = destination
+//        if let cropBox = tempDestination?.page?.bounds(for: .cropBox) {
+//            print("✅ 페이지 cropBox: \(cropBox)")
+//            print("✅ 좌표가 유효한가? \(cropBox.contains(tempDestination!.point))")
+//        }
     }
     func updateBackDestination() {
-        if let page = tempDestination?.page {
-            backPageDestination = goToPage(page: page, at: tempDestination!.point)
+        if let destination = tempDestination {
+            backPageDestination = convertDestination(for: destination)
         }
+        print("🔥함수 실행 끝")
     }
     
-    public func goToPage(page num: PDFPage, at point: CGPoint) -> PDFDestination {
-        print("함수 실행")
-        print(num)
-        
-        guard let pageNum = self.pdfSharedData.document?.index(for: num) else {
-            return . init()
+    func getTopLeadingDestination(pdfView: PDFView) -> PDFDestination? {
+        guard let currentDestination = pdfView.currentDestination,
+              let page = currentDestination.page,
+              let document = pdfView.document else {
+            return nil
         }
 
+        var pageIndex = document.index(for: page)
+        let pageHeight = page.bounds(for: .cropBox).maxY
+        
+        let rect = pdfView.convert(page.bounds(for: .cropBox), from: page)
+        var adjustY = rect.maxY
+
+        print("🔥 페이지 높이: \(pageHeight)")
+        print("🔥 왼쪽 상단 좌표: (\(rect.minX), \(adjustY))")
+
+        // 현재 좌표가 페이지 높이를 넘어가면 이전 페이지로 이동
+        if adjustY > pageHeight, pageIndex > 0 {
+            if adjustY > pageHeight * 2 {
+                print("🔥한번 더 빼주기🔥")
+                adjustY -= pageHeight * 2
+                pageIndex -= 2
+            } else {
+                adjustY -= pageHeight
+                pageIndex -= 1
+            }
+        }
+
+        guard let targetPage = document.page(at: pageIndex) else { return nil }
+        return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY))
+    }
+    
+    public func convertDestination(for destination: PDFDestination) -> PDFDestination {
+        print("🔥함수 실행")
+        
+        guard let page = destination.page else {
+            return .init()
+        }
+        let point = destination.point
+        
+        print("🔥받아온 PDFPage : \(page)")
+        
+        // PDFPage -> Int
+        guard let pageNum = self.pdfSharedData.document?.index(for: page) else {
+            return . init()
+        }
+        
+        print("✅🔥index 값 : \(pageNum)")
+        
         guard let convertPage = self.pdfSharedData.document?.page(at: pageNum) else {
             return .init()
         }
         
-        print("페이지 변환")
-        print(convertPage)
-        print(point)
-        
         let destination = PDFDestination(page: convertPage, at: point)
+        print("🔥페이지 변환된 값 :\(destination)")
         
         return destination
     }
