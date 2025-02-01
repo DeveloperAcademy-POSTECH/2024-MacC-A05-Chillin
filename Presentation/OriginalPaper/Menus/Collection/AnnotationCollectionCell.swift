@@ -26,7 +26,7 @@ struct AnnotationCollectionCell: View {
                         .lineSpacing(5)
                         .lineLimit(2)
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 12)
             }
             
             Text(annotation.contents)

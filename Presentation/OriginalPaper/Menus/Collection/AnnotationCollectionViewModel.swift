@@ -98,7 +98,7 @@ final class AnnotationCollectionViewModel: ObservableObject {
         case false:
             let commentText = splitedContents[2]
             
-            var attributedString = AttributedString(body)
+            var attributedString = AttributedString(commentText)
             let container = AttributeContainer([
                 .font: UIFont(name: "Pretendard-Medium", size: 12)!,
                 .foregroundColor: UIColor.point2,
@@ -109,7 +109,7 @@ final class AnnotationCollectionViewModel: ObservableObject {
             let annotation = AnnotationCollection(
                 id: String(id),
                 annotation: .comment,
-                commenText: String(commentText),
+                commenText: body,
                 contents: attributedString,
                 pageIndex: index
             )
