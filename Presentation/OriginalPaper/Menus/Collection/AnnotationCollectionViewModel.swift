@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 
-class AnnotationCollectionViewModel: ObservableObject {
+final class AnnotationCollectionViewModel: ObservableObject {
     @Published public var annotations: [AnnotationCollection] = []
     
     
@@ -33,7 +33,10 @@ class AnnotationCollectionViewModel: ObservableObject {
                             
                             if id != currentId {
                                 if !resultText.isEmpty {
-                                    extractAnnotation(contents: currentContents, body: resultText)
+                                    extractAnnotation(
+                                        contents: currentContents,
+                                        body: resultText.replacingOccurrences(of: "\n", with: " ")
+                                    )
                                     resultText = ""
                                 }
                                 
@@ -54,7 +57,10 @@ class AnnotationCollectionViewModel: ObservableObject {
             }
             
             if !resultText.isEmpty {
-                extractAnnotation(contents: currentContents, body: resultText)
+                extractAnnotation(
+                    contents: currentContents,
+                    body: resultText.replacingOccurrences(of: "\n", with: " ")
+                )
                 resultText = ""
             }
         }
@@ -91,7 +97,8 @@ class AnnotationCollectionViewModel: ObservableObject {
             
             var attributedString = AttributedString(body)
             let container = AttributeContainer([
-                .font: UIFont(name: "Pretendard-Medium", size: 12)!
+                .font: UIFont(name: "Pretendard-Medium", size: 12)!,
+                .foregroundColor: UIColor.point2,
             ])
             
             attributedString.setAttributes(container)
@@ -100,7 +107,7 @@ class AnnotationCollectionViewModel: ObservableObject {
                 id: String(id),
                 annotation: .comment,
                 commenText: String(commentText),
-                contents: .init(body)
+                contents: attributedString
             )
             
             self.annotations.append(annotation)

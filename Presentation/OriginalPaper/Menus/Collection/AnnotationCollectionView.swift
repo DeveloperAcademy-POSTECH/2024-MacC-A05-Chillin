@@ -12,13 +12,27 @@ struct AnnotationCollectionView: View {
     @StateObject private var viewModel: AnnotationCollectionViewModel = .init()
     
     var body: some View {
-        List {
-            ForEach(viewModel.annotations) { annotation in
-                AnnotationCollectionCell(annotation: annotation)
+        ScrollView {
+            VStack {
+                ForEach(viewModel.annotations) { annotation in
+                    AnnotationCollectionCell(annotation: annotation)
+                    
+                    divider
+                        .padding(.vertical, 16)
+                }
             }
+            .padding(.top, 20)
+            .padding(.horizontal, 24)
         }
         .onAppear {
             viewModel.fetchData()
         }
+    }
+    
+    
+    private var divider: some View {
+        Rectangle()
+            .foregroundStyle(.gray500)
+            .frame(height: 1)
     }
 }

@@ -12,19 +12,25 @@ struct AnnotationCollectionCell: View {
     let annotation: AnnotationCollection
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 0) {
             if annotation.annotation == .comment {
-                HStack {
+                HStack(spacing: 0) {
                     Rectangle()
                         .foregroundStyle(.point4)
                         .frame(width: 1, height: 35)
+                        .padding(.trailing, 8)
                     
                     Text(annotation.commenText ?? "알 수 없음")
+                        .font(.custom(ReazyFontType.pretendardMediumFont, size: 12))
                         .foregroundStyle(.point4)
+                        .lineSpacing(5)
+                        .lineLimit(2)
                 }
+                .padding(.bottom, 8)
             }
             
             Text(annotation.contents)
+                .lineSpacing(5)
                 .lineLimit(9)
         }
     }
@@ -52,7 +58,7 @@ struct AnnotationCollectionCell: View {
     let comment = AnnotationCollection(
         id: "",
         annotation: .comment,
-        commenText: "테스트 코멘트 입니다.",
+        commenText: "테스트 코멘트 입니다.테스트 코멘트 입니다.",
         contents: "테스트 컨텐츠입니다. 테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다."
     )
     
