@@ -394,20 +394,17 @@ struct MainPDFView: View {
                 if mainPDFViewModel.isMenuSelected {
                     GeometryReader { gp in
                         ZStack {
-                            // TODO: 추후 복귀 예정
-//                            PDFInfoMenu(
-//                                isEditingTitle: $isEditingTitle,
-//                                isEditingMemo: $isEditingMemo,
-//                                isMovingFolder: $isMovingFolder,
-//                                createMovingFolder: $createMovingFolder
-//                            )
-//                            .environmentObject(homeViewModel)
-//                            .environmentObject(mainPDFViewModel)
-//                            .environmentObject(pdfInfoMenuViewModel)
-//                            .transition(.opacity)
-//                            .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
-                            
-                            AnnotationCollectionView()
+                            PDFInfoMenu(
+                                isEditingTitle: $isEditingTitle,
+                                isEditingMemo: $isEditingMemo,
+                                isMovingFolder: $isMovingFolder,
+                                createMovingFolder: $createMovingFolder
+                            )
+                            .environmentObject(homeViewModel)
+                            .environmentObject(mainPDFViewModel)
+                            .environmentObject(pdfInfoMenuViewModel)
+                            .transition(.opacity)
+                            .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .padding(.top, 50)

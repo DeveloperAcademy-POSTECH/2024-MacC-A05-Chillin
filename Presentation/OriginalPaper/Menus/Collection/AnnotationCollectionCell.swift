@@ -14,7 +14,14 @@ struct AnnotationCollectionCell: View {
     var body: some View {
         VStack {
             if annotation.annotation == .comment {
-                Text(annotation.commenText!)
+                HStack {
+                    Rectangle()
+                        .foregroundStyle(.point4)
+                        .frame(width: 1, height: 35)
+                    
+                    Text(annotation.commenText ?? "알 수 없음")
+                        .foregroundStyle(.point4)
+                }
             }
             
             Text(annotation.contents)
@@ -39,18 +46,19 @@ struct AnnotationCollectionCell: View {
         id: "",
         annotation: .highlight,
         commenText: nil,
-        contents: "테스트 컨텐츠입니다. 테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다."
+        contents: attributedString
     )
     
     let comment = AnnotationCollection(
         id: "",
         annotation: .comment,
         commenText: "테스트 코멘트 입니다.",
-        contents: attributedString
+        contents: "테스트 컨텐츠입니다. 테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다."
     )
     
     return Group {
         AnnotationCollectionCell(annotation: highlight)
+        Divider()
         AnnotationCollectionCell(annotation: comment)
     }
 }

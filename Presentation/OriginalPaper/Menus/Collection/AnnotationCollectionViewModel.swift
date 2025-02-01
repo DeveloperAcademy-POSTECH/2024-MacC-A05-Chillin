@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 
 class AnnotationCollectionViewModel: ObservableObject {
@@ -73,6 +73,7 @@ class AnnotationCollectionViewModel: ObservableObject {
             var attributedString = AttributedString(body)
             let container = AttributeContainer([
                 .backgroundColor: color.uiColor,
+                .font: UIFont(name: "Pretendard-Regular", size: 12)!
             ])
             
             attributedString.setAttributes(container)
@@ -87,6 +88,13 @@ class AnnotationCollectionViewModel: ObservableObject {
             self.annotations.append(annotation)
         case false:
             let commentText = splitedContents[2]
+            
+            var attributedString = AttributedString(body)
+            let container = AttributeContainer([
+                .font: UIFont(name: "Pretendard-Medium", size: 12)!
+            ])
+            
+            attributedString.setAttributes(container)
             
             let annotation = AnnotationCollection(
                 id: String(id),
