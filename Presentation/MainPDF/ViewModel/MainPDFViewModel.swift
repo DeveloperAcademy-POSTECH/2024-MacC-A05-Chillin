@@ -131,9 +131,6 @@ extension MainPDFViewModel {
             
             // 각 페이지의 모든 주석을 반복하며 밑줄과 코멘트 아이콘 지우기
             for annotation in page.annotations {
-//                if annotation.value(forAnnotationKey: .contents) != nil {
-//                    page.removeAnnotation(annotation)
-//                }
                 if let a = annotation.contents, a.split(separator: "|")[0] != "UH" {
                     page.removeAnnotation(annotation)
                 }
