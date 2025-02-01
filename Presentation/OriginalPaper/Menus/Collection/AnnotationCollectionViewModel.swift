@@ -35,7 +35,8 @@ final class AnnotationCollectionViewModel: ObservableObject {
                                 if !resultText.isEmpty {
                                     extractAnnotation(
                                         contents: currentContents,
-                                        body: resultText.replacingOccurrences(of: "\n", with: " ")
+                                        body: resultText.replacingOccurrences(of: "\n", with: " "),
+                                        index: i
                                     )
                                     resultText = ""
                                 }
@@ -59,7 +60,8 @@ final class AnnotationCollectionViewModel: ObservableObject {
             if !resultText.isEmpty {
                 extractAnnotation(
                     contents: currentContents,
-                    body: resultText.replacingOccurrences(of: "\n", with: " ")
+                    body: resultText.replacingOccurrences(of: "\n", with: " "),
+                    index: i
                 )
                 resultText = ""
             }
@@ -68,7 +70,7 @@ final class AnnotationCollectionViewModel: ObservableObject {
     
     
     
-    private func extractAnnotation(contents: String, body: String) {
+    private func extractAnnotation(contents: String, body: String, index: Int) {
         let splitedContents = contents.split(separator: "|")
         
         let id = splitedContents.last!
@@ -88,7 +90,8 @@ final class AnnotationCollectionViewModel: ObservableObject {
                 id: String(id),
                 annotation: .highlight,
                 commenText: nil,
-                contents: attributedString
+                contents: attributedString,
+                pageIndex: index
             )
             
             self.annotations.append(annotation)
@@ -107,7 +110,8 @@ final class AnnotationCollectionViewModel: ObservableObject {
                 id: String(id),
                 annotation: .comment,
                 commenText: String(commentText),
-                contents: attributedString
+                contents: attributedString,
+                pageIndex: index
             )
             
             self.annotations.append(annotation)

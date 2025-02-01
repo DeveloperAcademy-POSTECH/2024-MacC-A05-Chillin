@@ -14,6 +14,7 @@ struct AnnotationCollection: Identifiable, Equatable {
     let annotation: AnnotationCase
     let commenText: String?
     let contents: AttributedString
+    let pageIndex: Int
     
     enum AnnotationCase: Equatable {
         case highlight

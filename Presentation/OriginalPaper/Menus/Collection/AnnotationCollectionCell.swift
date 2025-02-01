@@ -33,6 +33,9 @@ struct AnnotationCollectionCell: View {
                 .lineSpacing(5)
                 .lineLimit(9)
         }
+        .onTapGesture {
+            NotificationCenter.default.post(name: .didSelectAnnotationCollection, object: nil, userInfo: ["index": annotation.pageIndex])
+        }
     }
 }
 
@@ -52,14 +55,16 @@ struct AnnotationCollectionCell: View {
         id: "",
         annotation: .highlight,
         commenText: nil,
-        contents: attributedString
+        contents: attributedString,
+        pageIndex: 0
     )
     
     let comment = AnnotationCollection(
         id: "",
         annotation: .comment,
         commenText: "테스트 코멘트 입니다.테스트 코멘트 입니다.",
-        contents: "테스트 컨텐츠입니다. 테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다."
+        contents: "테스트 컨텐츠입니다. 테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다.테스트 컨텐츠입니다.",
+        pageIndex: 0
     )
     
     return Group {
