@@ -407,7 +407,7 @@ struct MainPDFView: View {
 //                            .transition(.opacity)
 //                            .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
                             
-                            AnnotationTestView()
+                            AnnotationCollectionView()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .padding(.top, 50)

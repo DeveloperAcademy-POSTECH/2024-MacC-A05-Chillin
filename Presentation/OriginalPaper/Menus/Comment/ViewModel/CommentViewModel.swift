@@ -519,7 +519,7 @@ extension CommentViewModel {
                 if textInputed {
                     underline.setValue("UC| |" + newComment.id.uuidString, forAnnotationKey: .contents)
                 } else {
-                    let text = "UC|\(newComment.selectedText)|\(newComment.id.uuidString)"
+                    let text = "UC|\(newComment.selectedText)|\(newComment.text)|\(newComment.id.uuidString)"
                     underline.contents = text
                     textInputed = true
                 }
