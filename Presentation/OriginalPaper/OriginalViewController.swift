@@ -387,6 +387,15 @@ extension OriginalViewController {
                 }
                 .store(in: &self.cancellable)
         }
+        
+        NotificationCenter.default.publisher(for: .didSelectAnnotationCollection)
+            .sink { [weak self] noti in
+                guard let index = noti.userInfo?["index"] as? Int,
+                      let page = self?.mainPDFView.document?.page(at: index) else { return }
+                
+                self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
     }
 }
 
@@ -452,7 +461,9 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             commentViewModel.isMenuTapped = false
             
             if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
-                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                let a = buttonID.split(separator: "|")
+                
+                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == (a.count > 1 ? a.last! : a[0]) }
                 commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
             }
             viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
