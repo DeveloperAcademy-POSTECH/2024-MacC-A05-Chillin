@@ -15,6 +15,7 @@ struct OriginalView: View {
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject var commentViewModel: CommentViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject private var backPageBtnViewModel: BackPageBtnViewModel
     
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
@@ -82,9 +83,9 @@ struct OriginalView: View {
                     }
                 }
                 
-                if viewModel.isLinkTapped {
+                if backPageBtnViewModel.isLinkTapped {
                     ZStack {
-                        BackPageButton()
+                        BackPageBtnView()
                     }
                     .position(x: geometry.size.width / 2 ,y: geometry.size.height * 0.92)
                 }

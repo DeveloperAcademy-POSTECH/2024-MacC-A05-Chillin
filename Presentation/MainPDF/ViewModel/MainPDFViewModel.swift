@@ -63,7 +63,6 @@ final class MainPDFViewModel: ObservableObject {
               let document = pdfView.document else {
             return nil
         }
-        print("🔥 현재 위치 : \(currentDestination)")
         var pageIndex = document.index(for: page)
         let pageHeight = page.bounds(for: .cropBox).maxY
         
@@ -78,9 +77,6 @@ final class MainPDFViewModel: ObservableObject {
             adjustY -= pageHeight * CGFloat(pagesToMove)
             pageIndex -= pagesToMove
         }
-        print("🔥 너비 : \(page.bounds(for: .cropBox).maxX)")
-        print("🔥 x좌표 : \(currentDestination.point.x)")
-        print("🔥 y좌표 : \(adjustY)")
         guard let targetPage = document.page(at: pageIndex) else { return nil }
         return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY))
     }

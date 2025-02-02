@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct BackPageButton: View {
+struct BackPageBtnView: View {
     
-    @EnvironmentObject private var viewModel: MainPDFViewModel
+    @EnvironmentObject private var viewModel: BackPageBtnViewModel
     
     var body: some View {
         Button(action: {
@@ -38,5 +38,5 @@ struct BackPageButton: View {
 }
 
 #Preview {
-    BackPageButton()
+    BackPageBtnView()
 }

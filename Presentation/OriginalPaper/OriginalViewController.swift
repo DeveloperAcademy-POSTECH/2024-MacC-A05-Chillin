@@ -21,6 +21,7 @@ final class OriginalViewController: UIViewController {
     let pageListViewModel: PageListViewModel
     let searchViewModel: SearchViewModel
     let indexViewModel: IndexViewModel
+    let backpageBtnViewModel: BackPageBtnViewModel
     
     var cancellable: Set<AnyCancellable> = []
     
@@ -118,7 +119,8 @@ final class OriginalViewController: UIViewController {
         originalViewModel: FocusFigureViewModel,
         pageListViewModel: PageListViewModel,
         searchViewModel: SearchViewModel,
-        indexViewModel: IndexViewModel
+        indexViewModel: IndexViewModel,
+        backpageBtnViewModel: BackPageBtnViewModel
     ) {
         self.viewModel = viewModel
         self.commentViewModel = commentViewModel
@@ -127,6 +129,7 @@ final class OriginalViewController: UIViewController {
         self.pageListViewModel = pageListViewModel
         self.searchViewModel = searchViewModel
         self.indexViewModel = indexViewModel
+        self.backpageBtnViewModel = backpageBtnViewModel
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -137,9 +140,6 @@ final class OriginalViewController: UIViewController {
     
     deinit {
         self.cancellable.forEach { $0.cancel() }
-        
-        NotificationCenter.default.removeObserver(self, name: .PDFViewAnnotationHit, object: nil)
-        
     }
 }
 
@@ -224,12 +224,12 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        self.viewModel.$backPageDestination
+        self.backpageBtnViewModel.$backPageDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
                 
                 guard let destination = destination,
-                      let scale = self?.viewModel.backScaleFactor else { return }
+                      let scale = self?.backpageBtnViewModel.backScaleFactor else { return }
                 
                 if let pdfView = self?.mainPDFView {
                     pdfView.scaleFactor = scale
@@ -274,14 +274,17 @@ extension OriginalViewController {
                             }
                             self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
                         } else if type == "Link" {        // 링크 탭횄을 때
-                            self.viewModel.backScaleFactor = self.mainPDFView.scaleFactor
                             
-                            if let destination = self.viewModel.getTopLeadingDestination(pdfView: self.mainPDFView) {
-                                self.viewModel.updateTempDestination(destination)
+                            print("⚠️ 주석 누름")
+                            backpageBtnViewModel.backScaleFactor = mainPDFView.scaleFactor
+                            if let page = self.mainPDFView.currentPage {
+                                print("⚠️ 원본 cropBox: \(self.mainPDFView.convert(page.bounds(for: .cropBox), from: page))")
                             }
                             
+                            backpageBtnViewModel.setDestination(pdfView: self.mainPDFView)
+                            
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
-                                self?.viewModel.isLinkTapped = true
+                                self?.backpageBtnViewModel.isLinkTapped = true
                             }
                         }
                     }

@@ -21,6 +21,7 @@ struct MainPDFView: View {
     @StateObject public var pageListViewModel: PageListViewModel
     @StateObject public var searchViewModel: SearchViewModel
     @StateObject public var indexViewModel: IndexViewModel
+    @StateObject public var backPageBtnViewModel: BackPageBtnViewModel
     
     @State private var selectedIndex: Int = 0
     @State private var isReadModeFirstSelected: Bool = false
@@ -271,6 +272,7 @@ struct MainPDFView: View {
                                 .environmentObject(pageListViewModel)
                                 .environmentObject(searchViewModel)
                                 .environmentObject(indexViewModel)
+                                .environmentObject(backPageBtnViewModel)
                             
                             if isFigSelected && !floatingViewModel.splitMode {
                                 FigureView(onSelect: { id, documentID, document, head in
