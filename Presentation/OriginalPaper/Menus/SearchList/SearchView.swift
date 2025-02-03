@@ -33,14 +33,19 @@ struct SearchView: View {
                             viewModel: viewModel,
                             isTapGesture: $isTapGesture,
                             selectedIndex: $selectedIndex)
+                        .padding(.top, 3)
+                        .padding(.bottom, 10)
                     }
                     
                     
                     if viewModel.isNoMatchTextVisible {
                         Spacer()
+                        Spacer()
                         Text("일치하는 결과 없음")
-                            .font(.custom(ReazyFontType.pretendardRegularFont, size: 12))
+                            .reazyFont(.text5)
                             .foregroundStyle(.gray800)
+                            .padding(.bottom, 60)
+                        Spacer()
                     }
                     
                     if viewModel.isLoading {
@@ -122,8 +127,8 @@ private struct SearchTextFieldView: View {
                 TextField("검색", text: $viewModel.searchText)
                     .padding(.leading, 4)
                     .padding(.trailing, 10)
-                    .foregroundStyle(.gray800)
-                    .font(.custom(ReazyFontType.pretendardRegularFont, size: 14))
+                    .foregroundStyle(.gray600)
+                    .reazyFont(.button3)
                     .focused($focus)
             }
         }
@@ -154,9 +159,7 @@ private struct SearchTopView: View {
                 previousResult()
             } label: {
                 Image(systemName: "chevron.left")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 9)
+                    .font(.system(size: 12))
                     .foregroundStyle(.gray700)
             }
             .padding(.trailing, 16)
@@ -165,9 +168,7 @@ private struct SearchTopView: View {
                 nextResult()
             } label: {
                 Image(systemName: "chevron.right")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 9)
+                    .font(.system(size: 12))
                     .foregroundStyle(.gray700)
             }
         }

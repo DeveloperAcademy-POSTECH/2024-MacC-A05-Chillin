@@ -37,14 +37,6 @@ final class OriginalViewController: UIViewController {
         return view
     }()
     
-    let testPDFView: PDFView = {
-        let view = PDFView()
-        view.backgroundColor = .gray200
-        view.autoScales = false
-        view.pageShadowsEnabled = false
-        return view
-    }()
-    
     let labelBackgroundView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -85,10 +77,10 @@ final class OriginalViewController: UIViewController {
         super.buildMenu(with: builder)
         
         /// web 검색 액션
-        let searchWebAction = UIAction(title: "Search Web", image: nil, identifier: nil) { action in
+        let searchWebAction = UIAction(title: "Google Scholar 검색", image: nil, identifier: nil) { action in
             if let selectedTextRange = self.mainPDFView.currentSelection?.string {
                 let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                if let url = URL(string: "https://www.google.com/search?q=\(query)") {
+                if let url = URL(string: "https://scholar.google.co.kr/scholar?hl=ko&as_sdt=0%2C5&q=\(query)") {
                     UIApplication.shared.open(url)
                 }
             }
@@ -109,7 +101,7 @@ final class OriginalViewController: UIViewController {
                 return elements.filter { item in
                     switch (item as? UICommand)?.title.description {
                         ///translate, lookup 메뉴 들어가게
-                    case "Search Web" :
+                    case "Google Scholar" :
                         return true
                     default:
                         return false
@@ -195,10 +187,6 @@ extension OriginalViewController {
     }
     
     private func setGestures() {
-        // 기본 설정: 제스처 추가
-        let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-        self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-        pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         viewModel.pdfDrawer.drawingTool = .none
         
@@ -419,13 +407,14 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
     
     private func updateGestureRecognizer(mode: DrawingTool) {
-        // 현재 설정된 제스처 인식기를 제거
+        // 기존 제스처 인식기만 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
-                self.mainPDFView.removeGestureRecognizer(recognizer)
+                if recognizer is DrawingGestureRecognizer {
+                    self.mainPDFView.removeGestureRecognizer(recognizer)
+                }
             }
         }
-        
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
         switch mode {
         case .lasso:

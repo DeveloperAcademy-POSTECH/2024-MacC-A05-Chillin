@@ -40,7 +40,7 @@ struct CollectionView: View {
                                         isSelected: true,
                                         viewOffset: CGSize(width: 0, height: 0),
                                         lastOffset: CGSize(width: 0, height: 0),
-                                        viewWidth: 300,
+                                        viewWidth: 500,
                                         isInSplitMode: true,
                                         isFigure: false
                                     )
