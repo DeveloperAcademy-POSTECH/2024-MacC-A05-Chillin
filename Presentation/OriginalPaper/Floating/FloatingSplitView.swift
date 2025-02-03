@@ -21,6 +21,7 @@ struct FloatingSplitView: View {
     
     @EnvironmentObject var floatingViewModel: FloatingViewModel
     @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
     
     @ObservedObject var observableDocument: ObservableDocument
     
@@ -31,10 +32,12 @@ struct FloatingSplitView: View {
     let isFigSelected: Bool
     let isCollectionSelected: Bool
     let onSelect: () -> Void
+    let isVertical: Bool
     
     @State private var isSavedLocation: Bool = false
+    @Binding private var dynamicHeight: CGFloat
     
-    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void) {
+    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void, isVertical: Bool, dynamicHeight: Binding<CGFloat>) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
@@ -44,9 +47,9 @@ struct FloatingSplitView: View {
         self.isFigSelected = isFigSelected
         self.isCollectionSelected = isCollectionSelected
         self.onSelect = onSelect
+        self.isVertical = isVertical
+        self._dynamicHeight = dynamicHeight
     }
-    
-    @State private var isVertical = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -66,10 +69,36 @@ struct FloatingSplitView: View {
                         Button(action: {
                             onSelect()
                         }, label: {
-                            Image(systemName: isVertical ? "arrow.left.arrow.right" : "arrow.up.arrow.down")
+                            Image(systemName: isVertical ? "arrow.up.arrow.down" : "arrow.left.arrow.right")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.gray600)
                         })
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+                        }, label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.gray600)
+                        })
+                        .padding(.leading, 24)
+                        
+                        Text(head)
+                            .reazyFont(.text1)
+                            .foregroundStyle(.gray800)
+                            .lineLimit(1)
+                            .padding(.horizontal, 24)
+                        
+                        Button(action: {
+                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
+                        }, label: {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.gray600)
+                        })
+                        .padding(.trailing, 24)
                         
                         Spacer()
                         
@@ -103,33 +132,6 @@ struct FloatingSplitView: View {
                         })
                         .padding(.leading, 24)
                         .padding(.trailing, 20)
-                    }
-                    
-                    HStack(spacing: 0) {
-                        Spacer()
-                        
-                        Button(action: {
-                            floatingViewModel.moveToPreviousFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
-                        }, label: {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.gray600)
-                        })
-                        
-                        Text(head)
-                            .reazyFont(.text1)
-                            .foregroundStyle(.gray800)
-                            .padding(.horizontal, 24)
-                        
-                        Button(action: {
-                            floatingViewModel.moveToNextFigure(focusFigureViewModel: focusFigureViewModel, observableDocument: observableDocument)
-                        }, label: {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.gray600)
-                        })
-                        
-                        Spacer()
                     }
                 }
                 .padding(.vertical, 12)
@@ -166,7 +168,7 @@ struct FloatingSplitView: View {
                 }
                 
                 
-                if isFigSelected || isCollectionSelected {
+                if (isFigSelected || isCollectionSelected) && !(isVertical && dynamicHeight <= 400) {
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(.gray300)
@@ -234,21 +236,10 @@ struct FloatingSplitView: View {
                             }
                         }
                     }
-                    .frame(height: isVertical ? geometry.size.height * 0.2 : geometry.size.height * 0.3)
+                    .frame(height: isVertical ? geometry.size.height * 0.3 : geometry.size.height * 0.2)
                 }
             }
             .background(.gray100)
-            .onAppear {
-                updateOrientation(with: geometry)
-            }
-            .onChange(of: geometry.size) {
-                updateOrientation(with: geometry)
-            }
         }
-    }
-    
-    // 기기의 방향에 따라 isVertical 상태를 업데이트하는 함수
-    private func updateOrientation(with geometry: GeometryProxy) {
-        isVertical = geometry.size.height > geometry.size.width
     }
 }

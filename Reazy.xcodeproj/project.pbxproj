@@ -1368,7 +1368,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.0;
+				CURRENT_PROJECT_VERSION = 3.2;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
@@ -1386,7 +1386,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.0;
+				MARKETING_VERSION = 3.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1406,7 +1406,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.0;
+				CURRENT_PROJECT_VERSION = 3.2;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
@@ -1424,7 +1424,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.0;
+				MARKETING_VERSION = 3.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

@@ -9,16 +9,16 @@ import SwiftUI
 
 struct MenuView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
-    @State private var selectedTab: String = "개요"
+    @State private var selectedTab: String = "목차"
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                TabButton(title: "개요", selectedTab: $selectedTab)
+                TabButton(title: "목차", selectedTab: $selectedTab)
                 TabButton(title: "페이지", selectedTab: $selectedTab)
             }
 
-            if selectedTab == "개요" {
+            if selectedTab == "목차" {
                 IndexView()
             } else {
                 PageListView()

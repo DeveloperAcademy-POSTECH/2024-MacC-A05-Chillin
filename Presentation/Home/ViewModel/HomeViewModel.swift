@@ -584,6 +584,7 @@ extension HomeViewModel {
     }
     
     /// Deprecated
+    /*
     public func resetViewModel() {
         PersistantContainer.shared.resetContainer()
         
@@ -623,4 +624,5 @@ extension HomeViewModel {
         UserDefaults.standard.set(false, forKey: "sample")
         self.setSample()
     }
+     */
 }

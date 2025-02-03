@@ -45,7 +45,7 @@ struct FloatingViewsContainer: View {
                             get: { droppedFigure.viewWidth },
                             set: { newValue in
                                 if let index = floatingViewModel.droppedFigures.firstIndex(where: { $0.id == droppedFigure.id }) {
-                                    floatingViewModel.droppedFigures[index].viewWidth = max(newValue, 200)
+                                    floatingViewModel.droppedFigures[index].viewWidth = max(newValue, 500)
                                 }
                             }
                         )
