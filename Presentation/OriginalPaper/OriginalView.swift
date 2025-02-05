@@ -83,12 +83,18 @@ struct OriginalView: View {
                     }
                 }
                 
-                if backPageBtnViewModel.isLinkTapped {
-                    ZStack {
-                        BackPageBtnView()
-                    }
-                    .position(x: geometry.size.width / 2 ,y: geometry.size.height * 0.92)
+                // 이전페이지로 버튼
+                ZStack {
+                    BackPageBtnView()
+                        .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
+                        .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
                 }
+                .position(
+                    backPageBtnViewModel.isLinkTapped
+                    ? CGPoint(x: geometry.size.width / 2, y: geometry.size.height * 0.92)
+                    : CGPoint(x: geometry.size.width / 2, y: geometry.size.height + 30)
+                )
+
             }
             .onChange(of: geometry.size) {
                 commentViewModel.isMenuTapped = false

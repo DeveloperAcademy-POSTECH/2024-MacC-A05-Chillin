@@ -38,68 +38,6 @@ final class MainPDFViewModel: ObservableObject {
     // BubbleView의 상태와 위치
     @Published var translateViewPosition: CGRect = .zero
     
-    // 이전 페이지로 버튼
-    private var tempDestination: PDFDestination?
-    @Published var backPageDestination: PDFDestination?
-    @Published var backScaleFactor: CGFloat = .zero
-    @Published var isLinkTapped: Bool = false
-    var isBackButtonTapped: Bool {
-        isLinkTapped
-    }
-    
-    func updateTempDestination(_ destination: PDFDestination) {
-        tempDestination = destination
-    }
-    
-    func updateBackDestination() {
-        if let destination = tempDestination {
-            backPageDestination = convertDestination(for: destination)
-        }
-    }
-    
-    func getTopLeadingDestination(pdfView: PDFView) -> PDFDestination? {
-        guard let currentDestination = pdfView.currentDestination,
-              let page = currentDestination.page,
-              let document = pdfView.document else {
-            return nil
-        }
-        var pageIndex = document.index(for: page)
-        let pageHeight = page.bounds(for: .cropBox).maxY
-        
-        // 왼쪽 상단 좌표값 구하기
-        let rect = pdfView.convert(page.bounds(for: .cropBox), from: page)
-        var adjustY = rect.maxY / self.backScaleFactor
-        
-        // 넘어가야 하는 페이지 수 계산
-        let pagesToMove = Int(adjustY / pageHeight)
-        
-        while pagesToMove > 0, pageIndex > 0 {
-            adjustY -= pageHeight * CGFloat(pagesToMove)
-            pageIndex -= pagesToMove
-        }
-        guard let targetPage = document.page(at: pageIndex) else { return nil }
-        return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY))
-    }
-    
-    public func convertDestination(for destination: PDFDestination) -> PDFDestination {
-        
-        guard let page = destination.page else {
-            return .init()
-        }
-        let point = destination.point
-        
-        // PDFPage -> Int
-        guard let pageNum = self.pdfSharedData.document?.index(for: page) else {
-            return . init()
-        }
-        guard let convertPage = self.pdfSharedData.document?.page(at: pageNum) else {
-            return .init()
-        }
-        
-        let destination = PDFDestination(page: convertPage, at: point)
-        return destination
-    }
-    
     // Comment
     @Published var isCommentTapped: Bool = false
     @Published var selectedComments: [Comment] = []

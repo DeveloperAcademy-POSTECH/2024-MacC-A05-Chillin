@@ -275,12 +275,7 @@ extension OriginalViewController {
                             self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
                         } else if type == "Link" {        // 링크 탭횄을 때
                             
-                            print("⚠️ 주석 누름")
                             backpageBtnViewModel.backScaleFactor = mainPDFView.scaleFactor
-                            if let page = self.mainPDFView.currentPage {
-                                print("⚠️ 원본 cropBox: \(self.mainPDFView.convert(page.bounds(for: .cropBox), from: page))")
-                            }
-                            
                             backpageBtnViewModel.setDestination(pdfView: self.mainPDFView)
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in

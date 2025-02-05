@@ -31,28 +31,26 @@ class DefaultBackPageBtnUseCase: BackPageBtnUseCase {
             return nil
         }
         
-        print("⚠️현재 위치 : \(currentDestination)")
-        
         let pageHeight = page.bounds(for: .cropBox).maxY
         let rect = pdfView.convert(page.bounds(for: .cropBox), from: page)
+        let pageIndex = document.index(for: page)
+        
         var adjustY = rect.maxY / scaleFactor
-        var pageIndex = document.index(for: page)
+        var newPageIndex = pageIndex
         
-        print("⚠️scaleFactor : \(scaleFactor)")
-        print("⚠️페이지 높이 : \(pageHeight)")
-        print("⚠️y값 : \(adjustY)")
-        print("⚠️페이지값 : \(pageIndex)")
+        let pagesToMove = Int(adjustY / pageHeight)
         
-            let pagesToMove = Int(adjustY / pageHeight)
-            print("⚠️이동할 페이지 \(pagesToMove)")
-            while pagesToMove > 0, pageIndex > 0 {
-                print("⚠️ while문 실행")
-                adjustY -= pageHeight * CGFloat(pagesToMove)
-                pageIndex -= pagesToMove
+        if pagesToMove > 0 {
+            newPageIndex = pageIndex - pagesToMove
+            adjustY -= pageHeight * CGFloat(pagesToMove) + (15 / scaleFactor)
+            
+            if newPageIndex < 0 {
+                newPageIndex = 0
+                adjustY += pageHeight
             }
+        }
         
-        guard let targetPage = document.page(at: pageIndex) else { return nil }
-        print("⚠️이동 위치 : \(PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY)))")
+        guard let targetPage = document.page(at: newPageIndex) else { return nil }
         return PDFDestination(page: targetPage, at: CGPoint(x: currentDestination.point.x, y: adjustY))
     }
     

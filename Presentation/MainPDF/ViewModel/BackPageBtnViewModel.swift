@@ -20,10 +20,6 @@ class BackPageBtnViewModel: ObservableObject {
     @Published var backScaleFactor: CGFloat = .zero
     @Published var isLinkTapped: Bool = false
     
-    var isBackButtonTapped: Bool {
-        isLinkTapped
-    }
-    
     func updateTempDestination(_ destination: PDFDestination) {
         BackPageBtnUsecase.updateTempDestination(destination)
     }
