@@ -17,6 +17,7 @@ struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
     @EnvironmentObject private var searchViewModel: SearchViewModel
     @EnvironmentObject private var indexViewModel: IndexViewModel
     @EnvironmentObject var commentViewModel: CommentViewModel
+    @EnvironmentObject var backpageBtnViewModel: BackPageBtnViewModel
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
         OriginalViewController(
@@ -25,7 +26,8 @@ struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
             originalViewModel: focusFigureViewModel,
             pageListViewModel: pageListViewModel,
             searchViewModel: searchViewModel,
-            indexViewModel: indexViewModel)
+            indexViewModel: indexViewModel,
+            backpageBtnViewModel: backpageBtnViewModel)
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
