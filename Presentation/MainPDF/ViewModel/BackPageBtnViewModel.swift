@@ -36,4 +36,16 @@ class BackPageBtnViewModel: ObservableObject {
         }
     }
     
+    func handleButnVisible() {
+        if isLinkTapped {
+            isLinkTapped = false
+        }
+    }
+    
+    func delayBtnVisible(after delay: TimeInterval) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.isLinkTapped = true
+        }
+    }
+    
 }

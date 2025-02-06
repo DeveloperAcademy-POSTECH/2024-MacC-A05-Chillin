@@ -277,10 +277,7 @@ extension OriginalViewController {
                             
                             backpageBtnViewModel.backScaleFactor = mainPDFView.scaleFactor
                             backpageBtnViewModel.setDestination(pdfView: self.mainPDFView)
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
-                                self?.backpageBtnViewModel.isLinkTapped = true
-                            }
+                            backpageBtnViewModel.delayBtnVisible(after: 0.8)
                         }
                     }
                 }
@@ -301,6 +298,8 @@ extension OriginalViewController {
                     self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
                     self?.pageListViewModel.changedPageNumber = num
                     self?.focusFigureViewModel.changedPageNumber = num
+                    self?.backpageBtnViewModel.handleButnVisible()
+                    
                 } else {
                     print("Document or page is nil")
                 }

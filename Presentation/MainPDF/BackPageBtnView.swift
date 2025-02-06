@@ -13,7 +13,7 @@ struct BackPageBtnView: View {
     
     var body: some View {
         Button(action: {
-            viewModel.isLinkTapped = false
+            viewModel.handleButnVisible()
             viewModel.updateBackDestination()
         }, label: {
             HStack {
