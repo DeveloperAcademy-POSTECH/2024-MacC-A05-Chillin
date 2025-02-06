@@ -213,6 +213,7 @@
 		6E74E5082D47A7C6004248EE /* HomeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeListView.swift; sourceTree = "<group>"; };
 		6E74E50A2D47C1A7004248EE /* TagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagView.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
+		6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.0.xcdatamodel; sourceTree = "<group>"; };
 		6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderDataRepository.swift; sourceTree = "<group>"; };
 		6EBB167A2CEB6005001F9EA0 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
@@ -1517,9 +1518,10 @@
 		2C14730E2CE73B6F00B35D92 /* Reazy.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */,
 				2C1473762CE73B6F00B35D92 /* Reazy.xcdatamodel */,
 			);
-			currentVersion = 2C1473762CE73B6F00B35D92 /* Reazy.xcdatamodel */;
+			currentVersion = 6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */;
 			path = Reazy.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

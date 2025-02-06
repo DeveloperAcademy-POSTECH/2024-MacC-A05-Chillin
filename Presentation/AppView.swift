@@ -12,6 +12,7 @@ import FirebaseCore
 struct AppView: App {
     // AppDelegate
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    let persistentContainer = PersistantContainer.shared
     
     // Navigation 컨트롤
     @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
