@@ -20,6 +20,16 @@ struct HomePDFCell: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 82, height: 110)
+                    .overlay(alignment: .topTrailing) {
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "star")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                        }
+                        .padding(6)
+                    }
                 
                 
                 VStack(alignment: .leading, spacing: 0) {
@@ -68,27 +78,6 @@ struct HomePDFCell: View {
         }
         .frame(height: 138)
         .background(.cyan) // TODO: 제거 예정
-    }
-}
-
-
-
-struct PDFTagCell: View {
-    var body: some View {
-        Button {
-            
-        } label: {
-            // TODO: 태그 title
-            Text("Reazy")
-                .reazyFont(.body1)
-                .foregroundStyle(.gray800)
-                .frame(height: 24)
-                .padding(.horizontal, 8)
-                .background {
-                    RoundedRectangle(cornerRadius: 4)
-                        .foregroundStyle(.primary3)
-                }
-        }
     }
 }
 
