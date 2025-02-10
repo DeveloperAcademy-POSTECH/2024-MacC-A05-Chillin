@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 // 임의 모델 생성
 struct PaperInfo {
@@ -43,5 +44,23 @@ struct PaperInfo {
         self.memo = memo
         self.isFigureSaved = isFigureSaved
         self.folderID = folderID
+    }
+    
+    public static var sampleData: Self {
+        let url = try! Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!.bookmarkData()
+        let thumbnail = UIImage(resource: .testThumbnail).pngData()!
+        
+        return .init(
+            id: .init(),
+            title: "개간지 나는 논문",
+            thumbnail: thumbnail,
+            url: url,
+            focusURL: nil,
+            lastModifiedDate: .now,
+            isFavorite: false,
+            memo: nil,
+            isFigureSaved: false,
+            folderID: nil
+        )
     }
 }

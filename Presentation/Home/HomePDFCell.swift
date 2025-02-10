@@ -10,6 +10,8 @@ import SwiftUI
 
 
 struct HomePDFCell: View {
+    let paperInfo: PaperInfo
+    
     var body: some View {
         Group {
             HStack(alignment: .top, spacing: 0) {
@@ -88,5 +90,5 @@ struct PDFTagCell: View {
 
 
 #Preview {
-    HomePDFCell()
+    HomePDFCell(paperInfo: .sampleData)
 }
