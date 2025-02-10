@@ -71,7 +71,8 @@ final class NavigationCoordinator: CoordinatorProtocol {
                     ),
                     pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
                     searchViewModel: .init(),
-                    indexViewModel: .init(indexUseCase: DefaultIndexUseCase())
+                    indexViewModel: .init(indexUseCase: DefaultIndexUseCase()),
+                    backPageBtnViewModel: .init(BackPageBtnUsecase: DefaultBackPageBtnUseCase())
                 )
             }
         }
