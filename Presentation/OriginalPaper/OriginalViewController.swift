@@ -200,10 +200,6 @@ extension OriginalViewController {
         self.view.addInteraction(pencilInteraction)
     }
     
-    private func clickAnnotation(_ pdfView: PDFView, didSelect annotation: PDFAnnotation) {
-        print("Annotation clicked: \(annotation)")
-    }
-    
     /// 데이터 Binding
     private func setBinding() {
         self.pageListViewModel.$selectedDestination
@@ -298,7 +294,7 @@ extension OriginalViewController {
                     self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
                     self?.pageListViewModel.changedPageNumber = num
                     self?.focusFigureViewModel.changedPageNumber = num
-                    self?.backpageBtnViewModel.handleButnVisible()
+                    self?.backpageBtnViewModel.handleBtnVisible()
                     
                 } else {
                     print("Document or page is nil")

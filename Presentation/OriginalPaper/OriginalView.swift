@@ -85,7 +85,10 @@ struct OriginalView: View {
                 
                 // 이전페이지로 버튼
                 ZStack {
-                    BackPageBtnView()
+                    BackPageBtnView(action: {
+                        backPageBtnViewModel.handleBtnVisible()
+                        backPageBtnViewModel.updateBackDestination()
+                    })
                         .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
                         .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
                 }

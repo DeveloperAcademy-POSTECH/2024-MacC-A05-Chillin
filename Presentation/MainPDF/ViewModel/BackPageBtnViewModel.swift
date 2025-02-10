@@ -36,7 +36,7 @@ class BackPageBtnViewModel: ObservableObject {
         }
     }
     
-    func handleButnVisible() {
+    func handleBtnVisible() {
         if isLinkTapped {
             isLinkTapped = false
         }

@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct BackPageBtnView: View {
-    
-    @EnvironmentObject private var viewModel: BackPageBtnViewModel
+
+    let action: () -> Void
     
     var body: some View {
         Button(action: {
-            viewModel.handleButnVisible()
-            viewModel.updateBackDestination()
+            action()
         }, label: {
             HStack {
                 Image(systemName: "arrow.uturn.backward")
@@ -35,8 +34,4 @@ struct BackPageBtnView: View {
             )
         })
     }
-}
-
-#Preview {
-    BackPageBtnView()
 }
