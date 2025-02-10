@@ -92,6 +92,7 @@
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
+		B3633CDB2D586B4900BBAA67 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3633CDA2D586B4900BBAA67 /* Tag.swift */; };
 		B56A56A02CF4680D000BE384 /* EditFigNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56A569F2CF4680D000BE384 /* EditFigNameView.swift */; };
 /* End PBXBuildFile section */
 
@@ -223,6 +224,7 @@
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		B3633CDA2D586B4900BBAA67 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		B56A569F2CF4680D000BE384 /* EditFigNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFigNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -664,6 +666,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1473252CE73B6F00B35D92 /* Comment.swift */,
+				B3633CDA2D586B4900BBAA67 /* Tag.swift */,
 				2C1473262CE73B6F00B35D92 /* DrawingData.swift */,
 				2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */,
 				2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */,
@@ -1008,6 +1011,7 @@
 				2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */,
 				2C1473982CE73B6F00B35D92 /* PresentationType.swift in Sources */,
 				2C1473992CE73B6F00B35D92 /* NotificationCenter + Extension.swift in Sources */,
+				B3633CDB2D586B4900BBAA67 /* Tag.swift in Sources */,
 				2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */,
 				2C14739B2CE73B6F00B35D92 /* ButtonGroupDataRepository.swift in Sources */,
 				2C14739C2CE73B6F00B35D92 /* CommentDataRepository.swift in Sources */,
