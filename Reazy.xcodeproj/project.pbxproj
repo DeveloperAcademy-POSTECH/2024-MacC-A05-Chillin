@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C1303FE2D5A263B0057413C /* HomePDFCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1303FD2D5A263B0057413C /* HomePDFCell.swift */; };
 		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
 		2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 2C14693F2CE25B7600B35D92 /* Settings.bundle */; };
 		2C14737F2CE73B6F00B35D92 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1472FA2CE73B6F00B35D92 /* AppView.swift */; };
@@ -135,6 +136,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2C1303FD2D5A263B0057413C /* HomePDFCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePDFCell.swift; sourceTree = "<group>"; };
 		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 		2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkUnitTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C14693F2CE25B7600B35D92 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -656,6 +658,7 @@
 				6ED2F1F92CF1A10A00C5DE95 /* SearchWordView.swift */,
 				6E74E5082D47A7C6004248EE /* HomeListView.swift */,
 				6E74E50A2D47C1A7004248EE /* TagView.swift */,
+				2C1303FD2D5A263B0057413C /* HomePDFCell.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -1057,6 +1060,7 @@
 				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,
 				2C1473C62CE73B6F00B35D92 /* OriginalViewController.swift in Sources */,
 				2C1473C82CE73B6F00B35D92 /* OriginalViewRepresentable.swift in Sources */,
+				2C1303FE2D5A263B0057413C /* HomePDFCell.swift in Sources */,
 				6E74E50B2D47C1A7004248EE /* TagView.swift in Sources */,
 				B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */,
 				2C1473C92CE73B6F00B35D92 /* CommentViewModel.swift in Sources */,
