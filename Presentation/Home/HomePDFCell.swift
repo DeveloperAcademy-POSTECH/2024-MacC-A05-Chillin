@@ -16,7 +16,7 @@ struct HomePDFCell: View {
         Group {
             HStack(alignment: .top, spacing: 0) {
                 // TODO: pdf 썸네일
-                Image(.testThumbnail)
+                Image(uiImage: .init(data: paperInfo.thumbnail) ?? .close)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 82, height: 110)
@@ -24,22 +24,27 @@ struct HomePDFCell: View {
                 
                 VStack(alignment: .leading, spacing: 0) {
                     // TODO: pdf 타이틀
-                    Text("타이틀 입니다.")
+                    Text(paperInfo.title)
                         .reazyFont(.text1)
                         .foregroundStyle(.gray900)
                         .padding(.top, 4)
                     
                     // TODO: 수정 날짜
-                    Text("오늘 12:34")
+                    Text(paperInfo.lastModifiedDate.timeAgo)
                         .reazyFont(.h4)
                         .foregroundStyle(.gray600)
                         .padding(.top, 6)
                     
                     Spacer()
                     
-                    // TODO: 태그
-                    PDFTagCell()
-                        .padding(.bottom, 22)
+                    
+                    // TODO: 태그 생기면 연결
+                    HStack {
+                        ForEach(0..<3, id: \.self) { _ in
+                            PDFTagCell()
+                        }
+                    }
+                    .padding(.bottom, 22)
                 }
                 .padding(.leading, 20)
                 
@@ -84,7 +89,6 @@ struct PDFTagCell: View {
                         .foregroundStyle(.primary3)
                 }
         }
-        
     }
 }
 

@@ -172,7 +172,7 @@ struct PaperListView: View {
                                             PaperListCell(
                                                 isPaper: true,
                                                 title: paperInfo.title,
-                                                date: timeAgoString(from: paperInfo.lastModifiedDate),
+                                                date: paperInfo.lastModifiedDate.timeAgo,
                                                 color: .gray500,
                                                 isSelected: selectedItemID == paperInfo.id,
                                                 isEditing: isEditing,
@@ -213,7 +213,7 @@ struct PaperListView: View {
                                             PaperListCell(
                                                 isPaper: false,
                                                 title: folder.title,
-                                                date: timeAgoString(from: folder.createdAt),
+                                                date: folder.createdAt.timeAgo,
                                                 color: FolderColors.color(for: folder.color),
                                                 isSelected: selectedItemID == folder.id,
                                                 isEditing: isEditing,
@@ -511,29 +511,6 @@ extension PaperListView {
     private func initializeSelectedItemID() {
         if selectedItemID == nil, let firstPaper = homeViewModel.filteredLists.first {
             selectedItemID = firstPaper.id
-        }
-    }
-}
-
-extension PaperListView {
-    private func timeAgoString(from date: Date) -> String {
-        let calendar = Calendar.current
-        
-        if calendar.isDateInToday(date) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "오늘 HH:mm"
-            return dateFormatter.string(from: date)
-        } else if calendar.isDateInYesterday(date) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "어제 HH:mm"
-            return dateFormatter.string(from: date)
-        } else {
-            // 이틀 전 이상의 날짜 포맷으로 반환
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy. MM. dd. a h:mm"
-            dateFormatter.amSymbol = "오전"
-            dateFormatter.pmSymbol = "오후"
-            return dateFormatter.string(from: date)
         }
     }
 }
