@@ -33,6 +33,14 @@ final class MainPDFViewModel: ObservableObject {
         }
     }
     
+    @Published var isSelectedEditMenuComment: Bool = false {
+        didSet {
+            if isCommentVisible {
+                updateCommentPosition(at: commentInputPosition)
+            }
+        }
+    }
+    
     @Published var isPaperViewFirst: Bool = true
     
     // BubbleView의 상태와 위치
@@ -261,7 +269,7 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     
     public var isCommentVisible: Bool {
-        return (self.toolMode == .comment && !self.selectedText.isEmpty) || self.isCommentTapped
+        return (self.toolMode == .comment && !self.selectedText.isEmpty) || (self.isSelectedEditMenuComment && !self.selectedText.isEmpty) || self.isCommentTapped
     }
     
     public func updateCommentPosition(at position: CGPoint) {

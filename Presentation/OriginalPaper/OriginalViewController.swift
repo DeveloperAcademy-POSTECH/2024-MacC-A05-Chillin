@@ -92,7 +92,7 @@ final class OriginalViewController: UIViewController {
         
         let commentAction = UIAction(title: "코멘트", image: nil, identifier: nil) { action in
             // 코멘트 동작
-            
+            self.viewModel.isSelectedEditMenuComment = true
         }
         
         /// 검색 액션을 새로운 메뉴로 추가하기
@@ -297,6 +297,7 @@ extension OriginalViewController {
                     // 선택된 텍스트가 없을 때 특정 액션
                     DispatchQueue.main.async {
                         self.viewModel.selectedText = ""
+                        self.viewModel.isSelectedEditMenuComment = false
                     }
                     return
                 }
