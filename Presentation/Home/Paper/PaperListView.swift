@@ -169,6 +169,7 @@ struct PaperListView: View {
                                         switch item {
                                             // 논문 추가
                                         case .paper(let paperInfo):
+                                            // MARK: searchview 들어갈 위치
                                             PaperListCell(
                                                 isPaper: true,
                                                 title: paperInfo.title,

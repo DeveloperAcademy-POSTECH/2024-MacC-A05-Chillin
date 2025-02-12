@@ -23,6 +23,9 @@ struct SearchBar: View {
                 
                 TextField("검색", text: $text)
                     .foregroundStyle(.gray600)
+                    .onSubmit {
+                        setRecentSearchList()
+                    }
                 
                 if !text.isEmpty {
                     Button(action: {
@@ -39,6 +42,16 @@ struct SearchBar: View {
             .cornerRadius(10.0)
         }
         .padding(.horizontal)
+    }
+    
+    private func setRecentSearchList() {
+        var current = UserDefaults.standard.recentSearches
+        
+        if current.count == 30 {
+            current.removeFirst()
+        }
+        
+        current.append(self.text)
     }
 }
 

@@ -51,7 +51,7 @@ struct HomePDFCell: View {
                     // TODO: 태그 생기면 연결
                     HStack {
                         ForEach(0..<3, id: \.self) { _ in
-                            PDFTagCell()
+                            PDFTagCell { }
                         }
                     }
                     .padding(.bottom, 22)
@@ -77,7 +77,6 @@ struct HomePDFCell: View {
             .padding(.top, 10)
         }
         .frame(height: 138)
-        .background(.cyan) // TODO: 제거 예정
     }
 }
 

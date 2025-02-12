@@ -9,9 +9,11 @@ import SwiftUI
 
 
 struct PDFTagCell: View {
+    let action: () -> Void
+    
     var body: some View {
         Button {
-            
+            action()
         } label: {
             // TODO: 태그 title
             Text("Reazy")
