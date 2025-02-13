@@ -51,7 +51,7 @@ struct HomePDFCell: View {
                     // TODO: 태그 생기면 연결
                     HStack {
                         ForEach(0..<3, id: \.self) { _ in
-                            PDFTagCell { }
+                            PDFTagCell(tag: TemporaryTag.init(name: "Temporary")) { }
                         }
                     }
                     .padding(.bottom, 22)

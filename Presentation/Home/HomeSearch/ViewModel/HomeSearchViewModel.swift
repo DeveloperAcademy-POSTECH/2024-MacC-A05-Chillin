@@ -13,6 +13,13 @@ final class HomeSearchViewModel: ObservableObject {
     @Published public var searchList: [PaperInfo] = []
     @Published public var searchTarget: SearchTarget = .title
     @Published public var searchText: String = ""
+    @Published public var recentSearches: [TemporaryTag] = {
+        var result = [TemporaryTag]()
+        UserDefaults.standard.recentSearches.forEach {
+            result.append(TemporaryTag(name: $0))
+        }
+        return result
+    }()
     
     private let useCase: HomeSearchUseCase
     

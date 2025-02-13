@@ -11,9 +11,22 @@ import SwiftUI
 struct HomeSearchView: View {
     @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
+    var body: some View {
+            if !homeSearchViewModel.searchText.isEmpty {
+                HomeSearchListView()
+            } else {
+                RecentlySearchedKeywordView()
+            }
+    }
+}
+
+
+// MARK: - 검색 결과 뷰
+private struct HomeSearchListView: View {
+    @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack {
             HStack(spacing: 0) {
                 Button {
                     homeSearchViewModel.searchTargetChanged(target: .title)
@@ -65,7 +78,6 @@ struct HomeSearchView: View {
     }
 }
 
-
 private struct SearchResultEmptyView: View {
     let text: String
     
@@ -78,6 +90,41 @@ private struct SearchResultEmptyView: View {
 }
 
 
-#Preview {
-    HomeSearchView()
+// MARK: - 검색 히스토리 뷰
+private struct RecentlySearchedKeywordView: View {
+    @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
+    
+    // MARK: 샘플 데이터
+    let items: [TemporaryTag] = {
+        var result = [TemporaryTag]()
+        
+        for i in 0 ..< 20 {
+            result.append(.init(name: .init(repeating: "a", count: i)))
+        }
+        
+        return result
+    }()
+    
+    var body: some View {
+        VStack(alignment: .center) {
+            if homeSearchViewModel.recentSearches.isEmpty {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Text("최근 검색한 키워드가 없어요")
+                        .reazyFont(.h5)
+                        .foregroundStyle(.gray550)
+                    Spacer()
+                }
+                Spacer()
+            } else {
+                VStack {
+                    Text("최근 검색한 키워드")
+                    
+                    DynamicCellLayout(data: homeSearchViewModel.recentSearches)
+                }
+            }
+        }
+    }
 }
+
