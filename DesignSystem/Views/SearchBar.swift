@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SearchBar: View {
+    @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
     @Binding var text: String
     
@@ -25,6 +26,7 @@ struct SearchBar: View {
                     .foregroundStyle(.gray600)
                     .onSubmit {
                         setRecentSearchList()
+                        homeSearchViewModel.fetchSearchList(target: "title", matches: text)
                     }
                 
                 if !text.isEmpty {

@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct HomeSearchView: View {
+    @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
+    
     var body: some View {
         VStack(spacing: 0) {
             // TODO: 제목 or 태그 버튼으로 구현
@@ -28,10 +30,9 @@ struct HomeSearchView: View {
             .padding(.vertical, 20)
             
             ScrollView {
-                // TODO: 검색결과 들어가야 함
                 VStack(spacing: 0) {
-                    ForEach(0..<10) { _ in
-                        HomePDFCell(paperInfo: .sampleData)
+                    ForEach(homeSearchViewModel.searchList) { paperInfo in
+                        HomePDFCell(paperInfo: paperInfo)
                         
                         Rectangle()
                             .foregroundStyle(.primary3)

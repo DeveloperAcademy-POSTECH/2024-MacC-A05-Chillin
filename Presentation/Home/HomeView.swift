@@ -40,6 +40,12 @@ struct HomeView: View {
     // 폴더 메모 추가 변수
     @State private var isEditingFolderMemo: Bool = false
     
+    @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
+        useCase: DefaultHomeSearchUseCase(
+            paperDataRepository: PaperDataRepositoryImpl()
+        )
+    )
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -67,6 +73,7 @@ struct HomeView: View {
                             
                         case .search:
                             SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
+                                .environmentObject(homeSearchViewModel)
                             
                         case .edit:
                             EditMenuView(
@@ -104,6 +111,7 @@ struct HomeView: View {
                                     isEditingFolderMemo: $isEditingFolderMemo,
                                     isMovingFolder: $isMovingFolder
                                 )
+                                .environmentObject(homeSearchViewModel)
                             }
                         }
                     }

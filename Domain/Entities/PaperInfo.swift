@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 // 임의 모델 생성
-struct PaperInfo {
+struct PaperInfo: Identifiable {
     let id: UUID
     var title: String
     let thumbnail: Data
