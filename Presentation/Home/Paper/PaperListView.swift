@@ -134,33 +134,21 @@ struct PaperListView: View {
                         }
                         
                         Divider()
-                        
+                        // MARK: 문인범 2/13
                         if homeViewModel.filteredLists.isEmpty {
-                            if homeViewModel.isSearching {
-                                Spacer()
-                                
-                                Text("\"\(homeViewModel.searchText)\"와\n일치하는 결과가 없어요")
-                                    .reazyFont(.h5)
-                                    .foregroundStyle(.gray550)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.bottom, keyboardHeight)
-                                
-                                Spacer()
-                            } else {
-                                Spacer()
-                                
-                                Image(.homePlaceholder)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 146)
-                                    .padding(.bottom, 11)
-                                Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
-                                    .reazyFont(.h5)
-                                    .foregroundStyle(.gray550)
-                                    .padding(.bottom, 80)
-                                
-                                Spacer()
-                            }
+                            Spacer()
+                            
+                            Image(.homePlaceholder)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 146)
+                                .padding(.bottom, 11)
+                            Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
+                                .reazyFont(.h5)
+                                .foregroundStyle(.gray550)
+                                .padding(.bottom, 80)
+                            
+                            Spacer()
                         } else {
                             ScrollView {
                                 VStack(spacing: 0) {
@@ -169,10 +157,11 @@ struct PaperListView: View {
                                         switch item {
                                             // 논문 추가
                                         case .paper(let paperInfo):
+                                            // MARK: searchview 들어갈 위치
                                             PaperListCell(
                                                 isPaper: true,
                                                 title: paperInfo.title,
-                                                date: timeAgoString(from: paperInfo.lastModifiedDate),
+                                                date: paperInfo.lastModifiedDate.timeAgo,
                                                 color: .gray500,
                                                 isSelected: selectedItemID == paperInfo.id,
                                                 isEditing: isEditing,
@@ -213,7 +202,7 @@ struct PaperListView: View {
                                             PaperListCell(
                                                 isPaper: false,
                                                 title: folder.title,
-                                                date: timeAgoString(from: folder.createdAt),
+                                                date: folder.createdAt.timeAgo,
                                                 color: FolderColors.color(for: folder.color),
                                                 isSelected: selectedItemID == folder.id,
                                                 isEditing: isEditing,
@@ -511,29 +500,6 @@ extension PaperListView {
     private func initializeSelectedItemID() {
         if selectedItemID == nil, let firstPaper = homeViewModel.filteredLists.first {
             selectedItemID = firstPaper.id
-        }
-    }
-}
-
-extension PaperListView {
-    private func timeAgoString(from date: Date) -> String {
-        let calendar = Calendar.current
-        
-        if calendar.isDateInToday(date) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "오늘 HH:mm"
-            return dateFormatter.string(from: date)
-        } else if calendar.isDateInYesterday(date) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "어제 HH:mm"
-            return dateFormatter.string(from: date)
-        } else {
-            // 이틀 전 이상의 날짜 포맷으로 반환
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy. MM. dd. a h:mm"
-            dateFormatter.amSymbol = "오전"
-            dateFormatter.pmSymbol = "오후"
-            return dateFormatter.string(from: date)
         }
     }
 }
