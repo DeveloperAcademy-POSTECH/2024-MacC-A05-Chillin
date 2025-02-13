@@ -136,134 +136,116 @@ struct PaperListView: View {
                         Divider()
                         // MARK: 문인범 2/13
                         if homeViewModel.filteredLists.isEmpty {
-                            if homeViewModel.isSearching {
-                                Spacer()
-                                
-                                Text("\"\(homeViewModel.searchText)\"와\n일치하는 결과가 없어요")
-                                    .reazyFont(.h5)
-                                    .foregroundStyle(.gray550)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.bottom, keyboardHeight)
-                                
-                                Spacer()
-                            } else {
-                                Spacer()
-                                
-                                Image(.homePlaceholder)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 146)
-                                    .padding(.bottom, 11)
-                                Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
-                                    .reazyFont(.h5)
-                                    .foregroundStyle(.gray550)
-                                    .padding(.bottom, 80)
-                                
-                                Spacer()
-                            }
-                        } else {
+                            Spacer()
                             
-                            if homeViewModel.isSearching {
-                                HomeSearchView()
-                            } else {
-                                ScrollView {
-                                    VStack(spacing: 0) {
-                                        ForEach(homeViewModel.filteredLists.indices, id: \.self) { index in
-                                            let item = homeViewModel.filteredLists[index]
-                                            switch item {
-                                                // 논문 추가
-                                            case .paper(let paperInfo):
-                                                // MARK: searchview 들어갈 위치
-                                                PaperListCell(
-                                                    isPaper: true,
-                                                    title: paperInfo.title,
-                                                    date: paperInfo.lastModifiedDate.timeAgo,
-                                                    color: .gray500,
-                                                    isSelected: selectedItemID == paperInfo.id,
-                                                    isEditing: isEditing,
-                                                    isEditingSelected: selectedItems.contains(item.id),
-                                                    onSelect: {
-                                                        if !isEditing && !isNavigationPushed {
-                                                            // 검색 중에 문서를 클릭한다면 바로 이동
-                                                            if homeViewModel.isSearching {
-                                                                // 검색 후 이동 시 최근 검색어 저장
-                                                                homeViewModel.addSearchTerm(homeViewModel.searchText)
-                                                                homeViewModel.recentSearches = UserDefaults.standard.recentSearches
-                                                                
-                                                                selectedItemID = paperInfo.id
-                                                            }
+                            Image(.homePlaceholder)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 146)
+                                .padding(.bottom, 11)
+                            Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
+                                .reazyFont(.h5)
+                                .foregroundStyle(.gray550)
+                                .padding(.bottom, 80)
+                            
+                            Spacer()
+                        } else {
+                            ScrollView {
+                                VStack(spacing: 0) {
+                                    ForEach(homeViewModel.filteredLists.indices, id: \.self) { index in
+                                        let item = homeViewModel.filteredLists[index]
+                                        switch item {
+                                            // 논문 추가
+                                        case .paper(let paperInfo):
+                                            // MARK: searchview 들어갈 위치
+                                            PaperListCell(
+                                                isPaper: true,
+                                                title: paperInfo.title,
+                                                date: paperInfo.lastModifiedDate.timeAgo,
+                                                color: .gray500,
+                                                isSelected: selectedItemID == paperInfo.id,
+                                                isEditing: isEditing,
+                                                isEditingSelected: selectedItems.contains(item.id),
+                                                onSelect: {
+                                                    if !isEditing && !isNavigationPushed {
+                                                        // 검색 중에 문서를 클릭한다면 바로 이동
+                                                        if homeViewModel.isSearching {
+                                                            // 검색 후 이동 시 최근 검색어 저장
+                                                            homeViewModel.addSearchTerm(homeViewModel.searchText)
+                                                            homeViewModel.recentSearches = UserDefaults.standard.recentSearches
                                                             
-                                                            if selectedItemID == paperInfo.id {
-                                                                self.isNavigationPushed = true
-                                                                navigateToPaper()
-                                                                homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
-                                                            } else {
-                                                                selectedItemID = paperInfo.id
-                                                            }
+                                                            selectedItemID = paperInfo.id
                                                         }
-                                                    },
-                                                    onEditingSelect: {
-                                                        if isEditing {
-                                                            if selectedItems.contains(item.id) {
-                                                                selectedItems.remove(item.id)
-                                                            } else {
-                                                                selectedItems.insert(item.id)
-                                                            }
+                                                        
+                                                        if selectedItemID == paperInfo.id {
+                                                            self.isNavigationPushed = true
+                                                            navigateToPaper()
+                                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                                        } else {
+                                                            selectedItemID = paperInfo.id
                                                         }
                                                     }
-                                                )
-                                                
-                                                // 폴더 추가
-                                            case .folder(let folder):
-                                                PaperListCell(
-                                                    isPaper: false,
-                                                    title: folder.title,
-                                                    date: folder.createdAt.timeAgo,
-                                                    color: FolderColors.color(for: folder.color),
-                                                    isSelected: selectedItemID == folder.id,
-                                                    isEditing: isEditing,
-                                                    isEditingSelected: selectedItems.contains(item.id),
-                                                    onSelect: {
-                                                        if !isEditing && !isNavigationPushed {
-                                                            // 검색 중에 폴더를 선택한다면 해당 폴더로 navigate
-                                                            if homeViewModel.isSearching {
-                                                                // 검색 후 이동 시 최근 검색어 저장
-                                                                homeViewModel.addSearchTerm(homeViewModel.searchText)
-                                                                homeViewModel.recentSearches = UserDefaults.standard.recentSearches
-                                                                
-                                                                homeViewModel.isSearching.toggle()
-                                                                homeViewModel.selectedMenu = .main
-                                                                homeViewModel.searchText = ""
-                                                                selectedItemID = folder.id
-                                                            }
-                                                            
-                                                            if selectedItemID == folder.id {
-                                                                homeViewModel.navigateTo(folder: folder)
-                                                            } else {
-                                                                selectedItemID = folder.id
-                                                            }
-                                                        }
-                                                    },
-                                                    onEditingSelect: {
-                                                        if isEditing {
-                                                            if selectedItems.contains(item.id) {
-                                                                selectedItems.remove(item.id)
-                                                            } else {
-                                                                selectedItems.insert(item.id)
-                                                            }
+                                                },
+                                                onEditingSelect: {
+                                                    if isEditing {
+                                                        if selectedItems.contains(item.id) {
+                                                            selectedItems.remove(item.id)
+                                                        } else {
+                                                            selectedItems.insert(item.id)
                                                         }
                                                     }
-                                                )
-                                            }
+                                                }
+                                            )
                                             
-                                            Rectangle()
-                                                .frame(height: 1)
-                                                .foregroundStyle(.primary3)
+                                            // 폴더 추가
+                                        case .folder(let folder):
+                                            PaperListCell(
+                                                isPaper: false,
+                                                title: folder.title,
+                                                date: folder.createdAt.timeAgo,
+                                                color: FolderColors.color(for: folder.color),
+                                                isSelected: selectedItemID == folder.id,
+                                                isEditing: isEditing,
+                                                isEditingSelected: selectedItems.contains(item.id),
+                                                onSelect: {
+                                                    if !isEditing && !isNavigationPushed {
+                                                        // 검색 중에 폴더를 선택한다면 해당 폴더로 navigate
+                                                        if homeViewModel.isSearching {
+                                                            // 검색 후 이동 시 최근 검색어 저장
+                                                            homeViewModel.addSearchTerm(homeViewModel.searchText)
+                                                            homeViewModel.recentSearches = UserDefaults.standard.recentSearches
+                                                            
+                                                            homeViewModel.isSearching.toggle()
+                                                            homeViewModel.selectedMenu = .main
+                                                            homeViewModel.searchText = ""
+                                                            selectedItemID = folder.id
+                                                        }
+                                                        
+                                                        if selectedItemID == folder.id {
+                                                            homeViewModel.navigateTo(folder: folder)
+                                                        } else {
+                                                            selectedItemID = folder.id
+                                                        }
+                                                    }
+                                                },
+                                                onEditingSelect: {
+                                                    if isEditing {
+                                                        if selectedItems.contains(item.id) {
+                                                            selectedItems.remove(item.id)
+                                                        } else {
+                                                            selectedItems.insert(item.id)
+                                                        }
+                                                    }
+                                                }
+                                            )
                                         }
+                                        
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundStyle(.primary3)
                                     }
                                 }
                             }
-                            
                         }
                     }
                     .background(.gray300)

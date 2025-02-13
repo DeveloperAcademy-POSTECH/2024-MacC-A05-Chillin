@@ -10,8 +10,6 @@ import SwiftUI
 struct SearchBar: View {
     @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
-    @Binding var text: String
-    
     var body: some View {
         HStack {
             HStack {
@@ -22,16 +20,15 @@ struct SearchBar: View {
                     .frame(width: 22, height: 22)
                     .foregroundStyle(.gray600)
                 
-                TextField("검색", text: $text)
+                TextField("검색", text: $homeSearchViewModel.searchText)
                     .foregroundStyle(.gray600)
                     .onSubmit {
-                        setRecentSearchList()
-                        homeSearchViewModel.fetchSearchList(target: "title", matches: text)
+                        homeSearchViewModel.fetchSearchList()
                     }
                 
-                if !text.isEmpty {
+                if !homeSearchViewModel.searchText.isEmpty {
                     Button(action: {
-                        self.text = ""
+                        homeSearchViewModel.searchText = ""
                     }, label: {
                         Image(systemName: "xmark.circle.fill")
                         
@@ -45,18 +42,8 @@ struct SearchBar: View {
         }
         .padding(.horizontal)
     }
-    
-    private func setRecentSearchList() {
-        var current = UserDefaults.standard.recentSearches
-        
-        if current.count == 30 {
-            current.removeFirst()
-        }
-        
-        current.append(self.text)
-    }
 }
 
 #Preview {
-    SearchBar(text: .constant(""))
+    SearchBar()
 }

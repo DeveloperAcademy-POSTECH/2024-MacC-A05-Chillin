@@ -9,9 +9,13 @@ import Foundation
 
 
 protocol HomeSearchUseCase {
-    func fetchSearchList(target: String, matches: String) -> Result<[PaperInfo], any Error>
+    func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error>
 }
 
+enum SearchTarget {
+    case title
+    case tag
+}
 
 final class DefaultHomeSearchUseCase: HomeSearchUseCase {
     private let paperDataRepository: PaperDataRepository
@@ -20,8 +24,9 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
         self.paperDataRepository = paperDataRepository
     }
     
-    func fetchSearchList(target: String, matches: String) -> Result<[PaperInfo], any Error> {
-        if target == "title" {
+    func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error> {
+        switch target {
+        case .title:
             let response = paperDataRepository.loadPDFInfo()
             if case let .success(papers) = response {
                 let result = papers.filter { $0.title.localizedStandardContains(matches) }
@@ -29,10 +34,11 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
             } else {
                 return .failure(NSError())
             }
+        case .tag:
+            // TODO: 태그 검색 기능 구현
+            return .failure(NSError())
         }
-        
-        return .failure(NSError())
     }
-    
-    
 }
+
+

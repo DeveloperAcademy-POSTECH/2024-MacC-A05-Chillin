@@ -11,6 +11,8 @@ import Foundation
 @MainActor
 final class HomeSearchViewModel: ObservableObject {
     @Published public var searchList: [PaperInfo] = []
+    @Published public var searchTarget: SearchTarget = .title
+    @Published public var searchText: String = ""
     
     private let useCase: HomeSearchUseCase
     
@@ -21,12 +23,32 @@ final class HomeSearchViewModel: ObservableObject {
 
 
 extension HomeSearchViewModel {
-    public func fetchSearchList(target: String, matches: String) {
-        switch useCase.fetchSearchList(target: target, matches: matches) {
+    public func fetchSearchList() {
+        setRecentSearchList()
+        
+        switch useCase.fetchSearchList(target: self.searchTarget, matches: searchText) {
         case .success(let papers):
             self.searchList = papers
-        case .failure(let failure):
+        case .failure:
             print(#function)
         }
+    }
+    
+    public func searchTargetChanged(target: SearchTarget) {
+        if target == searchTarget { return }
+        
+        searchTarget = target
+        self.searchList.removeAll()
+        fetchSearchList()
+    }
+    
+    private func setRecentSearchList() {
+        var current = UserDefaults.standard.recentSearches
+        
+        if current.count == 30 {
+            current.removeFirst()
+        }
+        
+        current.append(self.searchText)
     }
 }

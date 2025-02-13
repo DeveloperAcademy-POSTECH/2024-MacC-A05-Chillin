@@ -90,8 +90,9 @@ struct HomeView: View {
                 .frame(height: 80)
                 
                 GeometryReader { geometry in
-                    if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
-                        SearchWordView()
+                    if homeViewModel.isSearching {
+                        HomeSearchView()
+                            .environmentObject(homeSearchViewModel)
                     } else {
                         HStack(spacing: 0) {
                             HomeListView()
@@ -352,7 +353,7 @@ private struct SearchMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            SearchBar(text: $homeViewModel.searchText)
+            SearchBar()
                 .frame(width: 400)
                 .focused($isSearchFieldFocused)
             
