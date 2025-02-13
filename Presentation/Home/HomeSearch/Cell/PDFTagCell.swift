@@ -19,7 +19,7 @@ struct PDFTagCell: View {
         } label: {
             // TODO: 태그 title
             Text(tag.name)
-                .reazyFont(.body1)
+                .reazyFont(.h3)
                 .foregroundStyle(.gray800)
                 .frame(height: 24)
                 .padding(.horizontal, 8)

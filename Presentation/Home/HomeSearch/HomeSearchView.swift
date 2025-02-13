@@ -56,7 +56,7 @@ private struct HomeSearchListView: View {
             }
             .padding(.top, 20)
             
-            if homeSearchViewModel.searchList.isEmpty {
+            if homeSearchViewModel.searchList.isEmpty, !homeSearchViewModel.isLoading {
                 Spacer()
                 SearchResultEmptyView(text: homeSearchViewModel.searchText)
                 Spacer()
@@ -106,8 +106,8 @@ private struct RecentlySearchedKeywordView: View {
     }()
     
     var body: some View {
-        VStack(alignment: .center) {
-            if homeSearchViewModel.recentSearches.isEmpty {
+        if homeSearchViewModel.recentSearches.isEmpty {
+            VStack {
                 Spacer()
                 HStack {
                     Spacer()
@@ -117,13 +117,29 @@ private struct RecentlySearchedKeywordView: View {
                     Spacer()
                 }
                 Spacer()
-            } else {
-                VStack {
-                    Text("최근 검색한 키워드")
-                    
-                    DynamicCellLayout(data: homeSearchViewModel.recentSearches)
-                }
             }
+        } else {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("최근 검색한 키워드")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.gray700)
+                    Spacer()
+                    
+                    Button("모두 지우기") {
+                        homeSearchViewModel.removeAllRecentSearches()
+                    }
+                    .reazyFont(.text1)
+                    .foregroundStyle(.primary1)
+                }
+                
+                DynamicCellLayout(data: items)
+                    .padding(.top, 20)
+                
+                Spacer()
+            }
+            .padding(.top, 50)
+            .padding(.horizontal, 20)
         }
     }
 }

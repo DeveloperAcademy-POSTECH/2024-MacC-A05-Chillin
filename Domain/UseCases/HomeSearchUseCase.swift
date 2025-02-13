@@ -8,7 +8,7 @@
 import Foundation
 
 
-protocol HomeSearchUseCase {
+protocol HomeSearchUseCase: Sendable {
     func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error>
 }
 

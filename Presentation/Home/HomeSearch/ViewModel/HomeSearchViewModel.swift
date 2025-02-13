@@ -9,7 +9,8 @@ import Foundation
 
 
 @MainActor
-final class HomeSearchViewModel: ObservableObject {
+final class HomeSearchViewModel: ObservableObject, Sendable {
+    @Published public var isLoading: Bool = false
     @Published public var searchList: [PaperInfo] = []
     @Published public var searchTarget: SearchTarget = .title
     @Published public var searchText: String = ""
@@ -22,6 +23,8 @@ final class HomeSearchViewModel: ObservableObject {
     }()
     
     private let useCase: HomeSearchUseCase
+
+    private var timer: Timer?
     
     init(useCase: HomeSearchUseCase) {
         self.useCase = useCase
@@ -30,15 +33,35 @@ final class HomeSearchViewModel: ObservableObject {
 
 
 extension HomeSearchViewModel {
-    public func fetchSearchList() {
-        setRecentSearchList()
-        
-        switch useCase.fetchSearchList(target: self.searchTarget, matches: searchText) {
-        case .success(let papers):
-            self.searchList = papers
-        case .failure:
-            print(#function)
+    public func searchPapers() {
+        toggleIsLoading(true)
+        if let timer = timer {
+            timer.invalidate()
         }
+        
+        self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            
+            Task {
+                let response = await self.useCase.fetchSearchList(target: self.searchTarget, matches: self.searchText)
+                
+                switch response {
+                case .success(let papers):
+                    await self.fetchSearchList(papers: papers)
+                case .failure:
+                    print(#function)
+                }
+                await self.toggleIsLoading(false)
+            }
+        }
+    }
+    
+    private func fetchSearchList(papers: [PaperInfo]) {
+        self.searchList = papers
+    }
+    
+    private func toggleIsLoading(_ toggle: Bool) {
+        self.isLoading = toggle
     }
     
     public func searchTargetChanged(target: SearchTarget) {
@@ -46,10 +69,15 @@ extension HomeSearchViewModel {
         
         searchTarget = target
         self.searchList.removeAll()
-        fetchSearchList()
+        searchPapers()
     }
     
-    private func setRecentSearchList() {
+    public func removeAllRecentSearches() {
+        UserDefaults.standard.recentSearches = []
+        self.recentSearches.removeAll()
+    }
+    
+    private func setRecentSearchList() -> [TemporaryTag] {
         var current = UserDefaults.standard.recentSearches
         
         if current.count == 30 {
@@ -57,5 +85,13 @@ extension HomeSearchViewModel {
         }
         
         current.append(self.searchText)
+        
+        UserDefaults.standard.recentSearches = current
+        
+        let result = current.map {
+            TemporaryTag(name: $0)
+        }
+        
+        return result
     }
 }

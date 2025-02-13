@@ -22,8 +22,9 @@ struct SearchBar: View {
                 
                 TextField("검색", text: $homeSearchViewModel.searchText)
                     .foregroundStyle(.gray600)
-                    .onSubmit {
-                        homeSearchViewModel.fetchSearchList()
+                    .onChange(of: homeSearchViewModel.searchText) {
+                        // TODO: PDF 들어갔을 때로 수정
+                        homeSearchViewModel.searchPapers()
                     }
                 
                 if !homeSearchViewModel.searchText.isEmpty {
