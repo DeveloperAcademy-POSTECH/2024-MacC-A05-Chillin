@@ -23,7 +23,6 @@ struct SearchBar: View {
                 TextField("검색", text: $homeSearchViewModel.searchText)
                     .foregroundStyle(.gray600)
                     .onChange(of: homeSearchViewModel.searchText) {
-                        // TODO: PDF 들어갔을 때로 수정
                         homeSearchViewModel.searchPapers()
                     }
                 
@@ -42,9 +41,6 @@ struct SearchBar: View {
             .cornerRadius(10.0)
         }
         .padding(.horizontal)
-        .onDisappear {
-            
-        }
     }
 }
 
