@@ -12,6 +12,7 @@ import SwiftUI
  */
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
     let data: Data
+    let action: (String) -> Void
     
     var body: some View {
         generateLayout(items: data)
@@ -33,7 +34,10 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
                 currentWidth = 0
-            } else if index == items.count - 1 {
+            }
+            
+            if index == items.count - 1 {
+                currentArrays.append(item)
                 resultRows.append(currentArrays)
                 break
             }
@@ -46,7 +50,9 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
             ForEach(resultRows, id: \.self) { row in
                 HStack {
                     ForEach(row) { tag in
-                        PDFTagCell(tag: tag) {}
+                        PDFTagCell(tag: tag) {
+                            action(tag.name)
+                        }
                     }
                 }
             }

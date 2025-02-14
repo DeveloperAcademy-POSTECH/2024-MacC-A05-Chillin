@@ -24,6 +24,8 @@ struct HomeSearchView: View {
 // MARK: - 검색 결과 뷰
 private struct HomeSearchListView: View {
     @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     var body: some View {
         VStack {
@@ -64,7 +66,16 @@ private struct HomeSearchListView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(homeSearchViewModel.searchList) { paperInfo in
-                            HomePDFCell(paperInfo: paperInfo)
+                            HomePDFCell(paperInfo: paperInfo) {
+                                // TODO: 네비게이션 push 시 Date 업데이트 필요
+                                homeSearchViewModel.setRecentSearchList()
+                                navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                            } starAction: {
+                                // TODO: 즐겨찾기
+                            } ellipsisButtonView: {
+                                EllipsisButtonView()
+                            }
+                            
                             
                             Rectangle()
                                 .foregroundStyle(.primary3)
@@ -78,6 +89,7 @@ private struct HomeSearchListView: View {
     }
 }
 
+
 private struct SearchResultEmptyView: View {
     let text: String
     
@@ -86,6 +98,112 @@ private struct SearchResultEmptyView: View {
             .reazyFont(.h5)
             .foregroundStyle(.gray550)
             .multilineTextAlignment(.center)
+    }
+}
+
+
+
+// MARK: - Epllipsis 버튼 뷰
+private struct EllipsisButtonView: View {
+    // TODO: 버튼 액션 추가
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("제목 수정")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.editpencil)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("태그 관리")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(systemName: "tag")
+                        .font(.system(size: 14))
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("복제")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.copyDark)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("이동")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.move)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("삭제")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.trash)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.pen1)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            
+        }
+        .frame(width: 200)
+    }
+    
+    private var divider: some View {
+        Rectangle()
+            .frame(height: 1)
+            .foregroundStyle(.primary2)
     }
 }
 
@@ -133,8 +251,10 @@ private struct RecentlySearchedKeywordView: View {
                     .foregroundStyle(.primary1)
                 }
                 
-                DynamicCellLayout(data: items)
-                    .padding(.top, 20)
+                DynamicCellLayout(data: homeSearchViewModel.recentSearches) { title in
+                    homeSearchViewModel.cellTapped(title: title)
+                }
+                .padding(.top, 20)
                 
                 Spacer()
             }

@@ -8,8 +8,8 @@
 import SwiftUI
 
 
-struct PDFTagCell: View {
-    let tag: any DynamicCell
+struct PDFTagCell<Tag: DynamicCell>: View {
+    let tag: Tag
     
     let action: () -> Void
     

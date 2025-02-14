@@ -64,6 +64,10 @@ extension HomeSearchViewModel {
         self.isLoading = toggle
     }
     
+    public func cellTapped(title: String) {
+        self.searchText = title
+    }
+    
     public func searchTargetChanged(target: SearchTarget) {
         if target == searchTarget { return }
         
@@ -77,7 +81,7 @@ extension HomeSearchViewModel {
         self.recentSearches.removeAll()
     }
     
-    private func setRecentSearchList() -> [TemporaryTag] {
+    public func setRecentSearchList() {
         var current = UserDefaults.standard.recentSearches
         
         if current.count == 30 {
@@ -88,10 +92,9 @@ extension HomeSearchViewModel {
         
         UserDefaults.standard.recentSearches = current
         
-        let result = current.map {
+        self.recentSearches = current.map {
             TemporaryTag(name: $0)
         }
         
-        return result
     }
 }

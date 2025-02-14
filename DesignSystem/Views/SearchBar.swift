@@ -42,6 +42,9 @@ struct SearchBar: View {
             .cornerRadius(10.0)
         }
         .padding(.horizontal)
+        .onDisappear {
+            
+        }
     }
 }
 
