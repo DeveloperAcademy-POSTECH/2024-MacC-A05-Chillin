@@ -131,7 +131,7 @@ extension MainPDFViewModel {
             
             // 각 페이지의 모든 주석을 반복하며 밑줄과 코멘트 아이콘 지우기
             for annotation in page.annotations {
-                if annotation.value(forAnnotationKey: .contents) != nil {
+                if let a = annotation.contents, a.split(separator: "|")[0] != "UH" {
                     page.removeAnnotation(annotation)
                 }
             }
@@ -206,6 +206,7 @@ extension MainPDFViewModel {
         guard let page = selections.first?.pages.first else { return }
 
         let highlightColor = color.uiColor
+        let id = UUID()
 
         selections.forEach { selection in
             
@@ -236,7 +237,8 @@ extension MainPDFViewModel {
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
             highlight.color = highlightColor
-
+            highlight.contents = "UH|\(selection.string ?? "nil")|\(color.rawValue)|\(id)"
+            
             page.addAnnotation(highlight)
             pdfDrawer.annotationHistory.append((action: .add(highlight), annotation: highlight, page: page))
         }
