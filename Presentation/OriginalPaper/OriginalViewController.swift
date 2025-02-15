@@ -429,6 +429,15 @@ extension OriginalViewController {
                 }
                 .store(in: &self.cancellable)
         }
+        
+        NotificationCenter.default.publisher(for: .didSelectAnnotationCollection)
+            .sink { [weak self] noti in
+                guard let index = noti.userInfo?["index"] as? Int,
+                      let page = self?.mainPDFView.document?.page(at: index) else { return }
+                
+                self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
     }
 }
 
