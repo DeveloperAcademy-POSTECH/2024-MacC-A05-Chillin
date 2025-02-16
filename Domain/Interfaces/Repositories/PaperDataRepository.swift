@@ -26,4 +26,13 @@ protocol PaperDataRepository {
     
     @discardableResult
     func duplicatePDFInfo(id: UUID, info: PaperInfo) -> Result<VoidResponse, Error>
+    
+    @discardableResult
+    func addTag(to id: UUID, with tag: String) -> Result<VoidResponse, Error>
+    
+    @discardableResult
+    func removeTag(from id: UUID, tagID: UUID) -> Result<VoidResponse, Error>
+    
+    @discardableResult
+    func replaceTag(for paperId: UUID, oldTagId: UUID, newTagId: UUID) -> Result<VoidResponse, Error>
 }

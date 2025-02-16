@@ -22,6 +22,10 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let pdfDataList = fetchedDataList.map { paperData -> PaperInfo in
                 
+                let tags = Array(paperData.paperTags ?? []).map { paperTag in
+                    Tag(id: paperTag.tagData.id, name: paperTag.tagData.name)
+                }
+                
                 return PaperInfo(
                     id: paperData.id,
                     title: paperData.title,
@@ -203,6 +207,115 @@ class PaperDataRepositoryImpl: PaperDataRepository {
             }
         } catch {
             print(error)
+            return .failure(error)
+        }
+    }
+    
+    func addTag(to id: UUID, with tag: String) -> Result<VoidResponse, any Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            guard let paper = try dataContext.fetch(fetchRequest).first else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "PaperData not found"]))
+            }
+            
+            // 기존 태그가 있는지 확인
+            let tagFetch: NSFetchRequest<TagData> = TagData.fetchRequest()
+            tagFetch.predicate = NSPredicate(format: "name == %@", tag as CVarArg)
+            
+            let existingTags = try dataContext.fetch(tagFetch)
+            let tag = existingTags.first ?? {
+                let newTag = TagData(context: dataContext)
+                newTag.id = UUID()
+                newTag.name = tag
+                return newTag
+            }()
+            
+            // PaperTag 생성
+            let paperTag = PaperTag(context: dataContext)
+            paperTag.id = UUID()
+            paperTag.paperData = paper
+            paperTag.tagData = tag
+            
+            try dataContext.save()
+            return .success(VoidResponse())
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    func removeTag(from id: UUID, tagID: UUID) -> Result<VoidResponse, any Error> {
+        let dataContext = container.viewContext
+        let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            guard let paper = try dataContext.fetch(fetchRequest).first else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "PaperData not found"]))
+            }
+            
+            let tagFetch: NSFetchRequest<TagData> = TagData.fetchRequest()
+            tagFetch.predicate = NSPredicate(format: "id == %@", tagID as CVarArg)
+            
+            // 특정 태그 찾기
+            guard let tag = try dataContext.fetch(tagFetch).first else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "TagData not found"]))
+            }
+            
+            // PaperTag 삭제 : Paper과 Tag 사이의 연결 제거
+            let paperTagFetch: NSFetchRequest<PaperTag> = PaperTag.fetchRequest()
+            paperTagFetch.predicate = NSPredicate(format: "paperData == %@ AND tagData == %@", paper, tag)
+            
+            if let paperTag = try dataContext.fetch(paperTagFetch).first {
+                dataContext.delete(paperTag)
+            }
+            
+            try dataContext.save()
+            return .success(VoidResponse())
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    func replaceTag(for paperId: UUID, oldTagId: UUID, newTagId: UUID) -> Result<VoidResponse, any Error> {
+        let dataContext = container.viewContext
+        
+        do {
+            let paperFetch: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+            paperFetch.predicate = NSPredicate(format: "id == %@", paperId as CVarArg)
+            
+            guard let paper = try dataContext.fetch(paperFetch).first else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Paper not found"]))
+            }
+            
+            let oldTagFetch: NSFetchRequest<TagData> = TagData.fetchRequest()
+            oldTagFetch.predicate = NSPredicate(format: "id == %@", oldTagId as CVarArg)
+            
+            guard let oldTag = try dataContext.fetch(oldTagFetch).first else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Old tag not found"]))
+            }
+            
+            let newTagFetch: NSFetchRequest<TagData> = TagData.fetchRequest()
+            newTagFetch.predicate = NSPredicate(format: "id == %@", newTagId as CVarArg)
+            
+            guard let newTag = try dataContext.fetch(newTagFetch).first else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "New tag not found"]))
+            }
+            
+            let paperTagFetch: NSFetchRequest<PaperTag> = PaperTag.fetchRequest()
+            paperTagFetch.predicate = NSPredicate(format: "paperData == %@ AND tagData == %@", paper, oldTag)
+            
+            if let paperTag = try dataContext.fetch(paperTagFetch).first {
+                paperTag.tagData = newTag
+            } else {
+                return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "PaperTag not found"]))
+            }
+            
+            try dataContext.save()
+            return .success(VoidResponse())
+        } catch {
             return .failure(error)
         }
     }

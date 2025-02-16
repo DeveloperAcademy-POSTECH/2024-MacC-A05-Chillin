@@ -58,16 +58,16 @@
     <entity name="PaperTag" representedClassName="PaperTag" syncable="YES">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="paperData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperData" inverseName="paperTags" inverseEntity="PaperData"/>
-        <relationship name="tag" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Tag" inverseName="paperTags" inverseEntity="Tag"/>
+        <relationship name="tagData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TagData" inverseName="paperTag" inverseEntity="TagData"/>
     </entity>
     <entity name="SelectionByLine" representedClassName="SelectionByLine" syncable="YES">
         <attribute name="bounds" optional="YES" attributeType="Binary" valueTransformerName="CGRectValueTransformer"/>
         <attribute name="page" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="commentData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CommentData" inverseName="selectionByLine" inverseEntity="CommentData"/>
     </entity>
-    <entity name="Tag" representedClassName="Tag" syncable="YES">
+    <entity name="TagData" representedClassName="TagData" syncable="YES">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="paperTags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PaperTag" inverseName="tag" inverseEntity="PaperTag"/>
+        <relationship name="paperTag" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PaperTag" inverseName="tagData" inverseEntity="PaperTag"/>
     </entity>
 </model>

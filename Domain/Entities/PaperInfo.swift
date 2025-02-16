@@ -7,7 +7,6 @@
 
 import Foundation
 
-// 임의 모델 생성
 struct PaperInfo {
     let id: UUID
     var title: String
@@ -20,6 +19,7 @@ struct PaperInfo {
     var isFigureSaved: Bool
     
     var folderID: UUID?
+    var tags: [Tag]
     
     init(
         id: UUID = .init(),
@@ -31,7 +31,8 @@ struct PaperInfo {
         isFavorite: Bool = false,
         memo: String? = nil,
         isFigureSaved: Bool = false,
-        folderID: UUID? = nil
+        folderID: UUID? = nil,
+        tags: [Tag] = []
     ) {
         self.id = id
         self.title = title
@@ -43,5 +44,6 @@ struct PaperInfo {
         self.memo = memo
         self.isFigureSaved = isFigureSaved
         self.folderID = folderID
+        self.tags = tags
     }
 }
