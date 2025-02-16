@@ -24,7 +24,7 @@ final class MainPDFViewModel: ObservableObject {
             }
         }
     }
-
+    
     @Published var toolMode: ToolMode = .none {
         didSet {
             if isCommentVisible {
@@ -37,7 +37,7 @@ final class MainPDFViewModel: ObservableObject {
     
     // BubbleView의 상태와 위치
     @Published var translateViewPosition: CGRect = .zero
-
+    
     // Comment
     @Published var isCommentTapped: Bool = false
     @Published var selectedComments: [Comment] = []
@@ -63,7 +63,7 @@ final class MainPDFViewModel: ObservableObject {
         isHighlight.toggle()
         pdfDrawer.drawingTool = isHighlight ? .highlights : .none
     }
-
+    
     func togglePencil() {
         isPencil.toggle()
         pdfDrawer.drawingTool = isPencil ? .pencil : .none
@@ -87,27 +87,27 @@ final class MainPDFViewModel: ObservableObject {
     @Published public var paperInfo: PaperInfo = PDFSharedData.shared.paperInfo!
     
     @Published public var selectedButton: Buttons?
-        
+    
     init() {
         pdfDrawer.onHistoryChange = { [weak self] in
             self?.updateUndoRedoState()
         }
         
-//        self.paperInfo = paperInfo
-//        
-//        var isStale = false
-//        
-//        // TODO: 경로 바뀔 시 모델에 Update 필요
-//        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
-//        url.startAccessingSecurityScopedResource() {
-//            self.document = PDFDocument(url: url)
-//            url.stopAccessingSecurityScopedResource()
-//        } else {
-//            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
-//               id == paperInfo.id.uuidString {
-//                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
-//            }
-//        }
+        //        self.paperInfo = paperInfo
+        //        
+        //        var isStale = false
+        //        
+        //        // TODO: 경로 바뀔 시 모델에 Update 필요
+        //        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
+        //        url.startAccessingSecurityScopedResource() {
+        //            self.document = PDFDocument(url: url)
+        //            url.stopAccessingSecurityScopedResource()
+        //        } else {
+        //            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
+        //               id == paperInfo.id.uuidString {
+        //                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
+        //            }
+        //        }
     }
     
     deinit {
@@ -131,7 +131,7 @@ extension MainPDFViewModel {
             
             // 각 페이지의 모든 주석을 반복하며 밑줄과 코멘트 아이콘 지우기
             for annotation in page.annotations {
-                if annotation.value(forAnnotationKey: .contents) != nil {
+                if let a = annotation.contents, a.split(separator: "|")[0] != "UH" {
                     page.removeAnnotation(annotation)
                 }
             }
@@ -148,40 +148,40 @@ extension MainPDFViewModel {
     }
     
     // 텍스트 PDF 붙이는 함수
-//    public func setFocusDocument() {
-//        
-//        let document = PDFDocument()
-//        
-//        var pageIndex = 0
-//
-//        self.focusAnnotations.forEach { annotation in
-//            guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
-//                return
-//            }
-//            
-//            let original = page.bounds(for: .mediaBox)
-//            let croppedRect = original.intersection(annotation.position)
-//            
-//            page.setBounds(croppedRect, for: .mediaBox)
-//            document.insert(page, at: pageIndex)
-//            pageIndex += 1
-//        }
-//        
-//        self.focusDocument = document
-//    }
+    //    public func setFocusDocument() {
+    //        
+    //        let document = PDFDocument()
+    //        
+    //        var pageIndex = 0
+    //
+    //        self.focusAnnotations.forEach { annotation in
+    //            guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
+    //                return
+    //            }
+    //            
+    //            let original = page.bounds(for: .mediaBox)
+    //            let croppedRect = original.intersection(annotation.position)
+    //            
+    //            page.setBounds(croppedRect, for: .mediaBox)
+    //            document.insert(page, at: pageIndex)
+    //            pageIndex += 1
+    //        }
+    //        
+    //        self.focusDocument = document
+    //    }
 }
 
 /// Sample 메소드
 extension MainPDFViewModel {
     
-//    public func fetchSampleFocusAnnotations() {
-//        guard let page = self.document?.page(at: 0) else {
-//            return
-//        }
-//        let input = try! NetworkManager.getSamplePDFData()
-//        
-//        self.figureAnnotations = NetworkManager.filterFigure(input: input)
-//    }
+    //    public func fetchSampleFocusAnnotations() {
+    //        guard let page = self.document?.page(at: 0) else {
+    //            return
+    //        }
+    //        let input = try! NetworkManager.getSamplePDFData()
+    //        
+    //        self.figureAnnotations = NetworkManager.filterFigure(input: input)
+    //    }
 }
 
 // MARK: - 뷰 상호작용 메소드
@@ -204,8 +204,9 @@ extension MainPDFViewModel {
         guard let currentSelection = pdfView.currentSelection else { return }               // PDFView 안에서 스크롤 영역 파악
         let selections = currentSelection.selectionsByLine()                                // 선택된 텍스트를 줄 단위로 나눔
         guard let page = selections.first?.pages.first else { return }
-
+        
         let highlightColor = color.uiColor
+        let id = UUID()
 
         selections.forEach { selection in
             
@@ -232,11 +233,12 @@ extension MainPDFViewModel {
                 bounds.size.height *= 0.8                                                   // bounds 높이 조정하기
                 bounds.origin.y += (originBoundsHeight - bounds.size.height) / 2            // 줄인 높인만큼 y축 이동
             }
-
+            
             let highlight = PDFAnnotation(bounds: bounds, forType: .highlight, withProperties: nil)
             highlight.endLineStyle = .none
             highlight.color = highlightColor
-
+            highlight.contents = "UH|\(selection.string ?? "nil")|\(color.rawValue)|\(id)"
+            
             page.addAnnotation(highlight)
             pdfDrawer.annotationHistory.append((action: .add(highlight), annotation: highlight, page: page))
         }
