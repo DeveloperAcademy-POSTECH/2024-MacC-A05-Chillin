@@ -304,7 +304,6 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     focusURL: paperInfo.focusURL,
                     lastModifiedDate: Date(),
                     isFavorite: paperInfo.isFavorite,
-                    memo: paperInfo.memo,
                     isFigureSaved: paperInfo.isFigureSaved,
                     folderID: paperInfo.folderID)
                 

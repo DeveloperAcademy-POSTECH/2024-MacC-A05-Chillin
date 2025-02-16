@@ -32,7 +32,6 @@ struct MainPDFView: View {
     @State private var isReadMode: Bool = false
     
     @State private var isEditingTitle: Bool = false
-    @State private var isEditingMemo: Bool = false
     @State private var isMovingFolder: Bool = false
     @State private var createMovingFolder: Bool = false
     
@@ -316,7 +315,7 @@ struct MainPDFView: View {
                         .ignoresSafeArea()
                     }
                 }
-                .blur(radius: isEditingTitle || isEditingMemo || createMovingFolder ? 20 : 0)
+                .blur(radius: isEditingTitle || createMovingFolder ? 20 : 0)
                 
                 // MARK: - 드로잉 툴바
                 if mainPDFViewModel.toolMode == .drawing {
@@ -396,7 +395,6 @@ struct MainPDFView: View {
                         ZStack {
                             PDFInfoMenu(
                                 isEditingTitle: $isEditingTitle,
-                                isEditingMemo: $isEditingMemo,
                                 isMovingFolder: $isMovingFolder,
                                 createMovingFolder: $createMovingFolder
                             )
@@ -413,7 +411,7 @@ struct MainPDFView: View {
                 }
                 
                 Color.black
-                    .opacity(isEditingTitle || isEditingMemo || isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .opacity(isEditingTitle || isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
@@ -423,10 +421,9 @@ struct MainPDFView: View {
                         .zIndex(1)
                 }
                 
-                if isEditingTitle || isEditingMemo {
+                if isEditingTitle {
                     RenamePaperTitleView(
                         isEditingTitle: $isEditingTitle,
-                        isEditingMemo: $isEditingMemo,
                         paperInfo: PDFSharedData.shared.paperInfo!
                     )
                 }

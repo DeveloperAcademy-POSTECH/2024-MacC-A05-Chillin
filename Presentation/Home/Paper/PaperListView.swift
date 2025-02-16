@@ -19,8 +19,6 @@ struct PaperListView: View {
     @Binding var isEditing: Bool
     @Binding var isEditingTitle: Bool
     @Binding var isEditingFolder: Bool
-    @Binding var isEditingMemo: Bool
-    @Binding var isEditingFolderMemo: Bool
     
     @State var isFavorite: Bool = false
     @State var selectAll: Bool = false
@@ -115,19 +113,6 @@ struct PaperListView: View {
                                 .foregroundStyle(.primary1)
                                 
                                 Spacer()
-                                if !homeViewModel.isAtRoot {
-                                    Button(action: {
-                                        isFavorite.toggle()
-                                        if let folder = homeViewModel.currentFolder {
-                                            homeViewModel.updateFolderFavorite(at: folder.id, isFavorite: isFavorite)
-                                        }
-                                    }) {
-                                        Image(isFavorite ? .starfill : .star)
-                                            .renderingMode(.template)
-                                            .font(.system(size: 18))
-                                            .foregroundStyle(.primary1)
-                                    }
-                                }
                             }
                             .padding(.vertical, 14)
                             .padding(.horizontal, 20)
@@ -260,79 +245,6 @@ struct PaperListView: View {
                         }
                     }
                     .background(.gray300)
-                    
-                    // TODO: - [브리] 문서 정보 탭 삭제 예정
-//                    if !isEditing && !homeViewModel.isSearching {
-//                        Rectangle()
-//                            .frame(width: 1)
-//                            .foregroundStyle(.primary3)
-//                        
-//                        VStack(spacing: 0) {
-//                            if !homeViewModel.filteredLists.isEmpty,
-//                               let selectedItem = homeViewModel.filteredLists.first(where: { $0.id == selectedItemID }) {
-//                                switch selectedItem {
-//                                case .paper(let paperInfo):
-//                                    PaperInfoView(
-//                                        id: paperInfo.id,
-//                                        image: paperInfo.thumbnail,
-//                                        title: paperInfo.title,
-//                                        isFavorite: paperInfo.isFavorite,
-//                                        isStarSelected: paperInfo.isFavorite,
-//                                        isEditingTitle: $isEditingTitle,
-//                                        isEditingMemo: $isEditingMemo,
-//                                        isMovingFolder: $isMovingFolder,
-//                                        onNavigate: {
-//                                            if !isEditing && !isNavigationPushed {
-//                                                self.isNavigationPushed = true
-//                                                navigateToPaper()
-//                                            }
-//                                        },
-//                                        onDelete: {
-//                                            if homeViewModel.filteredLists.isEmpty {
-//                                                selectedItemID = nil
-//                                            } else {
-//                                                selectedItemID = homeViewModel.filteredLists.first?.id
-//                                            }
-//                                        }
-//                                    )
-//                                    
-//                                case .folder(let folder):
-//                                    FolderInfoView(
-//                                        id: folder.id,
-//                                        title: folder.title,
-//                                        color: FolderColors(rawValue: folder.color) ?? .folder1,
-//                                        isFavorite: folder.isFavorite,
-//                                        isStarSelected: folder.isFavorite,
-//                                        isEditingFolder: $isEditingFolder,
-//                                        isEditingFolderMemo: $isEditingFolderMemo,
-//                                        isMovingFolder: $isMovingFolder,
-//                                        onNavigate: {
-//                                            homeViewModel.navigateTo(folder: folder)
-//                                        },
-//                                        onDelete: {
-//                                            if homeViewModel.filteredLists.isEmpty {
-//                                                selectedItemID = nil
-//                                            } else {
-//                                                selectedItemID = homeViewModel.filteredLists.first?.id
-//                                            }
-//                                        }
-//                                    )
-//                                }
-//                            }
-//                        }
-//                        .animation(.easeInOut, value: isEditing)
-//                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                        .background(
-//                            LinearGradient(
-//                                gradient: Gradient(stops: [
-//                                    .init(color: .gray300, location: 0),
-//                                    .init(color: Color(hex: "DADBEA"), location: isEditing ? 3.5 : 4)
-//                                ]),
-//                                startPoint: .top,
-//                                endPoint: .bottom
-//                            )
-//                        )
-//                    }
                 }
                 
                 if isMenuOpen {
@@ -391,10 +303,6 @@ struct PaperListView: View {
                 detectIPadMini()
                 updateOrientation(with: geometry)
                 
-                if let folder = homeViewModel.currentFolder {
-                    isFavorite = folder.isFavorite
-                }
-                
                 // 키보드 높이에 맞게 검색 Text 위치 조정
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
@@ -421,11 +329,6 @@ struct PaperListView: View {
             .onChange(of: geometry.size) {
                 detectIPadMini()
                 updateOrientation(with: geometry)
-            }
-            .onChange(of: homeViewModel.currentFolder) {
-                if let folder = homeViewModel.currentFolder {
-                    isFavorite = folder.isFavorite
-                }
             }
             .onChange(of: selectedItems) {
                 if selectedItems.count == homeViewModel.filteredLists.count {

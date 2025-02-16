@@ -26,8 +26,6 @@ class FolderDataRepositoryImpl: FolderDataRepository {
                     title: folderData.title,
                     createdAt: folderData.createdAt,
                     color: folderData.color,
-                    memo: folderData.memo,
-                    isFavorite: folderData.isFavorite,
                     parentFolderID: folderData.parentFolderID ?? nil
                 )
             }
@@ -47,8 +45,6 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             folderData.title = folder.title
             folderData.createdAt = folder.createdAt
             folderData.color = folder.color
-            folderData.memo = folder.memo
-            folderData.isFavorite = folder.isFavorite
             folderData.parentFolderID = folder.parentFolderID
             
             try dataContext.save()
@@ -70,8 +66,6 @@ class FolderDataRepositoryImpl: FolderDataRepository {
             
             folderData.title = folder.title
             folderData.color = folder.color
-            folderData.memo = folder.memo
-            folderData.isFavorite = folder.isFavorite
             folderData.parentFolderID = folder.parentFolderID
             
             try dataContext.save()

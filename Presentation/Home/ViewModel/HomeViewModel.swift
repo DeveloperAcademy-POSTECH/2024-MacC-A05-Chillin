@@ -72,13 +72,11 @@ class HomeViewModel: ObservableObject {
     @Published public var selectedMenu: Options = .main
     
     public var changedTitle: String?
-    @Published public var changedMemo: String?
     
     // 진입 경로 추적 스택
     private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
     
     @Published public var isLoading: Bool = false
-    @Published public var memoText: String = ""
     @Published public var isErrorOccured: Bool = false
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
@@ -182,9 +180,9 @@ extension HomeViewModel {
                     
                     toChangePaper.isFavorite = paper.isFavorite
                     toChangePaper.isFigureSaved = paper.isFigureSaved
-                    toChangePaper.memo = paper.memo
                     toChangePaper.focusURL = paper.focusURL
                     toChangePaper.title = paper.title
+                    toChangePaper.tags = paper.tags
                     
                     self?.paperInfos[idx] = toChangePaper
                     
@@ -194,24 +192,6 @@ extension HomeViewModel {
             .store(in: &self.cancellables)
     }
 }
-
-
-extension HomeViewModel {
-    public func updateMemo(at id: UUID, memo: String) {
-        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            paperInfos[index].memo = memo
-            self.homeViewUseCase.editPDF(paperInfos[index])
-        }
-    }
-    
-    public func deleteMemo(at id: UUID) {
-        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            paperInfos[index].memo = nil
-            self.homeViewUseCase.editPDF(paperInfos[index])
-        }
-    }
-}
-
 
 extension HomeViewModel {
     public func updatePaperFavorite(at id: UUID, isFavorite: Bool) {
@@ -292,7 +272,6 @@ extension HomeViewModel {
             thumbnail: .init(),
             url: try! Data(contentsOf: sampleUrl),
             isFavorite: false,
-            memo: "test",
             isFigureSaved: false,
             folderID: nil
         ))
@@ -408,32 +387,9 @@ extension HomeViewModel {
         }
     }
     
-    public func updateFolderFavorite(at id: UUID, isFavorite: Bool) {
-        if let index = folders.firstIndex(where: { $0.id == id }) {
-            folders[index].isFavorite = isFavorite
-            self.homeViewUseCase.editFolder(folders[index])
-        }
-    }
-    
-    public func updateFolderFavorites(at ids: [UUID]) {
-        ids.forEach { id in
-            if let index = folders.firstIndex(where: { $0.id == id }) {
-                folders[index].isFavorite = true
-                self.homeViewUseCase.editFolder(folders[index])
-            }
-        }
-    }
-    
     public func updateFolderLocation(at id: UUID, folderID: UUID?) {
         if let index = folders.firstIndex(where: { $0.id == id }) {
             folders[index].parentFolderID = folderID
-            self.homeViewUseCase.editFolder(folders[index])
-        }
-    }
-    
-    public func updateFolderMemo(at id: UUID, memo: String?) {
-        if let index = folders.firstIndex(where: { $0.id == id }) {
-            folders[index].memo = memo
             self.homeViewUseCase.editFolder(folders[index])
         }
     }

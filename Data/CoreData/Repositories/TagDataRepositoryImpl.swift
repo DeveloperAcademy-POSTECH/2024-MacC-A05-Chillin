@@ -42,7 +42,13 @@ class TagDataRepositoryImpl: TagDataRepository {
             
             let paperTags = try dataContext.fetch(paperTagFetch)
             let papers = paperTags.map { paperTag in
-                PaperInfo(
+                let paper = paperTag.paperData
+                
+                let tags = Array(paper.paperTags ?? []).map { tagRelation in
+                    Tag(id: tagRelation.tagData.id, name: tagRelation.tagData.name)
+                }
+                
+                return PaperInfo(
                     id: paperTag.paperData.id,
                     title: paperTag.paperData.title,
                     thumbnail: paperTag.paperData.thumbnail,
@@ -50,9 +56,9 @@ class TagDataRepositoryImpl: TagDataRepository {
                     focusURL: paperTag.paperData.focusURL,
                     lastModifiedDate: paperTag.paperData.lastModifiedDate,
                     isFavorite: paperTag.paperData.isFavorite,
-                    memo: paperTag.paperData.memo,
                     isFigureSaved: paperTag.paperData.isFigureSaved,
-                    folderID: paperTag.paperData.folderID ?? nil
+                    folderID: paperTag.paperData.folderID ?? nil,
+                    tags: tags
                 )
             }
             

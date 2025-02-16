@@ -26,7 +26,6 @@ struct HomeView: View {
     @State private var selectedItems: Set<UUID> = []
     
     @State private var isEditingTitle: Bool = false
-    @State private var isEditingMemo: Bool = false
     
     // 폴더 선택 변수
     @State private var selectedFolderID: UUID? = nil
@@ -39,9 +38,6 @@ struct HomeView: View {
     // 폴더 이동 변수
     @State private var isMovingFolder: Bool = false
     @State private var moveToFolderID: UUID? = nil
-    
-    // 폴더 메모 추가 변수
-    @State private var isEditingFolderMemo: Bool = false
     
     var body: some View {
         ZStack {
@@ -106,8 +102,6 @@ struct HomeView: View {
                                     isEditing: $isEditing,
                                     isEditingTitle: $isEditingTitle,
                                     isEditingFolder: $isEditingFolder,
-                                    isEditingMemo: $isEditingMemo,
-                                    isEditingFolderMemo: $isEditingFolderMemo,
                                     isMovingFolder: $isMovingFolder
                                 )
                             }
@@ -115,17 +109,16 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
+            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu ? 0.5 : 0)
+                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
-            if isEditingTitle || isEditingMemo {
+            if isEditingTitle {
                 RenamePaperTitleView(
                     isEditingTitle: $isEditingTitle,
-                    isEditingMemo: $isEditingMemo,
                     paperInfo: homeViewModel.paperInfos.first { $0.id == selectedItemID! }!)
             }
             
@@ -136,15 +129,6 @@ struct HomeView: View {
                     isEditingFolder: $isEditingFolder,
                     folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
                 )
-            }
-            
-            if isEditingFolderMemo {
-                if let folder = homeViewModel.folders.first(where: { $0.id == selectedItemID! }) {
-                    FolderMemoView(
-                        isEditingFolderMemo: $isEditingFolderMemo,
-                        folder: folder
-                    )
-                }
             }
             
             // 폴더 이동 View
@@ -200,7 +184,6 @@ struct HomeView: View {
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
         .animation(.easeInOut, value: isEditingTitle)
-        .animation(.easeInOut, value: isEditingMemo)
         .animation(.easeInOut, value: isEditingFolder)
         .alert(isPresented: $homeViewModel.isErrorOccured) {
             // TODO: 예외 처리 수정 필요
@@ -459,8 +442,6 @@ struct RenamePaperTitleView: View {
     
     @Binding var isEditingTitle: Bool
     
-    @Binding var isEditingMemo: Bool
-    
     let paperInfo: PaperInfo
     
     @FocusState private var isTextFieldFocused: Bool
@@ -470,16 +451,7 @@ struct RenamePaperTitleView: View {
             VStack {
                 HStack {
                     Button {
-                        if isEditingTitle {
-                            isEditingTitle.toggle()
-                        } else {
-                            isEditingMemo = false
-                        }
-                        if self.homeViewModel.memoText.isEmpty {
-                            self.homeViewModel.changedMemo = nil
-                        } else {
-                            self.homeViewModel.changedMemo = text
-                        }
+                        isEditingTitle.toggle()
                         isTextFieldFocused = false
                     } label: {
                         Image(systemName: "xmark")
@@ -491,14 +463,8 @@ struct RenamePaperTitleView: View {
                     Spacer()
                     
                     Button(action: {
-                        if isEditingTitle {
-                            homeViewModel.updateTitle(at: paperInfo.id, title: text)
-                            isEditingTitle = false
-                        } else {
-                            homeViewModel.updateMemo(at: paperInfo.id, memo: text)
-                            self.homeViewModel.memoText = text
-                            isEditingMemo = false
-                        }
+                        homeViewModel.updateTitle(at: paperInfo.id, title: text)
+                        isEditingTitle = false
                         isTextFieldFocused = false
                     }) {
                         RoundedRectangle(cornerRadius: 20)
@@ -525,30 +491,28 @@ struct RenamePaperTitleView: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 12)
                             .foregroundStyle(.gray100)
-                            .frame(width: 400, height: isEditingTitle ? 52 : 180)
+                            .frame(width: 400, height: 52)
                         
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(lineWidth: 1)
                             .foregroundStyle(.gray400)
-                            .frame(width: 400, height: isEditingTitle ? 52 : 180)
+                            .frame(width: 400, height: 52)
                     }
-                    .frame(width: 400, height: isEditingTitle ? 52 : 180)
-                    .overlay(alignment: isEditingTitle ? .center : .topLeading) {
-                        TextField(isEditingTitle ? "제목을 입력해주세요." : "내용을 입력해주세요.", text: $text, axis: isEditingTitle ? .horizontal : .vertical)
-                            .lineLimit( isEditingTitle ? 1 : 6)
+                    .frame(width: 400, height: 52)
+                    .overlay(alignment: .center) {
+                        TextField("제목을 입력해주세요.", text: $text, axis: .horizontal)
+                            .lineLimit(1)
                             .padding(.horizontal, 16)
-                            .padding(.vertical, isEditingTitle ? 0 : 16)
                             .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
                             .foregroundStyle(.gray800)
                     }
-                    .overlay(alignment: isEditingTitle ? .trailing : .bottomTrailing) {
+                    .overlay(alignment: .trailing) {
                         if !self.text.isEmpty {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 18))
                                 .foregroundStyle(.gray600)
                                 .background(.gray100)
-                                .padding(.bottom, isEditingTitle ? 0 : 15)
-                                .padding(.trailing, isEditingTitle ? 10 : 15)
+                                .padding(.trailing, 10)
                                 .onTapGesture {
                                     text = ""
                                 }
@@ -556,21 +520,17 @@ struct RenamePaperTitleView: View {
                     }
                     .focused($isTextFieldFocused)
                     
-                    Text(isEditingTitle ? "논문 제목을 입력해 주세요" : "논문에 대한 메모를 남겨주세요")
+                    Text("논문 제목을 입력해 주세요")
                         .reazyFont(.button1)
                         .foregroundStyle(.comment)
                 }
             }
         }
         .onAppear {
-            if isEditingTitle {
-                if let title = homeViewModel.changedTitle {
-                    self.text = title
-                } else {
-                    self.text = paperInfo.title
-                }
+            if let title = homeViewModel.changedTitle {
+                self.text = title
             } else {
-                self.text = paperInfo.memo ?? ""
+                self.text = paperInfo.title
             }
             
             isTextFieldFocused = true
@@ -729,134 +689,6 @@ struct FolderView: View {
                     selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
                 }
             }
-        }
-    }
-}
-
-/// 폴더 메모 생성 & 수정 뷰
-private struct FolderMemoView: View {
-    @EnvironmentObject private var homeViewModel: HomeViewModel
-    
-    @State private var selectedColors: FolderColors
-    
-    @Binding var isEditingFolderMemo: Bool
-    
-    @State private var text: String = ""
-    
-    let folder: Folder
-    
-    @FocusState private var isTextFieldFocused: Bool
-    
-    init(
-        isEditingFolderMemo: Binding<Bool>,
-        folder: Folder
-    ) {
-        self._isEditingFolderMemo = isEditingFolderMemo
-        self.folder = folder
-        selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
-    }
-    
-    var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    Button(action: {
-                        if self.homeViewModel.memoText.isEmpty {
-                            self.homeViewModel.changedMemo = nil
-                        } else {
-                            self.homeViewModel.changedMemo = text
-                        }
-                        self.isEditingFolderMemo.toggle()
-                        self.isTextFieldFocused = false
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 18))
-                            .foregroundStyle(.gray100)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        self.homeViewModel.updateFolderMemo(at: folder.id, memo: text)
-                        self.homeViewModel.memoText = text
-                        self.isEditingFolderMemo.toggle()
-                        self.isTextFieldFocused = false
-                    }) {
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(.gray100, lineWidth: 1)
-                            .frame(width: 68, height: 36)
-                            .overlay {
-                                Text("완료")
-                                    .reazyFont(.button1)
-                                    .foregroundStyle(.gray100)
-                            }
-                    }
-                }
-                .padding(.horizontal, 28)
-                .padding(.top, 28)
-                
-                Spacer()
-            }
-            
-            HStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 49)
-                    .frame(width: 206, height: 206)
-                    .foregroundStyle(selectedColors.color)
-                    .overlay(
-                        Image("folder")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 105)
-                    )
-                    .padding(.trailing, 54)
-                    .padding(.bottom, 26)
-                
-                VStack(spacing: 0) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundStyle(.gray100)
-                            .frame(width: 400, height: 180)
-                        
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(lineWidth: 1)
-                            .foregroundStyle(.gray400)
-                            .frame(width: 400, height: 180)
-                    }
-                    .frame(width: 400, height: 180)
-                    .overlay(alignment: .topLeading) {
-                        TextField("폴더에 대한 메모를 남겨주세요.", text: $text, axis: .vertical)
-                            .lineLimit(6)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 16)
-                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
-                            .foregroundStyle(.gray800)
-                    }
-                    .overlay(alignment: .bottomTrailing) {
-                        if !self.text.isEmpty {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.gray600)
-                                .padding(.bottom, 15)
-                                .padding(.trailing, 15)
-                                .onTapGesture {
-                                    text = ""
-                                }
-                        }
-                    }
-                    .padding(.bottom, 16)
-                    .focused($isTextFieldFocused)
-                    
-                    Text("폴더 제목을 입력해 주세요")
-                        .reazyFont(.button1)
-                        .foregroundStyle(.comment)
-                }
-            }
-        }
-        .onAppear {
-            if isEditingFolderMemo {
-                self.text = folder.memo ?? ""
-            }
-            self.isTextFieldFocused = true
         }
     }
 }

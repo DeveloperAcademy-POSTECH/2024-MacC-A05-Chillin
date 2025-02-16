@@ -43,7 +43,8 @@ enum FileSystemItem: Identifiable {
         case .paper(let paperInfo):
             return paperInfo.isFavorite
         case .folder(let folder):
-            return folder.isFavorite
+            // TODO: - [브리] 폴더 즐겨찾기 로직 삭제
+            return false
         }
     }
 }

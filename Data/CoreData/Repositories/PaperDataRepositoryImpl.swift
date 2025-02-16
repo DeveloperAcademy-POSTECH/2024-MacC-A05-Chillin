@@ -34,9 +34,9 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                     focusURL: paperData.focusURL,
                     lastModifiedDate: paperData.lastModifiedDate,
                     isFavorite: paperData.isFavorite,
-                    memo: paperData.memo ?? nil,
                     isFigureSaved: paperData.isFigureSaved,
-                    folderID: paperData.folderID ?? nil
+                    folderID: paperData.folderID ?? nil,
+                    tags: tags
                 )
             }
             return .success(pdfDataList)
@@ -57,7 +57,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
         newPaperData.thumbnail = info.thumbnail
         newPaperData.lastModifiedDate = info.lastModifiedDate
         newPaperData.isFavorite = info.isFavorite
-        newPaperData.memo = info.memo
         newPaperData.isFigureSaved = info.isFigureSaved
         newPaperData.folderID = info.folderID
         
@@ -98,7 +97,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 dataToEdit.focusURL = info.focusURL
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
-                dataToEdit.memo = info.memo
                 dataToEdit.isFigureSaved = info.isFigureSaved
                 dataToEdit.folderID = info.folderID
                 
@@ -195,7 +193,6 @@ class PaperDataRepositoryImpl: PaperDataRepository {
                 newPaperData.isFavorite = info.isFavorite
                 newPaperData.isFigureSaved = info.isFigureSaved
                 newPaperData.lastModifiedDate = info.lastModifiedDate
-                newPaperData.memo = info.memo
                 newPaperData.thumbnail = info.thumbnail
                 newPaperData.url = info.url
                 newPaperData.folderID = info.folderID

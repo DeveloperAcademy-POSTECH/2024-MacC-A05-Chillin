@@ -15,7 +15,6 @@ struct PaperInfo {
     var focusURL: Data?
     var lastModifiedDate: Date
     var isFavorite: Bool
-    var memo: String?
     var isFigureSaved: Bool
     
     var folderID: UUID?
@@ -29,7 +28,6 @@ struct PaperInfo {
         focusURL: Data? = nil,
         lastModifiedDate: Date = .init(),
         isFavorite: Bool = false,
-        memo: String? = nil,
         isFigureSaved: Bool = false,
         folderID: UUID? = nil,
         tags: [Tag] = []
@@ -41,7 +39,6 @@ struct PaperInfo {
         self.focusURL = focusURL
         self.lastModifiedDate = lastModifiedDate
         self.isFavorite = isFavorite
-        self.memo = memo
         self.isFigureSaved = isFigureSaved
         self.folderID = folderID
         self.tags = tags

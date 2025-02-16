@@ -19,7 +19,5 @@ extension FolderData {
     @NSManaged public var title: String
     @NSManaged public var createdAt: Date
     @NSManaged public var color: String
-    @NSManaged public var memo: String?
-    @NSManaged public var isFavorite: Bool
     @NSManaged public var parentFolderID: UUID?
 }

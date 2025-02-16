@@ -27,12 +27,15 @@ protocol PaperDataRepository {
     @discardableResult
     func duplicatePDFInfo(id: UUID, info: PaperInfo) -> Result<VoidResponse, Error>
     
+    // 문서에 태그를 추가합니다
     @discardableResult
     func addTag(to id: UUID, with tag: String) -> Result<VoidResponse, Error>
     
+    // 문서의 태그를 삭제합니다 : 전체 태그 리스트에서는 유지
     @discardableResult
     func removeTag(from id: UUID, tagID: UUID) -> Result<VoidResponse, Error>
     
+    // 문서의 태그를 변경합니다
     @discardableResult
     func replaceTag(for paperId: UUID, oldTagId: UUID, newTagId: UUID) -> Result<VoidResponse, Error>
 }
