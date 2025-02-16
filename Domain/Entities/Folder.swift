@@ -12,7 +12,7 @@ import SwiftUI
  폴더 구조
  : 계층 구조 구현 및 폴더 탐색기를 위한 class 구현
  */
-struct Folder: Equatable {
+struct Folder: Equatable, Identifiable {
     let id: UUID
     var title: String
     var createdAt: Date
@@ -22,6 +22,7 @@ struct Folder: Equatable {
     
     var parentFolderID: UUID?
     
+    // TODO: - [브리] memo, isFavorite 삭제
     init(
         id: UUID,
         title: String,
