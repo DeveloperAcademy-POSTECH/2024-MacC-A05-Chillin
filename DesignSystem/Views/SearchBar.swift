@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SearchBar: View {
-    
-    @Binding var text: String
+    @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
     var body: some View {
         HStack {
@@ -21,12 +20,15 @@ struct SearchBar: View {
                     .frame(width: 22, height: 22)
                     .foregroundStyle(.gray600)
                 
-                TextField("검색", text: $text)
+                TextField("검색", text: $homeSearchViewModel.searchText)
                     .foregroundStyle(.gray600)
+                    .onChange(of: homeSearchViewModel.searchText) {
+                        homeSearchViewModel.searchPapers()
+                    }
                 
-                if !text.isEmpty {
+                if !homeSearchViewModel.searchText.isEmpty {
                     Button(action: {
-                        self.text = ""
+                        homeSearchViewModel.searchText = ""
                     }, label: {
                         Image(systemName: "xmark.circle.fill")
                         
@@ -43,5 +45,5 @@ struct SearchBar: View {
 }
 
 #Preview {
-    SearchBar(text: .constant(""))
+    SearchBar()
 }

@@ -40,6 +40,12 @@ struct HomeView: View {
     // 폴더 메모 추가 변수
     @State private var isEditingFolderMemo: Bool = false
     
+    @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
+        useCase: DefaultHomeSearchUseCase(
+            paperDataRepository: PaperDataRepositoryImpl()
+        )
+    )
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -67,6 +73,7 @@ struct HomeView: View {
                             
                         case .search:
                             SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
+                                .environmentObject(homeSearchViewModel)
                             
                         case .edit:
                             EditMenuView(
@@ -83,8 +90,9 @@ struct HomeView: View {
                 .frame(height: 80)
                 
                 GeometryReader { geometry in
-                    if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
-                        SearchWordView()
+                    if homeViewModel.isSearching {
+                        HomeSearchView()
+                            .environmentObject(homeSearchViewModel)
                     } else {
                         HStack(spacing: 0) {
                             HomeListView()
@@ -104,6 +112,7 @@ struct HomeView: View {
                                     isEditingFolderMemo: $isEditingFolderMemo,
                                     isMovingFolder: $isMovingFolder
                                 )
+                                .environmentObject(homeSearchViewModel)
                             }
                         }
                     }
@@ -344,7 +353,7 @@ private struct SearchMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            SearchBar(text: $homeViewModel.searchText)
+            SearchBar()
                 .frame(width: 400)
                 .focused($isSearchFieldFocused)
             
