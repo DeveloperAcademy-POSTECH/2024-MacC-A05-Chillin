@@ -15,6 +15,7 @@ struct OriginalView: View {
     @EnvironmentObject private var floatingViewModel: FloatingViewModel
     @EnvironmentObject var commentViewModel: CommentViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
+    @EnvironmentObject private var backPageBtnViewModel: BackPageBtnViewModel
     
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
@@ -81,6 +82,22 @@ struct OriginalView: View {
                         }
                     }
                 }
+                
+                // 이전페이지로 버튼
+                ZStack {
+                    BackPageBtnView(action: {
+                        backPageBtnViewModel.handleBtnVisible()
+                        backPageBtnViewModel.updateBackDestination()
+                    })
+                        .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
+                        .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
+                }
+                .position(
+                    backPageBtnViewModel.isLinkTapped
+                    ? CGPoint(x: geometry.size.width / 2, y: geometry.size.height * 0.92)
+                    : CGPoint(x: geometry.size.width / 2, y: geometry.size.height + 30)
+                )
+
             }
             .onChange(of: geometry.size) {
                 commentViewModel.isMenuTapped = false

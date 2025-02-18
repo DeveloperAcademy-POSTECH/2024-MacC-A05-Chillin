@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import UIKit
 
-struct PaperInfo {
+struct PaperInfo: Identifiable {
     let id: UUID
     var title: String
     let thumbnail: Data
@@ -42,5 +43,23 @@ struct PaperInfo {
         self.isFigureSaved = isFigureSaved
         self.folderID = folderID
         self.tags = tags
+    }
+    
+    public static var sampleData: Self {
+        let url = try! Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!.bookmarkData()
+        let thumbnail = UIImage(resource: .testThumbnail).pngData()!
+        
+        return .init(
+            id: .init(),
+            title: "개간지 나는 논문",
+            thumbnail: thumbnail,
+            url: url,
+            focusURL: nil,
+            lastModifiedDate: .now,
+            isFavorite: false,
+            memo: nil,
+            isFigureSaved: false,
+            folderID: nil
+        )
     }
 }

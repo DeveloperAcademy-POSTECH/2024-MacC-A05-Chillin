@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol PaperDataRepository {
+protocol PaperDataRepository: Sendable {
     /// 저장된 PDF 정보를 모두 불러옵니다
     func loadPDFInfo() -> Result<[PaperInfo], Error>
     

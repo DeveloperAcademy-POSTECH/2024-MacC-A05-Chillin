@@ -16,12 +16,18 @@ struct MenuView: View {
             HStack(spacing: 0) {
                 TabButton(title: "목차", selectedTab: $selectedTab)
                 TabButton(title: "페이지", selectedTab: $selectedTab)
+                TabButton(title: "주석", selectedTab: $selectedTab)
             }
 
-            if selectedTab == "목차" {
+            switch selectedTab {
+            case "목차":
                 IndexView()
-            } else {
+            case "페이지":
                 PageListView()
+            case "주석":
+                AnnotationCollectionView()
+            default:
+                EmptyView()
             }
         }
     }
@@ -41,7 +47,7 @@ struct TabButton: View {
                 Text(title)
                     .reazyFont(selectedTab == title ? .body3 : .text5)
                     .foregroundStyle(selectedTab == title ? .primary1 : .gray600)
-                    .frame(width: 126, height: 36)
+                    .frame(width: 84, height: 36)
 
                 Rectangle()
                     .frame(height: 2)

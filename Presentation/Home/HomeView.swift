@@ -39,6 +39,12 @@ struct HomeView: View {
     @State private var isMovingFolder: Bool = false
     @State private var moveToFolderID: UUID? = nil
     
+    @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
+        useCase: DefaultHomeSearchUseCase(
+            paperDataRepository: PaperDataRepositoryImpl()
+        )
+    )
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -66,6 +72,7 @@ struct HomeView: View {
                             
                         case .search:
                             SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
+                                .environmentObject(homeSearchViewModel)
                             
                         case .edit:
                             EditMenuView(
@@ -82,8 +89,9 @@ struct HomeView: View {
                 .frame(height: 80)
                 
                 GeometryReader { geometry in
-                    if homeViewModel.isSearching && homeViewModel.searchText.isEmpty {
-                        SearchWordView()
+                    if homeViewModel.isSearching {
+                        HomeSearchView()
+                            .environmentObject(homeSearchViewModel)
                     } else {
                         HStack(spacing: 0) {
                             HomeListView(
@@ -104,6 +112,7 @@ struct HomeView: View {
                                     isEditingFolder: $isEditingFolder,
                                     isMovingFolder: $isMovingFolder
                                 )
+                                .environmentObject(homeSearchViewModel)
                             }
                         }
                     }
@@ -320,7 +329,7 @@ private struct SearchMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            SearchBar(text: $homeViewModel.searchText)
+            SearchBar()
                 .frame(width: 400)
                 .focused($isSearchFieldFocused)
             
@@ -368,7 +377,7 @@ private struct EditMenuView: View {
             Button(action: {
                 // TODO: - 복제 버튼 활성화 필요
             }, label: {
-                Image(.copy)
+                Image(.copyLight)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()

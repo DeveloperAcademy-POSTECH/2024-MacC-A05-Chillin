@@ -21,6 +21,7 @@ final class OriginalViewController: UIViewController {
     let pageListViewModel: PageListViewModel
     let searchViewModel: SearchViewModel
     let indexViewModel: IndexViewModel
+    let backpageBtnViewModel: BackPageBtnViewModel
     
     var cancellable: Set<AnyCancellable> = []
     
@@ -65,7 +66,7 @@ final class OriginalViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         self.setUI()
         self.setData()
         self.setGestures()
@@ -118,7 +119,8 @@ final class OriginalViewController: UIViewController {
         originalViewModel: FocusFigureViewModel,
         pageListViewModel: PageListViewModel,
         searchViewModel: SearchViewModel,
-        indexViewModel: IndexViewModel
+        indexViewModel: IndexViewModel,
+        backpageBtnViewModel: BackPageBtnViewModel
     ) {
         self.viewModel = viewModel
         self.commentViewModel = commentViewModel
@@ -127,6 +129,7 @@ final class OriginalViewController: UIViewController {
         self.pageListViewModel = pageListViewModel
         self.searchViewModel = searchViewModel
         self.indexViewModel = indexViewModel
+        self.backpageBtnViewModel = backpageBtnViewModel
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -195,10 +198,6 @@ extension OriginalViewController {
         pencilInteraction.isEnabled = true
         pencilInteraction.delegate = self
         self.view.addInteraction(pencilInteraction)
-        
-        let commentTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCommentTap(_:)))
-        commentTapGesture.delegate = self
-        self.view.addGestureRecognizer(commentTapGesture)
     }
     
     /// 데이터 Binding
@@ -218,6 +217,20 @@ extension OriginalViewController {
                 guard let destination = destination,
                       let page = destination.page else { return }
                 self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
+        
+        self.backpageBtnViewModel.$backPageDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                
+                guard let destination = destination,
+                      let scale = self?.backpageBtnViewModel.backScaleFactor else { return }
+                
+                if let pdfView = self?.mainPDFView {
+                    pdfView.scaleFactor = scale
+                    pdfView.go(to: destination)
+                }
             }
             .store(in: &self.cancellable)
         
@@ -241,6 +254,33 @@ extension OriginalViewController {
             }
             .store(in: &cancellable)
         
+        NotificationCenter.default.publisher(for: .PDFViewAnnotationHit)
+            .sink { [weak self] notification in
+                guard let self = self else { return }
+                
+                if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
+                    if let type = annotation.type {
+                        if type == "Stamp" {      // 코멘트 탭횄을 때
+                            self.viewModel.isCommentTapped.toggle()
+                            self.commentViewModel.isMenuTapped = false
+                            
+                            if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
+                                self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                                self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
+                            }
+                            self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
+                        } else if type == "Link" {        // 링크 탭횄을 때
+                            
+                            backpageBtnViewModel.backScaleFactor = mainPDFView.scaleFactor
+                            backpageBtnViewModel.setDestination(pdfView: self.mainPDFView)
+                            backpageBtnViewModel.delayBtnVisible(after: 0.8)
+                        }
+                    }
+                }
+            }
+        .store(in: &self.cancellable)
+
+        
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] noti in
@@ -254,6 +294,8 @@ extension OriginalViewController {
                     self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
                     self?.pageListViewModel.changedPageNumber = num
                     self?.focusFigureViewModel.changedPageNumber = num
+                    self?.backpageBtnViewModel.handleBtnVisible()
+                    
                 } else {
                     print("Document or page is nil")
                 }
@@ -313,7 +355,7 @@ extension OriginalViewController {
                     /// 코멘트 뷰가 아래 화면 초과
                     if convertedBounds.maxY > self.mainPDFView.bounds.maxY - 200 && !(convertedBounds.maxX > self.mainPDFView.bounds.maxX * 0.6) {
                         commentY = convertedBounds.minY - 80
-                    /// 코멘트 뷰가 두 컬럼 모두 선택일 때
+                        /// 코멘트 뷰가 두 컬럼 모두 선택일 때
                     } else {
                         if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
                             let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
@@ -387,6 +429,15 @@ extension OriginalViewController {
                 }
                 .store(in: &self.cancellable)
         }
+        
+        NotificationCenter.default.publisher(for: .didSelectAnnotationCollection)
+            .sink { [weak self] noti in
+                guard let index = noti.userInfo?["index"] as? Int,
+                      let page = self?.mainPDFView.document?.page(at: index) else { return }
+                
+                self?.mainPDFView.go(to: page)
+            }
+            .store(in: &self.cancellable)
     }
 }
 
@@ -439,27 +490,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
     }
     
-    // 코멘트 버튼 annotation 제스처
-    @objc
-    func handleCommentTap(_ sender: UITapGestureRecognizer) {
-        let location = sender.location(in: mainPDFView)
-        
-        guard let page = mainPDFView.page(for: location, nearest: true) else { return }
-        let pageLocation = mainPDFView.convert(location, to: page)
-        
-        if let tappedAnnotation = page.annotation(at: pageLocation) {
-            viewModel.isCommentTapped.toggle()
-            commentViewModel.isMenuTapped = false
-            
-            if viewModel.isCommentTapped, let buttonID = tappedAnnotation.contents {
-                viewModel.selectedComments = commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
-                commentViewModel.setCommentPosition(selectedComments: viewModel.selectedComments, pdfView: mainPDFView)
-            }
-            viewModel.setHighlight(selectedComments: viewModel.selectedComments, isTapped: viewModel.isCommentTapped)
-        } else {
-            print("No match comment annotation")
-        }
-    }
 }
 
 //canPerformAction()으로 menuAction 제한
@@ -490,24 +520,24 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         switch self.viewModel.pdfDrawer.drawingTool {
         case .pencil:
             switchToEraser(from: .pencil)
-
+            
         case .highlights:
             switchToEraser(from: .highlights)
-
+            
         case .eraser:
             switchToPreviousTool()
-
+            
         default:
             break
         }
     }
-
+    
     private func switchToEraser(from tool: DrawingTool) {
         self.viewModel.pdfDrawer.drawingTool = .eraser
         self.viewModel.isPencil = false
         self.viewModel.isHighlight = false
         self.viewModel.isEraser = true
-
+        
         switch tool {
         case .pencil:
             self.viewModel.tempPenColor = self.viewModel.selectedPenColor ?? .black
@@ -518,28 +548,28 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         default:
             break
         }
-
+        
         self.viewModel.previousTool = tool
     }
-
+    
     private func switchToPreviousTool() {
         guard let previousTool = self.viewModel.previousTool else { return }
-
+        
         switch previousTool {
         case .pencil:
             self.viewModel.pdfDrawer.drawingTool = .pencil
             self.viewModel.isPencil = true
             self.viewModel.selectedPenColor = self.viewModel.tempPenColor ?? .black
-
+            
         case .highlights:
             self.viewModel.pdfDrawer.drawingTool = .highlights
             self.viewModel.isHighlight = true
             self.viewModel.selectedHighlightColor = self.viewModel.tempHighlightColor ?? .yellow
-
+            
         default:
             break
         }
-
+        
         self.viewModel.isEraser = false
     }
 }
