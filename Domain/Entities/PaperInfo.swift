@@ -57,9 +57,9 @@ struct PaperInfo: Identifiable {
             focusURL: nil,
             lastModifiedDate: .now,
             isFavorite: false,
-            memo: nil,
             isFigureSaved: false,
-            folderID: nil
+            folderID: nil,
+            tags: []
         )
     }
 }
