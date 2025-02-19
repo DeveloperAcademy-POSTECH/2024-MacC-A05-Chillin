@@ -21,7 +21,7 @@ struct PDFTagCell<Tag: DynamicCell>: View {
             Text(tag.name)
                 .reazyFont(.h3)
                 .foregroundStyle(.gray800)
-                .frame(height: 24)
+                .frame(width: tag.getCellWidth(), height: 24)
                 .padding(.horizontal, 8)
                 .background {
                     RoundedRectangle(cornerRadius: 4)
