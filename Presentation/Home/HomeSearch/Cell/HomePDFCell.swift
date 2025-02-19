@@ -32,7 +32,8 @@ struct HomePDFCell<Content: View>: View {
                     
                     PaperInformationView(
                         title: paperInfo.title,
-                        date: paperInfo.lastModifiedDate
+                        date: paperInfo.lastModifiedDate,
+                        tags: paperInfo.tags
                     )
                     
                     Spacer()
@@ -78,16 +79,15 @@ private struct ThumbnailImageView: View {
 private struct PaperInformationView: View {
     let title: String
     let date: Date
+    let tags: [Tag]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // TODO: pdf 타이틀
             Text(title)
                 .reazyFont(.text1)
                 .foregroundStyle(.gray900)
                 .padding(.top, 4)
             
-            // TODO: 수정 날짜
             Text(date.timeAgo)
                 .reazyFont(.h4)
                 .foregroundStyle(.gray600)
@@ -95,11 +95,11 @@ private struct PaperInformationView: View {
             
             Spacer()
             
-            
-            // TODO: 태그 생기면 연결
             HStack {
-                ForEach(0..<3, id: \.self) { _ in
-                    PDFTagCell(tag: TemporaryTag.init(name: "Temporary")) { }
+                ForEach(tags) { tag in
+                    PDFTagCell(tag: tag) {
+                        // TODO: 태그 탭 액션 연결
+                    }
                 }
             }
             .padding(.bottom, 22)

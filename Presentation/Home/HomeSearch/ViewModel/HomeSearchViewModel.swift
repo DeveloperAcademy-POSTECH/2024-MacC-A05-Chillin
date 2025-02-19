@@ -14,10 +14,10 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
     @Published public var searchList: [PaperInfo] = []
     @Published public var searchTarget: SearchTarget = .title
     @Published public var searchText: String = ""
-    @Published public var recentSearches: [TemporaryTag] = {
-        var result = [TemporaryTag]()
+    @Published public var recentSearches: [Tag] = {
+        var result = [Tag]()
         UserDefaults.standard.recentSearches.forEach {
-            result.append(TemporaryTag(name: $0))
+            result.append(Tag(name: $0))
         }
         return result
     }()
@@ -93,7 +93,7 @@ extension HomeSearchViewModel {
         UserDefaults.standard.recentSearches = current
         
         self.recentSearches = current.map {
-            TemporaryTag(name: $0)
+            Tag(name: $0)
         }
         
     }

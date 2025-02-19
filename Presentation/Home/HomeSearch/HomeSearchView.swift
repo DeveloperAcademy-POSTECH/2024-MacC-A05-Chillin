@@ -212,17 +212,6 @@ private struct EllipsisButtonView: View {
 private struct RecentlySearchedKeywordView: View {
     @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
-    // MARK: 샘플 데이터
-    let items: [TemporaryTag] = {
-        var result = [TemporaryTag]()
-        
-        for i in 0 ..< 20 {
-            result.append(.init(name: .init(repeating: "a", count: i)))
-        }
-        
-        return result
-    }()
-    
     var body: some View {
         if homeSearchViewModel.recentSearches.isEmpty {
             VStack {
