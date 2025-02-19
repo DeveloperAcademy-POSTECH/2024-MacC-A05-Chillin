@@ -9,14 +9,9 @@ import SwiftUI
 
 // MARK: - [쿠로] 태그 뷰!
 struct TagView: View {
-    
     @State var isTagSelected: Bool = false
-    @State var isTagExist: Bool = false
-    
-    let tags: [Tag] = [
-        Tag(id: UUID(), title: "tag1", isSelected: false),
-        Tag(id: UUID(), title: "tag2", isSelected: false)
-    ]
+    @State private var popover = false
+    @EnvironmentObject private var tagViewModel: TagViewModel
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -44,7 +39,7 @@ struct TagView: View {
                     // 태그 선택하는 화면
                     VStack {
                         Group {
-                            if isTagExist {
+                            if tagViewModel.isTagExist {
                                 TagListView()
                             } else {
                                 Text("아직 태그를 만들지 않았어요")
@@ -57,13 +52,10 @@ struct TagView: View {
                         // 편집 버튼
                         HStack {
                             Spacer()
-                            Button(action: {
-                                
-                            }, label: {
-                                Image(systemName: "ellipsis.circle")
-                                    .foregroundStyle(.gray)
+                            EllipsisView(ellipsisAction: {
+                                popover.toggle()
                             })
-                            .padding([.trailing, .bottom], 20)
+                            //TODO: - 팝오버 띄우기
                         }
                     }
                     .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
@@ -109,10 +101,22 @@ struct SelectedTagView: View {
 }
 
 struct TagListView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
     var body: some View {
-        ScrollView(.vertical){
-            VStack(spacing: 0) {
-                Text("hi")
+        GeometryReader { geometry in
+            ScrollView(.vertical){
+                
+                // TODO: 태그 생기면 연결
+                DynamicCellLayout(data: tagViewModel.tags, action: { title in
+                    tagViewModel.cellTapped(title: title)
+                }, screenWidth: geometry.size.width)
+                .border(Color.blue, width: 2)
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                //Spacer().frame(width: 20)
+//                Rectangle()
+//                    .frame(width: geometry.size.width, height: 100)
+//                    .border(Color.red, width: 2)
             }
         }
     }

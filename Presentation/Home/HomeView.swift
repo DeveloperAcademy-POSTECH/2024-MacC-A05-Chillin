@@ -46,6 +46,10 @@ struct HomeView: View {
         )
     )
     
+    @StateObject private var tagViewModel: TagViewModel = .init(
+        tagViewUseCase: DefaultTagViewUseCase()
+    )
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -101,6 +105,7 @@ struct HomeView: View {
                             if homeViewModel.isTagSelected {
                                 // TODO: - [쿠로] 태그 뷰 위치
                                 TagView()
+                                    .environmentObject(tagViewModel)
                             } else {
                                 PaperListView(
                                     selectedItemID: $selectedItemID,

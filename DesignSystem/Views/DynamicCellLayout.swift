@@ -13,24 +13,27 @@ import SwiftUI
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
     let data: Data
     let action: (String) -> Void
+    let screenWidth: CGFloat
     
     var body: some View {
         generateLayout(items: data)
     }
     
     private func generateLayout(items: Data) -> some View {
-        let screenWidth = UIScreen.main.bounds.width
+        //let screenWidth = UIScreen.main.bounds.width
         
         var currentWidth: CGFloat = 0
         var currentArrays = [Data.Element]()
         
         var resultRows = [[Data.Element]]()
         
+        print("🔥현재 너비 : \(screenWidth)")
+        var itemWidth2: CGFloat = 0
         
         for (index, item) in items.enumerated() {
-            let itemWidth = item.getCellWidth()
-            
-            if currentWidth + itemWidth >= screenWidth {
+            let itemWidth = item.getCellWidth() + 16
+            itemWidth2 = itemWidth
+            if currentWidth + itemWidth + 20 >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
                 currentWidth = 0
@@ -42,10 +45,12 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                 break
             }
             
-            currentWidth += itemWidth
+            currentWidth += itemWidth + 10
             currentArrays.append(item)
+            
+            print("🔥더한 너비\(index) : \(currentWidth)")
         }
-        
+        print("🔥아이템 너비 : \(itemWidth2)")
         return VStack(alignment: .leading) {
             ForEach(resultRows, id: \.self) { row in
                 HStack {
