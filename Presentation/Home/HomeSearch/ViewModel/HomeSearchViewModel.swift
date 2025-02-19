@@ -60,6 +60,15 @@ extension HomeSearchViewModel {
         
     }
     
+    public func starButtonTapped(_ paperInfo: PaperInfo) {
+        let id = paperInfo.id
+        
+        if let paperIndex = searchList.firstIndex(where: { $0.id == id }) {
+            searchList[paperIndex].isFavorite.toggle()
+            useCase.editPDF(searchList[paperIndex])
+        }
+    }
+    
     private func fetchSearchList(papers: [PaperInfo]) {
         self.searchList = papers
     }

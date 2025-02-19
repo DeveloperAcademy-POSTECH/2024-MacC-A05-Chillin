@@ -26,10 +26,9 @@ struct HomePDFCell<Content: View>: View {
                 HStack(alignment: .top, spacing: 0) {
                     ThumbnailImageView(
                         thumbnailData: paperInfo.thumbnail,
-                        isStared: paperInfo.isFavorite
-                    ) {
-                        
-                    }
+                        isStared: paperInfo.isFavorite,
+                        starAction: starAction
+                    )
                     
                     PaperInformationView(
                         title: paperInfo.title,
@@ -68,9 +67,9 @@ private struct ThumbnailImageView: View {
                 Button {
                     starAction()
                 } label: {
-                    Image(systemName: isStared ? "star.fill" :  "star")
+                    Image(systemName: isStared ? "star.fill" : "star")
                         .font(.system(size: 18))
-                        .foregroundStyle(.gray600)
+                        .foregroundStyle(isStared ? .point4 : .gray600)
                 }
                 .padding(6)
             }

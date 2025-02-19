@@ -71,7 +71,7 @@ private struct HomeSearchListView: View {
                                 homeSearchViewModel.setRecentSearchList()
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
                             } starAction: {
-                                // TODO: 즐겨찾기
+                                homeSearchViewModel.starButtonTapped(paperInfo)
                             } tagAction: { id in
                                 // TODO: 추후 수정 필요
                                 homeSearchViewModel.tagTapped(id)

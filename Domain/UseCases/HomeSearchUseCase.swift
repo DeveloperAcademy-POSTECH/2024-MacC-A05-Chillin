@@ -11,6 +11,9 @@ import Foundation
 protocol HomeSearchUseCase: Sendable {
     func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error>
     func fetchByTagId(tagId: UUID) -> Result<[PaperInfo], any Error>
+    
+    @discardableResult
+    func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
 }
 
 enum SearchTarget {
@@ -51,6 +54,9 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
         return .failure(NSError())
     }
     
+    func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.editPDFInfo(info)
+    }
     
     private func fetchPapersByTagName(_ tagName: String) -> [PaperInfo] {
         let response = tagDataRepository.fetchAllTags()
