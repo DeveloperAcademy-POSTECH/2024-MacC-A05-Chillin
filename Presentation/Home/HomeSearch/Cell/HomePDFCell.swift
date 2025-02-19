@@ -86,6 +86,7 @@ private struct PaperInformationView: View {
             Text(title)
                 .reazyFont(.text1)
                 .foregroundStyle(.gray900)
+                .lineLimit(1)
                 .padding(.top, 4)
             
             Text(date.timeAgo)

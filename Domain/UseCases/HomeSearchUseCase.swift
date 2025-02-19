@@ -38,7 +38,7 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
             }
         case .tag:
             let papers = fetchPapersByTagName(matches)
-            return papers.isEmpty ? .failure(NSError()) : .success(papers)
+            return .success(papers)
         }
     }
     

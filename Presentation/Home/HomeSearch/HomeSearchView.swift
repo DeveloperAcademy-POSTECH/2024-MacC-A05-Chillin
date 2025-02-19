@@ -127,7 +127,7 @@ private struct EllipsisButtonView: View {
             divider
             
             Button {
-                
+                // TODO: 추후 연결 필요
             } label: {
                 HStack {
                     Text("태그 관리")
@@ -162,7 +162,7 @@ private struct EllipsisButtonView: View {
             divider
             
             Button {
-                
+                // TODO: 추후 연결 필요
             } label: {
                 HStack {
                     Text("이동")
