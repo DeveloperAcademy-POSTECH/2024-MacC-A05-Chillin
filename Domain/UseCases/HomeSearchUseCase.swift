@@ -10,6 +10,7 @@ import Foundation
 
 protocol HomeSearchUseCase: Sendable {
     func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error>
+    func fetchByTagId(tagId: UUID) -> Result<[PaperInfo], any Error>
 }
 
 enum SearchTarget {
@@ -40,6 +41,14 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
             let papers = fetchPapersByTagName(matches)
             return .success(papers)
         }
+    }
+    
+    func fetchByTagId(tagId: UUID) -> Result<[PaperInfo], any Error> {
+        let response = tagDataRepository.fetchPapersByTag(tagID: tagId)
+        if case let .success(papers) = response {
+            return .success(papers)
+        }
+        return .failure(NSError())
     }
     
     

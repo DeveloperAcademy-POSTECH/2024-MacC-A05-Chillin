@@ -72,6 +72,9 @@ private struct HomeSearchListView: View {
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
                             } starAction: {
                                 // TODO: 즐겨찾기
+                            } tagAction: { id in
+                                // TODO: 추후 수정 필요
+                                homeSearchViewModel.tagTapped(id)
                             } ellipsisButtonView: {
                                 EllipsisButtonView()
                             }

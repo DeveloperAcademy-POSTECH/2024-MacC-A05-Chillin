@@ -15,6 +15,7 @@ struct HomePDFCell<Content: View>: View {
     
     let onTapGesture: () -> Void
     let starAction: () -> Void
+    let tagAction: (UUID) -> Void
     let ellipsisButtonView: () -> Content
 
     
@@ -33,7 +34,8 @@ struct HomePDFCell<Content: View>: View {
                     PaperInformationView(
                         title: paperInfo.title,
                         date: paperInfo.lastModifiedDate,
-                        tags: paperInfo.tags
+                        tags: paperInfo.tags,
+                        tagAction: tagAction
                     )
                     
                     Spacer()
@@ -81,6 +83,8 @@ private struct PaperInformationView: View {
     let date: Date
     let tags: [Tag]
     
+    let tagAction: (UUID) -> Void
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
@@ -99,7 +103,7 @@ private struct PaperInformationView: View {
             HStack {
                 ForEach(tags) { tag in
                     PDFTagCell(tag: tag) {
-                        // TODO: 태그 탭 액션 연결
+                        tagAction(tag.id)
                     }
                 }
             }

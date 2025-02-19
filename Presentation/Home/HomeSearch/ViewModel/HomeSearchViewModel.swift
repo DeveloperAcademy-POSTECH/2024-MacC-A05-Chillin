@@ -56,6 +56,10 @@ extension HomeSearchViewModel {
         }
     }
     
+    public func tagTapped(_ tagId: UUID) {
+        
+    }
+    
     private func fetchSearchList(papers: [PaperInfo]) {
         self.searchList = papers
     }
