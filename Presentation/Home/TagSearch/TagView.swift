@@ -9,7 +9,6 @@ import SwiftUI
 
 // MARK: - [쿠로] 태그 뷰!
 struct TagView: View {
-    @State var isTagSelected: Bool = false
     @State private var popover = false
     @EnvironmentObject private var tagViewModel: TagViewModel
     
@@ -21,8 +20,8 @@ struct TagView: View {
                 VStack(spacing: 1) {
                     
                     // 선택된 태그 화면
-                    Group {
-                        if isTagSelected {
+                    HStack {
+                        if tagViewModel.isTagSelected {
                             SelectedTagView()
                         } else {
                             TagLEmptyView()
@@ -30,6 +29,7 @@ struct TagView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
+                    .frame(height: 52)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(.gray100)
@@ -74,7 +74,6 @@ struct TagView: View {
 
 struct TagLEmptyView: View {
     var body: some View {
-        HStack(spacing: 0) {
             Text("태그로 원하는 논문을 찾아보세요")
                 .reazyFont(.button1)
                 .foregroundStyle(.gray550)
@@ -86,15 +85,19 @@ struct TagLEmptyView: View {
                     .font(.system(size: 16))
                     .foregroundStyle(.gray600)
             })
-        }
     }
 }
 
 struct SelectedTagView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
     var body: some View {
         ScrollView(.horizontal) {
-            HStack {
-                Text("hi")
+            HStack(spacing: 10) {
+                ForEach(tagViewModel.selectedTags.map { TemporaryTag(name: $0) }, id: \.id) { tag in
+                    SelectedTagCell(tag: tag, action: {
+                        tagViewModel.tagTapped(for: tag.name)
+                    })
+                }
             }
         }
     }
@@ -105,18 +108,11 @@ struct TagListView: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView(.vertical){
-                
-                // TODO: 태그 생기면 연결
-                DynamicCellLayout(data: tagViewModel.tags, action: { title in
-                    tagViewModel.cellTapped(title: title)
-                }, screenWidth: geometry.size.width)
-                .border(Color.blue, width: 2)
+                DynamicCellLayout(data: tagViewModel.tags, action: { tagName in
+                    tagViewModel.tagTapped(for: tagName)
+                }, screenWidth: geometry.size.width, isMultiSelectable: true)
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
-                //Spacer().frame(width: 20)
-//                Rectangle()
-//                    .frame(width: geometry.size.width, height: 100)
-//                    .border(Color.red, width: 2)
             }
         }
     }
