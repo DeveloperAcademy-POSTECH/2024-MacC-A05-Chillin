@@ -13,7 +13,7 @@ class TagViewModel: ObservableObject {
     
     private let tagViewUseCase: TagViewUseCase
     @Published public var tags: [TemporaryTag] = []
-    @Published public var selectedTags: Set<String> = [] {
+    @Published public var selectedTags: [String] = [] {
         didSet {
             isTagSelected = !selectedTags.isEmpty
         }
@@ -43,11 +43,10 @@ class TagViewModel: ObservableObject {
     }
     
     func tagTapped(for tagName: String){
-        if selectedTags.contains(tagName) {
-            selectedTags.remove(tagName)
-        } else {
-            selectedTags.insert(tagName)
-        }
-        print(selectedTags)
+        if let index = selectedTags.firstIndex(of: tagName) {
+                selectedTags.remove(at: index)
+            } else {
+                selectedTags.append(tagName)
+            }
     }
 }
