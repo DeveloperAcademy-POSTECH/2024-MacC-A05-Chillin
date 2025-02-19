@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class TagDataRepositoryImpl: TagDataRepository {
+final class TagDataRepositoryImpl: TagDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
     func fetchAllTags() -> Result<[Tag], any Error> {

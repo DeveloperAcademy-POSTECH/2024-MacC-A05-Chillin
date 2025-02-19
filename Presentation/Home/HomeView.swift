@@ -41,7 +41,8 @@ struct HomeView: View {
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
         useCase: DefaultHomeSearchUseCase(
-            paperDataRepository: PaperDataRepositoryImpl()
+            paperDataRepository: PaperDataRepositoryImpl(),
+            tagDataRepository: TagDataRepositoryImpl()
         )
     )
     

@@ -19,9 +19,11 @@ enum SearchTarget {
 
 final class DefaultHomeSearchUseCase: HomeSearchUseCase {
     private let paperDataRepository: PaperDataRepository
+    private let tagDataRepository: TagDataRepository
     
-    init(paperDataRepository: PaperDataRepository) {
+    init(paperDataRepository: PaperDataRepository, tagDataRepository: TagDataRepository) {
         self.paperDataRepository = paperDataRepository
+        self.tagDataRepository = tagDataRepository
     }
     
     func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error> {
@@ -35,9 +37,27 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
                 return .failure(NSError())
             }
         case .tag:
-            // TODO: 태그 검색 기능 구현
-            return .failure(NSError())
+            let papers = fetchPapersByTagName(matches)
+            return papers.isEmpty ? .failure(NSError()) : .success(papers)
         }
+    }
+    
+    
+    private func fetchPapersByTagName(_ tagName: String) -> [PaperInfo] {
+        let response = tagDataRepository.fetchAllTags()
+        if case let .success(tags) = response {
+            let result = tags.filter { $0.name == tagName }
+            
+            if result.isEmpty {
+                return []
+            }
+            
+            let paperTagResponse = tagDataRepository.fetchPapersByTag(tagID: result.first!.id)
+            guard case let .success(papers) = paperTagResponse else { return [] }
+            
+            return papers
+        }
+        return []
     }
 }
 

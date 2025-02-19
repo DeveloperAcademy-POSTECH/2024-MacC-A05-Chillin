@@ -10,7 +10,7 @@ import CoreData
 import SwiftUI
 import UIKit
 
-class PaperDataRepositoryImpl: PaperDataRepository {
+final class PaperDataRepositoryImpl: PaperDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
     // 저장된 PDF 정보를 모두 불러옵니다

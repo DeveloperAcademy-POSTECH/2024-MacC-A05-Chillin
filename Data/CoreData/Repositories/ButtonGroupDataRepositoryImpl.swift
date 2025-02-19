@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 import UIKit
 
-class ButtonGroupDataRepositoryImpl: ButtonGroupDataRepository {
+final class ButtonGroupDataRepositoryImpl: ButtonGroupDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
     func loadButtonGroup(for pdfID: UUID) -> Result<[ButtonGroup], any Error> {

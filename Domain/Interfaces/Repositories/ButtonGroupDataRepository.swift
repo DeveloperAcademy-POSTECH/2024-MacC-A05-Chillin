@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ButtonGroupDataRepository {
+protocol ButtonGroupDataRepository: Sendable {
     /// 저장된 버튼 그룹을 불러옵니다
     func loadButtonGroup(for pdfID: UUID) -> Result<[ButtonGroup], Error>
     

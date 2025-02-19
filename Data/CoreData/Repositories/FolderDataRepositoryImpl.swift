@@ -10,7 +10,7 @@ import CoreData
 import SwiftUI
 import UIKit
 
-class FolderDataRepositoryImpl: FolderDataRepository {
+final class FolderDataRepositoryImpl: FolderDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
     func loadFolders() -> Result<[Folder], any Error> {
