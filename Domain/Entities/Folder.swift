@@ -20,6 +20,7 @@ struct Folder: Equatable, Identifiable {
     
     var parentFolderID: UUID?
     
+    // TODO: - [브리] memo, isFavorite 삭제
     init(
         id: UUID,
         title: String,

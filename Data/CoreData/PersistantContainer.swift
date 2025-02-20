@@ -53,9 +53,4 @@ final class PersistantContainer {
             }
         }
     }
-    
-    private func performMigrationIfNeeded() {
-        let context = _container.viewContext
-//        let request: NSFetchRequest<PaperTag> = PaperTag.fetchRequest()
-    }
 }
