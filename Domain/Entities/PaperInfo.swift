@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct PaperInfo: Identifiable {
+struct PaperInfo: Identifiable, Hashable {
     let id: UUID
     var title: String
     let thumbnail: Data

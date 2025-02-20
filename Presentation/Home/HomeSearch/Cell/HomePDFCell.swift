@@ -9,14 +9,14 @@ import SwiftUI
 
 
 
-struct HomePDFCell<Content: View>: View {
+struct HomePDFCell: View {
     @State private var popover = false
     let paperInfo: PaperInfo
     
     let onTapGesture: () -> Void
     let starAction: () -> Void
     let tagAction: (UUID) -> Void
-    let ellipsisButtonView: () -> Content
+    let editAction: () -> Void
 
     
     var body: some View {
@@ -43,7 +43,10 @@ struct HomePDFCell<Content: View>: View {
                         popover.toggle()
                     }
                     .popover(isPresented: $popover, arrowEdge: .trailing) {
-                        ellipsisButtonView()
+                        EllipsisButtonView {
+                            editAction()
+                            popover.toggle()
+                        }
                     }
                 }
                 .padding(.top, 10)
@@ -134,3 +137,108 @@ private struct EllipsisView: View {
 }
 
 
+// MARK: - Epllipsis 버튼 뷰
+private struct EllipsisButtonView: View {
+    let editTitleAction: () -> Void
+    
+    // TODO: 버튼 액션 추가
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                editTitleAction()
+            } label: {
+                HStack {
+                    Text("제목 수정")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.editpencil)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                // TODO: 추후 연결 필요
+            } label: {
+                HStack {
+                    Text("태그 관리")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(systemName: "tag")
+                        .font(.system(size: 14))
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("복제")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.copyDark)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                // TODO: 추후 연결 필요
+            } label: {
+                HStack {
+                    Text("이동")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.move)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            divider
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("삭제")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.trash)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.pen1)
+            .frame(height: 40)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            
+        }
+        .frame(width: 200)
+    }
+    
+    private var divider: some View {
+        Rectangle()
+            .frame(height: 1)
+            .foregroundStyle(.primary2)
+    }
+}

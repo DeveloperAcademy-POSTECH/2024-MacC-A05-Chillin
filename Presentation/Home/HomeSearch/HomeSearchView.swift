@@ -31,7 +31,7 @@ private struct HomeSearchListView: View {
         VStack {
             HStack(spacing: 0) {
                 Button {
-                    homeSearchViewModel.searchTargetChanged(target: .title)
+                    homeSearchViewModel.searchTargetButtonTapped(target: .title)
                 } label: {
                     Text("제목")
                         .reazyFont(.button1)
@@ -43,7 +43,7 @@ private struct HomeSearchListView: View {
                 }
                 
                 Button {
-                    homeSearchViewModel.searchTargetChanged(target: .tag)
+                    homeSearchViewModel.searchTargetButtonTapped(target: .tag)
                 } label: {
                     Text("태그")
                         .reazyFont(.button1)
@@ -68,17 +68,18 @@ private struct HomeSearchListView: View {
                         ForEach(homeSearchViewModel.searchList) { paperInfo in
                             HomePDFCell(paperInfo: paperInfo) {
                                 // TODO: 네비게이션 push 시 Date 업데이트 필요
-                                homeSearchViewModel.setRecentSearchList()
+                                homeSearchViewModel.PaperCellTapped(paperInfo)
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
                             } starAction: {
                                 homeSearchViewModel.starButtonTapped(paperInfo)
                             } tagAction: { id in
                                 // TODO: 추후 수정 필요
                                 homeSearchViewModel.tagTapped(id)
-                            } ellipsisButtonView: {
-                                EllipsisButtonView()
+                            } editAction: {
+                                withAnimation(.easeInOut) {
+                                    homeSearchViewModel.viewStatus = .search(paperInfo)
+                                }
                             }
-                            
                             
                             Rectangle()
                                 .foregroundStyle(.primary3)
@@ -101,112 +102,6 @@ private struct SearchResultEmptyView: View {
             .reazyFont(.h5)
             .foregroundStyle(.gray550)
             .multilineTextAlignment(.center)
-    }
-}
-
-
-
-// MARK: - Epllipsis 버튼 뷰
-private struct EllipsisButtonView: View {
-    // TODO: 버튼 액션 추가
-    var body: some View {
-        VStack(spacing: 0) {
-            Button {
-                
-            } label: {
-                HStack {
-                    Text("제목 수정")
-                        .reazyFont(.body1)
-                    Spacer()
-                    Image(.editpencil)
-                        .resizable()
-                        .frame(width: 17, height: 17)
-                }
-            }
-            .foregroundStyle(.gray800)
-            .frame(height: 40)
-            .padding(.leading, 17)
-            .padding(.trailing, 14)
-            divider
-            
-            Button {
-                // TODO: 추후 연결 필요
-            } label: {
-                HStack {
-                    Text("태그 관리")
-                        .reazyFont(.body1)
-                    Spacer()
-                    Image(systemName: "tag")
-                        .font(.system(size: 14))
-                }
-            }
-            .foregroundStyle(.gray800)
-            .frame(height: 40)
-            .padding(.leading, 17)
-            .padding(.trailing, 14)
-            divider
-            
-            Button {
-                
-            } label: {
-                HStack {
-                    Text("복제")
-                        .reazyFont(.body1)
-                    Spacer()
-                    Image(.copyDark)
-                        .resizable()
-                        .frame(width: 17, height: 17)
-                }
-            }
-            .foregroundStyle(.gray800)
-            .frame(height: 40)
-            .padding(.leading, 17)
-            .padding(.trailing, 14)
-            divider
-            
-            Button {
-                // TODO: 추후 연결 필요
-            } label: {
-                HStack {
-                    Text("이동")
-                        .reazyFont(.body1)
-                    Spacer()
-                    Image(.move)
-                        .resizable()
-                        .frame(width: 17, height: 17)
-                }
-            }
-            .foregroundStyle(.gray800)
-            .frame(height: 40)
-            .padding(.leading, 17)
-            .padding(.trailing, 14)
-            divider
-            
-            Button {
-                
-            } label: {
-                HStack {
-                    Text("삭제")
-                        .reazyFont(.body1)
-                    Spacer()
-                    Image(.trash)
-                        .resizable()
-                        .frame(width: 17, height: 17)
-                }
-            }
-            .foregroundStyle(.pen1)
-            .frame(height: 40)
-            .padding(.leading, 17)
-            .padding(.trailing, 14)
-            
-        }
-        .frame(width: 200)
-    }
-    
-    private var divider: some View {
-        Rectangle()
-            .frame(height: 1)
-            .foregroundStyle(.primary2)
     }
 }
 
@@ -237,7 +132,7 @@ private struct RecentlySearchedKeywordView: View {
                     Spacer()
                     
                     Button("모두 지우기") {
-                        homeSearchViewModel.removeAllRecentSearches()
+                        homeSearchViewModel.removeAllButtonTapped()
                     }
                     .reazyFont(.text1)
                     .foregroundStyle(.primary1)

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import SwiftUICore
 
 @MainActor
 final class HomeSearchViewModel: ObservableObject, Sendable {
@@ -21,6 +21,7 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
         }
         return result
     }()
+    @Published public var viewStatus: SearchViewStatus = .normal
     
     private let useCase: HomeSearchUseCase
 
@@ -28,6 +29,11 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
     
     init(useCase: HomeSearchUseCase) {
         self.useCase = useCase
+    }
+    
+    enum SearchViewStatus: Hashable {
+        case normal
+        case search(PaperInfo)
     }
 }
 
@@ -69,6 +75,52 @@ extension HomeSearchViewModel {
         }
     }
     
+    public func cellTapped(title: String) {
+        self.searchText = title
+    }
+    
+    public func searchTargetButtonTapped(target: SearchTarget) {
+        if target == searchTarget { return }
+        
+        searchTarget = target
+        self.searchList.removeAll()
+        searchPapers()
+    }
+    
+    public func PaperCellTapped(_ paperInfo: PaperInfo) {
+        setRecentSearchList()
+        editPaperDate(paperInfo)
+    }
+    
+    public func removeAllButtonTapped() {
+        UserDefaults.standard.recentSearches = []
+        self.recentSearches.removeAll()
+    }
+}
+
+// MARK: - EditingTitle 메소드
+extension HomeSearchViewModel {
+    public func completeButtonTappedInEditingTitle(title: String) {
+        if case let .search(paper) = viewStatus,
+           let index = searchList.firstIndex(of: paper) {
+            searchList[index].title = title
+            
+            useCase.editPDF(searchList[index])
+        }
+        
+        cancelButtonTappedInEditingTitle()
+    }
+    
+    public func cancelButtonTappedInEditingTitle() {
+        withAnimation(.easeInOut) {
+            viewStatus = .normal
+        }
+    }
+}
+
+
+// MARK: - Internal Method
+extension HomeSearchViewModel {
     private func fetchSearchList(papers: [PaperInfo]) {
         self.searchList = papers
     }
@@ -77,24 +129,7 @@ extension HomeSearchViewModel {
         self.isLoading = toggle
     }
     
-    public func cellTapped(title: String) {
-        self.searchText = title
-    }
-    
-    public func searchTargetChanged(target: SearchTarget) {
-        if target == searchTarget { return }
-        
-        searchTarget = target
-        self.searchList.removeAll()
-        searchPapers()
-    }
-    
-    public func removeAllRecentSearches() {
-        UserDefaults.standard.recentSearches = []
-        self.recentSearches.removeAll()
-    }
-    
-    public func setRecentSearchList() {
+    private func setRecentSearchList() {
         var current = UserDefaults.standard.recentSearches
         
         if current.count == 30 {
@@ -108,6 +143,14 @@ extension HomeSearchViewModel {
         self.recentSearches = current.map {
             Tag(name: $0)
         }
+    }
+    
+    private func editPaperDate(_ paperInfo: PaperInfo) {
+        let id = paperInfo.id
         
+        if let paperIndex = searchList.firstIndex(where: { $0.id == id }) {
+            searchList[paperIndex].lastModifiedDate = .now
+            useCase.editPDF(searchList[paperIndex])
+        }
     }
 }

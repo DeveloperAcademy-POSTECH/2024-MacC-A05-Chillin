@@ -96,7 +96,7 @@ struct PDFInfoMenu: View {
             VStack(spacing: 10) {
                 Button(action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    self.isEditingTitle = true
+                    homeViewModel.viewStatus = .search(pdfSharedData.paperInfo!)
                 }, label: {
                     HStack{
                         Text("제목 수정")
@@ -199,15 +199,6 @@ struct PDFInfoMenu: View {
                     x: 0,
                     y: 0)
         )
-        .onAppear {
-            if let paperInfo = PDFSharedData.shared.paperInfo {
-                self.isStarSelected = paperInfo.isFavorite
-                
-                if title == nil {
-                    self.title = paperInfo.title
-                }
-            }
-        }
         .onDisappear {
             homeViewModel.changedTitle = nil
         }
