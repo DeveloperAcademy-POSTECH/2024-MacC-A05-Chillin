@@ -709,3 +709,202 @@ struct FolderView: View {
         }
     }
 }
+
+/// 태그 생성 뷰
+private struct CreateTagView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
+    @State private var text: String = ""
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                HStack {
+                    Button {
+                        tagViewModel.createTag = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                    }
+                    .foregroundStyle(.gray100)
+                    .padding(28)
+                    
+                    Spacer()
+                    
+                    Button {
+                        tagViewModel.createTag(name: text)
+                        tagViewModel.createTag = false
+                    } label: {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                    .padding(28)
+                }
+                Spacer()
+            }
+            HStack(spacing: 0) {
+                Image(systemName: "tag")
+                    .font(.system(size: 180))
+                    .padding(.trailing, 70)
+                    .foregroundStyle(.primary3)
+                
+                VStack(spacing: 0) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 52)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 52)
+                    }
+                    .overlay {
+                        TextField("새로운 태그", text: $text, axis: .horizontal)
+                            .lineLimit(1)
+                            .padding(.horizontal, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    Text("새로운 태그를 입력해주세요")
+                        .foregroundStyle(.comment)
+                        .reazyFont(.button1)
+                        .padding(.top, 16)
+                }
+            }
+        }
+    }
+}
+
+/// 폴더 메모 생성 & 수정 뷰
+private struct FolderMemoView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
+    @State private var selectedColors: FolderColors
+    
+    @Binding var isEditingFolderMemo: Bool
+    
+    @State private var text: String = ""
+    
+    let folder: Folder
+    
+    @FocusState private var isTextFieldFocused: Bool
+    
+    init(
+        isEditingFolderMemo: Binding<Bool>,
+        folder: Folder
+    ) {
+        self._isEditingFolderMemo = isEditingFolderMemo
+        self.folder = folder
+        selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
+    }
+    
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        if self.homeViewModel.memoText.isEmpty {
+                            self.homeViewModel.changedMemo = nil
+                        } else {
+                            self.homeViewModel.changedMemo = text
+                        }
+                        self.isEditingFolderMemo.toggle()
+                        self.isTextFieldFocused = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.gray100)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        self.homeViewModel.updateFolderMemo(at: folder.id, memo: text)
+                        self.homeViewModel.memoText = text
+                        self.isEditingFolderMemo.toggle()
+                        self.isTextFieldFocused = false
+                    }) {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                }
+                .padding(.horizontal, 28)
+                .padding(.top, 28)
+                
+                Spacer()
+            }
+            
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 49)
+                    .frame(width: 206, height: 206)
+                    .foregroundStyle(selectedColors.color)
+                    .overlay(
+                        Image("folder")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 105)
+                    )
+                    .padding(.trailing, 54)
+                    .padding(.bottom, 26)
+                
+                VStack(spacing: 0) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 180)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 180)
+                    }
+                    .frame(width: 400, height: 180)
+                    .overlay(alignment: .topLeading) {
+                        TextField("폴더에 대한 메모를 남겨주세요.", text: $text, axis: .vertical)
+                            .lineLimit(6)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    .overlay(alignment: .bottomTrailing) {
+                        if !self.text.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.gray600)
+                                .padding(.bottom, 15)
+                                .padding(.trailing, 15)
+                                .onTapGesture {
+                                    text = ""
+                                }
+                        }
+                    }
+                    .padding(.bottom, 16)
+                    .focused($isTextFieldFocused)
+                    
+                    Text("폴더 제목을 입력해 주세요")
+                        .reazyFont(.button1)
+                        .foregroundStyle(.comment)
+                }
+            }
+        }
+        .onAppear {
+            if isEditingFolderMemo {
+                self.text = folder.memo ?? ""
+            }
+            self.isTextFieldFocused = true
+        }
+    }
+}

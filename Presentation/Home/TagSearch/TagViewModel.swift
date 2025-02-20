@@ -23,6 +23,7 @@ class TagViewModel: ObservableObject {
     @Published public var isTagSelected: Bool = false
     @Published public var isEditMode: Bool = false
     @Published public var popover: Bool = false
+    @Published public var createTag: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
     init(
@@ -53,5 +54,9 @@ class TagViewModel: ObservableObject {
     
     func deleteTag(id: UUID) {
         tags.removeAll { $0.id == id }
+    }
+    
+    func createTag(name: String) {
+        tags.append(TemporaryTag(name: name))
     }
 }

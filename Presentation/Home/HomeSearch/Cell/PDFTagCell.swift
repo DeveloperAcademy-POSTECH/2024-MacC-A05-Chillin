@@ -13,10 +13,10 @@ struct PDFTagCell<Tag: DynamicCell>: View {
     var isSelected: Bool {
         isMultiSelectable && tagViewModel.selectedTags.contains(tag.name)
     }
+    @State var isAlertPresented: Bool = false
+    
     let isMultiSelectable: Bool      // 멀티선택 가능 여부
-    
     let tag: Tag
-    
     let action: () -> Void
     
     var body: some View {
@@ -31,11 +31,16 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                     .frame(width: tag.getCellWidth())
                 if tagViewModel.isEditMode {
                     Button {
-                        tagViewModel.deleteTag(id: tag.id)
+                        isAlertPresented = true
                     } label: {
                         Image(systemName: "x.circle.fill")
                             .foregroundStyle(.gray700)
                             .font(.system(size: 12))
+                    }
+                    .alert("“\(tag.name)”\n태그를 삭제하시겠습니까?\n해당 태그가 달린 모든 논문에서도 삭제됩니다.", isPresented: $isAlertPresented) {
+                        Button("삭제", role: .destructive, action: {
+                            tagViewModel.deleteTag(id: tag.id)
+                        })
                     }
                 }
             }
@@ -79,7 +84,6 @@ protocol DynamicCell: Hashable, Identifiable {
 }
 
 extension DynamicCell {
-    /// 편집 모드 여부에 따라 동적으로 셀 너비를 계산
     func itemWidth(isEditMode: Bool) -> CGFloat {
         let additionalPadding: CGFloat = isEditMode ? 40 : 16
         return getCellWidth() + additionalPadding
