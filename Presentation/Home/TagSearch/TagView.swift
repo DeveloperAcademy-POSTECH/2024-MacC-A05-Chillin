@@ -177,7 +177,10 @@ private struct EllipsisButtonView: View {
                 .frame(height: 1)
             
             Button {
-                
+                withAnimation {
+                    tagViewModel.createTag = true
+                    tagViewModel.popover = false
+                }
             } label: {
                 HStack {
                     Text("새로운 태그 생성")

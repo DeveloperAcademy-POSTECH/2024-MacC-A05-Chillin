@@ -123,12 +123,18 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo || tagViewModel.createTag ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu || tagViewModel.createTag ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
+            
+            // 태그 생성
+            if tagViewModel.createTag {
+                CreateTagView()
+                    .environmentObject(tagViewModel)
+            }
             
             if isEditingTitle || isEditingMemo {
                 RenamePaperTitleView(
@@ -748,6 +754,77 @@ struct FolderView: View {
                 if let folder = folder {
                     text = folder.title
                     selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
+                }
+            }
+        }
+    }
+}
+
+/// 태그 생성 뷰
+private struct CreateTagView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
+    @State private var text: String = ""
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                HStack {
+                    Button {
+                        tagViewModel.createTag = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                    }
+                    .foregroundStyle(.gray100)
+                    .padding(28)
+                    
+                    Spacer()
+                    
+                    Button {
+                        tagViewModel.createTag(name: text)
+                        tagViewModel.createTag = false
+                    } label: {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                    .padding(28)
+                }
+                Spacer()
+            }
+            HStack(spacing: 0) {
+                Image(systemName: "tag")
+                    .font(.system(size: 180))
+                    .padding(.trailing, 70)
+                    .foregroundStyle(.primary3)
+                
+                VStack(spacing: 0) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 52)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 52)
+                    }
+                    .overlay {
+                        TextField("새로운 태그", text: $text, axis: .horizontal)
+                            .lineLimit(1)
+                            .padding(.horizontal, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    Text("새로운 태그를 입력해주세요")
+                        .foregroundStyle(.comment)
+                        .reazyFont(.button1)
+                        .padding(.top, 16)
                 }
             }
         }
