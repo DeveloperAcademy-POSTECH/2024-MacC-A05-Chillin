@@ -12,6 +12,7 @@ import Combine
 class TagViewModel: ObservableObject {
     
     private let tagViewUseCase: TagViewUseCase
+    // MARK: - [부리] tags에 사용자가 만든 태그들 다 저장
     @Published public var tags: [TemporaryTag] = []
     @Published public var selectedTags: [String] = [] {
         didSet {
@@ -20,6 +21,8 @@ class TagViewModel: ObservableObject {
     }
     @Published public private(set) var isTagExist: Bool = false
     @Published public var isTagSelected: Bool = false
+    @Published public var isEditMode: Bool = false
+    @Published public var popover: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
     init(
@@ -46,5 +49,9 @@ class TagViewModel: ObservableObject {
             } else {
                 selectedTags.append(tagName)
             }
+    }
+    
+    func deleteTag(id: UUID) {
+        tags.removeAll { $0.id == id }
     }
 }

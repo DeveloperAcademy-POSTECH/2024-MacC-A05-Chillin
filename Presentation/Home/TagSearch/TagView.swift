@@ -10,7 +10,6 @@ import SwiftUI
 // MARK: - [쿠로] 태그 뷰!
 struct TagView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
-    @State private var popover = false
     @Namespace private var nsPopover
     
     var body: some View {
@@ -50,14 +49,28 @@ struct TagView: View {
                         // 편집 버튼
                         HStack(spacing: 0) {
                             Spacer()
-                            EllipsisView(ellipsisAction: {
-                                withAnimation {
-                                    popover.toggle()
+                            if tagViewModel.isEditMode {
+                                Button {
+                                    withAnimation {
+                                        tagViewModel.isEditMode = false
+                                    }
+                                } label: {
+                                    Text("완료")
+                                        .reazyFont(.button1)
+                                        .foregroundColor(.primary1)
+                                        .padding(.trailing, 24)
+                                        .padding(.bottom, 20)
                                 }
-                            })
-                            .matchedGeometryEffect(id: "popover",
-                                                   in: nsPopover,
-                                                   anchor: .topTrailing)
+                            } else {
+                                EllipsisView(ellipsisAction: {
+                                    withAnimation {
+                                        tagViewModel.popover.toggle()
+                                    }
+                                })
+                                .matchedGeometryEffect(id: "popover",
+                                                       in: nsPopover,
+                                                       anchor: .topTrailing)
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
@@ -68,7 +81,7 @@ struct TagView: View {
                 }
                 .padding([.top, .horizontal], 20)
             }
-            if popover {
+            if tagViewModel.popover {
                 EllipsisButtonView(namespace: nsPopover)
                     .transition(.opacity.combined(with: .scale))
             }
@@ -77,7 +90,7 @@ struct TagView: View {
         .ignoresSafeArea(.all)
         .onTapGesture {
             withAnimation {
-                popover = false
+                tagViewModel.popover = false
             }
         }
     }
@@ -134,11 +147,16 @@ struct TagListView: View {
 
 // MARK: - 태그 전체 리스트 뷰
 private struct EllipsisButtonView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
     let namespace: Namespace.ID
+    
     var body: some View {
         VStack(spacing: 0) {
             Button {
-                
+                withAnimation {
+                    tagViewModel.isEditMode = true
+                    tagViewModel.popover = false
+                }
             } label: {
                 HStack {
                     Text("태그 목록 편집")
@@ -178,7 +196,8 @@ private struct EllipsisButtonView: View {
         .background(
             RoundedRectangle(cornerRadius: 10)
                 .fill(.gray100)
-                .shadow(color: Color(hex: "#3C3D4B").opacity(0.08), radius: 12, x: 0, y: 0)
+                .shadow(color: Color(hex: "#3C3D4B").opacity(0.08),
+                        radius: 12, x: 0, y: 0)
         )
         .padding(.trailing, 70)
         .matchedGeometryEffect(id: "popover",
