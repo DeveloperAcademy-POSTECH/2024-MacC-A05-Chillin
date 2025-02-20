@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-// 임의 모델 생성
 struct PaperInfo: Identifiable {
     let id: UUID
     var title: String
@@ -17,10 +16,10 @@ struct PaperInfo: Identifiable {
     var focusURL: Data?
     var lastModifiedDate: Date
     var isFavorite: Bool
-    var memo: String?
     var isFigureSaved: Bool
     
     var folderID: UUID?
+    var tags: [Tag]
     
     init(
         id: UUID = .init(),
@@ -30,9 +29,9 @@ struct PaperInfo: Identifiable {
         focusURL: Data? = nil,
         lastModifiedDate: Date = .init(),
         isFavorite: Bool = false,
-        memo: String? = nil,
         isFigureSaved: Bool = false,
-        folderID: UUID? = nil
+        folderID: UUID? = nil,
+        tags: [Tag] = []
     ) {
         self.id = id
         self.title = title
@@ -41,9 +40,9 @@ struct PaperInfo: Identifiable {
         self.focusURL = focusURL
         self.lastModifiedDate = lastModifiedDate
         self.isFavorite = isFavorite
-        self.memo = memo
         self.isFigureSaved = isFigureSaved
         self.folderID = folderID
+        self.tags = tags
     }
     
     public static var sampleData: Self {
@@ -58,9 +57,9 @@ struct PaperInfo: Identifiable {
             focusURL: nil,
             lastModifiedDate: .now,
             isFavorite: false,
-            memo: nil,
             isFigureSaved: false,
-            folderID: nil
+            folderID: nil,
+            tags: []
         )
     }
 }

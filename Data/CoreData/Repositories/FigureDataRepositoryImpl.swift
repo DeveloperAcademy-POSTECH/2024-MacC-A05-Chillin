@@ -132,7 +132,6 @@ class FigureDataRepositoryImpl: FigureDataRepository {
                 dataToEdit.url = info.url
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
-                dataToEdit.memo = info.memo
                 dataToEdit.isFigureSaved = info.isFigureSaved
                 dataToEdit.focusURL = info.focusURL
                 

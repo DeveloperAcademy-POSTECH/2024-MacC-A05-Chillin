@@ -39,7 +39,6 @@ struct PDFInfoMenu: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     @Binding var isEditingTitle: Bool
-    @Binding var isEditingMemo: Bool
     @Binding var isMovingFolder: Bool
     @Binding var createMovingFolder: Bool
     
@@ -114,29 +113,6 @@ struct PDFInfoMenu: View {
                 })
                 .foregroundStyle(.gray800)
                 .padding(.top, 12)
-                
-                Divider()
-                    .tint(.primary2)
-                    .frame(height: 1)
-                
-                Button(action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-                    self.isEditingMemo = true
-                }, label: {
-                    HStack{
-                        Text("논문에 메모")
-                            .reazyFont(.body1)
-                            .padding(.leading, 12)
-                        Spacer()
-                        Image(.memo)
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 18, height: 18)
-                            .padding(.trailing, 14)
-                    }
-                })
-                .foregroundStyle(.gray800)
                 
                 Divider()
                     .tint(.primary2)
@@ -267,7 +243,6 @@ struct PDFInfoMenu: View {
 #Preview {
     PDFInfoMenu(
         isEditingTitle: .constant(false),
-        isEditingMemo: .constant(false),
         isMovingFolder: .constant(false),
         createMovingFolder: .constant(false),
         title: "Reazy",

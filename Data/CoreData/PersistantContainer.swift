@@ -19,6 +19,12 @@ final class PersistantContainer {
     
     private init() {
         self._container = .init(name: "Reazy")
+        
+        // 자동 마이그레이션 설정
+        let description = _container.persistentStoreDescriptions.first
+        description?.shouldMigrateStoreAutomatically = true
+        description?.shouldInferMappingModelAutomatically = true
+        
         self._container.loadPersistentStores {
             (storeDescription, error) in
             if let error = error as NSError? {
