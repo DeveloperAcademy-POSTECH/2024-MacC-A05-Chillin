@@ -20,9 +20,7 @@ class TagViewModel: ObservableObject {
     }
     @Published public private(set) var isTagExist: Bool = false
     @Published public var isTagSelected: Bool = false
-    
     private var cancellables = Set<AnyCancellable>()
-    // 선택한 칩스 배열에 타이틀 저장 -> 선택된 태그 목록에 뜨도록 하기
     
     init(
         tagViewUseCase: TagViewUseCase,
