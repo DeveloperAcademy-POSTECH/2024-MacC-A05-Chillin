@@ -11,6 +11,7 @@ import SwiftUI
  Cell들의 폭의 반응하여 List를 만드는 구조체
  */
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
+    @EnvironmentObject var tagViewModel: TagViewModel
     let data: Data
     let action: (String) -> Void
     let screenWidth: CGFloat
@@ -21,7 +22,6 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
     }
     
     private func generateLayout(items: Data) -> some View {
-        //let screenWidth = UIScreen.main.bounds.width
         
         var currentWidth: CGFloat = 0
         var currentArrays = [Data.Element]()
@@ -29,7 +29,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         var resultRows = [[Data.Element]]()
         
         for (index, item) in items.enumerated() {
-            let itemWidth = item.getCellWidth() + 16
+            let itemWidth = item.itemWidth(isEditMode: tagViewModel.isEditMode)
             if currentWidth + itemWidth + 20 >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
