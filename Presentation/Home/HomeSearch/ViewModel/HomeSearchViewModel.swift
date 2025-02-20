@@ -96,10 +96,25 @@ extension HomeSearchViewModel {
         UserDefaults.standard.recentSearches = []
         self.recentSearches.removeAll()
     }
+    
+    public func deleteButtonTapped(_ paperInfo: PaperInfo) {
+        let id = paperInfo.id
+        
+        useCase.deletePDF(paperInfo)
+        if let index = searchList.firstIndex(where: { $0.id == id }) {
+            searchList.remove(at: index)
+        }
+    }
 }
 
 // MARK: - EditingTitle 메소드
 extension HomeSearchViewModel {
+    public func editButtonTapped(_ paperInfo: PaperInfo) {
+        withAnimation(.easeInOut) {
+            viewStatus = .search(paperInfo)
+        }
+    }
+    
     public func completeButtonTappedInEditingTitle(title: String) {
         if case let .search(paper) = viewStatus,
            let index = searchList.firstIndex(of: paper) {

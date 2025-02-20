@@ -14,6 +14,9 @@ protocol HomeSearchUseCase: Sendable {
     
     @discardableResult
     func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
+    
+    @discardableResult
+    func deletePDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
 }
 
 enum SearchTarget {
@@ -56,6 +59,10 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
     
     func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
         self.paperDataRepository.editPDFInfo(info)
+    }
+    
+    func deletePDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.deletePDFInfo(id: info.id)
     }
     
     private func fetchPapersByTagName(_ tagName: String) -> [PaperInfo] {

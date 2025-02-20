@@ -27,6 +27,9 @@ private struct HomeSearchListView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
+    @State private var deleteAlertPresented: Bool = false
+    @State private var selectedPaper: PaperInfo?
+    
     var body: some View {
         VStack {
             HStack(spacing: 0) {
@@ -76,9 +79,12 @@ private struct HomeSearchListView: View {
                                 // TODO: 추후 수정 필요
                                 homeSearchViewModel.tagTapped(id)
                             } editAction: {
-                                withAnimation(.easeInOut) {
-                                    homeSearchViewModel.viewStatus = .search(paperInfo)
-                                }
+                                homeSearchViewModel.editButtonTapped(paperInfo)
+                            } copyAction: {
+                                
+                            } deleteAction: {
+                                selectedPaper = paperInfo
+                                deleteAlertPresented.toggle()
                             }
                             
                             Rectangle()
@@ -89,6 +95,15 @@ private struct HomeSearchListView: View {
                     }
                 }
             }
+        }
+        .alert("정말 삭제하시겠습니까?", isPresented: $deleteAlertPresented) {
+            Button("삭제", role: .destructive) {
+                if let paperInfo = selectedPaper {
+                    homeSearchViewModel.deleteButtonTapped(paperInfo)
+                }
+            }
+            
+            Button("취소", role: .cancel, action: {})
         }
     }
 }

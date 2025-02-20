@@ -17,6 +17,8 @@ struct HomePDFCell: View {
     let starAction: () -> Void
     let tagAction: (UUID) -> Void
     let editAction: () -> Void
+    let copyAction: () -> Void
+    let deleteAction: () -> Void
 
     
     var body: some View {
@@ -45,6 +47,12 @@ struct HomePDFCell: View {
                     .popover(isPresented: $popover, arrowEdge: .trailing) {
                         EllipsisButtonView {
                             editAction()
+                            popover.toggle()
+                        } copyPaperAction: {
+                            copyAction()
+                            popover.toggle()
+                        } deletePaperAction: {
+                            deleteAction()
                             popover.toggle()
                         }
                     }
@@ -140,6 +148,8 @@ private struct EllipsisView: View {
 // MARK: - Epllipsis 버튼 뷰
 private struct EllipsisButtonView: View {
     let editTitleAction: () -> Void
+    let copyPaperAction: () -> Void
+    let deletePaperAction: () -> Void
     
     // TODO: 버튼 액션 추가
     var body: some View {
@@ -180,7 +190,7 @@ private struct EllipsisButtonView: View {
             divider
             
             Button {
-                
+                copyPaperAction()
             } label: {
                 HStack {
                     Text("복제")
@@ -216,7 +226,7 @@ private struct EllipsisButtonView: View {
             divider
             
             Button {
-                
+                deletePaperAction()
             } label: {
                 HStack {
                     Text("삭제")
