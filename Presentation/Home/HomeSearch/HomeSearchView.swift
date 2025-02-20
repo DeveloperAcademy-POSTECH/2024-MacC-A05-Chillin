@@ -81,7 +81,7 @@ private struct HomeSearchListView: View {
                             } editAction: {
                                 homeSearchViewModel.editButtonTapped(paperInfo)
                             } copyAction: {
-                                
+                                homeSearchViewModel.copyButtonTapped(paperInfo)
                             } deleteAction: {
                                 selectedPaper = paperInfo
                                 deleteAlertPresented.toggle()

@@ -190,6 +190,7 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                 }
                 
                 newPaperData.id = info.id
+                newPaperData.title = info.title
                 newPaperData.isFavorite = info.isFavorite
                 newPaperData.isFigureSaved = info.isFigureSaved
                 newPaperData.lastModifiedDate = info.lastModifiedDate

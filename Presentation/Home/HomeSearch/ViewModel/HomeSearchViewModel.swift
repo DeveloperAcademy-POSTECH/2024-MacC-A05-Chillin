@@ -47,17 +47,8 @@ extension HomeSearchViewModel {
         
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
             guard let self = self else { return }
-            
             Task {
-                let response = await self.useCase.fetchSearchList(target: self.searchTarget, matches: self.searchText)
-                
-                switch response {
-                case .success(let papers):
-                    await self.fetchSearchList(papers: papers)
-                case .failure:
-                    print(#function)
-                }
-                await self.toggleIsLoading(false)
+                await self.loadSearchedList()
             }
         }
     }
@@ -105,6 +96,16 @@ extension HomeSearchViewModel {
             searchList.remove(at: index)
         }
     }
+    
+    public func copyButtonTapped(_ paperInfo: PaperInfo) {
+        let response = useCase.duplicatePDF(paperInfo)
+        
+        if case .success = response {
+            loadSearchedList()
+        } else {
+            print(#function)
+        }
+    }
 }
 
 // MARK: - EditingTitle 메소드
@@ -136,6 +137,18 @@ extension HomeSearchViewModel {
 
 // MARK: - Internal Method
 extension HomeSearchViewModel {
+    private func loadSearchedList() {
+        let response = self.useCase.fetchSearchList(target: self.searchTarget, matches: self.searchText)
+        
+        switch response {
+        case .success(let papers):
+           self.fetchSearchList(papers: papers)
+        case .failure:
+            print(#function)
+        }
+        self.toggleIsLoading(false)
+    }
+    
     private func fetchSearchList(papers: [PaperInfo]) {
         self.searchList = papers
     }
