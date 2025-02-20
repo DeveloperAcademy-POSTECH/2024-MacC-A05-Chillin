@@ -9,8 +9,9 @@ import SwiftUI
 
 // MARK: - [쿠로] 태그 뷰!
 struct TagView: View {
-    @State private var popover = false
     @EnvironmentObject private var tagViewModel: TagViewModel
+    @State private var popover = false
+    @Namespace private var nsPopover
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -18,8 +19,6 @@ struct TagView: View {
             
             GeometryReader { geometry in
                 VStack(spacing: 1) {
-                    
-                    // 선택된 태그 화면
                     HStack {
                         if tagViewModel.isTagSelected {
                             SelectedTagView()
@@ -36,7 +35,6 @@ struct TagView: View {
                             .stroke(Color.gray400, lineWidth: 1)
                     )
                     
-                    // 태그 선택하는 화면
                     VStack {
                         Group {
                             if tagViewModel.isTagExist {
@@ -50,12 +48,16 @@ struct TagView: View {
                         .frame(minHeight: geometry.size.height * 0.35)
                         
                         // 편집 버튼
-                        HStack {
+                        HStack(spacing: 0) {
                             Spacer()
                             EllipsisView(ellipsisAction: {
-                                popover.toggle()
+                                withAnimation {
+                                    popover.toggle()
+                                }
                             })
-                            //TODO: - 팝오버 띄우기
+                            .matchedGeometryEffect(id: "popover",
+                                                   in: nsPopover,
+                                                   anchor: .topTrailing)
                         }
                     }
                     .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
@@ -66,28 +68,39 @@ struct TagView: View {
                 }
                 .padding([.top, .horizontal], 20)
             }
+            if popover {
+                EllipsisButtonView(namespace: nsPopover)
+                    .transition(.opacity.combined(with: .scale))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.all)
+        .onTapGesture {
+            withAnimation {
+                popover = false
+            }
+        }
     }
 }
 
+// MARK: - 태그를 선택하지 않음
 struct TagLEmptyView: View {
     var body: some View {
-            Text("태그로 원하는 논문을 찾아보세요")
-                .reazyFont(.button1)
-                .foregroundStyle(.gray550)
-            Spacer()
-            Button(action: {
-                
-            }, label: {
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 16))
-                    .foregroundStyle(.gray600)
-            })
+        Text("태그로 원하는 논문을 찾아보세요")
+            .reazyFont(.button1)
+            .foregroundStyle(.gray550)
+        Spacer()
+        Button(action: {
+            
+        }, label: {
+            Image(systemName: "chevron.down")
+                .font(.system(size: 16))
+                .foregroundStyle(.gray600)
+        })
     }
 }
 
+// MARK: - 태그를 선택함
 struct SelectedTagView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     var body: some View {
@@ -103,6 +116,7 @@ struct SelectedTagView: View {
     }
 }
 
+// MARK: - 태그 전체 리스트 뷰
 struct TagListView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     var body: some View {
@@ -117,6 +131,64 @@ struct TagListView: View {
         }
     }
 }
+
+// MARK: - 태그 전체 리스트 뷰
+private struct EllipsisButtonView: View {
+    let namespace: Namespace.ID
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("태그 목록 편집")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(.editpencil)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
+            }
+            .foregroundStyle(.gray800)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            .padding(.vertical, 11)
+            
+            Rectangle()
+                .foregroundStyle(.primary2)
+                .frame(height: 1)
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Text("새로운 태그 생성")
+                        .reazyFont(.body1)
+                    Spacer()
+                    Image(systemName: "tag")
+                        .font(.system(size: 14))
+                }
+            }
+            .foregroundStyle(.gray800)
+            .padding(.leading, 17)
+            .padding(.trailing, 14)
+            .padding(.vertical, 11)
+        }
+        .frame(width: 200)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.gray100)
+                .shadow(color: Color(hex: "#3C3D4B").opacity(0.08), radius: 12, x: 0, y: 0)
+        )
+        .padding(.trailing, 70)
+        .matchedGeometryEffect(id: "popover",
+                                in: namespace,
+                                properties: .position,
+                                anchor: .topTrailing,
+                               isSource: false)
+    }
+}
+
 
 #Preview {
     TagView()
