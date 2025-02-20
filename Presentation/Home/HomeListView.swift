@@ -182,7 +182,7 @@ struct HomeListView: View {
 }
 
 
-struct FolderListCell: View {
+private struct FolderListCell: View {
     
     let folder: Folder
     let level: Int
