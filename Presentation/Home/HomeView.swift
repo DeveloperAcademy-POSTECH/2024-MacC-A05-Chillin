@@ -30,9 +30,6 @@ struct HomeView: View {
     // 폴더 선택 변수
     @State private var selectedFolderID: UUID? = nil
     
-    // 폴더 선택 변수
-    @State private var selectedFolderID: UUID? = nil
-    
     // 폴더 추가 페이지 변수
     @State private var createFolder: Bool = false
     @State private var createMovingFolder: Bool = false
