@@ -87,6 +87,7 @@ private struct CommentInputView: View {
                 Spacer()
                 
                 Button(action: {
+                    pdfViewModel.isSelectedEditMenuComment = false
                     
                     defer {
                         viewModel.isEditMode = false

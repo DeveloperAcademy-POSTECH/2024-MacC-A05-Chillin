@@ -87,8 +87,17 @@ final class OriginalViewController: UIViewController {
             }
         }
         
+        let highlightAction = UIAction(title: "하이라이트", image: nil, identifier: nil) { action in
+            self.viewModel.highlightUIMenu(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
+        }
+        
+        let commentAction = UIAction(title: "코멘트", image: nil, identifier: nil) { action in
+            // 코멘트 동작
+            self.viewModel.isSelectedEditMenuComment = true
+        }
+        
         /// 검색 액션을 새로운 메뉴로 추가하기
-        let newMenu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction])
+        let newMenu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction, highlightAction, commentAction])
         builder.insertSibling(newMenu, afterMenu: .standardEdit)
         
         /// 모드에 따라 뜨는 메뉴 다르게 설정
@@ -102,7 +111,7 @@ final class OriginalViewController: UIViewController {
                 return elements.filter { item in
                     switch (item as? UICommand)?.title.description {
                         ///translate, lookup 메뉴 들어가게
-                    case "Google Scholar" :
+                    case "Google Scholar", "Highlight Action", "Comment Action":
                         return true
                     default:
                         return false
@@ -326,6 +335,7 @@ extension OriginalViewController {
                     // 선택된 텍스트가 없을 때 특정 액션
                     DispatchQueue.main.async {
                         self.viewModel.selectedText = ""
+                        self.viewModel.isSelectedEditMenuComment = false
                     }
                     return
                 }
