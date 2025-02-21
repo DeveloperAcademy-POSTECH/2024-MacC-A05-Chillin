@@ -110,11 +110,7 @@ final class OriginalViewController: UIViewController {
                 return elements.filter { item in
                     switch (item as? UICommand)?.title.description {
                         ///translate, lookup 메뉴 들어가게
-                    case "Google Scholar":
-                        return true
-                    case "Highlight Action":
-                        return true
-                    case "Comment Action":
+                    case "Google Scholar", "Highlight Action", "Comment Action":
                         return true
                     default:
                         return false
