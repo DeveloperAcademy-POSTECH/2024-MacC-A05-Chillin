@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import SwiftUICore
 
 @MainActor
 final class HomeSearchViewModel: ObservableObject, Sendable {
@@ -14,13 +14,14 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
     @Published public var searchList: [PaperInfo] = []
     @Published public var searchTarget: SearchTarget = .title
     @Published public var searchText: String = ""
-    @Published public var recentSearches: [TemporaryTag] = {
-        var result = [TemporaryTag]()
+    @Published public var recentSearches: [Tag] = {
+        var result = [Tag]()
         UserDefaults.standard.recentSearches.forEach {
-            result.append(TemporaryTag(name: $0))
+            result.append(Tag(name: $0))
         }
         return result
     }()
+    @Published public var viewStatus: SearchViewStatus = .normal
     
     private let useCase: HomeSearchUseCase
 
@@ -28,6 +29,11 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
     
     init(useCase: HomeSearchUseCase) {
         self.useCase = useCase
+    }
+    
+    enum SearchViewStatus: Hashable {
+        case normal
+        case search(PaperInfo)
     }
 }
 
@@ -41,19 +47,106 @@ extension HomeSearchViewModel {
         
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
             guard let self = self else { return }
-            
             Task {
-                let response = await self.useCase.fetchSearchList(target: self.searchTarget, matches: self.searchText)
-                
-                switch response {
-                case .success(let papers):
-                    await self.fetchSearchList(papers: papers)
-                case .failure:
-                    print(#function)
-                }
-                await self.toggleIsLoading(false)
+                await self.loadSearchedList()
             }
         }
+    }
+    
+    public func tagTapped(_ tagId: UUID) {
+        
+    }
+    
+    public func starButtonTapped(_ paperInfo: PaperInfo) {
+        let id = paperInfo.id
+        
+        if let paperIndex = searchList.firstIndex(where: { $0.id == id }) {
+            searchList[paperIndex].isFavorite.toggle()
+            useCase.editPDF(searchList[paperIndex])
+        }
+    }
+    
+    public func cellTapped(title: String) {
+        self.searchText = title
+    }
+    
+    public func searchTargetButtonTapped(target: SearchTarget) {
+        if target == searchTarget { return }
+        
+        searchTarget = target
+        self.searchList.removeAll()
+        searchPapers()
+    }
+    
+    public func PaperCellTapped(_ paperInfo: PaperInfo) {
+        setRecentSearchList()
+        editPaperDate(paperInfo)
+    }
+    
+    public func removeAllButtonTapped() {
+        UserDefaults.standard.recentSearches = []
+        self.recentSearches.removeAll()
+    }
+    
+    public func deleteButtonTapped(_ paperInfo: PaperInfo) {
+        let id = paperInfo.id
+        
+        useCase.deletePDF(paperInfo)
+        if let index = searchList.firstIndex(where: { $0.id == id }) {
+            searchList.remove(at: index)
+        }
+    }
+    
+    public func copyButtonTapped(_ paperInfo: PaperInfo) {
+        let response = useCase.duplicatePDF(paperInfo)
+        
+        if case .success = response {
+            loadSearchedList()
+        } else {
+            print(#function)
+        }
+    }
+}
+
+// MARK: - EditingTitle 메소드
+extension HomeSearchViewModel {
+    public func editButtonTapped(_ paperInfo: PaperInfo) {
+        withAnimation(.easeInOut) {
+            viewStatus = .search(paperInfo)
+        }
+    }
+    
+    public func completeButtonTappedInEditingTitle(title: String) {
+        if case let .search(paper) = viewStatus,
+           let index = searchList.firstIndex(of: paper) {
+            searchList[index].title = title
+            
+            useCase.editPDF(searchList[index])
+        }
+        
+        cancelButtonTappedInEditingTitle()
+    }
+    
+    public func cancelButtonTappedInEditingTitle() {
+        withAnimation(.easeInOut) {
+            viewStatus = .normal
+        }
+    }
+}
+
+
+// MARK: - Internal Method
+extension HomeSearchViewModel {
+    private func loadSearchedList() {
+        let response = self.useCase.fetchSearchList(target: self.searchTarget, matches: self.searchText)
+        
+        switch response {
+        case .success(let papers):
+           self.fetchSearchList(papers: papers)
+        case .failure:
+            print(#function)
+        }
+        self.toggleIsLoading(false)
     }
     
     private func fetchSearchList(papers: [PaperInfo]) {
@@ -64,24 +157,7 @@ extension HomeSearchViewModel {
         self.isLoading = toggle
     }
     
-    public func cellTapped(title: String) {
-        self.searchText = title
-    }
-    
-    public func searchTargetChanged(target: SearchTarget) {
-        if target == searchTarget { return }
-        
-        searchTarget = target
-        self.searchList.removeAll()
-        searchPapers()
-    }
-    
-    public func removeAllRecentSearches() {
-        UserDefaults.standard.recentSearches = []
-        self.recentSearches.removeAll()
-    }
-    
-    public func setRecentSearchList() {
+    private func setRecentSearchList() {
         var current = UserDefaults.standard.recentSearches
         
         if current.count == 30 {
@@ -93,8 +169,16 @@ extension HomeSearchViewModel {
         UserDefaults.standard.recentSearches = current
         
         self.recentSearches = current.map {
-            TemporaryTag(name: $0)
+            Tag(name: $0)
         }
+    }
+    
+    private func editPaperDate(_ paperInfo: PaperInfo) {
+        let id = paperInfo.id
         
+        if let paperIndex = searchList.firstIndex(where: { $0.id == id }) {
+            searchList[paperIndex].lastModifiedDate = .now
+            useCase.editPDF(searchList[paperIndex])
+        }
     }
 }

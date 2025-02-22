@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol CollectionDataRepository {
+protocol CollectionDataRepository: Sendable {
     /// 저장된 모아보기 데이터를 불러옵니다
     func loadCollectionData(for pdfID: UUID) -> Result<[Figure], Error>
     

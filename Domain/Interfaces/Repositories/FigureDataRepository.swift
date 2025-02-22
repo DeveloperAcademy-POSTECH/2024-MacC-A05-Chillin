@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol FigureDataRepository {
+protocol FigureDataRepository: Sendable {
     /// 저장된 FigureData를 불러옵니다
     func loadFigureData(for pdfID: UUID) -> Result<[Figure], Error>
     

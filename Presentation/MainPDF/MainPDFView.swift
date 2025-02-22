@@ -423,13 +423,6 @@ struct MainPDFView: View {
                         .zIndex(1)
                 }
                 
-                if isEditingTitle {
-                    RenamePaperTitleView(
-                        isEditingTitle: $isEditingTitle,
-                        paperInfo: PDFSharedData.shared.paperInfo!
-                    )
-                }
-                
                 if isMovingFolder {
                     if let paperInfo = PDFSharedData.shared.paperInfo {
                         let itemsToMove: FileSystemItem = FileSystemItem.paper(paperInfo)
@@ -494,9 +487,19 @@ struct MainPDFView: View {
                 }
             }
         }
+        .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
         .overlay {
             if self.focusFigureViewModel.figureStatus == .loading {
                 FigureLoadingView()
+            }
+            
+            if case let .search(paper) = homeViewModel.viewStatus {
+                RenamePaperTitleView(paperInfo: paper) {
+                    homeViewModel.viewStatus = .normal
+                } completeAction: { text in
+                    homeViewModel.updateTitle(at: paper.id, title: text)
+                    homeViewModel.viewStatus = .normal
+                }
             }
         }
     }

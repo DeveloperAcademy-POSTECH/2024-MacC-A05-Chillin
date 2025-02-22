@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol TagDataRepository {
+protocol TagDataRepository: Sendable {
     // 모든 태그 데이터를 가져옵니다
     func fetchAllTags() -> Result<[Tag], Error>
     

@@ -274,7 +274,12 @@ extension OriginalViewController {
                             self.commentViewModel.isMenuTapped = false
                             
                             if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
-                                self.viewModel.selectedComments = self.commentViewModel.comments.filter { $0.buttonId.uuidString == buttonID }
+                                let splittedContents = buttonID.split(separator: "|")
+                                let selectedComments = self.commentViewModel.comments.filter {
+                                    $0.buttonId.uuidString == (splittedContents.count > 1 ? splittedContents.last! : splittedContents[0])
+                                }
+                                
+                                self.viewModel.selectedComments = selectedComments
                                 self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
                             }
                             self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol FolderDataRepository {
+protocol FolderDataRepository: Sendable {
     /// 저장된 폴더 정보를 모두 불러옵니다
     func loadFolders() -> Result<[Folder], Error>
     

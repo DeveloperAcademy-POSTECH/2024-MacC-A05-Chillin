@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class CollectionDataRepositoryImpl: CollectionDataRepository {
+final class CollectionDataRepositoryImpl: CollectionDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
     func loadCollectionData(for pdfID: UUID) -> Result<[Figure], any Error> {
