@@ -24,6 +24,7 @@ class TagViewModel: ObservableObject {
     @Published public var isEditMode: Bool = false
     @Published public var popover: Bool = false
     @Published public var createTag: Bool = false
+    @Published public var isTagDuplicate: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
     init(

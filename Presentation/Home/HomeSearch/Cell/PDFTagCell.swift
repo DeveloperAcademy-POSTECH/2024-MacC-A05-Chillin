@@ -26,7 +26,7 @@ struct PDFTagCell<Tag: DynamicCell>: View {
             // TODO: 태그 title
             HStack(spacing: 8) {
                 Text(tag.name)
-                    .reazyFont(.h3)
+                    .reazyFont(isMultiSelectable ? .body1 : .h3)
                     .foregroundStyle(isSelected ? .gray300 : .gray800)
                     .frame(width: tag.getCellWidth())
                 if tagViewModel.isEditMode {

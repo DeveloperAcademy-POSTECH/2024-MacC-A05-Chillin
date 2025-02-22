@@ -217,6 +217,12 @@ struct HomeView: View {
                     dismissButton: .default(Text("Ok")))
             }
         }
+        .alert(isPresented: $tagViewModel.isTagDuplicate) {
+            Alert(
+                title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
+                dismissButton: .default(Text("확인"))
+            )
+        }
     }
 }
 
@@ -731,8 +737,19 @@ private struct CreateTagView: View {
                     Spacer()
                     
                     Button {
-                        tagViewModel.createTag(name: text)
-                        tagViewModel.createTag = false
+                        if text.isEmpty {
+                            text = "새 태그"
+                            tagViewModel.createTag = false
+                            return
+                        }
+                        if let _ = tagViewModel.tags.filter({$0.name == text}).first {
+                            tagViewModel.createTag = false
+                            tagViewModel.isTagDuplicate = true
+                            
+                        } else {
+                            tagViewModel.createTag(name: text)
+                            tagViewModel.createTag = false
+                        }
                     } label: {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -778,6 +795,8 @@ private struct CreateTagView: View {
                 }
             }
         }
+        .animation(.easeInOut, value: tagViewModel.createTag)
+        .animation(.easeInOut, value: tagViewModel.isTagDuplicate)
     }
 }
 
