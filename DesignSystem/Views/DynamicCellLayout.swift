@@ -30,7 +30,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         
         for (index, item) in items.enumerated() {
             let itemWidth = item.itemWidth(isEditMode: tagViewModel.isEditMode)
-            if currentWidth + itemWidth + 20 >= screenWidth {
+            if currentWidth + itemWidth + 10 >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
                 currentWidth = 0
@@ -42,12 +42,12 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                 break
             }
             
-            currentWidth += itemWidth + 10
+            currentWidth += itemWidth + 20
             currentArrays.append(item)
         }
         return VStack(alignment: .leading) {
             ForEach(resultRows, id: \.self) { row in
-                HStack {
+                HStack(spacing: 10) {
                     ForEach(row) { tag in
                         PDFTagCell(isMultiSelectable: isMultiSelectable, tag: tag) {
                             action(tag.name)
@@ -55,6 +55,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                     }
                 }
             }
+            .padding(.bottom, 10)
         }
     }
 }

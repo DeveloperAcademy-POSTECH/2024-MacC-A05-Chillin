@@ -123,11 +123,11 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo || tagViewModel.createTag ? 20 : 0)
+            .blur(radius: isEditingTitle || isEditingMemo || createFolder || isEditingFolder || createMovingFolder || isEditingFolderMemo || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu || tagViewModel.createTag ? 0.5 : 0)
+                .opacity(isEditingTitle || isEditingMemo || createFolder || isEditingFolder || isMovingFolder || isEditingFolderMemo || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             // 태그 생성
@@ -230,6 +230,12 @@ struct HomeView: View {
                     message: Text("파일 이름을 수정해주세요."),
                     dismissButton: .default(Text("Ok")))
             }
+        }
+        .alert(isPresented: $tagViewModel.isTagDuplicate) {
+            Alert(
+                title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
+                dismissButton: .default(Text("확인"))
+            )
         }
     }
 }
@@ -781,8 +787,19 @@ private struct CreateTagView: View {
                     Spacer()
                     
                     Button {
-                        tagViewModel.createTag(name: text)
-                        tagViewModel.createTag = false
+                        if text.isEmpty {
+                            text = "새 태그"
+                            tagViewModel.createTag = false
+                            return
+                        }
+                        if let _ = tagViewModel.tags.filter({$0.name == text}).first {
+                            tagViewModel.createTag = false
+                            tagViewModel.isTagDuplicate = true
+                            
+                        } else {
+                            tagViewModel.createTag(name: text)
+                            tagViewModel.createTag = false
+                        }
                     } label: {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
@@ -828,6 +845,8 @@ private struct CreateTagView: View {
                 }
             }
         }
+        .animation(.easeInOut, value: tagViewModel.createTag)
+        .animation(.easeInOut, value: tagViewModel.isTagDuplicate)
     }
 }
 
