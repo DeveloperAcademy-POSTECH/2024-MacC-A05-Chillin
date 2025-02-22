@@ -11,11 +11,12 @@ import SwiftUI
  Cell들의 폭의 반응하여 List를 만드는 구조체
  */
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
-    @EnvironmentObject var tagViewModel: TagViewModel
+//    @EnvironmentObject var tagViewModel: TagViewModel
     let data: Data
     let action: (String) -> Void
     let screenWidth: CGFloat
-    let isMultiSelectable: Bool
+    let isMultiSelectable: Bool     // 여러 셀 선택 가능
+    let isEditMode: Bool?           // x마크
     
     var body: some View {
         generateLayout(items: data)
@@ -29,7 +30,9 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         var resultRows = [[Data.Element]]()
         
         for (index, item) in items.enumerated() {
-            let itemWidth = item.itemWidth(isEditMode: tagViewModel.isEditMode)
+            // 편집 모드일 때는 아이템 너비가 더 넓어져야 함
+            // 그래서 Bool 값으로 여부를 판단후 길이 계산
+            let itemWidth = item.itemWidth(isEditMode: isEditMode ?? false)
             if currentWidth + itemWidth + 10 >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()

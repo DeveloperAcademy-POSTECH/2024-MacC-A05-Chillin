@@ -135,9 +135,9 @@ struct TagListView: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView(.vertical){
-                DynamicCellLayout(data: tagViewModel.tags, action: { tagName in
+                DynamicCellLayout(data: tagViewModel.tags, selectAction: { tagName in
                     tagViewModel.tagTapped(for: tagName)
-                }, screenWidth: geometry.size.width, isMultiSelectable: true)
+                }, screenWidth: geometry.size.width, isMultiSelectable: true, isEditMode: tagViewModel.isEditMode)
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
             }
