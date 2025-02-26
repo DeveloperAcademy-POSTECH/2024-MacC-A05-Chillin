@@ -119,7 +119,7 @@ struct SelectedTagView: View {
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 10) {
-                ForEach(tagViewModel.selectedTags.map { TemporaryTag(name: $0) }, id: \.id) { tag in
+                ForEach(tagViewModel.selectedTags.map { Tag(name: $0) }, id: \.id) { tag in
                     SelectedTagCell(tag: tag, action: {
                         tagViewModel.tagTapped(for: tag.name)
                     })

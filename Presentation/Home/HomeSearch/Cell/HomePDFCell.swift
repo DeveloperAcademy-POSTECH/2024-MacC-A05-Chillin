@@ -114,7 +114,7 @@ private struct PaperInformationView: View {
                 ForEach(0..<3, id: \.self) { _ in
                     PDFTagCell(isMultiSelectable: false,
                                isEditMode: false,
-                               tag: TemporaryTag.init(name: "Temporary"),
+                               tag: Tag.init(name: "Temporary"),
                                selectAction: {},
                                deleteAction: {} )
                 }

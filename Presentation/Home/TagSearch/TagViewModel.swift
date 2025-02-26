@@ -13,7 +13,7 @@ class TagViewModel: ObservableObject {
     
     private let tagViewUseCase: TagViewUseCase
     // MARK: - [부리] tags에 사용자가 만든 태그들 다 저장
-    @Published public var tags: [TemporaryTag] = []
+    @Published public var tags: [Tag] = []
     @Published public var selectedTags: [String] = [] {
         didSet {
             isTagSelected = !selectedTags.isEmpty
@@ -29,7 +29,7 @@ class TagViewModel: ObservableObject {
     
     init(
         tagViewUseCase: TagViewUseCase,
-        tags: [TemporaryTag] = (1...50).map { TemporaryTag(name: "어쩌고\($0)") }
+        tags: [Tag] = (1...50).map { Tag(name: "어쩌고\($0)") }
     ) {
         self.tagViewUseCase = tagViewUseCase
         self.tags = tags
@@ -58,6 +58,6 @@ class TagViewModel: ObservableObject {
     }
     
     func createTag(name: String) {
-        tags.append(TemporaryTag(name: name))
+        tags.append(Tag(name: name))
     }
 }

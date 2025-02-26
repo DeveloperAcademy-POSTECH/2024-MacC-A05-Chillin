@@ -14,3 +14,10 @@ protocol DynamicCell: Hashable, Identifiable {
     
     func getCellWidth() -> CGFloat
 }
+
+extension DynamicCell {
+    func itemWidth(isEditMode: Bool) -> CGFloat {
+        let additionalPadding: CGFloat = isEditMode ? 40 : 16
+        return getCellWidth() + additionalPadding
+    }
+}

@@ -124,12 +124,18 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu ? 0.5 : 0)
+                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
+            
+            // 태그 생성
+            if tagViewModel.createTag {
+                CreateTagView()
+                    .environmentObject(tagViewModel)
+            }
             
             if createFolder || isEditingFolder {
                 FolderView(
@@ -208,6 +214,12 @@ struct HomeView: View {
                     message: Text("파일 이름을 수정해주세요."),
                     dismissButton: .default(Text("Ok")))
             }
+        }
+        .alert(isPresented: $tagViewModel.isTagDuplicate) {
+            Alert(
+                title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
+                dismissButton: .default(Text("확인"))
+            )
         }
         .blur(radius: ((homeViewModel.viewStatus != .normal) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
         .overlay {
