@@ -9,10 +9,6 @@ import SwiftUI
 
 
 struct PDFTagCell<Tag: DynamicCell>: View {
-//    @EnvironmentObject var tagViewModel: TagViewModel
-    // isSelected를 어떻게 구현하면 좋을지
-    // cell을 누르면 selectedTags에 add하고
-    // tagViewModel을 없앨 방법
     @State var isSelected: Bool = false
     @State var isAlertPresented: Bool = false
     let isMultiSelectable: Bool      // 멀티선택 가능 여부
@@ -46,7 +42,6 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                     }
                     .alert("“\(tag.name)”\n태그를 삭제하시겠습니까?\n해당 태그가 달린 모든 논문에서도 삭제됩니다.", isPresented: $isAlertPresented) {
                         Button("삭제", role: .destructive, action: {
-                            //tagViewModel.deleteTag(id: tag.id)
                             deleteAction()
                         })
                     }

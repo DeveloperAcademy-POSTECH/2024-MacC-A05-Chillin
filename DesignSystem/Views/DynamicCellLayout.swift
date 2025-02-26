@@ -33,9 +33,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         var resultRows = [[Data.Element]]()
         
         for (index, item) in items.enumerated() {
-            // 편집 모드일 때는 아이템 너비가 더 넓어져야 함
-            // 그래서 Bool 값으로 여부를 판단후 길이 계산
-            let itemWidth = item.itemWidth(isEditMode: isEditMode ?? false)
+            let itemWidth = item.itemWidth(isEditMode: isEditMode)
             if currentWidth + itemWidth + 10 >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
