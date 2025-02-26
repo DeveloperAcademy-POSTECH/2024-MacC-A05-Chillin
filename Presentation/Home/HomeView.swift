@@ -41,7 +41,8 @@ struct HomeView: View {
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
         useCase: DefaultHomeSearchUseCase(
-            paperDataRepository: PaperDataRepositoryImpl()
+            paperDataRepository: PaperDataRepositoryImpl(),
+            tagDataRepository: TagDataRepositoryImpl()
         )
     )
     
@@ -130,12 +131,6 @@ struct HomeView: View {
                 .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
-            if isEditingTitle {
-                RenamePaperTitleView(
-                    isEditingTitle: $isEditingTitle,
-                    paperInfo: homeViewModel.paperInfos.first { $0.id == selectedItemID! }!)
-            }
-            
             if createFolder || isEditingFolder {
                 FolderView(
                     createFolder: $createFolder,
@@ -214,11 +209,24 @@ struct HomeView: View {
                     dismissButton: .default(Text("Ok")))
             }
         }
-        .alert(isPresented: $tagViewModel.isTagDuplicate) {
-            Alert(
-                title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
-                dismissButton: .default(Text("확인"))
-            )
+        .blur(radius: ((homeViewModel.viewStatus != .normal) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
+        .overlay {
+            if case let .search(paperInfo) = homeViewModel.viewStatus {
+                RenamePaperTitleView(paperInfo: paperInfo) {
+                    homeViewModel.viewStatus = .normal
+                } completeAction: { text in
+                    
+                }
+                .ignoresSafeArea(edges: .top)
+            }
+            
+            if case let .search(paperInfo) = homeSearchViewModel.viewStatus {
+                RenamePaperTitleView(paperInfo: paperInfo) {
+                    homeSearchViewModel.cancelButtonTappedInEditingTitle()
+                } completeAction: { text in
+                    homeSearchViewModel.completeButtonTappedInEditingTitle(title: text)
+                }
+            }
         }
     }
 }
@@ -454,109 +462,6 @@ private struct EditMenuView: View {
     }
 }
 
-/// 논문 타이틀 수정 뷰
-struct RenamePaperTitleView: View {
-    @EnvironmentObject private var homeViewModel: HomeViewModel
-    
-    @State private var text: String = ""
-    
-    @Binding var isEditingTitle: Bool
-    
-    let paperInfo: PaperInfo
-    
-    @FocusState private var isTextFieldFocused: Bool
-    
-    var body: some View {
-        ZStack {
-            VStack {
-                HStack {
-                    Button {
-                        isEditingTitle.toggle()
-                        isTextFieldFocused = false
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 18))
-                    }
-                    .foregroundStyle(.gray100)
-                    .padding(28)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        homeViewModel.updateTitle(at: paperInfo.id, title: text)
-                        isEditingTitle = false
-                        isTextFieldFocused = false
-                    }) {
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(.gray100, lineWidth: 1)
-                            .frame(width: 68, height: 36)
-                            .overlay {
-                                Text("완료")
-                                    .reazyFont(.button1)
-                                    .foregroundStyle(.gray100)
-                            }
-                    }
-                    .padding(28)
-                }
-                
-                Spacer()
-            }
-            HStack(spacing: 54) {
-                Image(uiImage: .init(data: paperInfo.thumbnail)!)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 196)
-                
-                VStack(spacing: 16) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundStyle(.gray100)
-                            .frame(width: 400, height: 52)
-                        
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(lineWidth: 1)
-                            .foregroundStyle(.gray400)
-                            .frame(width: 400, height: 52)
-                    }
-                    .frame(width: 400, height: 52)
-                    .overlay(alignment: .center) {
-                        TextField("제목을 입력해주세요.", text: $text, axis: .horizontal)
-                            .lineLimit(1)
-                            .padding(.horizontal, 16)
-                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
-                            .foregroundStyle(.gray800)
-                    }
-                    .overlay(alignment: .trailing) {
-                        if !self.text.isEmpty {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.gray600)
-                                .background(.gray100)
-                                .padding(.trailing, 10)
-                                .onTapGesture {
-                                    text = ""
-                                }
-                        }
-                    }
-                    .focused($isTextFieldFocused)
-                    
-                    Text("논문 제목을 입력해 주세요")
-                        .reazyFont(.button1)
-                        .foregroundStyle(.comment)
-                }
-            }
-        }
-        .onAppear {
-            if let title = homeViewModel.changedTitle {
-                self.text = title
-            } else {
-                self.text = paperInfo.title
-            }
-            
-            isTextFieldFocused = true
-        }
-    }
-}
 
 /// 폴더 생성 뷰
 struct FolderView: View {

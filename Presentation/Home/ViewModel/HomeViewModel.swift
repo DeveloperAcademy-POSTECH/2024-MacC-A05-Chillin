@@ -81,6 +81,7 @@ class HomeViewModel: ObservableObject {
     @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
     
     @Published public var isSettingMenu: Bool = false
+    @Published public var viewStatus: SearchViewStatus = .normal
     public var isInHomeView: Bool = true
     
     private let homeViewUseCase: HomeViewUseCase
@@ -112,6 +113,11 @@ class HomeViewModel: ObservableObject {
     
     deinit {
         self.cancellables.forEach { $0.cancel() }
+    }
+    
+    enum SearchViewStatus: Hashable {
+        case normal
+        case search(PaperInfo)
     }
 }
 
@@ -239,9 +245,7 @@ extension HomeViewModel {
             
             switch result {
             case .success:
-                if isInHomeView {
-                    paperInfos[index].title = title
-                }
+                paperInfos[index].title = title
                 
                 PDFSharedData.shared.paperInfo?.title = title
                 

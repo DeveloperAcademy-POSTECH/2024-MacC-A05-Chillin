@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol CommentDataRepository {
+protocol CommentDataRepository: Sendable {
     /// 코멘트 기록을 불러옵니다
     func loadCommentData(for pdfID: UUID) -> Result<[Comment], Error>
     

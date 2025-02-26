@@ -31,6 +31,10 @@ class PDFSharedData {
             
             let document = PDFDocument(url: url)
             self.document = document
+            
+            if let originalPaper = self.paperInfo, originalPaper.id == paperInfo.id {
+                return
+            }
             self.paperInfo = paperInfo
         }
     }

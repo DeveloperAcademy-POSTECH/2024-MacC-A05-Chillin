@@ -7,12 +7,17 @@
 
 import Foundation
 
-struct Tag {
+struct Tag: DynamicCell {
     let id: UUID
     var name: String
     
     init(id: UUID = .init(), name: String) {
         self.id = id
         self.name = name
+    }
+    
+    func getCellWidth() -> CGFloat {
+        let count = self.name.count
+        return CGFloat(10 + count * 10)
     }
 }

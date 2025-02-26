@@ -57,7 +57,12 @@ final class NavigationCoordinator: CoordinatorProtocol {
                 let _ = PDFSharedData.shared.makeDocument(from: paperInfo)
                 
                 MainPDFView(
-                    pdfInfoMenuViewModel: .init(pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(paperDataRepository: PaperDataRepositoryImpl())), mainPDFViewModel: .init(),
+                    pdfInfoMenuViewModel: .init(
+                        pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(
+                            paperDataRepository: PaperDataRepositoryImpl()
+                        )
+                    ),
+                    mainPDFViewModel: .init(),
                     commentViewModel: .init(
                         commentService: CommentDataRepositoryImpl(),
                         buttonGroupService: ButtonGroupDataRepositoryImpl()
@@ -65,9 +70,12 @@ final class NavigationCoordinator: CoordinatorProtocol {
                     focusFigureViewModel: .init(
                         focusFigureUseCase:
                             DefaultFocusFigureUseCase(
-                                focusFigureRepository: FocusFigureRepositoryImpl(baseProcess: .processFulltextDocument),
+                                focusFigureRepository: FocusFigureRepositoryImpl(
+                                    baseProcess: .processFulltextDocument
+                                ),
                                 figureDataRepository: FigureDataRepositoryImpl(),
-                                collectionDataRepository: CollectionDataRepositoryImpl())
+                                collectionDataRepository: CollectionDataRepositoryImpl()
+                            )
                     ),
                     pageListViewModel: .init(pageListUseCase: DefaultPageListUseCase()),
                     searchViewModel: .init(),

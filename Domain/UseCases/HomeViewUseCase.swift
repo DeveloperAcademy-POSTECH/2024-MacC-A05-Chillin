@@ -97,6 +97,9 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
+            // MARK: 샘플태그 업로드 메소드
+//            self.sampleTagUpload(paperInfo.id)
+            
             return paperInfo
             
         } else {
@@ -385,5 +388,13 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         }
         
         return nil
+    }
+    
+    private func sampleTagUpload(_ paperId: UUID) {
+        let repository = PaperDataRepositoryImpl()
+        
+        let _ = repository.addTag(to: paperId, with: "reazy")
+        let _ = repository.addTag(to: paperId, with: "한국어")
+        let _ = repository.addTag(to: paperId, with: "Heat Transfer")
     }
 }
