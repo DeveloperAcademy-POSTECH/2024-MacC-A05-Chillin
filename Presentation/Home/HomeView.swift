@@ -137,7 +137,7 @@ struct HomeView: View {
             
             // 폴더 이동 View
             if isMovingFolder {
-                let itemsToMove: [FileSystemItem] = selectedItems.isEmpty
+                let itemsToMove: [PaperInfo] = selectedItems.isEmpty
                 ? (selectedItemID.flatMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }).map { [$0] } ?? []
@@ -444,7 +444,7 @@ private struct EditMenuView: View {
         ) { itemList in
             Button("취소", role: .cancel) {}
             Button("삭제", role: .destructive) {
-                let items: [FileSystemItem] = itemList.compactMap { id in
+                let items: [PaperInfo] = itemList.compactMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }
                 

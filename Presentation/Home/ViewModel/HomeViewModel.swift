@@ -41,7 +41,7 @@ class HomeViewModel: ObservableObject {
         return currentFolder == nil
     }
     
-    @Published var filteredLists: [FileSystemItem] = []
+    @Published var filteredLists: [PaperInfo] = []
     
     @Published public var isFavoriteSelected: Bool = false {
         didSet {
@@ -281,14 +281,7 @@ extension HomeViewModel {
         }
     }
         
-    func filteringList() -> [FileSystemItem] {
-        var currentFolders: [Folder] {
-            guard let folder = currentFolder else {
-                return folders.filter { $0.parentFolderID == nil }
-            }
-            return folders.filter { $0.parentFolderID == folder.id }
-        }
-        
+    func filteringList() -> [PaperInfo] {
         var currentDocuments: [PaperInfo] {
             guard let folder = currentFolder else {
                 return paperInfos.filter { $0.folderID == nil }
@@ -296,34 +289,17 @@ extension HomeViewModel {
             return paperInfos.filter { $0.folderID == folder.id }
         }
         
-        return sortLists(paperInfos: currentDocuments, folders: currentFolders)
+        return currentDocuments.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
     }
     
-    func filteringFavList() -> [FileSystemItem] {
+    func filteringFavList() -> [PaperInfo] {
         if let folder = currentFolder {
             // 현재 선택된 폴더가 있을 경우, 해당 폴더의 모든 문서를 반환
             let folderDocuments = paperInfos.filter { $0.folderID == folder.id }
-            let folders = folders.filter { $0.parentFolderID == folder.id }
-            return sortLists(paperInfos: folderDocuments, folders: folders)
+            return folderDocuments.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         } else {
-            // 즐겨찾기 필터
-            let paperItems = paperInfos.map { FileSystemItem.paper($0) }
-            let folderItems = folders.map { FileSystemItem.folder($0) }
-            
-            let combinedItems = paperItems + folderItems
-            return combinedItems.filter { $0.isFavorite }.sorted(by: { $0.date > $1.date })
+            return paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
         }
-    }
-    
-    /// 전체 리스트
-    func sortLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
-        // PaperInfo와 Folder를 FileSystemItem으로 변환
-        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
-        let folderItems = folders.map { FileSystemItem.folder($0) }
-        
-        // 두 리스트를 합치고 날짜 순서대로 정렬
-        let combinedItems = paperItems + folderItems
-        return combinedItems.sorted(by: { $0.date > $1.date })
     }
 }
 
@@ -420,16 +396,10 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    public func deleteFiles(_ items: [FileSystemItem]) {
-        for item in items {
-            switch item {
-            case .paper(let paperInfo):
-                self.homeViewUseCase.deletePDF(id: paperInfo.id)
-                self.paperInfos.removeAll(where: { $0.id == paperInfo.id })
-            case .folder(let folder):
-                self.homeViewUseCase.deleteFolder(id: folder.id)
-                self.folders.removeAll(where: { $0.id == folder.id })
-            }
+    public func deleteFiles(_ files: [PaperInfo]) {
+        for file in files {
+            self.homeViewUseCase.deletePDF(id: file.id)
+            self.paperInfos.removeAll(where: { $0.id == file.id })
         }
     }
 }

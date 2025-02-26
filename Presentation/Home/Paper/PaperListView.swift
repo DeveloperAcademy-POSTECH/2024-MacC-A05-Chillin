@@ -132,69 +132,36 @@ struct PaperListView: View {
                                 VStack(spacing: 0) {
                                     ForEach(homeViewModel.filteredLists.indices, id: \.self) { index in
                                         let item = homeViewModel.filteredLists[index]
-                                        switch item {
-                                        case .paper(let paperInfo):
-                                            // MARK: searchview 들어갈 위치
-                                            PaperListCell(
-                                                isPaper: true,
-                                                title: paperInfo.title,
-                                                date: paperInfo.lastModifiedDate.timeAgo,
-                                                color: .gray500,
-                                                isSelected: selectedItemID == paperInfo.id,
-                                                isEditing: isEditing,
-                                                isEditingSelected: selectedItems.contains(item.id),
-                                                onSelect: {
-                                                    if !isEditing && !isNavigationPushed {
-                                                        if selectedItemID == paperInfo.id {
-                                                            self.isNavigationPushed = true
-                                                            navigateToPaper()
-                                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
-                                                        } else {
-                                                            selectedItemID = paperInfo.id
-                                                        }
-                                                    }
-                                                },
-                                                onEditingSelect: {
-                                                    if isEditing {
-                                                        if selectedItems.contains(item.id) {
-                                                            selectedItems.remove(item.id)
-                                                        } else {
-                                                            selectedItems.insert(item.id)
-                                                        }
+                                        // MARK: searchview 들어갈 위치
+                                        PaperListCell(
+                                            isPaper: true,
+                                            title: item.title,
+                                            date: item.lastModifiedDate.timeAgo,
+                                            color: .gray500,
+                                            isSelected: selectedItemID == item.id,
+                                            isEditing: isEditing,
+                                            isEditingSelected: selectedItems.contains(item.id),
+                                            onSelect: {
+                                                if !isEditing && !isNavigationPushed {
+                                                    if selectedItemID == item.id {
+                                                        self.isNavigationPushed = true
+                                                        navigateToPaper()
+                                                        homeViewModel.updateLastModifiedDate(at: item.id, lastModifiedDate: Date())
+                                                    } else {
+                                                        selectedItemID = item.id
                                                     }
                                                 }
-                                            )
-                                            
-                                            // 폴더 추가
-                                        case .folder(let folder):
-                                            PaperListCell(
-                                                isPaper: false,
-                                                title: folder.title,
-                                                date: folder.createdAt.timeAgo,
-                                                color: FolderColors.color(for: folder.color),
-                                                isSelected: selectedItemID == folder.id,
-                                                isEditing: isEditing,
-                                                isEditingSelected: selectedItems.contains(item.id),
-                                                onSelect: {
-                                                    if !isEditing && !isNavigationPushed {
-                                                        if selectedItemID == folder.id {
-                                                            homeViewModel.navigateTo(folder: folder)
-                                                        } else {
-                                                            selectedItemID = folder.id
-                                                        }
-                                                    }
-                                                },
-                                                onEditingSelect: {
-                                                    if isEditing {
-                                                        if selectedItems.contains(item.id) {
-                                                            selectedItems.remove(item.id)
-                                                        } else {
-                                                            selectedItems.insert(item.id)
-                                                        }
+                                            },
+                                            onEditingSelect: {
+                                                if isEditing {
+                                                    if selectedItems.contains(item.id) {
+                                                        selectedItems.remove(item.id)
+                                                    } else {
+                                                        selectedItems.insert(item.id)
                                                     }
                                                 }
-                                            )
-                                        }
+                                            }
+                                        )
                                         
                                         Rectangle()
                                             .frame(height: 1)

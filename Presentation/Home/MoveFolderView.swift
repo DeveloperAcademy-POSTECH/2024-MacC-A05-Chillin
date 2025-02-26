@@ -15,7 +15,7 @@ struct MoveFolderView: View {
     @Binding var createMovingFolder: Bool
     @Binding var isMovingFolder: Bool
     
-    let items: [FileSystemItem] // 이동하고자 하는 Item 배열
+    let items: [PaperInfo] // 이동하고자 하는 Item 배열
     @Binding var selectedID: UUID? // Item의 이동 목적지 ID
     
     var body: some View {
@@ -46,13 +46,7 @@ struct MoveFolderView: View {
                     Button(action: {
                         items.forEach { item in
                             if selectedID == topLevelFolder.id { selectedID = nil }
-                            
-                            switch item {
-                            case .paper(let paperInfo):
-                                homeViewModel.updatePaperLocation(at: paperInfo.id, folderID: selectedID)
-                            case .folder(let folder):
-                                homeViewModel.updateFolderLocation(at: folder.id, folderID: selectedID)
-                            }
+                            homeViewModel.updatePaperLocation(at: item.id, folderID: selectedID)
                         }
                         self.isMovingFolder.toggle()
                     }) {
@@ -120,17 +114,10 @@ struct MoveFolderView: View {
     }
     
     private func childFolders(of folderID: UUID?) -> [Folder] {
-        let excludedFolderIDs = items.compactMap { item in
-            if case .folder(let folder) = item {
-                return folder.id
-            }
-            return nil
-        }
-        
         if folderID == topLevelFolder.id {
-            return homeViewModel.folders.filter { $0.parentFolderID == nil && !excludedFolderIDs.contains($0.id) }
+            return homeViewModel.folders.filter { $0.parentFolderID == nil }
         } else {
-            return homeViewModel.folders.filter { $0.parentFolderID == folderID && !excludedFolderIDs.contains($0.id) }
+            return homeViewModel.folders.filter { $0.parentFolderID == folderID }
         }
     }
     

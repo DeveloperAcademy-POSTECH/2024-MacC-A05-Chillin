@@ -425,12 +425,10 @@ struct MainPDFView: View {
                 
                 if isMovingFolder {
                     if let paperInfo = PDFSharedData.shared.paperInfo {
-                        let itemsToMove: FileSystemItem = FileSystemItem.paper(paperInfo)
-                        
                         MoveFolderView(
                             createMovingFolder: $createMovingFolder,
                             isMovingFolder: $isMovingFolder,
-                            items: [itemsToMove],
+                            items: [paperInfo],
                             selectedID: $moveToFolderID
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 20))
