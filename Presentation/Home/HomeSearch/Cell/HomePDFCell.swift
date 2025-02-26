@@ -111,12 +111,13 @@ private struct PaperInformationView: View {
             Spacer()
             
             HStack {
-                ForEach(0..<3, id: \.self) { _ in
+                ForEach(tags) { tag in
                     PDFTagCell(isMultiSelectable: false,
                                isEditMode: false,
-                               tag: Tag.init(name: "Temporary"),
-                               selectAction: {},
-                               deleteAction: {} )
+                               selectedTags: [],
+                               tag: tag,
+                               selectAction: {tagAction(tag.id)},
+                               deleteAction: {})
                 }
             }
             .padding(.bottom, 22)

@@ -20,7 +20,7 @@ struct TagView: View {
                 VStack(spacing: 1) {
                     HStack {
                         if tagViewModel.isTagSelected {
-                            SelectedTagView()
+                            SelectedTagView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
                         } else {
                             TagLEmptyView()
                         }
@@ -37,7 +37,7 @@ struct TagView: View {
                     VStack {
                         Group {
                             if tagViewModel.isTagExist {
-                                TagListView()
+                                TagListView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
                             } else {
                                 Text("아직 태그를 만들지 않았어요")
                                     .reazyFont(.text1)
@@ -116,12 +116,15 @@ struct TagLEmptyView: View {
 // MARK: - 태그를 선택함
 struct SelectedTagView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
+    @Binding var selectedTags: [String]
+    let toggleTag: (String) -> Void
+    
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 10) {
-                ForEach(tagViewModel.selectedTags.map { Tag(name: $0) }, id: \.id) { tag in
+                ForEach(selectedTags.map { Tag(name: $0) }, id: \.id) { tag in
                     SelectedTagCell(tag: tag, action: {
-                        tagViewModel.tagTapped(for: tag.name)
+                        toggleTag(tag.name)
                     })
                 }
             }
@@ -132,16 +135,20 @@ struct SelectedTagView: View {
 // MARK: - 태그 전체 리스트 뷰
 struct TagListView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
+    @Binding var selectedTags: [String]
+    let toggleTag: (String) -> Void
+    
     var body: some View {
         GeometryReader { geometry in
             ScrollView(.vertical){
                 DynamicCellLayout(
                     data: tagViewModel.tags,
                     screenWidth: geometry.size.width,
+                    selectedTags: tagViewModel.selectedTags,
                     isMultiSelectable: true,
                     isEditMode: tagViewModel.isEditMode,
                     selectAction: { tagName in
-                        tagViewModel.tagTapped(for: tagName)
+                        toggleTag(tagName)
                     },
                     deleteAction: { id in
                         tagViewModel.deleteTag(id: id)

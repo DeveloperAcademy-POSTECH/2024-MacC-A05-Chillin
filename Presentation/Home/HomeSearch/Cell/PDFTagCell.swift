@@ -9,11 +9,14 @@ import SwiftUI
 
 
 struct PDFTagCell<Tag: DynamicCell>: View {
-    @State var isSelected: Bool = false
+    var isSelected: Bool {
+        return isMultiSelectable && selectedTags.contains(tag.name)
+    }
     @State var isAlertPresented: Bool = false
     let isMultiSelectable: Bool      // 멀티선택 가능 여부
     let isEditMode: Bool            // 편집 가능 여부
     
+    let selectedTags: [String]
     let tag: Tag
     
     let selectAction: () -> Void
@@ -22,9 +25,6 @@ struct PDFTagCell<Tag: DynamicCell>: View {
     var body: some View {
         Button {
             selectAction()
-            if isMultiSelectable {
-                isSelected.toggle()
-            }
         } label: {
             // TODO: 태그 title
             HStack(spacing: 8) {
@@ -56,13 +56,3 @@ struct PDFTagCell<Tag: DynamicCell>: View {
         }
     }
 }
-
-//#Preview {
-//    HStack {
-//        PDFTagCell(tag: TemporaryTag.init(name: "test")) {}
-//        PDFTagCell(tag: TemporaryTag.init(name: "testfdas")) {}
-//        PDFTagCell(tag: TemporaryTag.init(name: "testggggg")) {}
-//        PDFTagCell(tag: TemporaryTag.init(name: "test")) {}
-//        PDFTagCell(tag: TemporaryTag.init(name: "test")) {}
-//    }
-//}

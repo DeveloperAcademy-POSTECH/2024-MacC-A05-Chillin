@@ -14,6 +14,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
 //    @EnvironmentObject var tagViewModel: TagViewModel
     let data: Data
     let screenWidth: CGFloat
+    let selectedTags: [String]
     
     let isMultiSelectable: Bool     // 여러 셀 선택 가능
     let isEditMode: Bool           // x마크
@@ -55,6 +56,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                     ForEach(row) { tag in
                         PDFTagCell(isMultiSelectable: isMultiSelectable,
                                    isEditMode: isEditMode,
+                                   selectedTags: selectedTags,
                                    tag: tag,
                                    selectAction: {selectAction(tag.name)},
                                    deleteAction: {deleteAction(tag.id)}
