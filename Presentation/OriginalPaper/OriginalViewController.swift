@@ -24,8 +24,9 @@ final class OriginalViewController: UIViewController {
     let backpageBtnViewModel: BackPageBtnViewModel
     
     var cancellable: Set<AnyCancellable> = []
+    var startPoint: CGPoint?
     
-    let mainPDFView: CustomPDFView = {
+    var mainPDFView: CustomPDFView = {
         let view = CustomPDFView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .gray200
@@ -207,6 +208,12 @@ extension OriginalViewController {
         pencilInteraction.isEnabled = true
         pencilInteraction.delegate = self
         self.view.addInteraction(pencilInteraction)
+        
+        // 하이라이트 제스처: UIPanGestureRecognizer
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        panGesture.minimumNumberOfTouches = 1
+        panGesture.maximumNumberOfTouches = 1
+        mainPDFView.addGestureRecognizer(panGesture)
     }
     
     /// 데이터 Binding
@@ -319,7 +326,7 @@ extension OriginalViewController {
         
         // 하이라이트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
-            .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
         
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -505,6 +512,31 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
     }
     
+    // 하이라이트 터치 관련
+    @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let location = gesture.location(in: mainPDFView)
+        guard let page = mainPDFView.page(for: location, nearest: true) else { return }
+        let convertedPoint = mainPDFView.convert(location, to: page)
+
+        switch gesture.state {
+        case .began:
+            self.startPoint = convertedPoint
+        case .changed:
+            guard let startPoint = startPoint else { return }
+            if let selection = page.selection(from: startPoint, to: convertedPoint) {
+                mainPDFView.setCurrentSelection(selection, animate: false)
+            }
+        case .ended:
+            guard let startPoint = startPoint else { return }
+            if let selection = page.selection(from: startPoint, to: convertedPoint) {
+                let viewModel = MainPDFViewModel()  // 네 뷰모델 인스턴스 생성
+                viewModel.highlightText(in: mainPDFView, with: .yellow)  // 원하는 색상 선택
+            }
+            self.startPoint = nil
+        default:
+            break
+        }
+    }
 }
 
 //canPerformAction()으로 menuAction 제한
