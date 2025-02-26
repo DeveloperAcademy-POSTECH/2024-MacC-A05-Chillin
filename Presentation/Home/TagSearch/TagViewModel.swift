@@ -13,7 +13,13 @@ class TagViewModel: ObservableObject {
     
     private let tagViewUseCase: TagViewUseCase
     // MARK: - [부리] tags에 사용자가 만든 태그들 다 저장
-    @Published public var tags: [Tag] = []
+    @Published public var tags: [Tag] = [] {
+        didSet {
+            selectedTags = selectedTags.filter { tagName in
+                tags.contains(where: { $0.name == tagName })
+            }
+        }
+    }
     @Published public var selectedTags: [String] = [] {
         didSet {
             isTagSelected = !selectedTags.isEmpty
@@ -21,6 +27,7 @@ class TagViewModel: ObservableObject {
     }
     @Published public private(set) var isTagExist: Bool = false
     @Published public var isTagSelected: Bool = false
+    @Published public var isBtnTapped: Bool = false
     @Published public var isEditMode: Bool = false
     @Published public var popover: Bool = false
     @Published public var createTag: Bool = false

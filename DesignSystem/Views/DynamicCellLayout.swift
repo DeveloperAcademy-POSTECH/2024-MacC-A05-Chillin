@@ -11,7 +11,6 @@ import SwiftUI
  Cell들의 폭의 반응하여 List를 만드는 구조체
  */
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
-//    @EnvironmentObject var tagViewModel: TagViewModel
     let data: Data
     let screenWidth: CGFloat
     let selectedTags: [String]

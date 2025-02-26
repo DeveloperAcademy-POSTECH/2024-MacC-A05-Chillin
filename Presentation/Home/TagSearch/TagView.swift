@@ -24,6 +24,19 @@ struct TagView: View {
                         } else {
                             TagLEmptyView()
                         }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            withAnimation {
+                                tagViewModel.isBtnTapped.toggle()
+                            }
+                        }, label: {
+                            Image(systemName: tagViewModel.isBtnTapped ? "chevron.down" : "chevron.right")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.gray600)
+                        })
+                        .frame(alignment: .trailing)
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
@@ -33,51 +46,52 @@ struct TagView: View {
                             .fill(.gray100)
                             .stroke(Color.gray400, lineWidth: 1)
                     )
-                    
-                    VStack {
-                        Group {
-                            if tagViewModel.isTagExist {
-                                TagListView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
-                            } else {
-                                Text("아직 태그를 만들지 않았어요")
-                                    .reazyFont(.text1)
-                                    .foregroundStyle(.gray550)
-                            }
-                        }
-                        .frame(minHeight: geometry.size.height * 0.35)
-                        
-                        // 편집 버튼
-                        HStack(spacing: 0) {
-                            Spacer()
-                            if tagViewModel.isEditMode {
-                                Button {
-                                    withAnimation {
-                                        tagViewModel.isEditMode = false
-                                    }
-                                } label: {
-                                    Text("완료")
-                                        .reazyFont(.button1)
-                                        .foregroundColor(.primary1)
-                                        .padding(.trailing, 24)
-                                        .padding(.bottom, 20)
+                    if tagViewModel.isBtnTapped {
+                        VStack {
+                            Group {
+                                if tagViewModel.isTagExist {
+                                    TagListView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
+                                } else {
+                                    Text("아직 태그를 만들지 않았어요")
+                                        .reazyFont(.text1)
+                                        .foregroundStyle(.gray550)
                                 }
-                            } else {
-                                EllipsisView(ellipsisAction: {
-                                    withAnimation {
-                                        tagViewModel.popover.toggle()
+                            }
+                            .frame(minHeight: geometry.size.height * 0.35)
+                            
+                            // 편집 버튼
+                            HStack(spacing: 0) {
+                                Spacer()
+                                if tagViewModel.isEditMode {
+                                    Button {
+                                        withAnimation {
+                                            tagViewModel.isEditMode = false
+                                        }
+                                    } label: {
+                                        Text("완료")
+                                            .reazyFont(.button1)
+                                            .foregroundColor(.primary1)
+                                            .padding(.trailing, 24)
+                                            .padding(.bottom, 20)
                                     }
-                                })
-                                .matchedGeometryEffect(id: "popover",
-                                                       in: nsPopover,
-                                                       anchor: .topTrailing)
+                                } else {
+                                    EllipsisView(ellipsisAction: {
+                                        withAnimation {
+                                            tagViewModel.popover.toggle()
+                                        }
+                                    })
+                                    .matchedGeometryEffect(id: "popover",
+                                                           in: nsPopover,
+                                                           anchor: .topTrailing)
+                                }
                             }
                         }
+                        .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.gray200)
+                        )
                     }
-                    .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.gray200)
-                    )
                 }
                 .padding([.top, .horizontal], 20)
             }
@@ -102,14 +116,7 @@ struct TagLEmptyView: View {
         Text("태그로 원하는 논문을 찾아보세요")
             .reazyFont(.button1)
             .foregroundStyle(.gray550)
-        Spacer()
-        Button(action: {
-            
-        }, label: {
-            Image(systemName: "chevron.down")
-                .font(.system(size: 16))
-                .foregroundStyle(.gray600)
-        })
+//        Spacer()
     }
 }
 
@@ -125,7 +132,7 @@ struct SelectedTagView: View {
                 ForEach(selectedTags.map { Tag(name: $0) }, id: \.id) { tag in
                     SelectedTagCell(tag: tag, action: {
                         toggleTag(tag.name)
-                    })
+                    }, isBtnTapped: tagViewModel.isBtnTapped)
                 }
             }
         }
