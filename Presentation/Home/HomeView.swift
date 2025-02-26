@@ -106,8 +106,6 @@ struct HomeView: View {
                                 TagView()
                             } else {
                                 PaperListView(
-                                    selectedItemID: $selectedItemID,
-                                    selectedItems: $selectedItems,
                                     isEditing: $isEditing,
                                     isEditingTitle: $isEditingTitle,
                                     isEditingFolder: $isEditingFolder,

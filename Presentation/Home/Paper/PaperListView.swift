@@ -12,8 +12,6 @@ struct PaperListView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var selectedItemID: UUID?
-    @Binding var selectedItems: Set<UUID>
     @State private var isNavigationPushed: Bool = false
     
     @Binding var isEditing: Bool
@@ -38,81 +36,6 @@ struct PaperListView: View {
             ZStack {
                 HStack(spacing: 0) {
                     VStack(spacing: 0) {
-                        if isEditing {
-                            HStack(spacing: 0) {
-                                Button(action: {
-                                    if selectAll { deselectAllItems() }
-                                    else { selectAllItems() }
-                                    self.selectAll.toggle()
-                                }) {
-                                    HStack(spacing: 0) {
-                                        if selectAll {
-                                            Rectangle()
-                                                .frame(width: 22, height: 22)
-                                                .foregroundStyle(.clear)
-                                                .overlay(
-                                                    Image(systemName: "xmark")
-                                                        .font(.system(size: 18))
-                                                        .foregroundStyle(.gray600)
-                                                )
-                                                .padding(.trailing, 8)
-                                        } else {
-                                            Image(.check)
-                                                .renderingMode(.template)
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 22, height: 22)
-                                                .foregroundStyle(.gray600)
-                                                .padding(.trailing, 8)
-                                        }
-                                        
-                                        Text(selectAll ? "전체 선택 해제" : "전체 선택")
-                                            .reazyFont(.h2)
-                                            .foregroundStyle(.gray600)
-                                    }
-                                }
-                                .padding(.vertical, 14)
-                                .padding(.leading, 22)
-                                
-                                Spacer()
-                            }
-                        } else {
-                            HStack(spacing: 0) {
-                                // 최상위 폴더가 아닐 경우에 등장
-                                if !homeViewModel.isAtRoot {
-                                    Button(action: {
-                                        withAnimation(nil) {
-                                            homeViewModel.navigateToParent()
-                                        }
-                                    }) {
-                                        HStack(spacing: 0) {
-                                            Image(systemName: "chevron.left")
-                                                .font(.system(size: 18))
-                                                .foregroundStyle(.primary1)
-                                                .padding(.trailing, 7)
-                                            
-                                            Text(homeViewModel.parentFolderTitle ?? (homeViewModel.isFavoriteSelected ? "즐겨찾기" : "전체"))
-                                                .reazyFont(.h2)
-                                                .foregroundStyle(.primary1)
-                                        }
-                                    }
-                                    .transition(.identity)
-                                }
-                                Spacer()
-                                
-                                Text((homeViewModel.isAtRoot ? (homeViewModel.isFavoriteSelected ?
-                                                                "즐겨찾기" : "전체") : homeViewModel.currentFolder?.title) ?? "새 폴더")
-                                .reazyFont(.text3)
-                                .foregroundStyle(.primary1)
-                                
-                                Spacer()
-                            }
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 20)
-                        }
-                        
-                        Divider()
-                        // MARK: 문인범 2/13
                         if homeViewModel.filteredLists.isEmpty {
                             Spacer()
                             
@@ -130,43 +53,28 @@ struct PaperListView: View {
                         } else {
                             ScrollView {
                                 VStack(spacing: 0) {
-                                    ForEach(homeViewModel.filteredLists.indices, id: \.self) { index in
-                                        let item = homeViewModel.filteredLists[index]
+                                    Spacer().frame(height: 6)
+                                    
+                                    ForEach(homeViewModel.filteredLists, id: \.self) { item in
                                         // MARK: searchview 들어갈 위치
-                                        PaperListCell(
-                                            isPaper: true,
-                                            title: item.title,
-                                            date: item.lastModifiedDate.timeAgo,
-                                            color: .gray500,
-                                            isSelected: selectedItemID == item.id,
-                                            isEditing: isEditing,
-                                            isEditingSelected: selectedItems.contains(item.id),
-                                            onSelect: {
-                                                if !isEditing && !isNavigationPushed {
-                                                    if selectedItemID == item.id {
-                                                        self.isNavigationPushed = true
-                                                        navigateToPaper()
-                                                        homeViewModel.updateLastModifiedDate(at: item.id, lastModifiedDate: Date())
-                                                    } else {
-                                                        selectedItemID = item.id
-                                                    }
-                                                }
+                                        HomePDFCell(
+                                            paperInfo: item,
+                                            onTapGesture: {
+                                                navigateToPaper(item.id)
+                                                homeViewModel.updateLastModifiedDate(at: item.id, lastModifiedDate: Date())
                                             },
-                                            onEditingSelect: {
-                                                if isEditing {
-                                                    if selectedItems.contains(item.id) {
-                                                        selectedItems.remove(item.id)
-                                                    } else {
-                                                        selectedItems.insert(item.id)
-                                                    }
-                                                }
-                                            }
+                                            starAction: { },
+                                            tagAction: { _ in },
+                                            editAction: { },
+                                            copyAction: { },
+                                            deleteAction: { }
                                         )
                                         
                                         Rectangle()
                                             .frame(height: 1)
                                             .foregroundStyle(.primary3)
                                     }
+                                    .padding(.leading, 24)
                                 }
                             }
                         }
@@ -175,24 +83,15 @@ struct PaperListView: View {
                 }
             }
             .onAppear {
-                initializeSelectedItemID()
                 detectIPadMini()
                 updateOrientation(with: geometry)
             }
             .onDisappear {
                 self.isNavigationPushed = false
             }
-            .onChange(of: selectedItemID) {
-                initializeSelectedItemID()
-            }
             .onChange(of: geometry.size) {
                 detectIPadMini()
                 updateOrientation(with: geometry)
-            }
-            .onChange(of: selectedItems) {
-                if selectedItems.count == homeViewModel.filteredLists.count {
-                    self.selectAll = true
-                }
             }
             .background(.gray200)
             .ignoresSafeArea()
@@ -203,9 +102,8 @@ struct PaperListView: View {
 extension PaperListView {
     
     // TODO: URL 분리 필요
-    private func navigateToPaper() {
-        guard let selectedPaperID = selectedItemID,
-              let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == selectedPaperID }) else {
+    private func navigateToPaper(_ id: UUID) {
+        guard let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == id }) else {
             return
         }
         
@@ -224,19 +122,13 @@ extension PaperListView {
                 return
             }
             
-            let idx = homeViewModel.paperInfos.firstIndex { $0.id == selectedPaperID }!
+            let idx = homeViewModel.paperInfos.firstIndex { $0.id == id }!
             homeViewModel.paperInfos[idx].url = newURL
         }
         
         if url.startAccessingSecurityScopedResource() {
             navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
             url.stopAccessingSecurityScopedResource()
-        }
-    }
-    
-    private func initializeSelectedItemID() {
-        if selectedItemID == nil, let firstPaper = homeViewModel.filteredLists.first {
-            selectedItemID = firstPaper.id
         }
     }
 }
@@ -253,16 +145,5 @@ extension PaperListView {
     
     private func updateOrientation(with geometry: GeometryProxy) {
         isVertical = geometry.size.height > geometry.size.width
-    }
-}
-
-extension PaperListView {
-    private func selectAllItems() {
-        let allIDs = Set(homeViewModel.filteredLists.map { $0.id })
-        selectedItems = allIDs
-    }
-    
-    private func deselectAllItems() {
-        selectedItems.removeAll()
     }
 }
