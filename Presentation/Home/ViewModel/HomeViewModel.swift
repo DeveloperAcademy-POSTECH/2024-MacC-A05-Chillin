@@ -57,18 +57,8 @@ class HomeViewModel: ObservableObject {
     }
     
     @Published public var isSearching: Bool = false
-    @Published public var searchText: String = "" {
-        didSet {
-            if searchText.isEmpty {
-                updateFilteredList()
-            } else {
-                updateSearchList(with: selectedFilter)
-            }
-        }
-    }
-    @Published public var recentSearches: [String] = UserDefaults.standard.recentSearches
-    
-    @Published public var selectedFilter: SearchFilter = .total
+    @Published public var searchText: String = ""
+
     @Published public var selectedMenu: Options = .main
     
     public var changedTitle: String?
@@ -290,30 +280,6 @@ extension HomeViewModel {
             filteredLists = filteringList()
         }
     }
-    
-    func updateSearchList(with filter: SearchFilter) {
-        let items = sortLists(paperInfos: paperInfos, folders: folders)
-        
-        let lowercasedSearchText = searchText.lowercased()
-        
-        if filter == .total {
-            filteredLists = items.filter( { $0.title.lowercased().contains(lowercasedSearchText) })
-        } else if filter == .paper {
-            filteredLists = items.filter { item in
-                if case .paper = item {
-                    return item.title.lowercased().contains(lowercasedSearchText)
-                }
-                return false
-            }
-        } else if filter == .folder {
-            filteredLists = items.filter { item in
-                if case .folder = item {
-                    return item.title.lowercased().contains(lowercasedSearchText)
-                }
-                return false
-            }
-        }
-    }
         
     func filteringList() -> [FileSystemItem] {
         var currentFolders: [Folder] {
@@ -454,29 +420,6 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    public func addSearchTerm(_ term: String) {
-        var searches = UserDefaults.standard.recentSearches
-        
-        // 중복 제거: 기존 검색어 목록에서 제거
-        if let index = searches.firstIndex(of: term) {
-            searches.remove(at: index)
-        }
-        
-        // 배열이 10개를 초과하면 가장 오래된 항목 제거
-        if searches.count == 10 {
-            searches.removeLast()
-        }
-        
-        searches.insert(term, at: 0)
-        UserDefaults.standard.recentSearches = searches
-    }
-
-    public func clearAllSearchTerms() {
-        UserDefaults.standard.recentSearches = []
-    }
-}
-
-extension HomeViewModel {
     public func deleteFiles(_ items: [FileSystemItem]) {
         for item in items {
             switch item {
@@ -501,23 +444,6 @@ extension HomeViewModel {
             }
         }
         return nil
-    }
-}
-
-enum SearchFilter: CaseIterable {
-    case total
-    case paper
-    case folder
-    
-    var title: String {
-        switch self {
-        case .total:
-            return "전체"
-        case .paper:
-            return "논문"
-        case .folder:
-            return "폴더"
-        }
     }
 }
 
