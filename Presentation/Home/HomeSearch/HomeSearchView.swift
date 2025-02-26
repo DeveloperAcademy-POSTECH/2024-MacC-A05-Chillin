@@ -251,9 +251,13 @@ private struct RecentlySearchedKeywordView: View {
                     .foregroundStyle(.primary1)
                 }
                 
-                DynamicCellLayout(data: homeSearchViewModel.recentSearches, selectAction: { title in
+                DynamicCellLayout(data: homeSearchViewModel.recentSearches,
+                                  screenWidth: UIScreen.main.bounds.width,
+                                  isMultiSelectable: false,
+                                  isEditMode: false,
+                                  selectAction: { title in
                     homeSearchViewModel.cellTapped(title: title)
-                }, screenWidth: UIScreen.main.bounds.width, isMultiSelectable: false, isEditMode: false)
+                }, deleteAction: {_ in })
                 .padding(.top, 20)
                 
                 Spacer()

@@ -13,10 +13,13 @@ import SwiftUI
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
 //    @EnvironmentObject var tagViewModel: TagViewModel
     let data: Data
-    let action: (String) -> Void
     let screenWidth: CGFloat
+    
     let isMultiSelectable: Bool     // 여러 셀 선택 가능
-    let isEditMode: Bool?           // x마크
+    let isEditMode: Bool           // x마크
+    
+    let selectAction: (String) -> Void
+    let deleteAction: (UUID) -> Void
     
     var body: some View {
         generateLayout(items: data)
@@ -52,9 +55,12 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
             ForEach(resultRows, id: \.self) { row in
                 HStack(spacing: 10) {
                     ForEach(row) { tag in
-                        PDFTagCell(isMultiSelectable: isMultiSelectable, tag: tag) {
-                            action(tag.name)
-                        }
+                        PDFTagCell(isMultiSelectable: isMultiSelectable,
+                                   isEditMode: isEditMode,
+                                   tag: tag,
+                                   selectAction: {selectAction(tag.name)},
+                                   deleteAction: {deleteAction(tag.id)}
+                        )
                     }
                 }
             }
