@@ -706,6 +706,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1473252CE73B6F00B35D92 /* Comment.swift */,
+				B3633CDA2D586B4900BBAA67 /* Tag.swift */,
 				2C1473262CE73B6F00B35D92 /* DrawingData.swift */,
 				2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */,
 				2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */,
