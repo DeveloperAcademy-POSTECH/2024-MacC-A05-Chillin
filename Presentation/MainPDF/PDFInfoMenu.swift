@@ -199,6 +199,9 @@ struct PDFInfoMenu: View {
                     x: 0,
                     y: 0)
         )
+        .onAppear {
+            self.title = pdfSharedData.paperInfo?.title ?? "알 수 없음"
+        }
         .onDisappear {
             homeViewModel.changedTitle = nil
         }

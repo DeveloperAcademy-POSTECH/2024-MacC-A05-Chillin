@@ -35,8 +35,10 @@ struct PaperListView: View {
         GeometryReader { geometry in
             ZStack {
                 HStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        if homeViewModel.filteredLists.isEmpty {
+                    if homeViewModel.filteredLists.isEmpty {
+                        Spacer()
+                        
+                        VStack(spacing: 0) {
                             Spacer()
                             
                             Image(.homePlaceholder)
@@ -50,37 +52,43 @@ struct PaperListView: View {
                                 .padding(.bottom, 80)
                             
                             Spacer()
-                        } else {
-                            ScrollView {
-                                VStack(spacing: 0) {
-                                    Spacer().frame(height: 6)
+                        }
+                        
+                        Spacer()
+                    } else {
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                Spacer().frame(height: 6)
+                                
+                                ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
+                                    // MARK: searchview 들어갈 위치
+                                    HomePDFCell(
+                                        paperInfo: paperInfo,
+                                        onTapGesture: {
+                                            navigateToPaper(paperInfo.id)
+                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                        },
+                                        starAction: {
+                                            homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
+                                        },
+                                        tagAction: { _ in },
+                                        editAction: {
+                                            homeViewModel.editButtonTapped(paperInfo)
+                                        },
+                                        copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
+                                        deleteAction: { homeViewModel.deletePDF(at: paperInfo.id) }
+                                    )
                                     
-                                    ForEach(homeViewModel.filteredLists, id: \.self) { item in
-                                        // MARK: searchview 들어갈 위치
-                                        HomePDFCell(
-                                            paperInfo: item,
-                                            onTapGesture: {
-                                                navigateToPaper(item.id)
-                                                homeViewModel.updateLastModifiedDate(at: item.id, lastModifiedDate: Date())
-                                            },
-                                            starAction: { },
-                                            tagAction: { _ in },
-                                            editAction: { },
-                                            copyAction: { },
-                                            deleteAction: { }
-                                        )
-                                        
-                                        Rectangle()
-                                            .frame(height: 1)
-                                            .foregroundStyle(.primary3)
-                                    }
-                                    .padding(.leading, 24)
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundStyle(.primary3)
                                 }
+                                .padding(.leading, 24)
                             }
                         }
                     }
-                    .background(.gray300)
                 }
+                .background(.gray300)
             }
             .onAppear {
                 detectIPadMini()

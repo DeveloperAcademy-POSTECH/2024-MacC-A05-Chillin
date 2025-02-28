@@ -208,7 +208,8 @@ struct HomeView: View {
                 RenamePaperTitleView(paperInfo: paperInfo) {
                     homeViewModel.viewStatus = .normal
                 } completeAction: { text in
-                    
+                    homeViewModel.updateTitle(at: paperInfo.id, title: text)
+                    homeViewModel.viewStatus = .normal
                 }
                 .ignoresSafeArea(edges: .top)
             }

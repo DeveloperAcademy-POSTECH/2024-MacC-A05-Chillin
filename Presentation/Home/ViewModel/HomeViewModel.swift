@@ -189,6 +189,15 @@ extension HomeViewModel {
     }
 }
 
+// MARK: - EditingTitle 메소드
+extension HomeViewModel {
+    public func editButtonTapped(_ paperInfo: PaperInfo) {
+        withAnimation(.easeInOut) {
+            viewStatus = .search(paperInfo)
+        }
+    }
+}
+
 extension HomeViewModel {
     public func updatePaperFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
