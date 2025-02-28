@@ -18,6 +18,9 @@ struct PaperListView: View {
     @Binding var isEditingTitle: Bool
     @Binding var isEditingFolder: Bool
     
+    @State private var selectedPaper: PaperInfo?
+    @State private var deleteAlertPresented: Bool = false
+    
     @State var isFavorite: Bool = false
     @State var selectAll: Bool = false
     
@@ -25,8 +28,6 @@ struct PaperListView: View {
     @State var isPaper: Bool = false
     
     @State private var keyboardHeight: CGFloat = 0
-    
-    @State private var timerCancellable: Cancellable?
     
     @State private var isIPadMini: Bool = false
     @State private var isVertical = false
@@ -76,7 +77,10 @@ struct PaperListView: View {
                                             homeViewModel.editButtonTapped(paperInfo)
                                         },
                                         copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
-                                        deleteAction: { homeViewModel.deletePDF(at: paperInfo.id) }
+                                        deleteAction: {
+                                            selectedPaper = paperInfo
+                                            deleteAlertPresented.toggle()
+                                        }
                                     )
                                     
                                     Rectangle()
@@ -90,6 +94,7 @@ struct PaperListView: View {
                 }
                 .background(.gray300)
             }
+            
             .onAppear {
                 detectIPadMini()
                 updateOrientation(with: geometry)
@@ -100,6 +105,18 @@ struct PaperListView: View {
             .onChange(of: geometry.size) {
                 detectIPadMini()
                 updateOrientation(with: geometry)
+            }
+            .alert(
+                "정말 삭제하시겠습니까?",
+                isPresented: $deleteAlertPresented,
+                presenting: selectedPaper
+            ) { paperInfo in
+                Button("취소", role: .cancel) {}
+                Button("삭제", role: .destructive) {
+                    homeViewModel.deletePDF(at: paperInfo.id)
+                }
+            } message: { paperInfo in
+                Text("삭제된 파일은 복구할 수 없습니다.")
             }
             .background(.gray200)
             .ignoresSafeArea()
