@@ -162,8 +162,10 @@ private struct EllipsisButtonView: View {
                         .reazyFont(.body1)
                     Spacer()
                     Image(.editpencil)
+                        .renderingMode(.template)
                         .resizable()
                         .frame(width: 17, height: 17)
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -181,6 +183,7 @@ private struct EllipsisButtonView: View {
                     Spacer()
                     Image(systemName: "tag")
                         .font(.system(size: 14))
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -197,8 +200,10 @@ private struct EllipsisButtonView: View {
                         .reazyFont(.body1)
                     Spacer()
                     Image(.copyDark)
+                        .renderingMode(.template)
                         .resizable()
                         .frame(width: 17, height: 17)
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -215,8 +220,10 @@ private struct EllipsisButtonView: View {
                         .reazyFont(.body1)
                     Spacer()
                     Image(.move)
+                        .renderingMode(.template)
                         .resizable()
                         .frame(width: 17, height: 17)
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
