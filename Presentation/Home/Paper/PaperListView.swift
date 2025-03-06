@@ -61,35 +61,33 @@ struct PaperListView: View {
                             VStack(spacing: 0) {
                                 Spacer().frame(height: 6)
                                 
-                                List {
-                                    ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
-                                        // MARK: searchview 들어갈 위치
-                                        HomePDFCell(
-                                            paperInfo: paperInfo,
-                                            onTapGesture: {
-                                                navigateToPaper(paperInfo.id)
-                                                homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
-                                            },
-                                            starAction: {
-                                                homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
-                                            },
-                                            tagAction: { _ in },
-                                            editAction: {
-                                                homeViewModel.editButtonTapped(paperInfo)
-                                            },
-                                            copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
-                                            deleteAction: {
-                                                selectedPaper = paperInfo
-                                                deleteAlertPresented.toggle()
-                                            }
-                                        )
-                                        
-                                        Rectangle()
-                                            .frame(height: 1)
-                                            .foregroundStyle(.primary3)
-                                    }
-                                    .padding(.leading, 24)
+                                ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
+                                    // MARK: searchview 들어갈 위치
+                                    HomePDFCell(
+                                        paperInfo: paperInfo,
+                                        onTapGesture: {
+                                            navigateToPaper(paperInfo.id)
+                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                        },
+                                        starAction: {
+                                            homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
+                                        },
+                                        tagAction: { _ in },
+                                        editAction: {
+                                            homeViewModel.editButtonTapped(paperInfo)
+                                        },
+                                        copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
+                                        deleteAction: {
+                                            selectedPaper = paperInfo
+                                            deleteAlertPresented.toggle()
+                                        }
+                                    )
+                                    
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundStyle(.primary3)
                                 }
+                                .padding(.leading, 24)
                             }
                         }
                     }

@@ -133,6 +133,7 @@ struct HomeListView: View {
                     }
                 }
                 .padding(.bottom, 14)
+                .padding(.leading, 20)
                 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -151,7 +152,7 @@ struct HomeListView: View {
                     }
                 }
             }
-            .padding(.leading, 30)
+            .padding(.leading, 10)
             .padding(.trailing, 16)
             
             Spacer()
@@ -205,6 +206,7 @@ private struct FolderListCell: View {
                             .scaledToFit()
                             .frame(width: 11.43, height: 9.13)
                     )
+                    .padding(.leading, 20)
                     .padding(.trailing, 10)
                 
                 VStack(spacing: 0) {
