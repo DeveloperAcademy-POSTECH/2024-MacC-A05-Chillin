@@ -281,6 +281,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2C0AC48B2D79BAED00F57C71 /* TagControl */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TagControl;
+			sourceTree = "<group>";
+		};
 		2C1458952CD7D09800B35D92 /* NetworkUnitTest */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NetworkUnitTest;
@@ -683,6 +688,7 @@
 		2C1474212CE8FFB600B35D92 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				2C0AC48B2D79BAED00F57C71 /* TagControl */,
 				2CEBB8C12D5A407E00EC04D2 /* HomeSearch */,
 				2CC431552CE9CECB00E51DB0 /* ViewModel */,
 				2C1473392CE73B6F00B35D92 /* HomeView.swift */,
@@ -902,6 +908,7 @@
 				2C2C386F2CECE55200552185 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				2C0AC48B2D79BAED00F57C71 /* TagControl */,
 				2C1474002CE895D300B35D92 /* Components */,
 				2C14740A2CE8EBBE00B35D92 /* Floating */,
 				2C14741F2CE8FF8E00B35D92 /* ViewModel */,
