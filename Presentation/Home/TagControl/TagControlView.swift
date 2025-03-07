@@ -10,7 +10,13 @@ import SwiftUI
 
 
 struct TagControlView: View {
-    @State private var viewStatus: Bool = false
+    @StateObject private var viewModel: TagControlViewModel = .init(
+        useCase: DefaultTagControlUseCase(
+            paperDataRepository: PaperDataRepositoryImpl(),
+            tagRepository: TagDataRepositoryImpl()
+        )
+    )
+    
     @FocusState private var textFieldFocus: Bool
     
     
@@ -23,10 +29,12 @@ struct TagControlView: View {
                     .frame(width: 200)
                 
                 VStack(spacing: 0) {
-                    TagInputTextField(textFieldFocus: $textFieldFocus)
+                    TagInputTextField(
+                        viewModel: viewModel,
+                        textFieldFocus: $textFieldFocus
+                    )
                     
-                    ZStack {
-                        
+                    ZStack(alignment: .top) {
                         VStack {
                             Text("태그를 만들거나 추가할 태그를 검색하세요")
                                 .reazyFont(.text1)
@@ -40,11 +48,10 @@ struct TagControlView: View {
                         }
                         
                         if textFieldFocus {
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundStyle(.gray200)
-                                .frame(width: 400, height: 240)
+                            NewTagSearchResultView(viewModel: viewModel)
                         }
                     }
+                    .animation(.easeInOut, value: textFieldFocus)
                 }
             }
         }
@@ -55,7 +62,7 @@ struct TagControlView: View {
 
 
 private struct TagInputTextField: View {
-    @State private var text: String = ""
+    @ObservedObject var viewModel: TagControlViewModel
     
     var textFieldFocus: FocusState<Bool>.Binding
     
@@ -71,11 +78,14 @@ private struct TagInputTextField: View {
                 .foregroundStyle(.gray400)
             
             HStack(spacing: 0) {
-                TextField("새로운 태그", text: $text)
+                TextField("새로운 태그", text: $viewModel.searchText)
                     .focused(textFieldFocus)
                     .reazyFont(.text1)
                     .foregroundStyle(.gray800)
                     .lineLimit(1)
+                    .onSubmit {
+                        
+                    }
                 
                 Button {
                     textFieldFocus.wrappedValue.toggle()
@@ -89,6 +99,9 @@ private struct TagInputTextField: View {
             .padding(.trailing, 14)
         }
         .frame(width: 400, height: 52)
+        .onReceive(viewModel.$searchText) { _ in
+            viewModel.searchTagButtonTapped()
+        }
     }
 }
 
@@ -97,15 +110,7 @@ private struct IncludedTagView: View {
     var body: some View {
         Group {
             HStack(spacing: 0) {
-                Text("테스트태그")
-                    .reazyFont(.body3)
-                    .foregroundStyle(.gray800)
-                    .frame(height: 28)
-                    .padding(.horizontal, 9)
-                    .background {
-                        RoundedRectangle(cornerRadius: 5)
-                            .foregroundStyle(.primary3)
-                    }
+                TagControlCell(name: "테스트 태그")
                 
                 Spacer()
                 
@@ -127,11 +132,12 @@ private struct IncludedTagView: View {
 
 
 private struct NewTagSearchResultView: View {
+    @ObservedObject var viewModel: TagControlViewModel
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .foregroundStyle(.gray200)
-                .frame(width: 400, height: 240)
             
             Text(
                 """
@@ -143,11 +149,57 @@ private struct NewTagSearchResultView: View {
             .reazyFont(.body1)
             .multilineTextAlignment(.center)
             .foregroundStyle(.gray600)
+            .opacity( viewModel.showingSearchPlaceholder ? 1 : 0 )
+            
+            
+            
+            ScrollView {
+                Group {
+                    if viewModel.showingCreateNewTag {
+                        CreateNewTagCell(name: viewModel.searchText)
+                    }
+                    
+                    if viewModel.showingExistingTags {
+                        VStack {
+                            ForEach(viewModel.searchedTags) { tag in
+                                HStack {
+                                    TagControlCell(name: tag.name)
+                                    
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 20)
+                .padding(.horizontal, 18)
+            }
+            
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(.circular)
+            }
         }
+        .frame(width: 400, height: 240)
     }
 }
 
-
-#Preview {
-    NewTagSearchResultView()
+private struct CreateNewTagCell: View {
+    let name: String
+    
+    var body: some View {
+        Button {
+            
+        } label: {
+            HStack(spacing: 8) {
+                Text("생성")
+                    .reazyFont(.body1)
+                    .foregroundStyle(.gray600)
+                
+                TagControlCell(name: name)
+                
+                Spacer()
+            }
+        }
+    }
 }
