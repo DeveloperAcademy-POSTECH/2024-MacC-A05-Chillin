@@ -64,7 +64,7 @@ struct TagView: View {
                                 Spacer()
                                 if tagViewModel.isEditMode {
                                     Button {
-                                        withAnimation {
+                                        withAnimation(.easeInOut) {
                                             tagViewModel.isEditMode = false
                                         }
                                     } label: {
@@ -86,6 +86,7 @@ struct TagView: View {
                                 }
                             }
                         }
+                        .border(Color.red)
                         .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
@@ -116,7 +117,6 @@ struct TagLEmptyView: View {
         Text("태그로 원하는 논문을 찾아보세요")
             .reazyFont(.button1)
             .foregroundStyle(.gray550)
-//        Spacer()
     }
 }
 
@@ -150,7 +150,7 @@ struct TagListView: View {
             ScrollView(.vertical){
                 DynamicCellLayout(
                     data: tagViewModel.tags,
-                    screenWidth: geometry.size.width,
+                    screenWidth: geometry.size.width - 40,
                     selectedTags: tagViewModel.selectedTags,
                     isMultiSelectable: true,
                     isEditMode: tagViewModel.isEditMode,
@@ -158,13 +158,18 @@ struct TagListView: View {
                         toggleTag(tagName)
                     },
                     deleteAction: { id in
-                        tagViewModel.deleteTag(id: id)
+                        tagViewModel.showDeleteAlert(id: id)
                     }
+//                    deleteAction: { id in
+//                        tagViewModel.deleteTag(id: id)
+//                    }
                 )
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
+                .border(Color.blue)
             }
         }
+        .border(Color.black)
     }
 }
 

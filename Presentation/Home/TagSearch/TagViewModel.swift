@@ -32,6 +32,10 @@ class TagViewModel: ObservableObject {
     @Published public var popover: Bool = false
     @Published public var createTag: Bool = false
     @Published public var isTagDuplicate: Bool = false
+    @Published public var showDeleteAlert: Bool = false
+    
+    @Published private var targetTagID: UUID
+    
     private var cancellables = Set<AnyCancellable>()
     
     init(
@@ -40,9 +44,9 @@ class TagViewModel: ObservableObject {
     ) {
         self.tagViewUseCase = tagViewUseCase
         self.tags = tags
-        self.isTagExist = !self.tags.isEmpty
+        self.isTagExist = !tags.isEmpty
+        self.targetTagID = UUID()
         setBindings()
-        print(self.isTagExist)
     }
     
     private func setBindings() {
@@ -60,8 +64,19 @@ class TagViewModel: ObservableObject {
             }
     }
     
-    func deleteTag(id: UUID) {
-        tags.removeAll { $0.id == id }
+    func showDeleteAlert(id: UUID) {
+        self.targetTagID = id
+        self.showDeleteAlert = true
+    }
+    
+    func getTagName() -> String {
+        guard let tag = tags.first(where: { $0.id == targetTagID }) else {return ""}
+        return tag.name
+    }
+    
+    func deleteTag() {
+        tags.removeAll { $0.id == targetTagID }
+        self.showDeleteAlert = false
     }
     
     func createTag(name: String) {

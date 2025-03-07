@@ -34,6 +34,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         
         for (index, item) in items.enumerated() {
             let itemWidth = item.itemWidth(isEditMode: isEditMode)
+            
             if currentWidth + itemWidth + 10 >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
@@ -46,7 +47,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                 break
             }
             
-            currentWidth += itemWidth + 20
+            currentWidth += itemWidth + 10
             currentArrays.append(item)
         }
         return VStack(alignment: .leading) {

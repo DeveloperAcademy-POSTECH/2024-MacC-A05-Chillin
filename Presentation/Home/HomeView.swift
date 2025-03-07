@@ -128,13 +128,19 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 0.5 : 0)
+                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             // 태그 생성
             if tagViewModel.createTag {
                 CreateTagView()
                     .environmentObject(tagViewModel)
+            }
+            if tagViewModel.showDeleteAlert {
+                CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
+                            message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.",
+                            cancleAction: { tagViewModel.showDeleteAlert = false },
+                            confirmAction: tagViewModel.deleteTag)
             }
             
             if createFolder || isEditingFolder {
