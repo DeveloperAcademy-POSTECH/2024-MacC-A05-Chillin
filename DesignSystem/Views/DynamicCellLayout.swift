@@ -29,7 +29,6 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         
         var currentWidth: CGFloat = 0
         var currentArrays = [Data.Element]()
-        print("스크린너비\(screenWidth)")
         var resultRows = [[Data.Element]]()
         
         for (index, item) in items.enumerated() {
@@ -49,7 +48,6 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
             
             currentWidth += itemWidth
             currentArrays.append(item)
-            print(currentWidth)
         }
         return VStack(alignment: .leading) {
             ForEach(resultRows, id: \.self) { row in
