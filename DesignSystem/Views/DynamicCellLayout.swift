@@ -29,13 +29,13 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
         
         var currentWidth: CGFloat = 0
         var currentArrays = [Data.Element]()
-        
+        print("스크린너비\(screenWidth)")
         var resultRows = [[Data.Element]]()
         
         for (index, item) in items.enumerated() {
             let itemWidth = item.itemWidth(isEditMode: isEditMode)
             
-            if currentWidth + itemWidth + 10 >= screenWidth {
+            if currentWidth + itemWidth >= screenWidth {
                 resultRows.append(currentArrays)
                 currentArrays.removeAll()
                 currentWidth = 0
@@ -47,12 +47,13 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                 break
             }
             
-            currentWidth += itemWidth + 10
+            currentWidth += itemWidth
             currentArrays.append(item)
+            print(currentWidth)
         }
         return VStack(alignment: .leading) {
             ForEach(resultRows, id: \.self) { row in
-                HStack(spacing: 10) {
+                HStack {
                     ForEach(row) { tag in
                         PDFTagCell(isMultiSelectable: isMultiSelectable,
                                    isEditMode: isEditMode,

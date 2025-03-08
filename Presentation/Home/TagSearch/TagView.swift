@@ -16,6 +16,15 @@ struct TagView: View {
         ZStack(alignment: .top) {
             Color.gray300
             
+            VStack(spacing: 0) {
+                Spacer()
+                Image(.tagfill)
+                Text("원하는 논문을 태그로 찾아보세요")
+                    .reazyFont(.h5)
+                    .foregroundColor(.gray550)
+                Spacer()
+            }
+            
             GeometryReader { geometry in
                 VStack(spacing: 1) {
                     HStack {
@@ -46,9 +55,10 @@ struct TagView: View {
                             .fill(.gray100)
                             .stroke(Color.gray400, lineWidth: 1)
                     )
+                    
                     if tagViewModel.isBtnTapped {
-                        VStack {
-                            Group {
+                        VStack(alignment: .center, spacing: 0) {
+                            VStack {
                                 if tagViewModel.isTagExist {
                                     TagListView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
                                 } else {
@@ -57,7 +67,9 @@ struct TagView: View {
                                         .foregroundStyle(.gray550)
                                 }
                             }
-                            .frame(minHeight: geometry.size.height * 0.35)
+                            .padding(.top, 24)
+                            .padding(.horizontal, 20)
+                            .frame(maxWidth: geometry.size.width - 40, minHeight: geometry.size.height * 0.33)
                             
                             // 편집 버튼
                             HStack(spacing: 0) {
@@ -86,8 +98,7 @@ struct TagView: View {
                                 }
                             }
                         }
-                        .border(Color.red)
-                        .frame(maxWidth: .infinity,maxHeight: geometry.size.height * 0.4)
+                        .frame(maxHeight: geometry.size.height * 0.4)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.gray200)
@@ -147,10 +158,10 @@ struct TagListView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ScrollView(.vertical){
+            ScrollView(.vertical, showsIndicators: false) {
                 DynamicCellLayout(
                     data: tagViewModel.tags,
-                    screenWidth: geometry.size.width - 40,
+                    screenWidth: geometry.size.width,
                     selectedTags: tagViewModel.selectedTags,
                     isMultiSelectable: true,
                     isEditMode: tagViewModel.isEditMode,
@@ -160,16 +171,9 @@ struct TagListView: View {
                     deleteAction: { id in
                         tagViewModel.showDeleteAlert(id: id)
                     }
-//                    deleteAction: { id in
-//                        tagViewModel.deleteTag(id: id)
-//                    }
                 )
-                .padding(.horizontal, 20)
-                .padding(.top, 24)
-                .border(Color.blue)
             }
         }
-        .border(Color.black)
     }
 }
 

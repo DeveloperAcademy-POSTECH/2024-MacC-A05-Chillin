@@ -33,6 +33,7 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                 Text(tag.name)
                     .reazyFont(isMultiSelectable ? .body1 : .h3)
                     .foregroundStyle(isSelected ? .gray300 : .gray800)
+                    .fixedSize(horizontal: true, vertical: false)
                 
                 // 삭제 버튼
                 if isEditMode {
@@ -43,17 +44,10 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                             .foregroundStyle(.gray700)
                             .font(.system(size: 12))
                     }
-//                    .alert("“\(tag.name)”\n태그를 삭제하시겠습니까?", isPresented: $isAlertPresented) {
-//                        Button("삭제", role: .destructive, action: {
-//                            deleteAction()
-//                        })
-//                    } message: {
-//                        Text("해당 태그가 달린 모든 논문에서도 삭제됩니다.")
-//                    }
                 }
             }
-            .padding(.horizontal, 8)
             .frame(height: 24)
+            .padding(.horizontal, 8)
             .background {
                 RoundedRectangle(cornerRadius: 4)
                     .foregroundStyle(isSelected ? .point4 : .primary3)
