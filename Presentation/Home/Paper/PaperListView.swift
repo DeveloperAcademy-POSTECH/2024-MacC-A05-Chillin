@@ -35,59 +35,97 @@ struct PaperListView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                HStack(spacing: 0) {
-                    if homeViewModel.filteredLists.isEmpty {
-                        Spacer()
-                        
-                        VStack(spacing: 0) {
-                            Spacer()
-                            
-                            Image(.homePlaceholder)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 146)
-                                .padding(.bottom, 11)
-                            Text(emptyStateMessage())
-                                .reazyFont(.h5)
-                                .foregroundStyle(.gray550)
-                                .padding(.bottom, 80)
-                            
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                    } else {
-                        ScrollView {
-                            VStack(spacing: 0) {
-                                Spacer().frame(height: 6)
-                                
-                                ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
-                                    // MARK: searchview 들어갈 위치
-                                    HomePDFCell(
-                                        paperInfo: paperInfo,
-                                        onTapGesture: {
-                                            navigateToPaper(paperInfo.id)
-                                            homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
-                                        },
-                                        starAction: {
-                                            homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
-                                        },
-                                        tagAction: { _ in },
-                                        editAction: {
-                                            homeViewModel.editButtonTapped(paperInfo)
-                                        },
-                                        copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
-                                        deleteAction: {
-                                            selectedPaper = paperInfo
-                                            deleteAlertPresented.toggle()
-                                        }
-                                    )
-                                    
-                                    Rectangle()
-                                        .frame(height: 1)
-                                        .foregroundStyle(.primary3)
+                VStack(spacing: 0) {
+                    if let currentFolder = homeViewModel.currentFolder {
+                        HStack(spacing: 0) {
+                            if currentFolder.parentFolderID != nil {
+                                Button(action: {
+                                    homeViewModel.navigateToParent()
+                                }) {
+                                    Image(systemName: "chevron.left")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(.primary1)
                                 }
-                                .padding(.leading, 24)
+                                .padding(.leading, 20)
+                            }
+                            
+                            Spacer()
+                            
+                            Text(currentFolder.title)
+                                .reazyFont(.h2)
+                                .foregroundStyle(.primary1)
+                                .frame(maxWidth: 734)
+                            
+                            Spacer()
+                            
+                            if currentFolder.parentFolderID != nil {
+                                Rectangle()
+                                    .frame(width: 14, height: 34)
+                                    .foregroundStyle(.clear)
+                                    .padding(.trailing, 20)
+                            }
+                        }
+                        .frame(height: 52)
+                        
+                        Rectangle()
+                            .frame(height: 1)
+                            .foregroundStyle(.primary3)
+                    }
+                    
+                    HStack(spacing: 0) {
+                        if homeViewModel.filteredLists.isEmpty {
+                            Spacer()
+                            
+                            VStack(spacing: 0) {
+                                Spacer()
+                                
+                                Image(.homePlaceholder)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 146)
+                                    .padding(.bottom, 11)
+                                Text(emptyStateMessage())
+                                    .reazyFont(.h5)
+                                    .foregroundStyle(.gray550)
+                                    .padding(.bottom, 80)
+                                
+                                Spacer()
+                            }
+                            
+                            Spacer()
+                        } else {
+                            ScrollView {
+                                VStack(spacing: 0) {
+                                    Spacer().frame(height: 6)
+                                    
+                                    ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
+                                        // MARK: searchview 들어갈 위치
+                                        HomePDFCell(
+                                            paperInfo: paperInfo,
+                                            onTapGesture: {
+                                                navigateToPaper(paperInfo.id)
+                                                homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                            },
+                                            starAction: {
+                                                homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
+                                            },
+                                            tagAction: { _ in },
+                                            editAction: {
+                                                homeViewModel.editButtonTapped(paperInfo)
+                                            },
+                                            copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
+                                            deleteAction: {
+                                                selectedPaper = paperInfo
+                                                deleteAlertPresented.toggle()
+                                            }
+                                        )
+                                        
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundStyle(.primary3)
+                                    }
+                                    .padding(.leading, 24)
+                                }
                             }
                         }
                     }

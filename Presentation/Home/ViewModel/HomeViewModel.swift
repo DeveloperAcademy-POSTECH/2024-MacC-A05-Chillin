@@ -321,6 +321,7 @@ extension HomeViewModel {
             selectedFolderID = folderID
             currentFolder = folders.first { $0.id == folderID }
         }
+        updateFilteredList()
     }
     
     func updateFilteredList() {
@@ -386,16 +387,9 @@ extension HomeViewModel {
     public func navigateToParent() {
         if let parentID = currentFolder?.parentFolderID {
             currentFolder = folders.first { $0.id == parentID }
-        } else {
-            currentFolder = nil
+            selectedFolderID = parentID
         }
-    }
-    
-    public func navigateTo(folder: Folder) {
-        if isFavoriteSelected {
-            navigationStack.append((isFavoriteSelected: isFavoriteSelected, folder: currentFolder))
-        }
-        currentFolder = folder
+        updateFilteredList()
     }
     
     // 탭 변경 시 최초 상태로 초기화
