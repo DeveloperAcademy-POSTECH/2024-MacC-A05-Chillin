@@ -47,7 +47,7 @@ struct PaperListView: View {
                                 .scaledToFit()
                                 .frame(height: 146)
                                 .padding(.bottom, 11)
-                            Text(homeViewModel.isFavoriteSelected ? "즐겨찾기 한 논문이 없어요." : "새로운 논문을 가져와 주세요")
+                            Text(emptyStateMessage())
                                 .reazyFont(.h5)
                                 .foregroundStyle(.gray550)
                                 .padding(.bottom, 80)
@@ -120,6 +120,14 @@ struct PaperListView: View {
             }
             .background(.gray200)
             .ignoresSafeArea()
+        }
+    }
+    
+    private func emptyStateMessage() -> String {
+        if homeViewModel.isFavoriteSelected {
+            return "즐겨찾기 한 논문이 없어요"
+        } else {
+            return "새로운 논문을 가져와 주세요"
         }
     }
 }

@@ -41,20 +41,51 @@ class HomeViewModel: ObservableObject {
         return currentFolder == nil
     }
     
-    @Published var filteredLists: [PaperInfo] = []
+    @Published var selectedFolderID: UUID? {
+        didSet {
+            if selectedFolderID != nil {
+                isFavoriteSelected = false
+                isTagSelected = false
+                isMainSelected = false
+            }
+            updateFilteredList()
+        }
+    }
     
     @Published public var isFavoriteSelected: Bool = false {
         didSet {
+            if isFavoriteSelected {
+                selectedFolderID = nil
+                isTagSelected = false
+                isMainSelected = false
+            }
             resetToRoot()
             updateFilteredList()
         }
     }
     @Published public var isTagSelected: Bool = false {
         didSet {
+            if isTagSelected {
+                selectedFolderID = nil
+                isFavoriteSelected = false
+                isMainSelected = false
+            }
             resetToRoot()
             updateFilteredList()
         }
     }
+    @Published public var isMainSelected: Bool = true {
+        didSet {
+            if isMainSelected {
+                selectedFolderID = nil
+                isFavoriteSelected = false
+                isTagSelected = false
+            }
+            updateFilteredList()
+        }
+    }
+    
+    @Published var filteredLists: [PaperInfo] = []
     
     @Published public var isSearching: Bool = false
     @Published public var searchText: String = ""
@@ -282,33 +313,31 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    func updateFilteredList() {
-        if isFavoriteSelected {
-            filteredLists = filteringFavList()
-        } else {
-            filteredLists = filteringList()
+    func selectCategory(_ category: CategorySelection) {
+        switch category {
+        case .main:
+            isMainSelected = true
+        case .favorite:
+            isFavoriteSelected = true
+        case .tag:
+            isTagSelected = true
+        case .folder(let folderID):
+            selectedFolderID = folderID
         }
-    }
-        
-    func filteringList() -> [PaperInfo] {
-        var currentDocuments: [PaperInfo] {
-            guard let folder = currentFolder else {
-                return paperInfos.filter { $0.folderID == nil }
-            }
-            return paperInfos.filter { $0.folderID == folder.id }
-        }
-        
-        return currentDocuments.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
     }
     
-    func filteringFavList() -> [PaperInfo] {
-        if let folder = currentFolder {
-            // 현재 선택된 폴더가 있을 경우, 해당 폴더의 모든 문서를 반환
-            let folderDocuments = paperInfos.filter { $0.folderID == folder.id }
-            return folderDocuments.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+    func updateFilteredList() {
+        if isFavoriteSelected {
+            filteredLists = paperInfos.filter { $0.isFavorite }
+        } else if isTagSelected {
+            filteredLists = paperInfos.filter { !$0.tags.isEmpty }
+        } else if let folderID = selectedFolderID {
+            filteredLists = paperInfos.filter { $0.folderID == folderID }
         } else {
-            return paperInfos.filter { $0.isFavorite }.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+            filteredLists = paperInfos.filter { $0.folderID == nil }
         }
+        
+        filteredLists.sort { $0.lastModifiedDate > $1.lastModifiedDate }
     }
 }
 
@@ -357,23 +386,10 @@ extension HomeViewModel {
 
 extension HomeViewModel {
     public func navigateToParent() {
-        if isFavoriteSelected {
-            // 즐겨찾기 경로를 스택에서 복원
-            if let lastState = navigationStack.popLast() {
-                isFavoriteSelected = lastState.isFavoriteSelected
-                currentFolder = lastState.folder
-            } else {
-                // 기본 상태로 복원
-                isFavoriteSelected = true
-                currentFolder = nil
-            }
+        if let parentID = currentFolder?.parentFolderID {
+            currentFolder = folders.first { $0.id == parentID }
         } else {
-            // 전체 탭에서는 부모 폴더로 이동
-            if let parentID = currentFolder?.parentFolderID {
-                currentFolder = folders.first { $0.id == parentID }
-            } else {
-                currentFolder = nil
-            }
+            currentFolder = nil
         }
     }
     
@@ -496,4 +512,8 @@ extension HomeViewModel {
         self.setSample()
     }
      */
+}
+
+enum CategorySelection: Equatable {
+    case main, favorite, tag, folder(UUID)
 }
