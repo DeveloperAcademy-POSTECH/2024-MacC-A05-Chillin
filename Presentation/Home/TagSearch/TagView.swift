@@ -31,7 +31,7 @@ struct TagView: View {
                         if tagViewModel.isTagSelected {
                             SelectedTagView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
                         } else {
-                            TagLEmptyView()
+                            TagEmptyView()
                         }
                         
                         Spacer()
@@ -60,7 +60,7 @@ struct TagView: View {
                         VStack(alignment: .center, spacing: 0) {
                             VStack {
                                 if tagViewModel.isTagExist {
-                                    TagListView(selectedTags: $tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
+                                    TagListView(selectedTags: tagViewModel.selectedTags, toggleTag: tagViewModel.tagTapped)
                                 } else {
                                     Text("아직 태그를 만들지 않았어요")
                                         .reazyFont(.text1)
@@ -123,7 +123,7 @@ struct TagView: View {
 }
 
 // MARK: - 태그를 선택하지 않음
-struct TagLEmptyView: View {
+struct TagEmptyView: View {
     var body: some View {
         Text("태그로 원하는 논문을 찾아보세요")
             .reazyFont(.button1)
@@ -153,7 +153,7 @@ struct SelectedTagView: View {
 // MARK: - 태그 전체 리스트 뷰
 struct TagListView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
-    @Binding var selectedTags: [String]
+    var selectedTags: [String]
     let toggleTag: (String) -> Void
     
     var body: some View {

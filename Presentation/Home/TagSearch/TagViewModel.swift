@@ -40,7 +40,7 @@ class TagViewModel: ObservableObject {
     
     init(
         tagViewUseCase: TagViewUseCase,
-        tags: [Tag] = (1...50).map { Tag(name: "어쩌고\($0)") }
+        tags: [Tag] = (1...20).map { Tag(name: "어쩌고\($0)") }
     ) {
         self.tagViewUseCase = tagViewUseCase
         self.tags = tags
