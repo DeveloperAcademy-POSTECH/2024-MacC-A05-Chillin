@@ -209,7 +209,7 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
         }
     }
     
-    func addTag(to id: UUID, with tag: String) -> Result<VoidResponse, any Error> {
+    func addTag(to id: UUID, with tag: String) -> Result<Tag, any Error> {
         let dataContext = container.viewContext
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -238,7 +238,10 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
             paperTag.tagData = tag
             
             try dataContext.save()
-            return .success(VoidResponse())
+            
+            // 추가된 Tag 반환
+            let result = Tag(id: tag.id, name: tag.name)
+            return .success(result)
         } catch {
             return .failure(error)
         }

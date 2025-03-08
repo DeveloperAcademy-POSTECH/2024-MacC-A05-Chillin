@@ -11,7 +11,7 @@ import Foundation
 
 protocol TagControlUseCase {
     @discardableResult
-    func addTagToPaper(to paperId: UUID, with tag: String) -> Result<VoidResponse, Error>
+    func addTagToPaper(to paperId: UUID, with tag: String) -> Result<Tag, Error>
     
     @discardableResult
     func removeTagFromPaper(to paperId: UUID, with tagId: UUID) -> Result<VoidResponse, Error>
@@ -32,7 +32,7 @@ final class DefaultTagControlUseCase: TagControlUseCase {
         self.tagRepository = tagRepository
     }
     
-    func addTagToPaper(to paperId: UUID, with tag: String) -> Result<VoidResponse, Error> {
+    func addTagToPaper(to paperId: UUID, with tag: String) -> Result<Tag, Error> {
         paperDataRepository.addTag(to: paperId, with: tag)
     }
     

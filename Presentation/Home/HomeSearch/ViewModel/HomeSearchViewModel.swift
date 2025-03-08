@@ -34,6 +34,7 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
     enum SearchViewStatus: Hashable {
         case normal
         case search(PaperInfo)
+        case setTag(PaperInfo)
     }
 }
 
@@ -130,6 +131,15 @@ extension HomeSearchViewModel {
     public func cancelButtonTappedInEditingTitle() {
         withAnimation(.easeInOut) {
             viewStatus = .normal
+        }
+    }
+}
+
+// MARK: - TagControl 메소드
+extension HomeSearchViewModel {
+    public func setTagButtonTapped(_ paperInfo: PaperInfo) {
+        withAnimation(.easeInOut) {
+            viewStatus = .setTag(paperInfo)
         }
     }
 }

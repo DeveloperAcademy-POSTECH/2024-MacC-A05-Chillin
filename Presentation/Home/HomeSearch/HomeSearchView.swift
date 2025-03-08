@@ -12,11 +12,11 @@ struct HomeSearchView: View {
     @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
     var body: some View {
-            if !homeSearchViewModel.searchText.isEmpty {
-                HomeSearchListView()
-            } else {
-                RecentlySearchedKeywordView()
-            }
+        if !homeSearchViewModel.searchText.isEmpty {
+            HomeSearchListView()
+        } else {
+            RecentlySearchedKeywordView()
+        }
     }
 }
 
@@ -76,10 +76,11 @@ private struct HomeSearchListView: View {
                             } starAction: {
                                 homeSearchViewModel.starButtonTapped(paperInfo)
                             } tagAction: { id in
-                                // TODO: 추후 수정 필요
                                 homeSearchViewModel.tagTapped(id)
                             } editAction: {
                                 homeSearchViewModel.editButtonTapped(paperInfo)
+                            } setTagAction: {
+                                homeSearchViewModel.setTagButtonTapped(paperInfo)
                             } copyAction: {
                                 homeSearchViewModel.copyButtonTapped(paperInfo)
                             } deleteAction: {

@@ -221,6 +221,20 @@ struct HomeView: View {
                 } completeAction: { text in
                     homeSearchViewModel.completeButtonTappedInEditingTitle(title: text)
                 }
+                .onDisappear {
+                    homeSearchViewModel.searchPapers()
+                }
+            }
+            // 태그 관리
+            if case let .setTag(paperInfo) = homeSearchViewModel.viewStatus {
+                TagControlView(paperInfo: paperInfo) {
+                    homeSearchViewModel.viewStatus = .normal
+                } completeAction: {
+                    homeSearchViewModel.viewStatus = .normal
+                }
+                .onDisappear {
+                    homeSearchViewModel.searchPapers()
+                }
             }
         }
     }

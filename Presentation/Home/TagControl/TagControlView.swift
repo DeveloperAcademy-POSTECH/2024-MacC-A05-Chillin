@@ -8,7 +8,9 @@
 import SwiftUI
 
 
-
+/**
+ 태그 관리 뷰
+ */
 struct TagControlView: View {
     @StateObject private var viewModel: TagControlViewModel = .init(
         useCase: DefaultTagControlUseCase(
@@ -18,12 +20,18 @@ struct TagControlView: View {
     )
     
     @FocusState private var textFieldFocus: Bool
+    @State var paperInfo: PaperInfo
+    
+    let cancelAction: () -> Void
+    let completeAction: () -> Void
     
     
     var body: some View {
         ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
             HStack(alignment: .top, spacing: 40) {
-                Image(.testThumbnail)
+                Image(uiImage: .init(data: paperInfo.thumbnail) ?? .testThumbnail)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200)
@@ -31,6 +39,7 @@ struct TagControlView: View {
                 VStack(spacing: 0) {
                     TagInputTextField(
                         viewModel: viewModel,
+                        paperInfo: $paperInfo,
                         textFieldFocus: $textFieldFocus
                     )
                     
@@ -42,28 +51,69 @@ struct TagControlView: View {
                                 .padding(.top, 14)
                                 .padding(.bottom, 20)
                             
-                            ForEach(0 ..< 7) { _ in
-                                IncludedTagView()
+                            ForEach(paperInfo.tags) { tag in
+                                IncludedTagView(tag: tag) {
+                                    viewModel.deleteTagButtonTapped(paperId: paperInfo.id, tag: tag)
+                                    paperInfo.tags.removeAll { $0.id == tag.id }
+                                }
                             }
                         }
                         
                         if textFieldFocus {
-                            NewTagSearchResultView(viewModel: viewModel)
+                            NewTagSearchResultView(
+                                viewModel: viewModel,
+                                paperInfo: $paperInfo,
+                                textFieldFocus: $textFieldFocus
+                            )
                         }
                     }
                     .animation(.easeInOut, value: textFieldFocus)
                 }
             }
         }
+        .onTapGesture {
+            textFieldFocus = false
+        }
+        .overlay(alignment: .top) {
+            HStack {
+                Button {
+                    cancelAction()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.gray100)
+                }
+                .padding(.top, 28)
+                
+                Spacer()
+                
+                Button {
+                    completeAction()
+                } label: {
+                    ZStack {
+                        Capsule()
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 68, height: 36)
+                        
+                        Text("완료")
+                            .reazyFont(.text1)
+                            .foregroundStyle(.gray100)
+                    }
+                }
+                .padding(.top, 22)
+            }
+            .padding(.horizontal, 28)
+        }
     }
 }
 
 
-
-
+/// 태그 검색 TextField
 private struct TagInputTextField: View {
     @ObservedObject var viewModel: TagControlViewModel
     
+    @Binding var paperInfo: PaperInfo
     var textFieldFocus: FocusState<Bool>.Binding
     
     
@@ -84,11 +134,17 @@ private struct TagInputTextField: View {
                     .foregroundStyle(.gray800)
                     .lineLimit(1)
                     .onSubmit {
-                        
+                        if let tag = viewModel.onSubmit(paperInfo: paperInfo) {
+                            self.paperInfo.tags.append(tag)
+                        }
+                        textFieldFocus.wrappedValue = false
                     }
                 
                 Button {
-                    textFieldFocus.wrappedValue.toggle()
+                    if let tag = viewModel.onSubmit(paperInfo: paperInfo) {
+                        self.paperInfo.tags.append(tag)
+                    }
+                    textFieldFocus.wrappedValue = false
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 20))
@@ -106,16 +162,21 @@ private struct TagInputTextField: View {
 }
 
 
+/// 현재 Paperinfo에 추가되어 있는 태그를 보여주는 뷰
 private struct IncludedTagView: View {
+    let tag: Tag
+    let action: () -> Void
+    
     var body: some View {
         Group {
             HStack(spacing: 0) {
-                TagControlCell(name: "테스트 태그")
+                TagControlCell(name: tag.name)
+                    .disabled(true)
                 
                 Spacer()
                 
                 Button {
-                    
+                    action()
                 } label: {
                     Image(systemName: "minus.circle")
                         .font(.system(size: 20))
@@ -131,39 +192,68 @@ private struct IncludedTagView: View {
 }
 
 
+/// 검색 결과를 보여주는 뷰
 private struct NewTagSearchResultView: View {
     @ObservedObject var viewModel: TagControlViewModel
+    
+    @Binding var paperInfo: PaperInfo
+    var textFieldFocus: FocusState<Bool>.Binding
+    
     
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .foregroundStyle(.gray200)
             
-            Text(
+            if viewModel.showingSearchPlaceholder {
+                Text(
                 """
                 새로운 태그를 만들거나
                 추가할 태그를 검색하세요
                 최대 30자
                 """
-            )
-            .reazyFont(.body1)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.gray600)
-            .opacity( viewModel.showingSearchPlaceholder ? 1 : 0 )
+                )
+                .reazyFont(.body1)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.gray600)
+            }
             
             
             
             ScrollView {
                 Group {
                     if viewModel.showingCreateNewTag {
-                        CreateNewTagCell(name: viewModel.searchText)
+                        CreateNewTagCell(name: viewModel.searchText) {
+                            if let tag = viewModel.onSubmit(paperInfo: paperInfo) {
+                                paperInfo.tags.append(tag)
+                            }
+                            textFieldFocus.wrappedValue = false
+                        }
                     }
                     
-                    if viewModel.showingExistingTags {
-                        VStack {
+                    VStack {
+                        if viewModel.showingExistingTags {
                             ForEach(viewModel.searchedTags) { tag in
                                 HStack {
-                                    TagControlCell(name: tag.name)
+                                    TagControlCell(tag: tag) {
+                                        if let tag = viewModel.existingTagTapped(paperInfo: paperInfo, tag: tag) {
+                                            self.paperInfo.tags.append(tag)
+                                        }
+                                        textFieldFocus.wrappedValue = false
+                                    }
+                                    
+                                    Spacer()
+                                }
+                            }
+                        } else if viewModel.showingRecentAddedTags {
+                            ForEach(viewModel.recentAddedTags) { tag in
+                                HStack {
+                                    TagControlCell(tag: tag) {
+                                        if let tag = viewModel.existingTagTapped(paperInfo: paperInfo, tag: tag) {
+                                            self.paperInfo.tags.append(tag)
+                                        }
+                                        textFieldFocus.wrappedValue = false
+                                    }
                                     
                                     Spacer()
                                 }
@@ -184,12 +274,15 @@ private struct NewTagSearchResultView: View {
     }
 }
 
+
+/// 검새결과 내 새로운 태그 생성을 나타내는 셀
 private struct CreateNewTagCell: View {
     let name: String
+    let action: () -> Void
     
     var body: some View {
         Button {
-            
+            action()
         } label: {
             HStack(spacing: 8) {
                 Text("생성")
