@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import PDFKit
 
 
 protocol FocusFigureRepository {
@@ -16,4 +17,5 @@ protocol FocusFigureRepository {
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async
     
+    func fetchFocusAndFigures(url: URL, completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void) async
 }
