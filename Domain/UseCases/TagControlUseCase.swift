@@ -8,7 +8,9 @@
 import Foundation
 
 
-
+/**
+ 태그 관리 유즈케이스 (태그 생성, 추가, 삭제 등)
+ */
 protocol TagControlUseCase {
     @discardableResult
     func addTagToPaper(to paperId: UUID, with tag: String) -> Result<Tag, Error>
