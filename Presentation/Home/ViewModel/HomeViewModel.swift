@@ -43,44 +43,24 @@ class HomeViewModel: ObservableObject {
     
     @Published var selectedFolderID: UUID? {
         didSet {
-            if selectedFolderID != nil {
-                isFavoriteSelected = false
-                isTagSelected = false
-                isMainSelected = false
-            }
             updateFilteredList()
         }
     }
     
     @Published public var isFavoriteSelected: Bool = false {
         didSet {
-            if isFavoriteSelected {
-                selectedFolderID = nil
-                isTagSelected = false
-                isMainSelected = false
-            }
             resetToRoot()
             updateFilteredList()
         }
     }
     @Published public var isTagSelected: Bool = false {
         didSet {
-            if isTagSelected {
-                selectedFolderID = nil
-                isFavoriteSelected = false
-                isMainSelected = false
-            }
             resetToRoot()
             updateFilteredList()
         }
     }
     @Published public var isMainSelected: Bool = true {
         didSet {
-            if isMainSelected {
-                selectedFolderID = nil
-                isFavoriteSelected = false
-                isTagSelected = false
-            }
             updateFilteredList()
         }
     }
@@ -148,11 +128,12 @@ extension HomeViewModel {
         defer { self.isLoading = false }
         
         do {
-            let currentFolderID = currentFolder?.id
+            let folderID = selectedFolderID
             
-            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: currentFolderID)
-            if paperInfo != nil {
-                self.paperInfos.append(paperInfo!)
+            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: folderID)
+            if let paperInfo = paperInfo {
+                self.paperInfos.append(paperInfo)
+                updateFilteredList()
             }
             return paperInfo?.id
         } catch {
@@ -317,27 +298,44 @@ extension HomeViewModel {
         switch category {
         case .main:
             isMainSelected = true
+            isFavoriteSelected = false
+            isTagSelected = false
+            selectedFolderID = nil
+            currentFolder = nil
         case .favorite:
+            isMainSelected = false
             isFavoriteSelected = true
+            isTagSelected = false
+            selectedFolderID = nil
+            currentFolder = nil
         case .tag:
+            isMainSelected = false
+            isFavoriteSelected = false
             isTagSelected = true
+            selectedFolderID = nil
+            currentFolder = nil
         case .folder(let folderID):
+            isMainSelected = false
+            isFavoriteSelected = false
+            isTagSelected = false
             selectedFolderID = folderID
+            currentFolder = folders.first { $0.id == folderID }
         }
     }
     
     func updateFilteredList() {
-        if isFavoriteSelected {
-            filteredLists = paperInfos.filter { $0.isFavorite }
-        } else if isTagSelected {
-            filteredLists = paperInfos.filter { !$0.tags.isEmpty }
-        } else if let folderID = selectedFolderID {
-            filteredLists = paperInfos.filter { $0.folderID == folderID }
-        } else {
-            filteredLists = paperInfos.filter { $0.folderID == nil }
-        }
-        
-        filteredLists.sort { $0.lastModifiedDate > $1.lastModifiedDate }
+        filteredLists = paperInfos.filter { paper in
+            if isMainSelected {
+                return true
+            } else if isFavoriteSelected {
+                return paper.isFavorite
+            } else if isTagSelected {
+                return !paper.tags.isEmpty
+            } else if let folder = currentFolder {
+                return paper.folderID == folder.id
+            }
+            return false
+        }.sorted { $0.lastModifiedDate > $1.lastModifiedDate }
     }
 }
 
