@@ -7,10 +7,18 @@
 
 import Foundation
 
+//MARK: - TODO : - 코어데이터 연결
 protocol TagViewUseCase {
-    //TODO: - 태그 저장, 수정, 삭제
+    func deleteTag(id: UUID, from tags: inout [Tag])
+    func createTag(name: String, in tags: inout [Tag])
 }
 
 class DefaultTagViewUseCase: TagViewUseCase {
+    func deleteTag(id: UUID, from tags: inout [Tag]) {
+        tags.removeAll { $0.id == id }
+    }
     
+    func createTag(name: String, in tags: inout [Tag]) {
+        tags.append(Tag(name: name))
+    }
 }

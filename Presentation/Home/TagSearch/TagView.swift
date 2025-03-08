@@ -177,7 +177,7 @@ struct TagListView: View {
     }
 }
 
-// MARK: - 태그 전체 리스트 뷰
+// MARK: - 편집메뉴
 private struct EllipsisButtonView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     let namespace: Namespace.ID

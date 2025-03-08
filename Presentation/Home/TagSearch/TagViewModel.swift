@@ -75,11 +75,11 @@ class TagViewModel: ObservableObject {
     }
     
     func deleteTag() {
-        tags.removeAll { $0.id == targetTagID }
+        tagViewUseCase.deleteTag(id: targetTagID, from: &tags)
         self.showDeleteAlert = false
     }
-    
+
     func createTag(name: String) {
-        tags.append(Tag(name: name))
+        tagViewUseCase.createTag(name: name, in: &tags)
     }
 }
