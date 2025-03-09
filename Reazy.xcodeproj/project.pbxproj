@@ -358,6 +358,11 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		2CC7D9032D7D92B700D882D6 /* Errors */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Errors;
+			sourceTree = "<group>";
+		};
 		2CEBB8C12D5A407E00EC04D2 /* HomeSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HomeSearch;
@@ -624,6 +629,7 @@
 		2C1474132CE8F2CC00B35D92 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				2CC7D9032D7D92B700D882D6 /* Errors */,
 				2C14731D2CE73B6F00B35D92 /* NotificationCenter + Extension.swift */,
 				2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */,
 				2C1474142CE8F2D500B35D92 /* Navigation */,
@@ -911,6 +917,7 @@
 				2C14745F2CE900FE00B35D92 /* DTO */,
 				2C3A2D092D4CF76800ED121D /* Collection */,
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
+				2CC7D9032D7D92B700D882D6 /* Errors */,
 				2CEBB8C12D5A407E00EC04D2 /* HomeSearch */,
 				6ED57AD02CF6F33C00358561 /* Figure */,
 				6ED57AD12CF6F34C00358561 /* Collection */,
