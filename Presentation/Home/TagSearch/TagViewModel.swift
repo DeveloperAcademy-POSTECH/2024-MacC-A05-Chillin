@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 @MainActor
 class TagViewModel: ObservableObject {
@@ -66,7 +67,9 @@ class TagViewModel: ObservableObject {
     
     func showDeleteAlert(id: UUID) {
         self.targetTagID = id
-        self.showDeleteAlert = true
+        withAnimation {
+            self.showDeleteAlert = true
+        }
     }
     
     func getTagName() -> String {
@@ -76,7 +79,9 @@ class TagViewModel: ObservableObject {
     
     func deleteTag() {
         tagViewUseCase.deleteTag(id: targetTagID, from: &tags)
-        self.showDeleteAlert = false
+        withAnimation {
+            self.showDeleteAlert = false
+        }
     }
 
     func createTag(name: String) {
