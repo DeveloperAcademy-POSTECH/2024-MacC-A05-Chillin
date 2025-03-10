@@ -155,7 +155,6 @@ private struct RecentlySearchedKeywordView: View {
                 
                 DynamicCellLayout(data: homeSearchViewModel.recentSearches,
                                   screenWidth: UIScreen.main.bounds.width,
-                                  selectedTags: [],
                                   isMultiSelectable: false,
                                   isEditMode: false,
                                   selectAction: { title in

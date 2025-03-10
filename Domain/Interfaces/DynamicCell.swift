@@ -11,6 +11,7 @@ import Foundation
 protocol DynamicCell: Hashable, Identifiable {
     var id: UUID { get }
     var name: String { get }
+    var isSeleted: Bool { get set }
     
     func getCellWidth() -> CGFloat
 }

@@ -114,7 +114,6 @@ private struct PaperInformationView: View {
                 ForEach(tags) { tag in
                     PDFTagCell(isMultiSelectable: false,
                                isEditMode: false,
-                               selectedTags: [],
                                tag: tag,
                                selectAction: {tagAction(tag.id)},
                                deleteAction: {})

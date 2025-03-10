@@ -14,14 +14,8 @@ class TagViewModel: ObservableObject {
     
     private let tagViewUseCase: TagViewUseCase
     // MARK: - [부리] tags에 사용자가 만든 태그들 다 저장
-    @Published public var tags: [Tag] = [] {
-        didSet {
-            selectedTags = selectedTags.filter { tagName in
-                tags.contains(where: { $0.name == tagName })
-            }
-        }
-    }
-    @Published public var selectedTags: [String] = [] {
+    @Published public var tags: [Tag] = []
+    @Published public var selectedTags: [Tag] = [] {
         didSet {
             isTagSelected = !selectedTags.isEmpty
         }
@@ -58,10 +52,13 @@ class TagViewModel: ObservableObject {
     }
     
     func tagTapped(for tagName: String){
-        if let index = selectedTags.firstIndex(of: tagName) {
-                selectedTags.remove(at: index)
+        guard let index = tags.firstIndex(where: { $0.name == tagName }) else { return }
+            tags[index].isSeleted.toggle()
+            
+            if tags[index].isSeleted {
+                selectedTags.append(tags[index])
             } else {
-                selectedTags.append(tagName)
+                selectedTags.removeAll { $0.id == tags[index].id }
             }
     }
     
