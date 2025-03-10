@@ -86,10 +86,6 @@ private struct HomeSearchListView: View {
                                 selectedPaper = paperInfo
                                 deleteAlertPresented.toggle()
                             }
-                            
-                            Rectangle()
-                                .foregroundStyle(.primary3)
-                                .frame(height: 1)
                         }
                         .padding(.leading, 30)
                     }

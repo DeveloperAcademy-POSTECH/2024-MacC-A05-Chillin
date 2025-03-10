@@ -22,6 +22,7 @@ struct HomePDFCell: View {
 
     
     var body: some View {
+        VStack(spacing: 0) {
             Button {
                 onTapGesture()
             } label: {
@@ -60,6 +61,11 @@ struct HomePDFCell: View {
                 .padding(.top, 10)
             }
             .frame(height: 138)
+            
+            Rectangle()
+                .foregroundStyle(.primary3)
+                .frame(height: 1)
+        }
     }
 }
 

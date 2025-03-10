@@ -94,10 +94,10 @@ struct PaperListView: View {
                             
                             Spacer()
                         } else {
-                            ScrollView {
-                                VStack(spacing: 0) {
-                                    Spacer().frame(height: 6)
-                                    
+                            VStack(spacing: 0) {
+                                Spacer().frame(height: 6)
+                                
+                                List {
                                     ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
                                         // MARK: searchview 들어갈 위치
                                         HomePDFCell(
@@ -119,13 +119,15 @@ struct PaperListView: View {
                                                 deleteAlertPresented.toggle()
                                             }
                                         )
-                                        
-                                        Rectangle()
-                                            .frame(height: 1)
-                                            .foregroundStyle(.primary3)
+                                        .listRowSeparator(.hidden)
+                                        .listRowBackground(Color.clear)
+                                        .listRowInsets(EdgeInsets())
                                     }
                                     .padding(.leading, 24)
                                 }
+                                .listStyle(PlainListStyle())
+                                .scrollContentBackground(.hidden)
+                                .background(Color.clear)
                             }
                         }
                     }
