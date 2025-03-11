@@ -51,15 +51,19 @@ class TagViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
+    }
+    
     func tagTapped(for tagName: String){
         guard let index = tags.firstIndex(where: { $0.name == tagName }) else { return }
-            tags[index].isSeleted.toggle()
-            
-            if tags[index].isSeleted {
-                selectedTags.append(tags[index])
-            } else {
-                selectedTags.removeAll { $0.id == tags[index].id }
-            }
+        tags[index].isSeleted.toggle()
+        
+        if tags[index].isSeleted {
+            selectedTags.append(tags[index])
+        } else {
+            selectedTags.removeAll { $0.id == tags[index].id }
+        }
     }
     
     func showDeleteAlert(id: UUID) {
