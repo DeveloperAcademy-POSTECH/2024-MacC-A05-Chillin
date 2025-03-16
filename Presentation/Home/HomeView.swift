@@ -22,8 +22,6 @@ struct HomeView: View {
     @State private var isStarSelected: Bool = false
     @State private var isFolderSelected: Bool = false
     
-    @State private var isEditing: Bool = false
-    
     @State private var isEditingTitle: Bool = false
     
     // 폴더 추가 페이지 변수
@@ -61,7 +59,6 @@ struct HomeView: View {
                         case .main:
                             MainMenuView(
                                 selectedMenu: $homeViewModel.selectedMenu,
-                                isEditing: $isEditing,
                                 selectedItemID: $selectedItemID
                             )
                             
@@ -70,10 +67,7 @@ struct HomeView: View {
                                 .environmentObject(homeSearchViewModel)
                             
                         case .edit:
-                            EditMenuView(
-                                selectedMenu: $homeViewModel.selectedMenu,
-                                isEditing: $isEditing
-                            )
+                            EditMenuView(selectedMenu: $homeViewModel.selectedMenu)
                         }
                     }
                     .padding(.top, 46)
@@ -223,7 +217,6 @@ private struct MainMenuView: View {
     @State private var errorAlert: Bool = false
     
     @Binding var selectedMenu: Options
-    @Binding var isEditing: Bool
     
     @Binding var selectedItemID: UUID?
     
@@ -248,7 +241,7 @@ private struct MainMenuView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     selectedMenu = .edit
                 }
-                isEditing.toggle()
+                homeViewModel.isEditing.toggle()
                 homeViewModel.selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
@@ -355,7 +348,6 @@ private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @Binding var selectedMenu: Options
-    @Binding var isEditing: Bool
     
     @State var isDeleteConfirm: Bool = false
     
@@ -409,7 +401,7 @@ private struct EditMenuView: View {
             
             Button(action: {
                 selectedMenu = .main
-                isEditing = false
+                homeViewModel.isEditing = false
                 homeViewModel.selectedItems.removeAll()
             }, label: {
                 Text("완료")

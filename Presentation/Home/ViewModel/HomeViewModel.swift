@@ -72,6 +72,8 @@ class HomeViewModel: ObservableObject {
     
     @Published public var isSearching: Bool = false
     @Published public var searchText: String = ""
+    
+    @Published public var isEditing: Bool = false
 
     @Published public var selectedMenu: Options = .main
     
