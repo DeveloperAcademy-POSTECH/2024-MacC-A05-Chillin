@@ -33,7 +33,6 @@ struct MainPDFView: View {
     @State private var isReadMode: Bool = false
     
     @State private var isEditingTitle: Bool = false
-    @State private var isMovingFolder: Bool = false
     @State private var createMovingFolder: Bool = false
     
     @State private var moveToFolderID: UUID? = nil
@@ -397,7 +396,6 @@ struct MainPDFView: View {
                         ZStack {
                             PDFInfoMenu(
                                 isEditingTitle: $isEditingTitle,
-                                isMovingFolder: $isMovingFolder,
                                 createMovingFolder: $createMovingFolder
                             )
                             .environmentObject(homeViewModel)
@@ -413,7 +411,7 @@ struct MainPDFView: View {
                 }
                 
                 Color.black
-                    .opacity(isEditingTitle || isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .opacity(isEditingTitle || homeViewModel.isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
@@ -423,11 +421,10 @@ struct MainPDFView: View {
                         .zIndex(1)
                 }
                 
-                if isMovingFolder {
+                if homeViewModel.isMovingFolder {
                     if let paperInfo = PDFSharedData.shared.paperInfo {
                         MoveFolderView(
                             createMovingFolder: $createMovingFolder,
-                            isMovingFolder: $isMovingFolder,
                             items: [paperInfo],
                             selectedID: $moveToFolderID
                         )

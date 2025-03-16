@@ -67,6 +67,9 @@ class HomeViewModel: ObservableObject {
     
     @Published var filteredLists: [PaperInfo] = []
     
+    @Published var isMovingFolder: Bool = false
+    @Published var selectedItems: Set<UUID> = []
+    
     @Published public var isSearching: Bool = false
     @Published public var searchText: String = ""
 

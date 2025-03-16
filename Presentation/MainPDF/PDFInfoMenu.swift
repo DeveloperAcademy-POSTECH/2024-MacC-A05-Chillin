@@ -39,7 +39,6 @@ struct PDFInfoMenu: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     @Binding var isEditingTitle: Bool
-    @Binding var isMovingFolder: Bool
     @Binding var createMovingFolder: Bool
     
     @State var title: String?
@@ -143,7 +142,7 @@ struct PDFInfoMenu: View {
                 
                 Button(action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    self.isMovingFolder = true
+                    homeViewModel.isMovingFolder = true
                 }, label: {
                     HStack{
                         Text("이동")
@@ -237,7 +236,6 @@ struct PDFInfoMenu: View {
 #Preview {
     PDFInfoMenu(
         isEditingTitle: .constant(false),
-        isMovingFolder: .constant(false),
         createMovingFolder: .constant(false),
         title: "Reazy",
         isStarSelected: false

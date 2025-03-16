@@ -13,7 +13,6 @@ struct MoveFolderView: View {
     @State private var isTopLevelExpanded: Bool = true
     
     @Binding var createMovingFolder: Bool
-    @Binding var isMovingFolder: Bool
     
     let items: [PaperInfo] // 이동하고자 하는 Item 배열
     @Binding var selectedID: UUID? // Item의 이동 목적지 ID
@@ -23,7 +22,7 @@ struct MoveFolderView: View {
             ZStack {
                 HStack(spacing: 0) {
                     Button(action: {
-                        self.isMovingFolder.toggle()
+                        homeViewModel.isMovingFolder.toggle()
                     }) {
                         Text("취소")
                             .reazyFont(.text1)
@@ -48,7 +47,7 @@ struct MoveFolderView: View {
                             if selectedID == topLevelFolder.id { selectedID = nil }
                             homeViewModel.updatePaperLocation(at: item.id, folderID: selectedID)
                         }
-                        self.isMovingFolder.toggle()
+                        homeViewModel.isMovingFolder.toggle()
                     }) {
                         Text("이동")
                             .reazyFont(.text1)
@@ -255,5 +254,5 @@ struct FolderCell: View {
 }
 
 #Preview {
-    MoveFolderView(createMovingFolder: .constant(false), isMovingFolder: .constant(false), items: [], selectedID: .constant(UUID()))
+    MoveFolderView(createMovingFolder: .constant(false), items: [], selectedID: .constant(UUID()))
 }

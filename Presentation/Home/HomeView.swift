@@ -23,7 +23,6 @@ struct HomeView: View {
     @State private var isFolderSelected: Bool = false
     
     @State private var isEditing: Bool = false
-    @State private var selectedItems: Set<UUID> = []
     
     @State private var isEditingTitle: Bool = false
     
@@ -33,7 +32,6 @@ struct HomeView: View {
     @State private var isEditingFolder: Bool = false
     
     // 폴더 이동 변수
-    @State private var isMovingFolder: Bool = false
     @State private var moveToFolderID: UUID? = nil
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
@@ -64,7 +62,6 @@ struct HomeView: View {
                             MainMenuView(
                                 selectedMenu: $homeViewModel.selectedMenu,
                                 isEditing: $isEditing,
-                                selectedItems: $selectedItems,
                                 selectedItemID: $selectedItemID
                             )
                             
@@ -75,9 +72,7 @@ struct HomeView: View {
                         case .edit:
                             EditMenuView(
                                 selectedMenu: $homeViewModel.selectedMenu,
-                                selectedItems: $selectedItems,
-                                isEditing: $isEditing,
-                                isMovingFolder: $isMovingFolder
+                                isEditing: $isEditing
                             )
                         }
                     }
@@ -101,13 +96,7 @@ struct HomeView: View {
                                 // TODO: - [쿠로] 태그 뷰 위치
                                 TagView()
                             } else {
-                                PaperListView(
-                                    isEditing: $isEditing,
-                                    isEditingTitle: $isEditingTitle,
-                                    isEditingFolder: $isEditingFolder,
-                                    isMovingFolder: $isMovingFolder,
-                                    paperToMove: $selectedItems
-                                )
+                                PaperListView()
                                 .environmentObject(homeSearchViewModel)
                             }
                         }
@@ -118,7 +107,7 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu ? 0.5 : 0)
+                .opacity(isEditingTitle || createFolder || isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             if createFolder || isEditingFolder {
@@ -131,18 +120,17 @@ struct HomeView: View {
             }
             
             // 폴더 이동 View
-            if isMovingFolder {
-                let itemsToMove: [PaperInfo] = selectedItems.isEmpty
+            if homeViewModel.isMovingFolder {
+                let itemsToMove: [PaperInfo] = homeViewModel.selectedItems.isEmpty
                 ? (selectedItemID.flatMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }).map { [$0] } ?? []
-                : selectedItems.compactMap { id in
+                : homeViewModel.selectedItems.compactMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }
                 
                 MoveFolderView(
                     createMovingFolder: $createMovingFolder,
-                    isMovingFolder: $isMovingFolder,
                     items: itemsToMove,
                     selectedID: $moveToFolderID
                 )
@@ -150,7 +138,7 @@ struct HomeView: View {
                 .frame(width: 740, height: 550)
                 .blur(radius: createMovingFolder ? 20 : 0)
                 .onDisappear {
-                    selectedItems.removeAll()
+                    homeViewModel.selectedItems.removeAll()
                 }
             }
             
@@ -237,7 +225,6 @@ private struct MainMenuView: View {
     @Binding var selectedMenu: Options
     @Binding var isEditing: Bool
     
-    @Binding var selectedItems: Set<UUID>
     @Binding var selectedItemID: UUID?
     
     var body: some View {
@@ -262,7 +249,7 @@ private struct MainMenuView: View {
                     selectedMenu = .edit
                 }
                 isEditing.toggle()
-                selectedItems.removeAll()
+                homeViewModel.selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
                     .font(.system(size: 17.68))
@@ -368,9 +355,7 @@ private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @Binding var selectedMenu: Options
-    @Binding var selectedItems: Set<UUID>
     @Binding var isEditing: Bool
-    @Binding var isMovingFolder: Bool
     
     @State var isDeleteConfirm: Bool = false
     
@@ -398,14 +383,14 @@ private struct EditMenuView: View {
             .disabled(containsFolder)
             */
             Button(action: {
-                self.isMovingFolder.toggle()
+                homeViewModel.isMovingFolder.toggle()
             }, label: {
                 Image(.move)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
+                    .foregroundStyle(homeViewModel.selectedItems.isEmpty ? .gray550 : .gray100)
             })
             .padding(.trailing, 28)
             
@@ -417,15 +402,15 @@ private struct EditMenuView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
+                    .foregroundStyle(homeViewModel.selectedItems.isEmpty ? .gray550 : .gray100)
             })
-            .disabled(self.selectedItems.isEmpty)
+            .disabled(homeViewModel.selectedItems.isEmpty)
             .padding(.trailing, 28)
             
             Button(action: {
                 selectedMenu = .main
                 isEditing = false
-                selectedItems.removeAll()
+                homeViewModel.selectedItems.removeAll()
             }, label: {
                 Text("완료")
                     .reazyFont(.button1)
@@ -436,7 +421,7 @@ private struct EditMenuView: View {
         .alert(
             "정말 삭제하시겠습니까?",
             isPresented: $isDeleteConfirm,
-            presenting: selectedItems
+            presenting: homeViewModel.selectedItems
         ) { itemList in
             Button("취소", role: .cancel) {}
             Button("삭제", role: .destructive) {
@@ -445,7 +430,7 @@ private struct EditMenuView: View {
                 }
                 
                 homeViewModel.deleteFiles(items)
-                selectedItems.removeAll()
+                homeViewModel.selectedItems.removeAll()
             }
         } message: { itemList in
             Text("삭제된 파일은 복구할 수 없습니다.")

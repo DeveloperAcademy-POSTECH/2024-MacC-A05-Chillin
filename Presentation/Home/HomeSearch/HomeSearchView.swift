@@ -86,7 +86,8 @@ private struct HomeSearchListView: View {
                                 selectedPaper = paperInfo
                                 deleteAlertPresented.toggle()
                             } moveAction: {
-                                // TODO: - [브리]
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                                homeViewModel.isMovingFolder.toggle()
                             }
                         }
                         .padding(.leading, 30)
