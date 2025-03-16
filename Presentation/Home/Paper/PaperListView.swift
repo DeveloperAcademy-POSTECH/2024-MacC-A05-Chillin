@@ -119,7 +119,9 @@ struct PaperListView: View {
                                                 deleteAlertPresented.toggle()
                                             }
                                         )
-                                        .draggable(paperInfo)
+                                        .draggable(paperInfo) {
+                                            EmptyView()
+                                        }
                                         .listRowSeparator(.hidden)
                                         .listRowBackground(Color.clear)
                                         .listRowInsets(EdgeInsets())
