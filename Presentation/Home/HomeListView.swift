@@ -68,12 +68,16 @@ struct HomeListView: View {
                                 didSelectFolder: { folderID in
                                     selectedCategory = .folder(folderID)
                                     homeViewModel.selectCategory(.folder(folderID))
-                                }
+                                },
+                                handleDrop: handleDrop(to:droppedItem:)
                             )
                             .padding(.top, 10)
                         }
                     }
                 }
+                .listStyle(PlainListStyle())
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
             .padding(.leading, 10)
             .padding(.trailing, 10)
@@ -140,10 +144,18 @@ struct HomeListView: View {
     }
     
     private func toggleExpansion(_ folder: Folder) {
-        if expandedFolders.contains(folder.id) {
-            expandedFolders.remove(folder.id)
-        } else {
-            expandedFolders.insert(folder.id)
+        withAnimation {
+            if expandedFolders.contains(folder.id) {
+                expandedFolders.remove(folder.id)
+            } else {
+                expandedFolders.insert(folder.id)
+            }
+        }
+    }
+    
+    private func handleDrop(to folderId: UUID, droppedItem: PaperInfo) {
+        DispatchQueue.main.async {
+            homeViewModel.updatePaperLocation(at: droppedItem.id, folderID: folderId)
         }
     }
 }
@@ -159,6 +171,7 @@ private struct FolderListCell: View {
     let hasChildren: (Folder) -> Bool
     @Binding var selectedFolderID: UUID?
     var didSelectFolder: (UUID) -> Void
+    var handleDrop: (UUID, PaperInfo) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -187,9 +200,7 @@ private struct FolderListCell: View {
                         
                         if hasChildren(folder) {
                             Button(action: {
-                                withAnimation {
-                                    toggleExpansion(folder)
-                                }
+                                toggleExpansion(folder)
                             }) {
                                 Image(systemName: expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
                                     .font(.system(size: 12, weight: .medium))
@@ -210,6 +221,13 @@ private struct FolderListCell: View {
             .onTapGesture {
                 didSelectFolder(folder.id)
             }
+            .dropDestination(for: PaperInfo.self) { droppedItems, location in
+                if let droppedItem = droppedItems.first {
+                    handleDrop(folder.id, droppedItem)
+                    return true
+                }
+                return false
+            }
             
             if expandedFolders.contains(folder.id) {
                 ForEach(childFolders(folder.id), id: \.id) { subFolder in
@@ -221,7 +239,8 @@ private struct FolderListCell: View {
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
                         selectedFolderID: $selectedFolderID,
-                        didSelectFolder: didSelectFolder
+                        didSelectFolder: didSelectFolder,
+                        handleDrop: handleDrop
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.top, 10)

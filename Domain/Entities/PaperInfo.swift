@@ -7,8 +7,10 @@
 
 import Foundation
 import UIKit
+import CoreTransferable
 
-struct PaperInfo: Identifiable, Hashable {
+struct PaperInfo: Identifiable, Hashable, Codable, Transferable {
+    
     let id: UUID
     var title: String
     let thumbnail: Data
@@ -43,6 +45,10 @@ struct PaperInfo: Identifiable, Hashable {
         self.isFigureSaved = isFigureSaved
         self.folderID = folderID
         self.tags = tags
+    }
+    
+    static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .text)
     }
     
     public static var sampleData: Self {
