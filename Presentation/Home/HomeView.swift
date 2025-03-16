@@ -105,7 +105,8 @@ struct HomeView: View {
                                     isEditing: $isEditing,
                                     isEditingTitle: $isEditingTitle,
                                     isEditingFolder: $isEditingFolder,
-                                    isMovingFolder: $isMovingFolder
+                                    isMovingFolder: $isMovingFolder,
+                                    paperToMove: $selectedItems
                                 )
                                 .environmentObject(homeSearchViewModel)
                             }

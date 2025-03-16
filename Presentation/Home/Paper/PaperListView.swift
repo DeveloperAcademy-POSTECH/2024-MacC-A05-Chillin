@@ -22,10 +22,9 @@ struct PaperListView: View {
     @State private var deleteAlertPresented: Bool = false
     
     @State var isFavorite: Bool = false
-    @State var selectAll: Bool = false
     
     @Binding var isMovingFolder: Bool
-    @State var isPaper: Bool = false
+    @Binding var paperToMove: Set<UUID>
     
     @State private var keyboardHeight: CGFloat = 0
     
@@ -117,6 +116,10 @@ struct PaperListView: View {
                                             deleteAction: {
                                                 selectedPaper = paperInfo
                                                 deleteAlertPresented.toggle()
+                                            },
+                                            moveAction: {
+                                                paperToMove.insert(paperInfo.id)
+                                                isMovingFolder.toggle()
                                             }
                                         )
                                         .draggable(paperInfo) {

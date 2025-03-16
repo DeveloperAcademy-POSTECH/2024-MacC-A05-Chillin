@@ -432,6 +432,10 @@ extension HomeViewModel {
         }
         return nil
     }
+    
+    func getParentFolderID(for folderID: UUID) -> UUID? {
+        return folders.first { $0.id == folderID }?.parentFolderID
+    }
 }
 
 extension HomeViewModel {

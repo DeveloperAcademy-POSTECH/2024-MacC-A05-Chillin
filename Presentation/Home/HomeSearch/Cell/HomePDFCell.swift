@@ -19,6 +19,7 @@ struct HomePDFCell: View {
     let editAction: () -> Void
     let copyAction: () -> Void
     let deleteAction: () -> Void
+    let moveAction: () -> Void
 
     
     var body: some View {
@@ -54,6 +55,9 @@ struct HomePDFCell: View {
                             popover.toggle()
                         } deletePaperAction: {
                             deleteAction()
+                            popover.toggle()
+                        } moveFolderAction: {
+                            moveAction()
                             popover.toggle()
                         }
                     }
@@ -156,6 +160,7 @@ private struct EllipsisButtonView: View {
     let editTitleAction: () -> Void
     let copyPaperAction: () -> Void
     let deletePaperAction: () -> Void
+    let moveFolderAction: () -> Void
     
     // TODO: 버튼 액션 추가
     var body: some View {
@@ -219,7 +224,7 @@ private struct EllipsisButtonView: View {
             divider
             
             Button {
-                // TODO: 추후 연결 필요
+                moveFolderAction()
             } label: {
                 HStack {
                     Text("이동")

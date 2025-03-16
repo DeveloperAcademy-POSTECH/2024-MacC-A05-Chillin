@@ -85,6 +85,8 @@ private struct HomeSearchListView: View {
                             } deleteAction: {
                                 selectedPaper = paperInfo
                                 deleteAlertPresented.toggle()
+                            } moveAction: {
+                                // TODO: - [브리]
                             }
                         }
                         .padding(.leading, 30)

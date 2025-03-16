@@ -91,6 +91,17 @@ struct MoveFolderView: View {
             }
         }
         .background(Color(hex: "F7F7FC"))
+        .onAppear {
+            if items.count == 1, let firstItem = items.first {
+                selectedID = firstItem.folderID
+                
+                DispatchQueue.main.async {
+                    if let selectedID = selectedID {
+                        expandOnlyParentFolders(of: selectedID)
+                    }
+                }
+            }
+        }
         .onChange(of: homeViewModel.newFolderID) { _ , newFolderID in
             selectedID = newFolderID
         }
@@ -130,6 +141,13 @@ struct MoveFolderView: View {
             expandedFolders.remove(folder.id)
         } else {
             expandedFolders.insert(folder.id)
+        }
+    }
+    
+    private func expandOnlyParentFolders(of folderID: UUID) {
+        if let parentID = homeViewModel.getParentFolderID(for: folderID) {
+            expandedFolders.insert(parentID)
+            expandOnlyParentFolders(of: parentID)
         }
     }
 }
