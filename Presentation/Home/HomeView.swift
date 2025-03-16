@@ -115,7 +115,7 @@ struct HomeView: View {
                     createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
                     isEditingFolder: $isEditingFolder,
-                    folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
+                    folder: homeViewModel.folders.first { $0.id == selectedItemID }
                 )
             }
             
