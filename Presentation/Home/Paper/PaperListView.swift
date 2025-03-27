@@ -37,6 +37,8 @@ struct PaperListView: View {
     @State private var isMenuOpen: Bool = false
     @State private var buttonPosition: CGRect = .zero
     
+    @State private var isErrorAlertPresented: Bool = false
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -164,7 +166,8 @@ struct PaperListView: View {
                                                         
                                                         if selectedItemID == paperInfo.id {
                                                             self.isNavigationPushed = true
-                                                            navigateToPaper()
+                                                            // TODO: 에러 처리 필요
+                                                            try? navigateToPaper()
                                                             homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
                                                         } else {
                                                             selectedItemID = paperInfo.id
@@ -369,7 +372,7 @@ extension PaperListView {
 extension PaperListView {
     
     // TODO: URL 분리 필요
-    private func navigateToPaper() {
+    private func navigateToPaper() throws {
         guard let selectedPaperID = selectedItemID,
               let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == selectedPaperID }) else {
             return
@@ -380,14 +383,14 @@ extension PaperListView {
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
             print("bookmarkdata to url failed")
-            return
+            throw HomeViewError.bookmarkNotFound
         }
         
         if isStale {
             print("Bookmark(\(url.lastPathComponent)) is stale")
             guard let newURL = try? url.bookmarkData(options: .minimalBookmark) else {
                 print("Unable to create bookmark")
-                return
+                throw HomeViewError.cannotCreateBookmark
             }
             
             let idx = homeViewModel.paperInfos.firstIndex { $0.id == selectedPaperID }!

@@ -85,7 +85,9 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                         let newUrl = url.deletingLastPathComponent().appending(path: info.title + ".pdf")
                         
                         if let _ = try? FileManager.default.moveItem(at: url, to: newUrl) {
-                            dataToEdit.url = try! newUrl.bookmarkData(options: .minimalBookmark)
+                            let newBookmarkData = try! newUrl.bookmarkData(options: .minimalBookmark)
+                            dataToEdit.url = newBookmarkData
+                            PDFSharedData.shared.paperInfo?.url = newBookmarkData
                         } else {
                             return .failure(PDFUploadError.fileNameDuplication)
                         }

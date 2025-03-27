@@ -464,7 +464,8 @@ struct MainPDFView: View {
                 self.homeViewModel.isInHomeView = true
                 self.searchViewModel.removeAllAnnotations()
                 PDFSharedData.shared.updatePaperInfo()
-                mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+                // TODO: 에러 처리 필요
+                try? mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
                 self.focusFigureViewModel.stopTask()
                 self.focusFigureViewModel.cancellables.removeAll()
                 
