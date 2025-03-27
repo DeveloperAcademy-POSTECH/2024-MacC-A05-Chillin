@@ -17,6 +17,7 @@ struct HomePDFCell: View {
     let starAction: () -> Void
     let tagAction: (UUID) -> Void
     let editAction: () -> Void
+    let setTagAction: () -> Void
     let copyAction: () -> Void
     let deleteAction: () -> Void
 
@@ -47,6 +48,9 @@ struct HomePDFCell: View {
                     .popover(isPresented: $popover, arrowEdge: .trailing) {
                         EllipsisButtonView {
                             editAction()
+                            popover.toggle()
+                        } setTagAction: {
+                            setTagAction()
                             popover.toggle()
                         } copyPaperAction: {
                             copyAction()
@@ -128,6 +132,7 @@ private struct PaperInformationView: View {
 // MARK: - Epllipsis 버튼 뷰
 private struct EllipsisButtonView: View {
     let editTitleAction: () -> Void
+    let setTagAction: () -> Void
     let copyPaperAction: () -> Void
     let deletePaperAction: () -> Void
     
@@ -154,6 +159,7 @@ private struct EllipsisButtonView: View {
             
             Button {
                 // TODO: 추후 연결 필요
+                setTagAction()
             } label: {
                 HStack {
                     Text("태그 관리")

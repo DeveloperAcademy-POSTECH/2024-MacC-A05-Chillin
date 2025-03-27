@@ -29,7 +29,7 @@ protocol PaperDataRepository: Sendable {
     
     // 문서에 태그를 추가합니다
     @discardableResult
-    func addTag(to id: UUID, with tag: String) -> Result<VoidResponse, Error>
+    func addTag(to id: UUID, with tag: String) -> Result<Tag, Error>
     
     // 문서의 태그를 삭제합니다 : 전체 태그 리스트에서는 유지
     @discardableResult

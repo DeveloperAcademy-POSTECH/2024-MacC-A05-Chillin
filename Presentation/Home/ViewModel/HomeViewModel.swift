@@ -116,8 +116,9 @@ class HomeViewModel: ObservableObject {
     }
     
     enum SearchViewStatus: Hashable {
-        case normal
-        case search(PaperInfo)
+        case normal             // 기본
+        case search(PaperInfo)  // 검색
+        case setTag(PaperInfo)  // 태그 관리
     }
 }
 

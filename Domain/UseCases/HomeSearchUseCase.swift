@@ -103,7 +103,7 @@ extension DefaultHomeSearchUseCase {
     private func fetchPapersByTagName(_ tagName: String) -> [PaperInfo] {
         let response = tagDataRepository.fetchAllTags()
         if case let .success(tags) = response {
-            let result = tags.filter { $0.name == tagName }
+            let result = tags.filter { $0.name.localizedCaseInsensitiveContains(tagName) }
             
             if result.isEmpty {
                 return []
