@@ -12,23 +12,26 @@ import SwiftUI
  */
 struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element: DynamicCell {
     let data: Data
-    let action: (String) -> Void
+    let screenWidth: CGFloat
+    
+    let isMultiSelectable: Bool     // 여러 셀 선택 가능
+    let isEditMode: Bool           // x마크
+    
+    let selectAction: (String) -> Void
+    let deleteAction: (UUID) -> Void
     
     var body: some View {
         generateLayout(items: data)
     }
     
     private func generateLayout(items: Data) -> some View {
-        let screenWidth = UIScreen.main.bounds.width
         
         var currentWidth: CGFloat = 0
         var currentArrays = [Data.Element]()
-        
         var resultRows = [[Data.Element]]()
         
-        
         for (index, item) in items.enumerated() {
-            let itemWidth = item.getCellWidth()
+            let itemWidth = item.itemWidth(isEditMode: isEditMode)
             
             if currentWidth + itemWidth >= screenWidth {
                 resultRows.append(currentArrays)
@@ -45,17 +48,20 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
             currentWidth += itemWidth
             currentArrays.append(item)
         }
-        
         return VStack(alignment: .leading) {
             ForEach(resultRows, id: \.self) { row in
                 HStack {
                     ForEach(row) { tag in
-                        PDFTagCell(tag: tag) {
-                            action(tag.name)
-                        }
+                        PDFTagCell(isMultiSelectable: isMultiSelectable,
+                                   isEditMode: isEditMode,
+                                   tag: tag,
+                                   selectAction: {selectAction(tag.name)},
+                                   deleteAction: {deleteAction(tag.id)}
+                        )
                     }
                 }
             }
+            .padding(.bottom, 10)
         }
     }
 }
