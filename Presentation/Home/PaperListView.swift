@@ -94,6 +94,7 @@ struct PaperListView: View {
                                         // MARK: searchview 들어갈 위치
                                         HomePDFCell(
                                             paperInfo: paperInfo,
+                                            cellStatus: .normal,
                                             onTapGesture: {
                                                 navigateToPaper(paperInfo.id)
                                                 homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())

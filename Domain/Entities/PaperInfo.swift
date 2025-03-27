@@ -23,6 +23,8 @@ struct PaperInfo: Identifiable, Hashable, Codable, Transferable {
     var folderID: UUID?
     var tags: [Tag]
     
+    var isSelected: Bool = false
+    
     init(
         id: UUID = .init(),
         title: String,
