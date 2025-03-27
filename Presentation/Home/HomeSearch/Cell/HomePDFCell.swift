@@ -112,9 +112,11 @@ private struct PaperInformationView: View {
             
             HStack {
                 ForEach(tags) { tag in
-                    PDFTagCell(tag: tag) {
-                        tagAction(tag.id)
-                    }
+                    PDFTagCell(isMultiSelectable: false,
+                               isEditMode: false,
+                               tag: tag,
+                               selectAction: {tagAction(tag.id)},
+                               deleteAction: {})
                 }
             }
             .padding(.bottom, 22)
@@ -122,28 +124,6 @@ private struct PaperInformationView: View {
         .padding(.leading, 20)
     }
 }
-
-
-private struct EllipsisView: View {
-    let ellipsisAction: () -> Void
-    
-    var body: some View {
-        VStack {
-            Spacer()
-            
-            Button {
-                ellipsisAction()
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .font(.system(size: 24))
-                    .foregroundStyle(.gray550)
-            }
-            .padding(.trailing, 24)
-            .padding(.bottom, 20)
-        }
-    }
-}
-
 
 // MARK: - Epllipsis 버튼 뷰
 private struct EllipsisButtonView: View {
