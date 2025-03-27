@@ -48,12 +48,16 @@ private struct PopoverActionView: View {
     let action: () -> Void
     
     var body: some View {
-        HStack(spacing: 0) {
-            Text(popoverAction.label)
-                .reazyFont(.h3)
-                .foregroundStyle( popoverAction == .delete ? .pen1 : .gray800 )
-            Spacer()
-            popoverAction.image
+        Button {
+            action()
+        } label: {
+            HStack(spacing: 0) {
+                Text(popoverAction.label)
+                    .reazyFont(.h3)
+                    .foregroundStyle( popoverAction == .delete ? .pen1 : .gray800 )
+                Spacer()
+                popoverAction.image
+            }
         }
         .frame(height: 42)
         .padding(.leading, 17)

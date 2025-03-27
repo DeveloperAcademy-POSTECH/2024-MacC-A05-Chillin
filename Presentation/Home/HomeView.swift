@@ -101,8 +101,21 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu ? 0.5 : 0)
+                .opacity(isEditingTitle ||
+                         createFolder ||
+                         isEditingFolder ||
+                         homeViewModel.isMovingFolder ||
+                         homeViewModel.isSettingMenu
+                         ? 0.5 : 0
+                )
                 .ignoresSafeArea(edges: .bottom)
+            
+            Color.black
+                .opacity(homeViewModel.viewStatus.isBlacked ? 0.5 : 0)
+                .ignoresSafeArea(edges: .bottom)
+                .onTapGesture {
+                    homeViewModel.viewStatus = .normal
+                }
             
             if createFolder || isEditingFolder {
                 FolderView(
@@ -181,7 +194,10 @@ struct HomeView: View {
                     dismissButton: .default(Text("Ok")))
             }
         }
-        .blur(radius: ((homeViewModel.viewStatus != .normal) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
+        .blur(radius:
+                homeViewModel.viewStatus.isBlurred ||
+              homeSearchViewModel.viewStatus != .normal
+              ? 5 : 0)
         .overlay {
             if case let .search(paperInfo) = homeViewModel.viewStatus {
                 RenamePaperTitleView(paperInfo: paperInfo) {
@@ -198,6 +214,13 @@ struct HomeView: View {
                     homeSearchViewModel.cancelButtonTappedInEditingTitle()
                 } completeAction: { text in
                     homeSearchViewModel.completeButtonTappedInEditingTitle(title: text)
+                }
+            }
+            
+            if case .folderPopover = homeViewModel.viewStatus {
+                if case let .folderPopover(position) = homeViewModel.viewStatus {
+                    HomeFolderPopoverView()
+                        .position(position)
                 }
             }
         }

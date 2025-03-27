@@ -72,6 +72,21 @@ struct HomeListView: View {
                                 handleDrop: handleDrop(to:droppedItem:)
                             )
                             .padding(.top, 10)
+                            .gesture(LongPressGesture(minimumDuration: 0.5)
+                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+                                    .onEnded { value in
+                                    switch value {
+                                    case .second(true, let drag):
+                                        if let drag = drag {
+                                            homeViewModel.viewStatus = .folderPopover(
+                                                .init(x: 40 + 100, y: drag.location.y + 85)
+                                            )
+                                        }
+                                    default:
+                                        break
+                                    }
+                                }
+                            )
                         }
                     }
                 }

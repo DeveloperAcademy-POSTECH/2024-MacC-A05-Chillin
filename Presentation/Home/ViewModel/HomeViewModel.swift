@@ -124,6 +124,25 @@ class HomeViewModel: ObservableObject {
     enum SearchViewStatus: Hashable {
         case normal
         case search(PaperInfo)
+        case folderPopover(CGPoint)
+        
+        var isBlurred: Bool {
+            switch self {
+            case .normal, .folderPopover(_):
+                false
+            case .search(_):
+                true
+            }
+        }
+        
+        var isBlacked: Bool {
+            switch self {
+            case .normal:
+                false
+            case .search(_), .folderPopover(_):
+                true
+            }
+        }
     }
 }
 
