@@ -14,6 +14,9 @@ struct HomeListView: View {
     
     @State private var selectedCategory: CategorySelection = .main
     
+    @State private var animationFolder: Folder?
+    @GestureState private var highlight = false
+    
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
@@ -74,7 +77,12 @@ struct HomeListView: View {
                             .padding(.top, 10)
                             .gesture(LongPressGesture(minimumDuration: 0.5)
                                 .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                                    .onEnded { value in
+                                .updating($highlight) { currentState, gestureState, transaction in
+                                    self.animationFolder = folder
+                                    transaction.animation = .easeIn(duration: 1)
+                                    gestureState = true
+                                }
+                                .onEnded { value in
                                     switch value {
                                     case .second(true, let drag):
                                         if let drag = drag {
@@ -87,6 +95,7 @@ struct HomeListView: View {
                                     }
                                 }
                             )
+                            .scaleEffect((animationFolder == folder && highlight) ? 1.2 : 1)
                         }
                     }
                 }
