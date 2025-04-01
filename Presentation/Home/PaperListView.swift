@@ -94,7 +94,7 @@ struct PaperListView: View {
                                         // MARK: searchview 들어갈 위치
                                         HomePDFCell(
                                             paperInfo: paperInfo,
-                                            cellStatus: .normal,
+                                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
                                             onTapGesture: {
                                                 navigateToPaper(paperInfo.id)
                                                 homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
@@ -105,6 +105,9 @@ struct PaperListView: View {
                                             tagAction: { _ in },
                                             editAction: {
                                                 homeViewModel.editButtonTapped(paperInfo)
+                                            },
+                                            setTagAction: {
+                                                // TODO: 뭐 들어가야 함?
                                             },
                                             copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
                                             deleteAction: {

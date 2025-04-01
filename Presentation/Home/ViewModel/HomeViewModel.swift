@@ -129,7 +129,7 @@ class HomeViewModel: ObservableObject {
         
         var isBlurred: Bool {
             switch self {
-            case .normal, .folderPopover(_):
+            case .normal, .folderPopover(_), .setTag(_):
                 false
             case .search(_):
                 true
@@ -140,7 +140,7 @@ class HomeViewModel: ObservableObject {
             switch self {
             case .normal:
                 false
-            case .search(_), .folderPopover(_):
+            case .search(_), .folderPopover(_), .setTag(_):
                 true
             }
         }

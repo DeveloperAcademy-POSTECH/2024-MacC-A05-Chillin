@@ -66,6 +66,9 @@ struct HomePDFCell: View {
                             EllipsisButtonView {
                                 editAction()
                                 popover.toggle()
+                            } setTagAction: {
+                                setTagAction()
+                                popover.toggle()
                             } copyPaperAction: {
                                 copyAction()
                                 popover.toggle()
