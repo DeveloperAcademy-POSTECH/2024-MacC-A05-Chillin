@@ -39,6 +39,10 @@ struct HomeView: View {
         )
     )
     
+    @StateObject private var tagViewModel: TagViewModel = .init(
+        tagViewUseCase: DefaultTagViewUseCase()
+    )
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -89,6 +93,7 @@ struct HomeView: View {
                             if homeViewModel.isTagSelected {
                                 // TODO: - [쿠로] 태그 뷰 위치
                                 TagView()
+                                    .environmentObject(tagViewModel)
                             } else {
                                 PaperListView()
                                 .environmentObject(homeSearchViewModel)
@@ -97,17 +102,11 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder ? 20 : 0)
+            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle ||
-                         createFolder ||
-                         isEditingFolder ||
-                         homeViewModel.isMovingFolder ||
-                         homeViewModel.isSettingMenu
-                         ? 0.5 : 0
-                )
+                .opacity(isEditingTitle || createFolder || isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             Color.black
@@ -194,10 +193,13 @@ struct HomeView: View {
                     dismissButton: .default(Text("Ok")))
             }
         }
-        .blur(radius:
-                homeViewModel.viewStatus.isBlurred ||
-              homeSearchViewModel.viewStatus != .normal
-              ? 5 : 0)
+        .alert(isPresented: $tagViewModel.isTagDuplicate) {
+            Alert(
+                title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
+                dismissButton: .default(Text("확인"))
+            )
+        }
+        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
         .overlay {
             if case let .search(paperInfo) = homeViewModel.viewStatus {
                 RenamePaperTitleView(paperInfo: paperInfo) {
@@ -215,6 +217,32 @@ struct HomeView: View {
                 } completeAction: { text in
                     homeSearchViewModel.completeButtonTappedInEditingTitle(title: text)
                 }
+                .onDisappear {
+                    homeSearchViewModel.searchPapers()
+                }
+            }
+            // 태그 관리
+            if case let .setTag(paperInfo) = homeSearchViewModel.viewStatus {
+                TagControlView(paperInfo: paperInfo) {
+                    homeSearchViewModel.viewStatus = .normal
+                } completeAction: {
+                    homeSearchViewModel.viewStatus = .normal
+                }
+                .onDisappear {
+                    homeSearchViewModel.searchPapers()
+                }
+            }
+            
+            // 태그 생성
+            if tagViewModel.createTag {
+                CreateTagView()
+                    .environmentObject(tagViewModel)
+            }
+            if tagViewModel.showDeleteAlert {
+                CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
+                            message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.",
+                            cancleAction: { tagViewModel.showDeleteAlert = false },
+                            confirmAction: tagViewModel.deleteTag)
             }
             
             if case .folderPopover = homeViewModel.viewStatus {
@@ -606,5 +634,89 @@ struct FolderView: View {
                 }
             }
         }
+    }
+}
+
+/// 태그 생성 뷰
+private struct CreateTagView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
+    @State private var text: String = ""
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                HStack {
+                    Button {
+                        tagViewModel.createTag = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18))
+                    }
+                    .foregroundStyle(.gray100)
+                    .padding(28)
+                    
+                    Spacer()
+                    
+                    Button {
+                        if text.isEmpty {
+                            text = "새 태그"
+                            tagViewModel.createTag = false
+                            return
+                        }
+                        if let _ = tagViewModel.tags.filter({$0.name == text}).first {
+                            tagViewModel.createTag = false
+                            tagViewModel.isTagDuplicate = true
+                            
+                        } else {
+                            tagViewModel.createTag(name: text)
+                            tagViewModel.createTag = false
+                        }
+                    } label: {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(.gray100, lineWidth: 1)
+                            .frame(width: 68, height: 36)
+                            .overlay {
+                                Text("완료")
+                                    .reazyFont(.button1)
+                                    .foregroundStyle(.gray100)
+                            }
+                    }
+                    .padding(28)
+                }
+                Spacer()
+            }
+            HStack(spacing: 0) {
+                Image(systemName: "tag")
+                    .font(.system(size: 180))
+                    .padding(.trailing, 70)
+                    .foregroundStyle(.primary3)
+                
+                VStack(spacing: 0) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(.gray100)
+                            .frame(width: 400, height: 52)
+                        
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(.gray400)
+                            .frame(width: 400, height: 52)
+                    }
+                    .overlay {
+                        TextField("새로운 태그", text: $text, axis: .horizontal)
+                            .lineLimit(1)
+                            .padding(.horizontal, 16)
+                            .font(.custom(ReazyFontType.pretendardMediumFont, size: 16))
+                            .foregroundStyle(.gray800)
+                    }
+                    Text("새로운 태그를 입력해주세요")
+                        .foregroundStyle(.comment)
+                        .reazyFont(.button1)
+                        .padding(.top, 16)
+                }
+            }
+        }
+        .animation(.easeInOut, value: tagViewModel.createTag)
+        .animation(.easeInOut, value: tagViewModel.isTagDuplicate)
     }
 }
