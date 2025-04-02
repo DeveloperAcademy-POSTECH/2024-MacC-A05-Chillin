@@ -85,19 +85,10 @@ struct HomeView: View {
                             .environmentObject(homeSearchViewModel)
                     } else {
                         HStack(spacing: 0) {
-                            HomeListView(
-                                createFolder: $createFolder
-                            )
-                            .frame(width: geometry.size.width / 4)
+                            SidePanelView(geometry: geometry)
                             
-                            if homeViewModel.isTagSelected {
-                                // TODO: - [쿠로] 태그 뷰 위치
-                                TagView()
-                                    .environmentObject(tagViewModel)
-                            } else {
-                                PaperListView()
+                            ContentPanelView()
                                 .environmentObject(homeSearchViewModel)
-                            }
                         }
                     }
                 }
@@ -253,6 +244,23 @@ struct HomeView: View {
             }
         }
     }
+    
+    @ViewBuilder
+    private func SidePanelView(geometry: GeometryProxy) -> some View {
+        if !homeViewModel.isEditing {
+            HomeListView(createFolder: $createFolder)
+                .frame(width: geometry.size.width / 4)
+        }
+    }
+    
+    @ViewBuilder
+    private func ContentPanelView() -> some View {
+        if homeViewModel.isTagSelected {
+            TagView()
+        } else {
+            PaperListView()
+        }
+    }
 }
 
 #Preview {
@@ -293,7 +301,6 @@ private struct MainMenuView: View {
                     selectedMenu = .edit
                 }
                 homeViewModel.isEditing.toggle()
-                homeViewModel.selectedItems.removeAll()
             }) {
                 Image(systemName: "checkmark.circle")
                     .font(.system(size: 17.68))

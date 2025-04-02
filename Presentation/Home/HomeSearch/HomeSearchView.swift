@@ -73,6 +73,8 @@ private struct HomeSearchListView: View {
                                 // TODO: 네비게이션 push 시 Date 업데이트 필요
                                 homeSearchViewModel.PaperCellTapped(paperInfo)
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                            } checkAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
                             } starAction: {
                                 homeSearchViewModel.starButtonTapped(paperInfo)
                             } tagAction: { id in

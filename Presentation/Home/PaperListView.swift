@@ -91,13 +91,15 @@ struct PaperListView: View {
                                 
                                 List {
                                     ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
-                                        // MARK: searchview 들어갈 위치
                                         HomePDFCell(
                                             paperInfo: paperInfo,
                                             cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
                                             onTapGesture: {
                                                 navigateToPaper(paperInfo.id)
                                                 homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                            },
+                                            checkAction: {
+                                                homeViewModel.selectedItems.insert(paperInfo.id)
                                             },
                                             starAction: {
                                                 homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)

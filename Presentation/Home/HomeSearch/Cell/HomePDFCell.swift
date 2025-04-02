@@ -16,6 +16,7 @@ struct HomePDFCell: View {
     var cellStatus: CellStatus
     
     let onTapGesture: () -> Void
+    let checkAction: () -> Void
     let starAction: () -> Void
     let tagAction: (UUID) -> Void
     let editAction: () -> Void
@@ -30,6 +31,7 @@ struct HomePDFCell: View {
                 if case .selection = cellStatus {
                     SelectionCheckView(isSelected: paperInfo.isSelected) {
                         paperInfo.isSelected.toggle()
+                        checkAction()
                     }
                     .padding(.leading, 10)
                     .padding(.trailing, 26)
