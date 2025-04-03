@@ -443,7 +443,6 @@ struct MainPDFView: View {
                     FolderView(
                         createFolder: .constant(false),
                         createMovingFolder: $createMovingFolder,
-                        isEditingFolder: .constant(false),
                         folder: folder
                     )
                 }

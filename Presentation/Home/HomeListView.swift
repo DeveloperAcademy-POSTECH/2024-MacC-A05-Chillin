@@ -89,6 +89,7 @@ struct HomeListView: View {
                                             homeViewModel.viewStatus = .folderPopover(
                                                 .init(x: 40 + 100, y: drag.location.y + 85)
                                             )
+                                            homeViewModel.selectedFolderID = folder.id
                                         }
                                     default:
                                         break

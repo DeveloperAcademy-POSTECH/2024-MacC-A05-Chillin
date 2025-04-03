@@ -93,11 +93,11 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
+            .blur(radius: isEditingTitle || createFolder || homeViewModel.isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
+                .opacity(isEditingTitle || createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             Color.black
@@ -107,12 +107,11 @@ struct HomeView: View {
                     homeViewModel.viewStatus = .normal
                 }
             
-            if createFolder || isEditingFolder {
+            if createFolder || homeViewModel.isEditingFolder {
                 FolderView(
                     createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
-                    isEditingFolder: $isEditingFolder,
-                    folder: homeViewModel.folders.first { $0.id == selectedItemID }
+                    folder: homeViewModel.folders.first { $0.id == homeViewModel.selectedFolderID }
                 )
             }
             
@@ -149,7 +148,6 @@ struct HomeView: View {
                 FolderView(
                     createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
-                    isEditingFolder: $isEditingFolder,
                     folder: folder
                 )
             }
@@ -168,7 +166,7 @@ struct HomeView: View {
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
         .animation(.easeInOut, value: isEditingTitle)
-        .animation(.easeInOut, value: isEditingFolder)
+        .animation(.easeInOut, value: homeViewModel.isEditingFolder)
         .alert(isPresented: $homeViewModel.isErrorOccured) {
             // TODO: 예외 처리 수정 필요
             switch homeViewModel.errorStatus {
@@ -239,6 +237,7 @@ struct HomeView: View {
             if case .folderPopover = homeViewModel.viewStatus {
                 if case let .folderPopover(position) = homeViewModel.viewStatus {
                     HomeFolderPopoverView()
+                        .environmentObject(homeViewModel)
                         .position(position)
                 }
             }
@@ -498,11 +497,9 @@ struct FolderView: View {
     /* [세 가지 케이스 분리]
      - createFolder: 메인 화면에서 폴더 생성
      - createMovingFolder: 폴더 이동 시 새로운 폴더 생성
-     - isEditingFolder: 폴더 정보 수정
      */
     @Binding var createFolder: Bool
     @Binding var createMovingFolder: Bool
-    @Binding var isEditingFolder: Bool
     
     @State private var text: String = ""
     
@@ -513,8 +510,8 @@ struct FolderView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        if isEditingFolder {
-                            isEditingFolder.toggle()
+                        if homeViewModel.isEditingFolder {
+                            homeViewModel.isEditingFolder = false
                         } else if createFolder {
                             createFolder.toggle()
                         } else {
@@ -531,10 +528,11 @@ struct FolderView: View {
                     Button(action: {
                         if text.isEmpty { text = "새 폴더" }
                         
-                        if isEditingFolder {
+                        if homeViewModel.isEditingFolder {
                             if let folder = folder {
                                 homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
-                                isEditingFolder.toggle()
+                                homeViewModel.selectedFolderID = nil
+                                homeViewModel.isEditingFolder = false
                             }
                         } else if createFolder {
                             // 최상위 단계와 폴더 진입 단계 구분
@@ -634,7 +632,7 @@ struct FolderView: View {
             }
         }
         .onAppear {
-            if isEditingFolder {
+            if homeViewModel.isEditingFolder {
                 if let folder = folder {
                     text = folder.title
                     selectedColors = FolderColors(rawValue: folder.color) ?? .folder1

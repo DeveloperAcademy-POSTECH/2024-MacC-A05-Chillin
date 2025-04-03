@@ -90,6 +90,8 @@ class HomeViewModel: ObservableObject {
     @Published public var viewStatus: SearchViewStatus = .normal
     public var isInHomeView: Bool = true
     
+    @Published public var isEditingFolder: Bool = false
+    
     private let homeViewUseCase: HomeViewUseCase
     
     private var cancellables: Set<AnyCancellable> = []

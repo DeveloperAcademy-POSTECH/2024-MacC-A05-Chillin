@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct HomeFolderPopoverView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    
     var body: some View {
         RoundedRectangle(cornerRadius: 12)
             .frame(width: 200, height: 171)
@@ -16,7 +18,8 @@ struct HomeFolderPopoverView: View {
             .overlay {
                 VStack(spacing: 0) {
                     PopoverActionView(popoverAction: .changeName) {
-                        
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.isEditingFolder = true
                     }
                     divider
                     PopoverActionView(popoverAction: .addParentFolder) {
