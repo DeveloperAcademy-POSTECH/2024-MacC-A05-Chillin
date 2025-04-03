@@ -95,10 +95,3 @@ class TagViewModel: ObservableObject {
         listWidth = width - 40
     }
 }
-
-struct TagListViewSizeKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
-    }
-}
