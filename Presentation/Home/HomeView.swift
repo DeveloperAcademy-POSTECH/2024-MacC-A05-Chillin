@@ -255,7 +255,7 @@ struct HomeView: View {
             }
             if tagViewModel.showDeleteAlert {
                 CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
-                            message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.",
+                            message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.", width: 350, height: 173,
                             cancleAction: { tagViewModel.showDeleteAlert = false },
                             confirmAction: tagViewModel.deleteTag)
             }

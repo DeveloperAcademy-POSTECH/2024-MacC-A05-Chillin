@@ -9,24 +9,29 @@ import SwiftUI
 
 struct CustomAlert: View {
     let mainText: String
-    let message: String
+    let message: String?
+    let width: CGFloat
+    let height: CGFloat
     
     let cancleAction: () -> Void
     let confirmAction: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
+            Spacer()
             VStack(alignment: .center, spacing: 0) {
                 Text(mainText)
                     .reazyFont(.button1)
                     .foregroundStyle(.gray900)
                     .multilineTextAlignment(.center)
-                Text(message)
-                    .reazyFont(.body1)
-                    .foregroundStyle(.gray900)
-                    .lineLimit(1)
+                    .padding(.bottom, 2)
+                if let message = message {
+                    Text(message)
+                        .reazyFont(.body1)
+                        .foregroundStyle(.gray900)
+                        .lineLimit(1)
+                }
             }
-            .padding(.top, 25)
             .padding(.horizontal, 30)
             Spacer()
             
@@ -54,7 +59,7 @@ struct CustomAlert: View {
             }
             .frame(height: 52)
         }
-        .frame(width: 350, height: 176)
+        .frame(width: width, height: height)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .foregroundStyle(.gray200)
