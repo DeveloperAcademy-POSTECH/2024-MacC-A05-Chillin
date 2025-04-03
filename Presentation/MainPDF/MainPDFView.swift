@@ -441,7 +441,6 @@ struct MainPDFView: View {
                 if createMovingFolder {
                     let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
                     FolderView(
-                        createFolder: .constant(false),
                         createMovingFolder: $createMovingFolder,
                         folder: folder
                     )

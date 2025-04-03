@@ -91,6 +91,8 @@ class HomeViewModel: ObservableObject {
     public var isInHomeView: Bool = true
     
     @Published public var isEditingFolder: Bool = false
+    @Published public var createFolder: Bool = false
+    @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -379,15 +381,36 @@ extension HomeViewModel {
         return folder
     }
     
-    public func saveFolder(to parentFolderID: UUID?, title: String, color: String) {
+    private func saveFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
         
         self.homeViewUseCase.saveFolder(newFolder)
         folders.append(newFolder)
         
-        newFolderParentID = parentFolderID
-        newFolderID = newFolder.id
+        return newFolder
     }
+    
+    func createSubfolder(in folder: Folder?, title: String, color: String) {
+        let newFolder = saveFolder(to: folder?.id, title: title, color: color)
+        
+        newFolderID = newFolder.id
+        newFolderParentID = folder?.id
+    }
+
+    func createFolderAbove(_ folder: Folder?, title: String, color: String) {
+        guard let folder = folder else { return }
+
+        let newParent = saveFolder(to: folder.parentFolderID, title: title, color: color)
+        
+        if let index = folders.firstIndex(where: { $0.id == folder.id }) {
+            folders[index].parentFolderID = newParent.id
+            homeViewUseCase.editFolder(folders[index])
+        }
+
+        newFolderID = newParent.id
+        newFolderParentID = newParent.parentFolderID
+    }
+
     
     public func updateFolderInfo(at id: UUID, title: String, color: String) {
         if let index = folders.firstIndex(where: { $0.id == id }) {
@@ -539,4 +562,9 @@ extension HomeViewModel {
 
 enum CategorySelection: Equatable {
     case main, favorite, tag, folder(UUID)
+}
+
+enum FolderCreationPosition {
+    case intoCurrent
+    case aboveCurrent
 }

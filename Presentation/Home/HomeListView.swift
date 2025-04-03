@@ -9,7 +9,6 @@ import SwiftUI
 
 struct HomeListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
-    @Binding var createFolder: Bool
     @State private var expandedFolders: Set<UUID> = []
     
     @State private var selectedCategory: CategorySelection = .main
@@ -43,7 +42,8 @@ struct HomeListView: View {
                     Spacer()
                     
                     Button(action: {
-                        createFolder.toggle()
+                        homeViewModel.folderCreationPosition = .intoCurrent
+                        homeViewModel.createFolder = true
                     }) {
                         Image("newfolder")
                             .renderingMode(.template)
@@ -279,7 +279,5 @@ private struct FolderListCell: View {
 
 
 #Preview {
-    HomeListView(
-        createFolder: .constant(false)
-    )
+    HomeListView()
 }

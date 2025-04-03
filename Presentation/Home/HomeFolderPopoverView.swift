@@ -23,11 +23,15 @@ struct HomeFolderPopoverView: View {
                     }
                     divider
                     PopoverActionView(popoverAction: .addParentFolder) {
-                        
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.folderCreationPosition = .aboveCurrent
+                        homeViewModel.createFolder = true
                     }
                     divider
                     PopoverActionView(popoverAction: .addSubFolder) {
-                        
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.folderCreationPosition = .intoCurrent
+                        homeViewModel.createFolder = true
                     }
                     divider
                     PopoverActionView(popoverAction: .delete) {

@@ -25,9 +25,7 @@ struct HomeView: View {
     @State private var isEditingTitle: Bool = false
     
     // 폴더 추가 페이지 변수
-    @State private var createFolder: Bool = false
     @State private var createMovingFolder: Bool = false
-    @State private var isEditingFolder: Bool = false
     
     // 폴더 이동 변수
     @State private var moveToFolderID: UUID? = nil
@@ -93,11 +91,11 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || createFolder || homeViewModel.isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
+            .blur(radius: isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
+                .opacity(isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             Color.black
@@ -107,9 +105,8 @@ struct HomeView: View {
                     homeViewModel.viewStatus = .normal
                 }
             
-            if createFolder || homeViewModel.isEditingFolder {
+            if homeViewModel.createFolder || homeViewModel.isEditingFolder {
                 FolderView(
-                    createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
                     folder: homeViewModel.folders.first { $0.id == homeViewModel.selectedFolderID }
                 )
@@ -146,7 +143,6 @@ struct HomeView: View {
             if createMovingFolder {
                 let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
                 FolderView(
-                    createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
                     folder: folder
                 )
@@ -247,7 +243,7 @@ struct HomeView: View {
     @ViewBuilder
     private func SidePanelView(geometry: GeometryProxy) -> some View {
         if !homeViewModel.isEditing {
-            HomeListView(createFolder: $createFolder)
+            HomeListView()
                 .frame(width: geometry.size.width / 4)
         }
     }
@@ -494,11 +490,6 @@ struct FolderView: View {
     
     @State private var selectedColors: FolderColors = .folder1
     
-    /* [세 가지 케이스 분리]
-     - createFolder: 메인 화면에서 폴더 생성
-     - createMovingFolder: 폴더 이동 시 새로운 폴더 생성
-     */
-    @Binding var createFolder: Bool
     @Binding var createMovingFolder: Bool
     
     @State private var text: String = ""
@@ -512,8 +503,8 @@ struct FolderView: View {
                     Button(action: {
                         if homeViewModel.isEditingFolder {
                             homeViewModel.isEditingFolder = false
-                        } else if createFolder {
-                            createFolder.toggle()
+                        } else if homeViewModel.createFolder {
+                            homeViewModel.createFolder = false
                         } else {
                             createMovingFolder.toggle()
                         }
@@ -534,19 +525,25 @@ struct FolderView: View {
                                 homeViewModel.selectedFolderID = nil
                                 homeViewModel.isEditingFolder = false
                             }
-                        } else if createFolder {
+                        } else if homeViewModel.createFolder {
                             // 최상위 단계와 폴더 진입 단계 구분
                             if homeViewModel.isAtRoot {
-                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             } else {
-                                homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                                switch homeViewModel.folderCreationPosition {
+                                case .intoCurrent:
+                                    homeViewModel.createSubfolder(in: homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                case .aboveCurrent:
+                                    homeViewModel.createFolderAbove(homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                }
                             }
-                            createFolder.toggle()
+                            homeViewModel.selectedFolderID = nil
+                            homeViewModel.createFolder = false
                         } else {
                             if let folder = folder {
-                                homeViewModel.saveFolder(to: folder.id, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: folder, title: text, color: selectedColors.rawValue)
                             } else {
-                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             }
                             createMovingFolder.toggle()
                         }
