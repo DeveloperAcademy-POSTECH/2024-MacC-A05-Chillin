@@ -35,7 +35,8 @@ struct HomeFolderPopoverView: View {
                     }
                     divider
                     PopoverActionView(popoverAction: .delete) {
-                        
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.showDeleteAlert = true
                     }
                 }
             }

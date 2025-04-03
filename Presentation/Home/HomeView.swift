@@ -237,6 +237,17 @@ struct HomeView: View {
                         .position(position)
                 }
             }
+            if homeViewModel.showDeleteAlert {
+                CustomAlert(
+                    mainText: "삭제하시겠습니까?\n삭제된 항목은 복구할 수 없습니다.",
+                    cancleAction: { homeViewModel.showDeleteAlert = false },
+                    confirmAction: {
+                        if let id = homeViewModel.currentFolder?.id {
+                            homeViewModel.deleteFolder(at: id)
+                        }
+                    }
+                )
+            }
         }
     }
     

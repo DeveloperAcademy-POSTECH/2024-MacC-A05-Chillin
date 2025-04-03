@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CustomAlert: View {
     let mainText: String
-    let message: String
+    var message: String? = nil
     
     let cancleAction: () -> Void
     let confirmAction: () -> Void
@@ -21,10 +21,12 @@ struct CustomAlert: View {
                     .reazyFont(.button1)
                     .foregroundStyle(.gray900)
                     .multilineTextAlignment(.center)
-                Text(message)
-                    .reazyFont(.body1)
-                    .foregroundStyle(.gray900)
-                    .lineLimit(1)
+                if let message = message {
+                    Text(message)
+                        .reazyFont(.body1)
+                        .foregroundStyle(.gray900)
+                        .lineLimit(1)
+                }
             }
             .padding(.top, 25)
             .padding(.horizontal, 30)

@@ -93,6 +93,7 @@ class HomeViewModel: ObservableObject {
     @Published public var isEditingFolder: Bool = false
     @Published public var createFolder: Bool = false
     @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent
+    @Published public var showDeleteAlert: Bool = false
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -428,9 +429,44 @@ extension HomeViewModel {
     }
     
     public func deleteFolder(at id: UUID) {
-        self.homeViewUseCase.deleteFolder(id: id)
-        self.folders.removeAll(where: { $0.id == id })
+        let folderIDsToDelete = collectFolderAndDescendants(from: id)
+
+        let fileIDsToDelete: [UUID] = paperInfos
+            .filter { file in
+                guard let folderID = file.folderID else { return false }
+                return folderIDsToDelete.contains(folderID)
+            }
+            .map { $0.id }
+
+
+        for fileID in fileIDsToDelete {
+            homeViewUseCase.deletePDF(id: fileID)
+        }
+
+        for folderID in folderIDsToDelete {
+            homeViewUseCase.deleteFolder(id: folderID)
+        }
+
+        paperInfos.removeAll { fileIDsToDelete.contains($0.id) }
+        folders.removeAll { folderIDsToDelete.contains($0.id) }
+
+        showDeleteAlert = false
     }
+
+
+
+    private func collectFolderAndDescendants(from parentID: UUID) -> [UUID] {
+        var result: [UUID] = [parentID]
+
+        let childFolders = folders.filter { $0.parentFolderID == parentID }
+
+        for child in childFolders {
+            result.append(contentsOf: collectFolderAndDescendants(from: child.id))
+        }
+
+        return result
+    }
+
 }
 
 extension HomeViewModel {
