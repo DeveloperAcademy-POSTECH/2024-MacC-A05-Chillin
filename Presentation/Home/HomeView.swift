@@ -263,6 +263,7 @@ struct HomeView: View {
     private func ContentPanelView() -> some View {
         if homeViewModel.isTagSelected {
             TagView()
+                .environmentObject(tagViewModel)
         } else {
             PaperListView()
         }
