@@ -30,8 +30,12 @@ struct HomeFolderPopoverView: View {
                     divider
                     PopoverActionView(popoverAction: .addSubFolder) {
                         homeViewModel.viewStatus = .normal
-                        homeViewModel.folderCreationPosition = .intoCurrent
-                        homeViewModel.createFolder = true
+                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                            homeViewModel.folderCreationPosition = .intoCurrent
+                            homeViewModel.createFolder = true
+                        } else {
+                            homeViewModel.showFolderDepthAlert = true
+                        }
                     }
                     divider
                     PopoverActionView(popoverAction: .delete) {

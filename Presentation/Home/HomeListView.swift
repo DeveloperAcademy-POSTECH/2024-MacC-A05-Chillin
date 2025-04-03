@@ -42,8 +42,12 @@ struct HomeListView: View {
                     Spacer()
                     
                     Button(action: {
-                        homeViewModel.folderCreationPosition = .intoCurrent
-                        homeViewModel.createFolder = true
+                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                            homeViewModel.folderCreationPosition = .intoCurrent
+                            homeViewModel.createFolder = true
+                        } else {
+                            homeViewModel.showFolderDepthAlert = true
+                        }
                     }) {
                         Image("newfolder")
                             .renderingMode(.template)

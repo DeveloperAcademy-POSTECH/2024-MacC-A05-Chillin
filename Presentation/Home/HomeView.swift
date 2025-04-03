@@ -226,7 +226,7 @@ struct HomeView: View {
             if tagViewModel.showDeleteAlert {
                 CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
                             message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.",
-                            cancleAction: { tagViewModel.showDeleteAlert = false },
+                            cancelAction: { tagViewModel.showDeleteAlert = false },
                             confirmAction: tagViewModel.deleteTag)
             }
             
@@ -237,15 +237,24 @@ struct HomeView: View {
                         .position(position)
                 }
             }
+            
             if homeViewModel.showDeleteAlert {
                 CustomAlert(
                     mainText: "삭제하시겠습니까?\n삭제된 항목은 복구할 수 없습니다.",
-                    cancleAction: { homeViewModel.showDeleteAlert = false },
+                    cancelAction: { homeViewModel.showDeleteAlert = false },
                     confirmAction: {
                         if let id = homeViewModel.currentFolder?.id {
                             homeViewModel.deleteFolder(at: id)
                         }
                     }
+                )
+            }
+            
+            if homeViewModel.showFolderDepthAlert {
+                CustomAlert(
+                    type: .confirm,
+                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
+                    cancelAction: { homeViewModel.showFolderDepthAlert = false }
                 )
             }
         }

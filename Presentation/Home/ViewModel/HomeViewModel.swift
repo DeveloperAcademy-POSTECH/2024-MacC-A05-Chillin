@@ -93,7 +93,9 @@ class HomeViewModel: ObservableObject {
     @Published public var isEditingFolder: Bool = false
     @Published public var createFolder: Bool = false
     @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent
+    
     @Published public var showDeleteAlert: Bool = false
+    @Published public var showFolderDepthAlert: Bool = false
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -371,6 +373,21 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
+    func depth(of folder: Folder?) -> Int {
+        guard let folder = folder else { return 0 }
+        
+        var currentFolder = folder
+        var depth = 1
+
+        while let parentID = currentFolder.parentFolderID,
+              let parent = folders.first(where: { $0.id == parentID }) {
+            currentFolder = parent
+            depth += 1
+        }
+
+        return depth
+    }
+    
     public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let folder = Folder(
             id: UUID(),
