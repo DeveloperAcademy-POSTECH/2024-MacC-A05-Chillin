@@ -70,6 +70,12 @@ struct TagView: View {
                             .padding(.top, 24)
                             .padding(.horizontal, 20)
                             .frame(maxWidth: geometry.size.width - 40, minHeight: geometry.size.height * 0.33)
+                            .onAppear(){
+                                tagViewModel.getlistWidth(width: geometry.size.width - 40)
+                            }
+                            .onChange(of: geometry.size.width) { width, _ in
+                                tagViewModel.getlistWidth(width: width - 40)
+                            }
                             
                             // 편집 버튼
                             HStack(spacing: 0) {
@@ -154,11 +160,11 @@ struct TagListView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { geometry in 
             ScrollView(.vertical, showsIndicators: false) {
                 DynamicCellLayout(
                     data: tagViewModel.tags,
-                    screenWidth: geometry.size.width,
+                    screenWidth: tagViewModel.listWidth,
                     isMultiSelectable: true,
                     isEditMode: tagViewModel.isEditMode,
                     selectAction: { tagName in

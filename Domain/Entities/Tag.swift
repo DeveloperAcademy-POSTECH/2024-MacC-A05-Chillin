@@ -20,6 +20,6 @@ struct Tag: DynamicCell {
     
     func getCellWidth() -> CGFloat {
         let count = self.name.count
-        return CGFloat(10 + count * 10)
+        return CGFloat(10 + count * 11)
     }
 }

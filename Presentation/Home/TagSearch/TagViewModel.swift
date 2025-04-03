@@ -28,6 +28,7 @@ class TagViewModel: ObservableObject {
     @Published public var createTag: Bool = false
     @Published public var isTagDuplicate: Bool = false
     @Published public var showDeleteAlert: Bool = false
+    @Published public var listWidth: CGFloat = 0
     
     @Published private var targetTagID: UUID
     
@@ -80,6 +81,7 @@ class TagViewModel: ObservableObject {
     
     func deleteTag() {
         tagViewUseCase.deleteTag(id: targetTagID, from: &tags)
+        selectedTags.removeAll { $0.id == targetTagID }
         withAnimation {
             self.showDeleteAlert = false
         }
@@ -87,5 +89,16 @@ class TagViewModel: ObservableObject {
 
     func createTag(name: String) {
         tagViewUseCase.createTag(name: name, in: &tags)
+    }
+    
+    func getlistWidth(width: CGFloat) {
+        listWidth = width - 40
+    }
+}
+
+struct TagListViewSizeKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
     }
 }
