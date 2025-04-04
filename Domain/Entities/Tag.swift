@@ -12,12 +12,12 @@ struct Tag: DynamicCell, Codable, Transferable {
     
     let id: UUID
     var name: String
-    var isSeleted: Bool
+    var isSelected: Bool
     
-    init(id: UUID = .init(), name: String, isSeleted: Bool = false) {
+    init(id: UUID = .init(), name: String, isSelected: Bool = false) {
         self.id = id
         self.name = name
-        self.isSeleted = isSeleted
+        self.isSelected = isSelected
     }
     
     func getCellWidth() -> CGFloat {

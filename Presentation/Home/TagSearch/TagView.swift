@@ -171,6 +171,9 @@ struct TagListView: View {
         .onAppear {
             tagViewModel.fetchTags()
         }
+        .onChange(of: tagViewModel.popover) { newValue in
+            
+        }
     }
 }
 

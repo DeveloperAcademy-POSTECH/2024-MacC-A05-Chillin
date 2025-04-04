@@ -28,7 +28,7 @@ struct PDFTagCell<Tag: DynamicCell>: View {
             HStack(spacing: 0) {
                 Text(tag.name)
                     .reazyFont(isMultiSelectable ? .body1 : .h3)
-                    .foregroundStyle(tag.isSeleted ? .gray300 : .gray800)
+                    .foregroundStyle(tag.isSelected ? .gray300 : .gray800)
                     .fixedSize(horizontal: true, vertical: false)
                 
                 // 삭제 버튼
@@ -46,7 +46,7 @@ struct PDFTagCell<Tag: DynamicCell>: View {
             .padding(.horizontal, 8)
             .background {
                 RoundedRectangle(cornerRadius: 4)
-                    .foregroundStyle(tag.isSeleted ? .point4 : .primary3)
+                    .foregroundStyle(tag.isSelected ? .point4 : .primary3)
             }
         }
     }

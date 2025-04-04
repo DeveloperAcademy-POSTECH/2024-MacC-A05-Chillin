@@ -67,9 +67,9 @@ class TagViewModel: ObservableObject {
     
     func tagTapped(for tagName: String){
         guard let index = tags.firstIndex(where: { $0.name == tagName }) else { return }
-        tags[index].isSeleted.toggle()
+        tags[index].isSelected.toggle()
         
-        if tags[index].isSeleted {
+        if tags[index].isSelected {
             selectedTags.append(tags[index])
         } else {
             selectedTags.removeAll { $0.id == tags[index].id }
@@ -110,6 +110,12 @@ class TagViewModel: ObservableObject {
     
     public func fetchTags() {
         self.tags = self.tagViewUseCase.fetchTags()
+        
+        for selectedTag in selectedTags {
+            if let index = tags.firstIndex(where: { $0.id == selectedTag.id }) {
+                tags[index].isSelected = true
+            }
+        }
     }
 }
 
