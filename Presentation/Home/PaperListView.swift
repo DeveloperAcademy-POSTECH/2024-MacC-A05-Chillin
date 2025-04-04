@@ -109,7 +109,7 @@ struct PaperListView: View {
                                                 homeViewModel.editButtonTapped(paperInfo)
                                             },
                                             setTagAction: {
-                                                // TODO: 뭐 들어가야 함?
+                                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
                                             },
                                             copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
                                             deleteAction: {

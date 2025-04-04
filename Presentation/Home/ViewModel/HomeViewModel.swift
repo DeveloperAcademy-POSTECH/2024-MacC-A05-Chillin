@@ -132,23 +132,24 @@ class HomeViewModel: ObservableObject {
         case normal             // 기본
         case search(PaperInfo)  // 검색
         case setTag(PaperInfo)  // 태그 관리
+        case addTagToPaperInfo(PaperInfo)
         case folderPopover(CGPoint)
         
         var isBlurred: Bool {
             switch self {
-            case .normal, .folderPopover(_), .setTag(_):
+            case .normal, .folderPopover(_), .setTag(_), .addTagToPaperInfo(_):
                 false
-            case .search(_):
+            default:
                 true
             }
         }
         
         var isBlacked: Bool {
             switch self {
-            case .normal:
-                false
-            case .search(_), .folderPopover(_), .setTag(_):
+            case .search(_), .folderPopover(_), .setTag(_), .addTagToPaperInfo(_):
                 true
+            default:
+                false
             }
         }
     }
@@ -156,6 +157,9 @@ class HomeViewModel: ObservableObject {
 
 
 extension HomeViewModel {
+    public func fetchPaperList() {
+        self.paperInfos = (try? homeViewUseCase.loadPDFs().get()) ?? []
+    }
     public func uploadPDF(url: [URL]) -> UUID? {
         defer { self.isLoading = false }
         

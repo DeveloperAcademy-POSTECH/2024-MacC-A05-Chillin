@@ -38,7 +38,10 @@ struct HomeView: View {
     )
     
     @StateObject private var tagViewModel: TagViewModel = .init(
-        tagViewUseCase: DefaultTagViewUseCase()
+        tagViewUseCase: DefaultTagViewUseCase(
+            tagRepository: TagDataRepositoryImpl(),
+            paperDataRepository: PaperDataRepositoryImpl()
+        )
     )
     
     var body: some View {
@@ -215,6 +218,18 @@ struct HomeView: View {
                 }
                 .onDisappear {
                     homeSearchViewModel.searchPapers()
+                }
+            }
+            
+            if case let .addTagToPaperInfo(paperInfo) = homeViewModel.viewStatus {
+                TagControlView(paperInfo: paperInfo) {
+                    homeViewModel.viewStatus = .normal
+                } completeAction: {
+                    homeViewModel.viewStatus = .normal
+                }
+                .onDisappear {
+                    homeViewModel.fetchPaperList()
+                    tagViewModel.fetchFilteredPaperList()
                 }
             }
             
@@ -741,5 +756,10 @@ private struct CreateTagView: View {
         }
         .animation(.easeInOut, value: tagViewModel.createTag)
         .animation(.easeInOut, value: tagViewModel.isTagDuplicate)
+        .onChange(of: text) { _, newValue in
+            if newValue.count > 30 {
+                text = String(newValue.prefix(30))
+            }
+        }
     }
 }
