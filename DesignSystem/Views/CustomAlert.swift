@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CustomAlert: View {
-    var type: AlertType = .delete
+    var type: AlertType
     
     let mainText: String
     let message: String?
@@ -17,6 +17,24 @@ struct CustomAlert: View {
     
     let cancelAction: () -> Void
     var confirmAction: () -> Void = {}
+    
+    init(
+        type: AlertType = .delete,
+        mainText: String,
+        message: String? = nil,
+        width: CGFloat,
+        height: CGFloat,
+        cancelAction: @escaping () -> Void,
+        confirmAction: @escaping () -> Void
+    ) {
+        self.type = type
+        self.mainText = mainText
+        self.message = message
+        self.width = width
+        self.height = height
+        self.cancelAction = cancelAction
+        self.confirmAction = confirmAction
+    }
     
     var body: some View {
         VStack(spacing: 0) {
