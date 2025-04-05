@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct CustomAlert: View {
+    var type: AlertType = .delete
+    
     let mainText: String
     let message: String?
     let width: CGFloat
     let height: CGFloat
     
-    let cancleAction: () -> Void
-    let confirmAction: () -> Void
+    let cancelAction: () -> Void
+    var confirmAction: () -> Void = {}
     
     var body: some View {
         VStack(spacing: 0) {
@@ -25,6 +27,7 @@ struct CustomAlert: View {
                     .foregroundStyle(.gray900)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 2)
+
                 if let message = message {
                     Text(message)
                         .reazyFont(.body1)
@@ -40,22 +43,7 @@ struct CustomAlert: View {
                 .foregroundStyle(.gray400)
             
             HStack(spacing: 70) {
-                Button {
-                    cancleAction()
-                } label: {
-                    Text("취소")
-                        .reazyFont(.text1)
-                }
-                Rectangle()
-                    .frame(width: 1)
-                    .foregroundStyle(.gray400)
-                Button {
-                    confirmAction()
-                } label: {
-                    Text("삭제")
-                        .reazyFont(.text1)
-                        .foregroundStyle(.pen1)
-                }
+                buttonGroup(for: type)
             }
             .frame(height: 52)
         }
@@ -66,4 +54,37 @@ struct CustomAlert: View {
         )
         
     }
+    
+    @ViewBuilder
+    private func buttonGroup(for type: AlertType) -> some View {
+        switch type {
+        case .confirm:
+            Button(action: cancelAction) {
+                Text("확인")
+                    .reazyFont(.text1)
+            }
+
+        case .delete:
+            Button(action: cancelAction) {
+                Text("취소")
+                    .reazyFont(.text1)
+            }
+
+            Rectangle()
+                .frame(width: 1)
+                .foregroundStyle(.gray400)
+
+            Button(action: confirmAction) {
+                Text("삭제")
+                    .reazyFont(.text1)
+                    .foregroundStyle(.pen1)
+            }
+        }
+    }
+
+}
+
+
+enum AlertType {
+    case confirm, delete
 }

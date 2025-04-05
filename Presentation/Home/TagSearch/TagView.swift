@@ -16,13 +16,11 @@ struct TagView: View {
         ZStack(alignment: .top) {
             Color.gray300
             
-            VStack(spacing: 0) {
-                Spacer()
-                Image(.tagfill)
-                Text("원하는 논문을 태그로 찾아보세요")
-                    .reazyFont(.h5)
-                    .foregroundColor(.gray550)
-                Spacer()
+            if (tagViewModel.tagFilteredPapers.isEmpty) {
+                EmptyPaperListView()
+            } else {
+                FilteredPaperListView()
+                    .padding(.top, 92)
             }
             
             GeometryReader { geometry in
@@ -176,6 +174,12 @@ struct TagListView: View {
                 )
             }
         }
+        .onAppear {
+            tagViewModel.fetchTags()
+        }
+        .onChange(of: tagViewModel.popover) { newValue in
+            
+        }
     }
 }
 
@@ -242,6 +246,81 @@ private struct EllipsisButtonView: View {
                                 properties: .position,
                                 anchor: .topTrailing,
                                isSource: false)
+    }
+}
+
+private struct EmptyPaperListView: View {
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            Image(.tagfill)
+            Text("원하는 논문을 태그로 찾아보세요")
+                .reazyFont(.h5)
+                .foregroundColor(.gray550)
+            Spacer()
+        }
+    }
+}
+
+private struct FilteredPaperListView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    
+    @State private var deleteAlertPresented: Bool = false
+    @State private var selectedPaper: PaperInfo?
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
+                    HomePDFCell(
+                        paperInfo: paperInfo,
+                        cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
+                        onTapGesture: {
+                            navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                        },
+                        checkAction: {
+                            homeViewModel.selectedItems.insert(paperInfo.id)
+                        },
+                        starAction: {
+                            tagViewModel.starButtonTapped(paperInfo: paperInfo)
+                        },
+                        tagAction: { _ in },
+                        editAction: {
+                            homeViewModel.viewStatus = .search(paperInfo)
+                        },
+                        setTagAction: {
+                            // TODO: 뭐 들어가야 함?
+                            homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                        },
+                        copyAction: {
+                            tagViewModel.copyButtonTapped(paperInfo: paperInfo)
+                        },
+                        deleteAction: {
+                            selectedPaper = paperInfo
+                            deleteAlertPresented.toggle()
+                        },
+                        moveAction: {
+                            homeViewModel.selectedItems.insert(paperInfo.id)
+                            homeViewModel.isMovingFolder.toggle()
+                        }
+                    )
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+        .padding(.leading, 24)
+        .alert("정말 삭제하시겠습니까?", isPresented: $deleteAlertPresented) {
+            Button("삭제", role: .destructive) {
+                if let paperInfo = selectedPaper {
+                    tagViewModel.deleteButtonTapped(paperInfo: paperInfo)
+                }
+            }
+            
+            Button("취소", role: .cancel, action: {})
+        }
     }
 }
 

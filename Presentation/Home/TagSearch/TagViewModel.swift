@@ -12,8 +12,8 @@ import SwiftUI
 @MainActor
 class TagViewModel: ObservableObject {
     
-    private let tagViewUseCase: TagViewUseCase
-    // MARK: - [부리] tags에 사용자가 만든 태그들 다 저장
+    private let tagViewUseCase: TagViewWithIOUseCase
+    
     @Published public var tags: [Tag] = []
     @Published public var selectedTags: [Tag] = [] {
         didSet {
@@ -32,13 +32,16 @@ class TagViewModel: ObservableObject {
     
     @Published private var targetTagID: UUID
     
+    @Published public var tagFilteredPapers: [PaperInfo] = []
+    
     private var cancellables = Set<AnyCancellable>()
     
     init(
-        tagViewUseCase: TagViewUseCase,
-        tags: [Tag] = (1...20).map { Tag(name: "어쩌고\($0)") }
+        tagViewUseCase: TagViewWithIOUseCase
     ) {
         self.tagViewUseCase = tagViewUseCase
+        let tags = tagViewUseCase.fetchTags()
+        
         self.tags = tags
         self.isTagExist = !tags.isEmpty
         self.targetTagID = UUID()
@@ -50,6 +53,13 @@ class TagViewModel: ObservableObject {
             .map { !$0.isEmpty }
             .assign(to: \.isTagExist, on: self)
             .store(in: &cancellables)
+        
+        $selectedTags
+            .map {
+                self.tagViewUseCase.fetchFilteredPaperList(tags: $0)
+            }
+            .assign(to: \.tagFilteredPapers, on: self)
+            .store(in: &cancellables)
     }
     
     deinit {
@@ -58,9 +68,9 @@ class TagViewModel: ObservableObject {
     
     func tagTapped(for tagName: String){
         guard let index = tags.firstIndex(where: { $0.name == tagName }) else { return }
-        tags[index].isSeleted.toggle()
+        tags[index].isSelected.toggle()
         
-        if tags[index].isSeleted {
+        if tags[index].isSelected {
             selectedTags.append(tags[index])
         } else {
             selectedTags.removeAll { $0.id == tags[index].id }
@@ -80,18 +90,83 @@ class TagViewModel: ObservableObject {
     }
     
     func deleteTag() {
-        tagViewUseCase.deleteTag(id: targetTagID, from: &tags)
-        selectedTags.removeAll { $0.id == targetTagID }
+        if (tagViewUseCase.deleteTag(id: targetTagID)) {
+            tags.removeAll{ $0.id == targetTagID }
+        } else {
+            // Error 처리
+        }
         withAnimation {
             self.showDeleteAlert = false
         }
     }
 
     func createTag(name: String) {
-        tagViewUseCase.createTag(name: name, in: &tags)
+        do {
+            let newTag = try tagViewUseCase.createTag(name: name)
+            self.tags.append(newTag)
+        } catch {
+            
+        }
+    }
+    
+    public func fetchTags() {
+        self.tags = self.tagViewUseCase.fetchTags()
+        
+        for selectedTag in selectedTags {
+            if let index = tags.firstIndex(where: { $0.id == selectedTag.id }) {
+                tags[index].isSelected = true
+            }
+        }
+    }
+}
+
+// MARK: Ellipsis Actions
+extension TagViewModel {
+    public func starButtonTapped(paperInfo: PaperInfo) {
+        let modifiedPaperInfo = PaperInfo(
+            id: paperInfo.id,
+            title: paperInfo.title,
+            thumbnail: paperInfo.thumbnail,
+            url: paperInfo.url,
+            focusURL: paperInfo.focusURL,
+            lastModifiedDate: paperInfo.lastModifiedDate,
+            isFavorite: !paperInfo.isFavorite,
+            isFigureSaved: paperInfo.isFavorite,
+            folderID: paperInfo.folderID,
+            tags: paperInfo.tags
+        )
+        
+        if let idx = tagFilteredPapers.firstIndex(where: {$0.id == paperInfo.id}) {
+            tagFilteredPapers[idx].isFavorite = modifiedPaperInfo.isFavorite
+        }
+        
+        tagViewUseCase.editPDF(modifiedPaperInfo)
+    }
+    
+    public func copyButtonTapped(paperInfo: PaperInfo) {
+        let response = tagViewUseCase.duplicatePDF(paperInfo)
+        
+        if case .success = response {
+            fetchFilteredPaperList()
+        } else {
+            print(#function)
+        }
     }
     
     func getlistWidth(width: CGFloat) {
         listWidth = width - 40
+    }
+
+    public func deleteButtonTapped(paperInfo: PaperInfo) {
+        let id = paperInfo.id
+        
+        tagViewUseCase.deletePDF(paperInfo)
+        if let index = tagFilteredPapers.firstIndex(where: { $0.id == id }) {
+            tagFilteredPapers.remove(at: index)
+        }
+    }
+    
+    public func fetchFilteredPaperList() {
+        self.tagFilteredPapers = self.tagViewUseCase.fetchFilteredPaperList(tags: self.selectedTags)
     }
 }

@@ -69,10 +69,12 @@ private struct HomeSearchListView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(homeSearchViewModel.searchList) { paperInfo in
-                            HomePDFCell(paperInfo: paperInfo) {
+                            HomePDFCell(paperInfo: paperInfo, cellStatus: .normal) {
                                 // TODO: 네비게이션 push 시 Date 업데이트 필요
                                 homeSearchViewModel.PaperCellTapped(paperInfo)
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                            } checkAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
                             } starAction: {
                                 homeSearchViewModel.starButtonTapped(paperInfo)
                             } tagAction: { id in
@@ -86,11 +88,10 @@ private struct HomeSearchListView: View {
                             } deleteAction: {
                                 selectedPaper = paperInfo
                                 deleteAlertPresented.toggle()
+                            } moveAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                                homeViewModel.isMovingFolder.toggle()
                             }
-                            
-                            Rectangle()
-                                .foregroundStyle(.primary3)
-                                .frame(height: 1)
                         }
                         .padding(.leading, 30)
                     }
