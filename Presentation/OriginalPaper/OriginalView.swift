@@ -20,6 +20,7 @@ struct OriginalView: View {
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
     @State private var pdfViewOffset: CGFloat = 50
+    @State private var menuPosition: CGPoint = .zero
     
     @State private var orientation: LayoutOrientation = .horizontal
     
@@ -29,6 +30,11 @@ struct OriginalView: View {
     
     var body: some View {
         GeometryReader { geometry in
+            Color.clear
+                .preference(
+                    key: CommentButtonPositionKey.self,
+                    value: geometry.frame(in: .named("OriginalView")).origin
+                )
             ZStack {
                 VStack(spacing: 0) {
                     OriginalViewControllerRepresent() // PDF 뷰를 표시
@@ -55,34 +61,23 @@ struct OriginalView: View {
                     }
                 }
                 // 코멘트뷰
-                ZStack {
-                    if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
-                        CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
-                    }
+                if viewModel.isCommentVisible == true || commentViewModel.isEditMode {
+                    CommentGroupView(changedSelection: viewModel.commentSelection ?? PDFSelection())
+                        .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
+                        .onPreferenceChange(CommentButtonPositionKey.self) { value in
+                            menuPosition = value
+                        }
+                        .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
+                        .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
                 }
-                .position(viewModel.isCommentTapped || commentViewModel.isEditMode ? commentViewModel.commentPosition : viewModel.commentInputPosition)
-                .animation(.smooth(duration: 0.3), value: viewModel.commentInputPosition)
-                .opacity(viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode ? 1.0 : 0.0)
-                .animation(.smooth(duration: 0.3), value: viewModel.isCommentTapped || viewModel.isCommentVisible || commentViewModel.isEditMode)
-                
                 // 코멘트 수정 삭제 뷰
                 if let comment = commentViewModel.comment {
                     if commentViewModel.isMenuTapped {
-                        let position = commentViewModel.buttonPosition
-                        /// 선택된 comment.id와 같은 id 값을 key 로 가지고 있다면
-                            .filter {$0.key == comment.id}
-                        /// 해당 key의 value를 가져오기 (CGPoint)
-                            .map { $0.value }.first
-                        if let point = position {
-                            ZStack {
-                                CommentMenuView(comment: comment)
-                            }
-                            .position(x: point.x - 30, y: point.y - 110)
+                        CommentMenuView(comment: comment)
+                            .position(CGPoint(x : menuPosition.x - 40, y: menuPosition.y - 50))
                             .opacity(commentViewModel.isMenuTapped ? 1.0 : 0.0)
-                        }
                     }
                 }
-                
                 // 이전페이지로 버튼
                 ZStack {
                     BackPageBtnView(action: {
@@ -145,6 +140,7 @@ struct OriginalView: View {
                 }
             }
         }
+        .coordinateSpace(name: "OriginalView")
         .onAppear {
             self.getOrientationFromFace()
         }

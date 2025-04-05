@@ -11,18 +11,23 @@ struct CustomAlert: View {
     var type: AlertType = .delete
     
     let mainText: String
-    var message: String? = nil
+    let message: String?
+    let width: CGFloat
+    let height: CGFloat
     
     let cancelAction: () -> Void
     var confirmAction: () -> Void = {}
     
     var body: some View {
         VStack(spacing: 0) {
+            Spacer()
             VStack(alignment: .center, spacing: 0) {
                 Text(mainText)
                     .reazyFont(.button1)
                     .foregroundStyle(.gray900)
                     .multilineTextAlignment(.center)
+                    .padding(.bottom, 2)
+
                 if let message = message {
                     Text(message)
                         .reazyFont(.body1)
@@ -30,7 +35,6 @@ struct CustomAlert: View {
                         .lineLimit(1)
                 }
             }
-            .padding(.top, 25)
             .padding(.horizontal, 30)
             Spacer()
             
@@ -43,7 +47,7 @@ struct CustomAlert: View {
             }
             .frame(height: 52)
         }
-        .frame(width: 350, height: 176)
+        .frame(width: width, height: height)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .foregroundStyle(.gray200)

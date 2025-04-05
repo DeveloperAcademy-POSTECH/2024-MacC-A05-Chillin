@@ -28,6 +28,7 @@ class TagViewModel: ObservableObject {
     @Published public var createTag: Bool = false
     @Published public var isTagDuplicate: Bool = false
     @Published public var showDeleteAlert: Bool = false
+    @Published public var listWidth: CGFloat = 0
     
     @Published private var targetTagID: UUID
     
@@ -152,6 +153,10 @@ extension TagViewModel {
         }
     }
     
+    func getlistWidth(width: CGFloat) {
+        listWidth = width - 40
+    }
+
     public func deleteButtonTapped(paperInfo: PaperInfo) {
         let id = paperInfo.id
         
@@ -164,5 +169,4 @@ extension TagViewModel {
     public func fetchFilteredPaperList() {
         self.tagFilteredPapers = self.tagViewUseCase.fetchFilteredPaperList(tags: self.selectedTags)
     }
-    
 }
