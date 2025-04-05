@@ -155,7 +155,10 @@ private struct TagInputTextField: View {
             .padding(.trailing, 14)
         }
         .frame(width: 400, height: 52)
-        .onReceive(viewModel.$searchText) { _ in
+        .onChange(of: viewModel.searchText) { _, newValue in
+            if newValue.count > 30 {
+                viewModel.searchText = String(newValue.prefix(30))
+            }
             viewModel.searchTagButtonTapped()
         }
     }

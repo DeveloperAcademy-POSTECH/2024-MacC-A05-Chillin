@@ -22,21 +22,12 @@ struct HomeView: View {
     @State private var isStarSelected: Bool = false
     @State private var isFolderSelected: Bool = false
     
-    @State private var isEditing: Bool = false
-    @State private var selectedItems: Set<UUID> = []
-    
     @State private var isEditingTitle: Bool = false
     
-    // 폴더 선택 변수
-    @State private var selectedFolderID: UUID? = nil
-    
     // 폴더 추가 페이지 변수
-    @State private var createFolder: Bool = false
     @State private var createMovingFolder: Bool = false
-    @State private var isEditingFolder: Bool = false
     
     // 폴더 이동 변수
-    @State private var isMovingFolder: Bool = false
     @State private var moveToFolderID: UUID? = nil
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
@@ -47,7 +38,10 @@ struct HomeView: View {
     )
     
     @StateObject private var tagViewModel: TagViewModel = .init(
-        tagViewUseCase: DefaultTagViewUseCase()
+        tagViewUseCase: DefaultTagViewUseCase(
+            tagRepository: TagDataRepositoryImpl(),
+            paperDataRepository: PaperDataRepositoryImpl()
+        )
     )
     
     var body: some View {
@@ -70,8 +64,6 @@ struct HomeView: View {
                         case .main:
                             MainMenuView(
                                 selectedMenu: $homeViewModel.selectedMenu,
-                                isEditing: $isEditing,
-                                selectedItems: $selectedItems,
                                 selectedItemID: $selectedItemID
                             )
                             
@@ -80,12 +72,7 @@ struct HomeView: View {
                                 .environmentObject(homeSearchViewModel)
                             
                         case .edit:
-                            EditMenuView(
-                                selectedMenu: $homeViewModel.selectedMenu,
-                                selectedItems: $selectedItems,
-                                isEditing: $isEditing,
-                                isMovingFolder: $isMovingFolder
-                            )
+                            EditMenuView(selectedMenu: $homeViewModel.selectedMenu)
                         }
                     }
                     .padding(.top, 46)
@@ -99,60 +86,47 @@ struct HomeView: View {
                             .environmentObject(homeSearchViewModel)
                     } else {
                         HStack(spacing: 0) {
-                            HomeListView(
-                                createFolder: $createFolder,
-                                selectedFolderID: $selectedFolderID
-                            )
-                            .frame(width: geometry.size.width / 4)
+                            SidePanelView(geometry: geometry)
                             
-                            if homeViewModel.isTagSelected {
-                                // TODO: - [쿠로] 태그 뷰 위치
-                                TagView()
-                                    .environmentObject(tagViewModel)
-                            } else {
-                                PaperListView(
-                                    selectedItemID: $selectedItemID,
-                                    selectedItems: $selectedItems,
-                                    isEditing: $isEditing,
-                                    isEditingTitle: $isEditingTitle,
-                                    isEditingFolder: $isEditingFolder,
-                                    isMovingFolder: $isMovingFolder
-                                )
+                            ContentPanelView()
                                 .environmentObject(homeSearchViewModel)
-                            }
                         }
                     }
                 }
             }
-            .blur(radius: isEditingTitle || createFolder || isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
+            .blur(radius: isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
-                .opacity(isEditingTitle || createFolder || isEditingFolder || isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
+                .opacity(isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
-            if createFolder || isEditingFolder {
+            Color.black
+                .opacity(homeViewModel.viewStatus.isBlacked ? 0.5 : 0)
+                .ignoresSafeArea(edges: .bottom)
+                .onTapGesture {
+                    homeViewModel.viewStatus = .normal
+                }
+            
+            if homeViewModel.createFolder || homeViewModel.isEditingFolder {
                 FolderView(
-                    createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
-                    isEditingFolder: $isEditingFolder,
-                    folder: homeViewModel.folders.first { $0.id == selectedItemID! } ?? nil
+                    folder: homeViewModel.folders.first { $0.id == homeViewModel.selectedFolderID }
                 )
             }
             
             // 폴더 이동 View
-            if isMovingFolder {
-                let itemsToMove: [FileSystemItem] = selectedItems.isEmpty
+            if homeViewModel.isMovingFolder {
+                let itemsToMove: [PaperInfo] = homeViewModel.selectedItems.isEmpty
                 ? (selectedItemID.flatMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }).map { [$0] } ?? []
-                : selectedItems.compactMap { id in
+                : homeViewModel.selectedItems.compactMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }
                 
                 MoveFolderView(
                     createMovingFolder: $createMovingFolder,
-                    isMovingFolder: $isMovingFolder,
                     items: itemsToMove,
                     selectedID: $moveToFolderID
                 )
@@ -160,7 +134,7 @@ struct HomeView: View {
                 .frame(width: 740, height: 550)
                 .blur(radius: createMovingFolder ? 20 : 0)
                 .onDisappear {
-                    selectedItems.removeAll()
+                    homeViewModel.selectedItems.removeAll()
                 }
             }
             
@@ -172,9 +146,7 @@ struct HomeView: View {
             if createMovingFolder {
                 let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
                 FolderView(
-                    createFolder: $createFolder,
                     createMovingFolder: $createMovingFolder,
-                    isEditingFolder: $isEditingFolder,
                     folder: folder
                 )
             }
@@ -193,7 +165,7 @@ struct HomeView: View {
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
         .animation(.easeInOut, value: isEditingTitle)
-        .animation(.easeInOut, value: isEditingFolder)
+        .animation(.easeInOut, value: homeViewModel.isEditingFolder)
         .alert(isPresented: $homeViewModel.isErrorOccured) {
             // TODO: 예외 처리 수정 필요
             switch homeViewModel.errorStatus {
@@ -215,13 +187,14 @@ struct HomeView: View {
                 dismissButton: .default(Text("확인"))
             )
         }
-        .blur(radius: ((homeViewModel.viewStatus != .normal) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
+        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
         .overlay {
             if case let .search(paperInfo) = homeViewModel.viewStatus {
                 RenamePaperTitleView(paperInfo: paperInfo) {
                     homeViewModel.viewStatus = .normal
                 } completeAction: { text in
-                    
+                    homeViewModel.updateTitle(at: paperInfo.id, title: text)
+                    homeViewModel.viewStatus = .normal
                 }
                 .ignoresSafeArea(edges: .top)
             }
@@ -248,6 +221,18 @@ struct HomeView: View {
                 }
             }
             
+            if case let .addTagToPaperInfo(paperInfo) = homeViewModel.viewStatus {
+                TagControlView(paperInfo: paperInfo) {
+                    homeViewModel.viewStatus = .normal
+                } completeAction: {
+                    homeViewModel.viewStatus = .normal
+                }
+                .onDisappear {
+                    homeViewModel.fetchPaperList()
+                    tagViewModel.fetchFilteredPaperList()
+                }
+            }
+            
             // 태그 생성
             if tagViewModel.createTag {
                 CreateTagView()
@@ -256,9 +241,55 @@ struct HomeView: View {
             if tagViewModel.showDeleteAlert {
                 CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
                             message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.",
-                            cancleAction: { tagViewModel.showDeleteAlert = false },
+                            cancelAction: { tagViewModel.showDeleteAlert = false },
                             confirmAction: tagViewModel.deleteTag)
             }
+            
+            if case .folderPopover = homeViewModel.viewStatus {
+                if case let .folderPopover(position) = homeViewModel.viewStatus {
+                    HomeFolderPopoverView()
+                        .environmentObject(homeViewModel)
+                        .position(position)
+                }
+            }
+            
+            if homeViewModel.showDeleteAlert {
+                CustomAlert(
+                    mainText: "삭제하시겠습니까?\n삭제된 항목은 복구할 수 없습니다.",
+                    cancelAction: { homeViewModel.showDeleteAlert = false },
+                    confirmAction: {
+                        if let id = homeViewModel.currentFolder?.id {
+                            homeViewModel.deleteFolder(at: id)
+                        }
+                    }
+                )
+            }
+            
+            if homeViewModel.showFolderDepthAlert {
+                CustomAlert(
+                    type: .confirm,
+                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
+                    cancelAction: { homeViewModel.showFolderDepthAlert = false }
+                )
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func SidePanelView(geometry: GeometryProxy) -> some View {
+        if !homeViewModel.isEditing {
+            HomeListView()
+                .frame(width: geometry.size.width / 4)
+        }
+    }
+    
+    @ViewBuilder
+    private func ContentPanelView() -> some View {
+        if homeViewModel.isTagSelected {
+            TagView()
+                .environmentObject(tagViewModel)
+        } else {
+            PaperListView()
         }
     }
 }
@@ -276,9 +307,7 @@ private struct MainMenuView: View {
     @State private var errorAlert: Bool = false
     
     @Binding var selectedMenu: Options
-    @Binding var isEditing: Bool
     
-    @Binding var selectedItems: Set<UUID>
     @Binding var selectedItemID: UUID?
     
     var body: some View {
@@ -302,8 +331,7 @@ private struct MainMenuView: View {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     selectedMenu = .edit
                 }
-                isEditing.toggle()
-                selectedItems.removeAll()
+                homeViewModel.isEditing.toggle()
             }) {
                 Image(systemName: "checkmark.circle")
                     .font(.system(size: 17.68))
@@ -409,9 +437,6 @@ private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @Binding var selectedMenu: Options
-    @Binding var selectedItems: Set<UUID>
-    @Binding var isEditing: Bool
-    @Binding var isMovingFolder: Bool
     
     @State var isDeleteConfirm: Bool = false
     
@@ -439,14 +464,14 @@ private struct EditMenuView: View {
             .disabled(containsFolder)
             */
             Button(action: {
-                self.isMovingFolder.toggle()
+                homeViewModel.isMovingFolder.toggle()
             }, label: {
                 Image(.move)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
+                    .foregroundStyle(homeViewModel.selectedItems.isEmpty ? .gray550 : .gray100)
             })
             .padding(.trailing, 28)
             
@@ -458,15 +483,15 @@ private struct EditMenuView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(self.selectedItems.isEmpty ? .gray550 : .gray100)
+                    .foregroundStyle(homeViewModel.selectedItems.isEmpty ? .gray550 : .gray100)
             })
-            .disabled(self.selectedItems.isEmpty)
+            .disabled(homeViewModel.selectedItems.isEmpty)
             .padding(.trailing, 28)
             
             Button(action: {
                 selectedMenu = .main
-                isEditing = false
-                selectedItems.removeAll()
+                homeViewModel.isEditing = false
+                homeViewModel.selectedItems.removeAll()
             }, label: {
                 Text("완료")
                     .reazyFont(.button1)
@@ -477,16 +502,16 @@ private struct EditMenuView: View {
         .alert(
             "정말 삭제하시겠습니까?",
             isPresented: $isDeleteConfirm,
-            presenting: selectedItems
+            presenting: homeViewModel.selectedItems
         ) { itemList in
             Button("취소", role: .cancel) {}
             Button("삭제", role: .destructive) {
-                let items: [FileSystemItem] = itemList.compactMap { id in
+                let items: [PaperInfo] = itemList.compactMap { id in
                     homeViewModel.filteredLists.first(where: { $0.id == id })
                 }
                 
                 homeViewModel.deleteFiles(items)
-                selectedItems.removeAll()
+                homeViewModel.selectedItems.removeAll()
             }
         } message: { itemList in
             Text("삭제된 파일은 복구할 수 없습니다.")
@@ -501,14 +526,7 @@ struct FolderView: View {
     
     @State private var selectedColors: FolderColors = .folder1
     
-    /* [세 가지 케이스 분리]
-     - createFolder: 메인 화면에서 폴더 생성
-     - createMovingFolder: 폴더 이동 시 새로운 폴더 생성
-     - isEditingFolder: 폴더 정보 수정
-     */
-    @Binding var createFolder: Bool
     @Binding var createMovingFolder: Bool
-    @Binding var isEditingFolder: Bool
     
     @State private var text: String = ""
     
@@ -519,10 +537,10 @@ struct FolderView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        if isEditingFolder {
-                            isEditingFolder.toggle()
-                        } else if createFolder {
-                            createFolder.toggle()
+                        if homeViewModel.isEditingFolder {
+                            homeViewModel.isEditingFolder = false
+                        } else if homeViewModel.createFolder {
+                            homeViewModel.createFolder = false
                         } else {
                             createMovingFolder.toggle()
                         }
@@ -537,24 +555,31 @@ struct FolderView: View {
                     Button(action: {
                         if text.isEmpty { text = "새 폴더" }
                         
-                        if isEditingFolder {
+                        if homeViewModel.isEditingFolder {
                             if let folder = folder {
                                 homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
-                                isEditingFolder.toggle()
+                                homeViewModel.selectedFolderID = nil
+                                homeViewModel.isEditingFolder = false
                             }
-                        } else if createFolder {
+                        } else if homeViewModel.createFolder {
                             // 최상위 단계와 폴더 진입 단계 구분
                             if homeViewModel.isAtRoot {
-                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             } else {
-                                homeViewModel.saveFolder(to: homeViewModel.currentFolder?.id, title: text, color: selectedColors.rawValue)
+                                switch homeViewModel.folderCreationPosition {
+                                case .intoCurrent:
+                                    homeViewModel.createSubfolder(in: homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                case .aboveCurrent:
+                                    homeViewModel.createFolderAbove(homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                }
                             }
-                            createFolder.toggle()
+                            homeViewModel.selectedFolderID = nil
+                            homeViewModel.createFolder = false
                         } else {
                             if let folder = folder {
-                                homeViewModel.saveFolder(to: folder.id, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: folder, title: text, color: selectedColors.rawValue)
                             } else {
-                                homeViewModel.saveFolder(to: nil, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             }
                             createMovingFolder.toggle()
                         }
@@ -640,7 +665,7 @@ struct FolderView: View {
             }
         }
         .onAppear {
-            if isEditingFolder {
+            if homeViewModel.isEditingFolder {
                 if let folder = folder {
                     text = folder.title
                     selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
@@ -731,5 +756,10 @@ private struct CreateTagView: View {
         }
         .animation(.easeInOut, value: tagViewModel.createTag)
         .animation(.easeInOut, value: tagViewModel.isTagDuplicate)
+        .onChange(of: text) { _, newValue in
+            if newValue.count > 30 {
+                text = String(newValue.prefix(30))
+            }
+        }
     }
 }

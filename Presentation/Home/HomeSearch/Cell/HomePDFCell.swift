@@ -11,59 +11,101 @@ import SwiftUI
 
 struct HomePDFCell: View {
     @State private var popover = false
-    let paperInfo: PaperInfo
+    @State var paperInfo: PaperInfo
+    // 이걸로 다중 선택 키기
+    var cellStatus: CellStatus
     
     let onTapGesture: () -> Void
+    let checkAction: () -> Void
     let starAction: () -> Void
     let tagAction: (UUID) -> Void
     let editAction: () -> Void
     let setTagAction: () -> Void
     let copyAction: () -> Void
     let deleteAction: () -> Void
-
+    let moveAction: () -> Void
     
     var body: some View {
-            Button {
-                onTapGesture()
-            } label: {
-                HStack(alignment: .top, spacing: 0) {
-                    ThumbnailImageView(
-                        thumbnailData: paperInfo.thumbnail,
-                        isStared: paperInfo.isFavorite,
-                        starAction: starAction
-                    )
-                    
-                    PaperInformationView(
-                        title: paperInfo.title,
-                        date: paperInfo.lastModifiedDate,
-                        tags: paperInfo.tags,
-                        tagAction: tagAction
-                    )
-                    
-                    Spacer()
-                    
-                    EllipsisView {
-                        popover.toggle()
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                if case .selection = cellStatus {
+                    SelectionCheckView(isSelected: paperInfo.isSelected) {
+                        paperInfo.isSelected.toggle()
+                        checkAction()
                     }
-                    .popover(isPresented: $popover, arrowEdge: .trailing) {
-                        EllipsisButtonView {
-                            editAction()
-                            popover.toggle()
-                        } setTagAction: {
-                            setTagAction()
-                            popover.toggle()
-                        } copyPaperAction: {
-                            copyAction()
-                            popover.toggle()
-                        } deletePaperAction: {
-                            deleteAction()
+                    .padding(.leading, 10)
+                    .padding(.trailing, 26)
+                }
+                
+                Button {
+                    switch cellStatus {
+                    case .normal:
+                        onTapGesture()
+                    case .selection:
+                        break
+                    }
+                } label: {
+                    HStack(alignment: .top, spacing: 0) {
+                        ThumbnailImageView(
+                            thumbnailData: paperInfo.thumbnail,
+                            isStared: paperInfo.isFavorite,
+                            starAction: starAction
+                        )
+                        
+                        PaperInformationView(
+                            title: paperInfo.title,
+                            date: paperInfo.lastModifiedDate,
+                            tags: paperInfo.tags,
+                            tagAction: tagAction
+                        )
+                        
+                        Spacer()
+                        
+                        EllipsisView {
                             popover.toggle()
                         }
+                        .popover(isPresented: $popover, arrowEdge: .trailing) {
+                            EllipsisButtonView {
+                                editAction()
+                                popover.toggle()
+                            } setTagAction: {
+                                setTagAction()
+                                popover.toggle()
+                            } copyPaperAction: {
+                                copyAction()
+                                popover.toggle()
+                            } deletePaperAction: {
+                                deleteAction()
+                                popover.toggle()
+                            } moveFolderAction: {
+                                moveAction()
+                                popover.toggle()
+                            }
+                        }
                     }
+                    .padding(.top, 10)
                 }
-                .padding(.top, 10)
+                .frame(height: 138)
             }
-            .frame(height: 138)
+            
+            Rectangle()
+                .foregroundStyle(.primary3)
+                .frame(height: 1)
+        }
+        .background {
+            if case .selection = cellStatus, paperInfo.isSelected {
+                RoundedRectangle(cornerRadius: 12)
+                    .foregroundStyle(.primary2)
+                    .padding(.vertical, 6)
+                    .padding(.trailing, 12)
+            }
+        }
+    }
+    
+    
+    enum CellStatus {
+        case normal
+        case selection
     }
 }
 
@@ -135,6 +177,7 @@ private struct EllipsisButtonView: View {
     let setTagAction: () -> Void
     let copyPaperAction: () -> Void
     let deletePaperAction: () -> Void
+    let moveFolderAction: () -> Void
     
     // TODO: 버튼 액션 추가
     var body: some View {
@@ -147,8 +190,10 @@ private struct EllipsisButtonView: View {
                         .reazyFont(.body1)
                     Spacer()
                     Image(.editpencil)
+                        .renderingMode(.template)
                         .resizable()
                         .frame(width: 17, height: 17)
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -167,6 +212,7 @@ private struct EllipsisButtonView: View {
                     Spacer()
                     Image(systemName: "tag")
                         .font(.system(size: 14))
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -183,8 +229,10 @@ private struct EllipsisButtonView: View {
                         .reazyFont(.body1)
                     Spacer()
                     Image(.copyDark)
+                        .renderingMode(.template)
                         .resizable()
                         .frame(width: 17, height: 17)
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -194,15 +242,17 @@ private struct EllipsisButtonView: View {
             divider
             
             Button {
-                // TODO: 추후 연결 필요
+                moveFolderAction()
             } label: {
                 HStack {
                     Text("이동")
                         .reazyFont(.body1)
                     Spacer()
                     Image(.move)
+                        .renderingMode(.template)
                         .resizable()
                         .frame(width: 17, height: 17)
+                        .foregroundStyle(.gray800)
                 }
             }
             .foregroundStyle(.gray800)
@@ -236,5 +286,27 @@ private struct EllipsisButtonView: View {
         Rectangle()
             .frame(height: 1)
             .foregroundStyle(.primary2)
+    }
+}
+
+
+private struct SelectionCheckView: View {
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.primary1)
+            } else {
+                Image(systemName: "circle")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.primary4)
+            }
+        }
     }
 }
