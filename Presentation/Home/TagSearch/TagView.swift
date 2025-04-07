@@ -69,10 +69,10 @@ struct TagView: View {
                             .padding(.horizontal, 20)
                             .frame(maxWidth: geometry.size.width - 40, minHeight: geometry.size.height * 0.33)
                             .onAppear(){
-                                tagViewModel.getlistWidth(width: geometry.size.width - 40)
+                                tagViewModel.getlistWidth(width: geometry.size.width)
                             }
-                            .onChange(of: geometry.size.width) { width, _ in
-                                tagViewModel.getlistWidth(width: width - 40)
+                            .onChange(of: geometry.size.width) {
+                                tagViewModel.getlistWidth(width: geometry.size.width)
                             }
                             
                             // 편집 버튼
@@ -176,9 +176,6 @@ struct TagListView: View {
         }
         .onAppear {
             tagViewModel.fetchTags()
-        }
-        .onChange(of: tagViewModel.popover) { newValue in
-            
         }
     }
 }

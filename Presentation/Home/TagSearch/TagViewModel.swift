@@ -154,7 +154,7 @@ extension TagViewModel {
     }
     
     func getlistWidth(width: CGFloat) {
-        listWidth = width - 40
+        listWidth = width - 80
     }
 
     public func deleteButtonTapped(paperInfo: PaperInfo) {
