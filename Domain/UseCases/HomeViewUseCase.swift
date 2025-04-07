@@ -286,7 +286,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
 
         try! FileManager.default.moveItem(at: tempPath, to: path)
 
-        let focusURLData = try! path.bookmarkData(options: .minimalBookmark)
+        let focusURLData = try! path.bookmarkData(options: .suitableForBookmarkFile)
         
         return focusURLData
     }
@@ -357,7 +357,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             
             try manager.copyItem(at: url, to: fileURL)
             
-            let urlData = try fileURL.bookmarkData(options: .minimalBookmark)
+            let urlData = try fileURL.bookmarkData(options: .suitableForBookmarkFile)
             
             return (urlData, fileURL)
         } catch {
@@ -422,7 +422,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     }
                     
                     try manager.copyItem(at: fileURL, to: resultURL)
-                    let urlData = try resultURL.bookmarkData(options: .minimalBookmark)
+                    let urlData = try resultURL.bookmarkData(options: .suitableForBookmarkFile)
                     
                     return (urlData, resultURL)
                 }

@@ -176,7 +176,7 @@ extension DefaultTagViewUseCase {
                     }
                     
                     try manager.copyItem(at: fileURL, to: resultURL)
-                    let urlData = try resultURL.bookmarkData(options: .minimalBookmark)
+                    let urlData = try resultURL.bookmarkData(options: .suitableForBookmarkFile)
                     
                     return (urlData, resultURL)
                 }
