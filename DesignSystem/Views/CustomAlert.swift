@@ -11,7 +11,7 @@ struct CustomAlert: View {
     var type: AlertType = .delete
     
     let mainText: String
-    let message: String?
+    var message: String? = nil
     let width: CGFloat
     let height: CGFloat
     
