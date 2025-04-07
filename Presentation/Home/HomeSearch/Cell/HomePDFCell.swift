@@ -124,8 +124,10 @@ private struct ThumbnailImageView: View {
                 Button {
                     starAction()
                 } label: {
-                    Image(systemName: isStared ? "star.fill" : "star")
-                        .font(.system(size: 18))
+                    Image(isStared ? "starfill" : "star")
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 18, height: 18)
                         .foregroundStyle(isStared ? .point4 : .gray600)
                 }
                 .padding(6)
