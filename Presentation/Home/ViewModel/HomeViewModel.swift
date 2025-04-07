@@ -38,7 +38,7 @@ class HomeViewModel: ObservableObject {
     @Published public var newFolderID: UUID?
     
     public var isAtRoot: Bool {
-        return currentFolder == nil
+        return currentFolder == nil && selectedFolderID == nil
     }
     
     @Published var selectedFolderID: UUID? {
@@ -448,20 +448,6 @@ extension HomeViewModel {
     func createFolderAboveSelectedFolder(title: String, color: String) {
         let folder = selectedFolder()
         createFolderAbove(folder, title: title, color: color)
-    }
-    
-    func expandableFolderPath(to folderID: UUID) -> [UUID] {
-        var path: [UUID] = []
-        var currentID: UUID? = folderID
-
-        while let id = currentID,
-              let folder = folders.first(where: { $0.id == id }),
-              let parentID = folder.parentFolderID {
-            path.append(parentID)
-            currentID = parentID
-        }
-
-        return path
     }
     
     public func updateFolderInfo(at id: UUID, title: String, color: String) {
