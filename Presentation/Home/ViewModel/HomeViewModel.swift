@@ -93,6 +93,7 @@ class HomeViewModel: ObservableObject {
     @Published public var isEditingFolder: Bool = false
     @Published public var createFolder: Bool = false
     @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent
+    @Published public var expandedFolders: Set<UUID> = []
     
     @Published public var showDeleteAlert: Bool = false
     @Published public var showFolderDepthAlert: Bool = false
@@ -397,6 +398,20 @@ extension HomeViewModel {
         return folders.first(where: { $0.id == selectedID })
     }
     
+    private func collectParentFolderIDs(from folder: Folder?) -> [UUID] {
+        var result: [UUID] = []
+        var currentFolder = folder
+
+        while let parentID = currentFolder?.parentFolderID,
+              let parentFolder = folders.first(where: { $0.id == parentID }) {
+            result.append(parentID)
+            currentFolder = parentFolder
+        }
+
+        return result
+    }
+
+    
     public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let folder = Folder(
             id: UUID(),
@@ -422,7 +437,9 @@ extension HomeViewModel {
         
         newFolderID = newFolder.id
         newFolderParentID = folder?.id
-        currentFolder = folders.first { $0.id == newFolder.id }
+        
+        let parentIDs = collectParentFolderIDs(from: newFolder)
+        expandedFolders.formUnion(parentIDs)
     }
 
     func createFolderAbove(_ folder: Folder?, title: String, color: String) {
@@ -437,7 +454,9 @@ extension HomeViewModel {
 
         newFolderID = newParent.id
         newFolderParentID = newParent.parentFolderID
-        currentFolder = folders.first { $0.id == newParent.id }
+        
+        let parentIDs = collectParentFolderIDs(from: newParent)
+        expandedFolders.formUnion(parentIDs)
     }
     
     func createSubfolderInSelectedFolder(title: String, color: String) {

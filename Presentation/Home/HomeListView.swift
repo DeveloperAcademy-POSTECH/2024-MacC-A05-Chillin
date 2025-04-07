@@ -9,7 +9,6 @@ import SwiftUI
 
 struct HomeListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
-    @State private var expandedFolders: Set<UUID> = []
     
     @State private var selectedCategory: CategorySelection = .main
     
@@ -64,7 +63,7 @@ struct HomeListView: View {
                             FolderListCell(
                                 folder: folder,
                                 level: 0,
-                                expandedFolders: $expandedFolders,
+                                expandedFolders: $homeViewModel.expandedFolders,
                                 childFolders: childFolders(of:),
                                 toggleExpansion: toggleExpansion,
                                 hasChildren: hasChildren(folder:),
@@ -157,10 +156,10 @@ struct HomeListView: View {
     
     private func toggleExpansion(_ folder: Folder) {
         withAnimation {
-            if expandedFolders.contains(folder.id) {
-                expandedFolders.remove(folder.id)
+            if homeViewModel.expandedFolders.contains(folder.id) {
+                homeViewModel.expandedFolders.remove(folder.id)
             } else {
-                expandedFolders.insert(folder.id)
+                homeViewModel.expandedFolders.insert(folder.id)
             }
         }
     }
