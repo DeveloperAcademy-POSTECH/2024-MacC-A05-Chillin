@@ -570,9 +570,9 @@ struct FolderView: View {
                             } else {
                                 switch homeViewModel.folderCreationPosition {
                                 case .intoCurrent:
-                                    homeViewModel.createSubfolder(in: homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                    homeViewModel.createSubfolderInSelectedFolder(title: text, color: selectedColors.rawValue)
                                 case .aboveCurrent:
-                                    homeViewModel.createFolderAbove(homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                    homeViewModel.createFolderAboveSelectedFolder(title: text, color: selectedColors.rawValue)
                                 }
                             }
                             homeViewModel.selectedFolderID = nil

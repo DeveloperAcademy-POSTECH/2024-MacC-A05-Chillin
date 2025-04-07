@@ -392,6 +392,11 @@ extension HomeViewModel {
         return depth
     }
     
+    private func selectedFolder() -> Folder? {
+        guard let selectedID = selectedFolderID else { return nil }
+        return folders.first(where: { $0.id == selectedID })
+    }
+    
     public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let folder = Folder(
             id: UUID(),
@@ -431,6 +436,16 @@ extension HomeViewModel {
 
         newFolderID = newParent.id
         newFolderParentID = newParent.parentFolderID
+    }
+    
+    func createSubfolderInSelectedFolder(title: String, color: String) {
+        let folder = selectedFolder()
+        createSubfolder(in: folder, title: title, color: color)
+    }
+
+    func createFolderAboveSelectedFolder(title: String, color: String) {
+        let folder = selectedFolder()
+        createFolderAbove(folder, title: title, color: color)
     }
 
     

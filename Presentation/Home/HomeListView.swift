@@ -13,9 +13,6 @@ struct HomeListView: View {
     
     @State private var selectedCategory: CategorySelection = .main
     
-    @State private var animationFolder: Folder?
-    @GestureState private var highlight = false
-    
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
@@ -76,31 +73,17 @@ struct HomeListView: View {
                                     selectedCategory = .folder(folderID)
                                     homeViewModel.selectCategory(.folder(folderID))
                                 },
-                                handleDrop: handleDrop(to:droppedItem:)
-                            )
-                            .padding(.top, 10)
-                            .gesture(LongPressGesture(minimumDuration: 0.5)
-                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                                .updating($highlight) { currentState, gestureState, transaction in
-                                    self.animationFolder = folder
-                                    transaction.animation = .easeIn(duration: 1)
-                                    gestureState = true
-                                }
-                                .onEnded { value in
-                                    switch value {
-                                    case .second(true, let drag):
-                                        if let drag = drag {
-                                            homeViewModel.viewStatus = .folderPopover(
-                                                .init(x: 40 + 100, y: drag.location.y + 85)
-                                            )
-                                            homeViewModel.selectedFolderID = folder.id
-                                        }
-                                    default:
-                                        break
+                                handleDrop: handleDrop(to:droppedItem:),
+                                onLongPressGesture: { folder, drag in
+                                    if let drag = drag {
+                                        homeViewModel.viewStatus = .folderPopover(
+                                            .init(x: 40 + 100, y: drag.location.y + 85)
+                                        )
+                                        homeViewModel.selectedFolderID = folder.id
                                     }
                                 }
                             )
-                            .scaleEffect((animationFolder == folder && highlight) ? 1.2 : 1)
+                            .padding(.top, 10)
                         }
                     }
                 }
@@ -132,7 +115,7 @@ struct HomeListView: View {
                 HStack(spacing: 0) {
                     if let icon = icon, let selectedIcon = selectedIcon {
                         Image(systemName: selectedCategory == category ? selectedIcon : icon)
-                            .font(.system(size: 16))
+                            .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
                             .padding(.trailing, 11)
                     } else if let image = image, let selectedImage = selectedImage {
@@ -202,6 +185,10 @@ private struct FolderListCell: View {
     var didSelectFolder: (UUID) -> Void
     var handleDrop: (UUID, PaperInfo) -> Void
     
+    @State private var animationFolder: Folder?
+    var onLongPressGesture: (Folder, DragGesture.Value?) -> Void
+    @GestureState private var highlight = false
+    
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -250,6 +237,24 @@ private struct FolderListCell: View {
             .onTapGesture {
                 didSelectFolder(folder.id)
             }
+            .gesture(
+                LongPressGesture(minimumDuration: 0.5)
+                    .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+                    .updating($highlight) { currentState, gestureState, transaction in
+                        self.animationFolder = folder
+                        transaction.animation = .easeIn(duration: 1)
+                        gestureState = true
+                    }
+                    .onEnded { value in
+                        switch value {
+                        case .second(true, let drag):
+                            onLongPressGesture(folder, drag)
+                        default:
+                            break
+                        }
+                    }
+            )
+            .scaleEffect((animationFolder == folder && highlight) ? 1.2 : 1)
             .dropDestination(for: PaperInfo.self) { droppedItems, location in
                 if let droppedItem = droppedItems.first {
                     handleDrop(folder.id, droppedItem)
@@ -269,7 +274,8 @@ private struct FolderListCell: View {
                         hasChildren: hasChildren,
                         selectedFolderID: $selectedFolderID,
                         didSelectFolder: didSelectFolder,
-                        handleDrop: handleDrop
+                        handleDrop: handleDrop,
+                        onLongPressGesture: onLongPressGesture
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.top, 10)
