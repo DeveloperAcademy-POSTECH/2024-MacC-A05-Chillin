@@ -132,7 +132,7 @@ struct HomeListView: View {
                 HStack(spacing: 0) {
                     if let icon = icon, let selectedIcon = selectedIcon {
                         Image(systemName: selectedCategory == category ? selectedIcon : icon)
-                            .font(.system(size: 18))
+                            .font(.system(size: 16))
                             .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
                             .padding(.trailing, 11)
                     } else if let image = image, let selectedImage = selectedImage {
