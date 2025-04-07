@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RegexBuilder
 
 typealias TagViewWithIOUseCase = TagViewUseCase & HomeSearchUseCase
 
@@ -93,7 +94,7 @@ extension DefaultTagViewUseCase: HomeSearchUseCase {
         do {
             let originalUrl = try URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale)
             
-            if let (data, url) = try self.savePDFIntoDirectory(url: originalUrl, isSample: false) {
+            if let (data, url) = self.copyItem(url: originalUrl) {
                 
                 let newPaperInfo = PaperInfo(
                     title: url.deletingPathExtension().lastPathComponent,
@@ -120,14 +121,11 @@ extension DefaultTagViewUseCase: HomeSearchUseCase {
 
 
 extension DefaultTagViewUseCase {
-    internal func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)? {
+    internal func copyItem(url: URL) -> (Data, URL)? {
         do {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
-                        
-            let _ = url.startAccessingSecurityScopedResource()
-            defer { url.stopAccessingSecurityScopedResource() }
             
             var error: NSError?
             
@@ -136,37 +134,53 @@ extension DefaultTagViewUseCase {
 //                print("coordinated URL: \(cloudURL)")
             }
             
-            if let _ = try? Data(contentsOf: fileURL) {
-                var dupNum = 1
-                
-                
-                var lastComponent = url.lastPathComponent.split(separator: ".")
-                lastComponent.removeLast()
-                
-                
-                while dupNum < 100 {
-                    let tempURL = documentURL.appending(path: lastComponent.joined() + "(\(dupNum)).pdf")
-                    
-                    guard let _ = try? Data(contentsOf: tempURL) else {
-                        try manager.copyItem(at: url, to: tempURL)
-                        return try (tempURL.bookmarkData(options: .minimalBookmark), tempURL)
-                    }
-                    
-                    if dupNum == 99 {
-                        throw PDFUploadError.fileNameDuplication
-                    }
-                    
-                    dupNum += 1
-                }
-                
-                
-            } else {
-                try manager.copyItem(at: url, to: fileURL)
+            let lastComponent = url.deletingPathExtension().lastPathComponent
+            var splitComp = lastComponent.split(separator: " ")
+            
+            let regex = Regex {
+                "("
+                OneOrMore(.digit)
+                ")"
             }
             
-            let urlData = try fileURL.bookmarkData(options: .minimalBookmark)
-            
-            return (urlData, fileURL)
+            if let splitCompLast = splitComp.last?.prefixMatch(of: regex) {
+                var fileNumString = splitCompLast.output
+                fileNumString.removeFirst()
+                fileNumString.removeLast()
+                
+                splitComp.removeLast()
+                let fileName = splitComp.joined(separator: " ")
+                
+                var fileNum = Int(fileNumString)!
+                
+                while(fileNum < 9999) {
+                    let resultURL = documentURL.appending(path: fileName + " (\(fileNum+1)).pdf")
+                    
+                    if let _ = try? Data(contentsOf: resultURL) {
+                        fileNum += 1
+                        continue
+                    }
+                    
+                    try manager.copyItem(at: url, to: resultURL)
+                    let bookmarkData = try resultURL.bookmarkData(options: .suitableForBookmarkFile)
+                    return (bookmarkData, resultURL)
+                }
+            } else {
+                var num = 1
+                while(num < 9999) {
+                    let resultURL = documentURL.appending(path: lastComponent + " (\(num)).pdf")
+                    
+                    if let _ = try? Data(contentsOf: resultURL) {
+                        num += 1
+                        continue
+                    }
+                    
+                    try manager.copyItem(at: fileURL, to: resultURL)
+                    let urlData = try resultURL.bookmarkData(options: .minimalBookmark)
+                    
+                    return (urlData, resultURL)
+                }
+            }
         } catch {
             print("error copying file: \(error)")
         }
