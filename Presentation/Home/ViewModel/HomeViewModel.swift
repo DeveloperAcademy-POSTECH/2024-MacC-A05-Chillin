@@ -422,6 +422,7 @@ extension HomeViewModel {
         
         newFolderID = newFolder.id
         newFolderParentID = folder?.id
+        currentFolder = folders.first { $0.id == newFolder.id }
     }
 
     func createFolderAbove(_ folder: Folder?, title: String, color: String) {
@@ -436,6 +437,7 @@ extension HomeViewModel {
 
         newFolderID = newParent.id
         newFolderParentID = newParent.parentFolderID
+        currentFolder = folders.first { $0.id == newParent.id }
     }
     
     func createSubfolderInSelectedFolder(title: String, color: String) {
@@ -447,7 +449,20 @@ extension HomeViewModel {
         let folder = selectedFolder()
         createFolderAbove(folder, title: title, color: color)
     }
+    
+    func expandableFolderPath(to folderID: UUID) -> [UUID] {
+        var path: [UUID] = []
+        var currentID: UUID? = folderID
 
+        while let id = currentID,
+              let folder = folders.first(where: { $0.id == id }),
+              let parentID = folder.parentFolderID {
+            path.append(parentID)
+            currentID = parentID
+        }
+
+        return path
+    }
     
     public func updateFolderInfo(at id: UUID, title: String, color: String) {
         if let index = folders.firstIndex(where: { $0.id == id }) {

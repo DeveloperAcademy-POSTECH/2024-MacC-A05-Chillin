@@ -76,10 +76,12 @@ struct HomeListView: View {
                                 handleDrop: handleDrop(to:droppedItem:),
                                 onLongPressGesture: { folder, drag in
                                     if let drag = drag {
+                                        let expandablePath = homeViewModel.expandableFolderPath(to: folder.id)
+                                        expandedFolders.formUnion(expandablePath)
+                                        homeViewModel.selectedFolderID = folder.id
                                         homeViewModel.viewStatus = .folderPopover(
                                             .init(x: 40 + 100, y: drag.location.y + 85)
                                         )
-                                        homeViewModel.selectedFolderID = folder.id
                                     }
                                 }
                             )
