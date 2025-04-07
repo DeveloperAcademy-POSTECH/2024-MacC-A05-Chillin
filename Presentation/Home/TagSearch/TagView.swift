@@ -15,6 +15,9 @@ struct TagView: View {
     var body: some View {
         ZStack(alignment: .top) {
             Color.gray300
+                .onTapGesture {
+                    tagViewModel.isBtnTapped = false
+                }
             
             if (tagViewModel.tagFilteredPapers.isEmpty) {
                 EmptyPaperListView()
