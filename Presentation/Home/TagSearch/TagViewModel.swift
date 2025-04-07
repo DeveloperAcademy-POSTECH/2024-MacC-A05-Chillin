@@ -92,6 +92,7 @@ class TagViewModel: ObservableObject {
     func deleteTag() {
         if (tagViewUseCase.deleteTag(id: targetTagID)) {
             tags.removeAll{ $0.id == targetTagID }
+            selectedTags.removeAll(){ $0.id == targetTagID }
         } else {
             // Error 처리
         }

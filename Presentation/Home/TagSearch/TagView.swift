@@ -55,7 +55,7 @@ struct TagView: View {
                     )
                     
                     if tagViewModel.isBtnTapped {
-                        VStack(alignment: .center, spacing: 0) {
+                        LazyVStack(alignment: .center, spacing: 0) {
                             VStack {
                                 if tagViewModel.isTagExist {
                                     TagListView()
