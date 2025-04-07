@@ -19,7 +19,7 @@ struct HomeListView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                categoryButton(icon: "text.page", selectedIcon: "text.page.fill", title: "전체", category: .main)
+                categoryButton(image: "emptydoc", selectedImage: "document", title: "전체", category: .main)
                 categoryButton(image: "star", selectedImage: "starfill", title: "즐겨찾기", category: .favorite)
                 categoryButton(icon: "tag", selectedIcon: "tag.fill", title: "태그", category: .tag)
             }
