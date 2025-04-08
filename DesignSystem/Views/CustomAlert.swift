@@ -11,12 +11,12 @@ struct CustomAlert: View {
     var type: AlertType
     
     let mainText: String
-    var message: String? = nil
+    let message: String?
     let width: CGFloat
     let height: CGFloat
     
     let cancelAction: () -> Void
-    var confirmAction: () -> Void = {}
+    let confirmAction: () -> Void
     
     init(
         type: AlertType = .delete,
@@ -25,7 +25,7 @@ struct CustomAlert: View {
         width: CGFloat,
         height: CGFloat,
         cancelAction: @escaping () -> Void,
-        confirmAction: @escaping () -> Void
+        confirmAction: @escaping () -> Void = {}
     ) {
         self.type = type
         self.mainText = mainText
