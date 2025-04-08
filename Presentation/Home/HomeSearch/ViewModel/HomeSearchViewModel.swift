@@ -170,6 +170,10 @@ extension HomeSearchViewModel {
     private func setRecentSearchList() {
         var current = UserDefaults.standard.recentSearches
         
+        if current.contains(where: {$0 == self.searchText}) {
+            return
+        }
+        
         if current.count == 30 {
             current.removeFirst()
         }
