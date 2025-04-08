@@ -301,6 +301,7 @@ private struct CreateNewTagCell: View {
                     .foregroundStyle(.gray600)
                 
                 TagControlCell(name: name)
+                    .disabled(true)
                 
                 Spacer()
             }
@@ -327,12 +328,14 @@ private struct OverMaximumTagAlertView: View {
                     .frame(height: 1)
                     .foregroundStyle(Color(hex: "D9DBE9"))
                 
-                Button("확인") {
+                Button {
                     action()
+                } label: {
+                    Text("확인")
+                        .font(.custom("Pretendard-Medium", size: 16))
+                        .foregroundStyle(.primary1)
+                        .frame(width: 364, height: 57)
                 }
-                .font(.custom("Pretendard-Medium", size: 16))
-                .foregroundStyle(.primary1)
-                .frame(width: 364, height: 57)
             }
         }
         .frame(width: 364, height: 163)
