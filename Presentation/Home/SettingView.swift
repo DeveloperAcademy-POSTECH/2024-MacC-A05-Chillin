@@ -81,9 +81,9 @@ struct SettingView: View {
                         }
                     })
                     
-                    Link(destination: URL(string: "https://linktr.ee/Reazy.official")!, label: {
+                    Link(destination: URL(string: "https://www.instagram.com/reazy.app?igsh=ZXV1bWF1YWV3aHJv")!, label: {
                         HStack {
-                            Text("더 알아보기")
+                            Text("Reazy 인스타그램")
                                 .foregroundStyle(.gray800)
                             Spacer()
                             Image(systemName: "chevron.right")
