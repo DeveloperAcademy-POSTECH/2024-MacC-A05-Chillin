@@ -41,7 +41,7 @@ struct HomePDFCell: View {
                     switch cellStatus {
                     case .normal:
                         onTapGesture()
-                    case .selection:
+                    default:
                         break
                     }
                 } label: {
@@ -315,4 +315,5 @@ private struct SelectionCheckView: View {
 enum CellStatus {
     case normal
     case selection
+    case search
 }
