@@ -24,6 +24,7 @@ struct HomePDFCell: View {
     let copyAction: () -> Void
     let deleteAction: () -> Void
     let moveAction: () -> Void
+    let addTagAction: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -56,7 +57,8 @@ struct HomePDFCell: View {
                             title: paperInfo.title,
                             date: paperInfo.lastModifiedDate,
                             tags: paperInfo.tags,
-                            tagAction: tagAction
+                            tagAction: tagAction,
+                            addAction: addTagAction
                         )
                         
                         Spacer()
@@ -140,6 +142,7 @@ private struct PaperInformationView: View {
     let tags: [Tag]
     
     let tagAction: (UUID) -> Void
+    let addAction: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -157,12 +160,27 @@ private struct PaperInformationView: View {
             Spacer()
             
             HStack {
-                ForEach(tags) { tag in
-                    PDFTagCell(isMultiSelectable: false,
-                               isEditMode: false,
-                               tag: tag,
-                               selectAction: {tagAction(tag.id)},
-                               deleteAction: {})
+                if tags.isEmpty {
+                    Button {
+                        addAction()
+                    } label: {
+                        RoundedRectangle(cornerRadius: 4)
+                            .frame(width: 26, height: 24)
+                            .foregroundStyle(.primary3)
+                            .overlay {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(.gray800)
+                            }
+                    }
+                } else {
+                    ForEach(tags) { tag in
+                        PDFTagCell(isMultiSelectable: false,
+                                   isEditMode: false,
+                                   tag: tag,
+                                   selectAction: {tagAction(tag.id)},
+                                   deleteAction: {})
+                    }
                 }
             }
             .padding(.bottom, 22)
