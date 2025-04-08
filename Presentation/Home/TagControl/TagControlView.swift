@@ -89,6 +89,7 @@ struct TagControlView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: 18))
                         .foregroundStyle(.gray100)
+                        .frame(width: 50, height: 50)
                 }
                 .padding(.top, 28)
                 
