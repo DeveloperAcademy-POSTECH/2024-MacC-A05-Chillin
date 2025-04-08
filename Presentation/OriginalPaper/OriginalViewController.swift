@@ -245,10 +245,22 @@ extension OriginalViewController {
             .store(in: &self.cancellable)
         
         
-        self.searchViewModel.$searchSelection
+        self.searchViewModel.$searchDestination
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] selection in
-                self?.mainPDFView.setCurrentSelection(selection, animate: true)
+            .sink { [weak self] searchResult in
+                if searchResult.0 == .zero { return }
+                guard let pdfView = self?.mainPDFView else { return }
+                guard let page = pdfView.document?.page(at: searchResult.1) else { return }
+                
+                let height = page.bounds(for: .mediaBox).height
+                pdfView.scaleFactor = 3
+                
+                let tempX = (searchResult.0.origin.x - 50 < 0) ? 0 : searchResult.0.origin.x - 50
+                let tempY = (searchResult.0.origin.y + 50 > height) ? height : searchResult.0.origin.y + 50
+                
+                let destination = PDFDestination(page: page, at: .init(x: tempX, y: tempY))
+                
+                pdfView.go(to: destination)
             }
             .store(in: &self.cancellable)
         

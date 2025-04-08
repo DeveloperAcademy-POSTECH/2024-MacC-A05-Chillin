@@ -25,13 +25,3 @@ struct SearchListCell: View {
         }
     }
 }
-
-#Preview {
-    let sample = SearchViewModel.SearchResult(
-        text: "sample입 fpl fasdjf10 fdsfffffff fvbas -0123rj e입니다",
-        page: 1,
-        selection: .init())
-    
-    SearchListCell(result: sample)
-        .frame(width: 300)
-}

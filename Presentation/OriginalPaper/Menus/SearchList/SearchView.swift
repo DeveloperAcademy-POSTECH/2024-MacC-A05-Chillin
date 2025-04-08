@@ -74,8 +74,7 @@ struct SearchView: View {
                 if viewModel.searchResults.isEmpty { return }
                 guard let index = self.selectedIndex else { return }
                 
-                viewModel.searchSelection = viewModel.searchResults[index].selection
-                viewModel.goToPage(at: viewModel.searchResults[index].page)
+                viewModel.goToPage(index: index)
             }
             .onAppear {
                 UITextField.appearance().clearButtonMode = .whileEditing
