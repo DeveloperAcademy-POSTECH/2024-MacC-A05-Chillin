@@ -16,6 +16,7 @@ final class TagControlViewModel: ObservableObject {
     @Published public var searchText: String = ""
     @Published public var searchedTags = [Tag]()
     @Published public var isLoading = false
+    @Published public var isOverMaximumTagAlertPresented: Bool = false
     
     public var recentAddedTags: [Tag] {
         fetchRecentAddedTags()
@@ -54,7 +55,10 @@ extension TagControlViewModel {
         defer { searchText.removeAll() }
         
         // TODO: 에러 처리(alert 창 연결)
-        if paperInfo.tags.count >= 7 { return nil }
+        if paperInfo.tags.count >= 7 {
+            isOverMaximumTagAlertPresented = true
+            return nil
+        }
         
         if let firstTag = searchedTags.first, paperInfo.tags.contains(where: { $0 == firstTag }) {
             // TODO: 에러 처리(alert 창 연결)
@@ -75,7 +79,10 @@ extension TagControlViewModel {
     public func existingTagTapped(paperInfo: PaperInfo, tag: Tag) -> Tag? {
         defer { searchText.removeAll() }
         // TODO: 에러 처리(alert 창 연결)
-        if paperInfo.tags.count >= 7 { return nil }
+        if paperInfo.tags.count >= 7 {
+            isOverMaximumTagAlertPresented = true
+            return nil
+        }
         if paperInfo.tags.contains(tag) { return nil }
         
         if let tag = addTagToPDF(pdfId: paperInfo.id, tagName: tag.name) {
