@@ -175,7 +175,7 @@ extension FocusFigureViewModel {
                                     
                                     self.focusDocument = PDFDocument(url: $0!)
                                     
-                                    let focusURLData = try? $0!.bookmarkData(options: .minimalBookmark)
+                                    let focusURLData = try? $0!.bookmarkData(options: .suitableForBookmarkFile)
                                     
                                     self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
                                     paperInfo.focusURL = focusURLData

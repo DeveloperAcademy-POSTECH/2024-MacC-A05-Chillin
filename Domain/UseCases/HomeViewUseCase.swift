@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import PDFKit
+import RegexBuilder
 
 
 protocol HomeViewUseCase {
@@ -97,8 +98,6 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             )
             
             self.paperDataRepository.savePDFInfo(paperInfo)
-            // MARK: 샘플태그 업로드 메소드
-//            self.sampleTagUpload(paperInfo.id)
             
             return paperInfo
             
@@ -287,7 +286,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
 
         try! FileManager.default.moveItem(at: tempPath, to: path)
 
-        let focusURLData = try! path.bookmarkData(options: .minimalBookmark)
+        let focusURLData = try! path.bookmarkData(options: .suitableForBookmarkFile)
         
         return focusURLData
     }
@@ -298,7 +297,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         do {
             let originalUrl = try URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale)
             
-            if let (data, url) = try self.savePDFIntoDirectory(url: originalUrl, isSample: false) {
+            if let (data, url) = self.copyItem(url: originalUrl) {
                 
                 let newPaperInfo = PaperInfo(
                     title: url.deletingPathExtension().lastPathComponent,
@@ -341,6 +340,10 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let manager = FileManager.default
             let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentURL.appending(path: url.lastPathComponent)
+            
+            if let _ = try? Data(contentsOf: fileURL) {
+                return self.copyItem(url: fileURL)
+            }
                         
             let _ = url.startAccessingSecurityScopedResource()
             defer { url.stopAccessingSecurityScopedResource() }
@@ -352,37 +355,78 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
 //                print("coordinated URL: \(cloudURL)")
             }
             
-            if let _ = try? Data(contentsOf: fileURL) {
-                var dupNum = 1
-                
-                
-                var lastComponent = url.lastPathComponent.split(separator: ".")
-                lastComponent.removeLast()
-                
-                
-                while dupNum < 100 {
-                    let tempURL = documentURL.appending(path: lastComponent.joined() + "(\(dupNum)).pdf")
-                    
-                    guard let _ = try? Data(contentsOf: tempURL) else {
-                        try manager.copyItem(at: url, to: tempURL)
-                        return try (tempURL.bookmarkData(options: .minimalBookmark), tempURL)
-                    }
-                    
-                    if dupNum == 99 {
-                        throw PDFUploadError.fileNameDuplication
-                    }
-                    
-                    dupNum += 1
-                }
-                
-                
-            } else {
-                try manager.copyItem(at: url, to: fileURL)
-            }
+            try manager.copyItem(at: url, to: fileURL)
             
-            let urlData = try fileURL.bookmarkData(options: .minimalBookmark)
+            let urlData = try fileURL.bookmarkData(options: .suitableForBookmarkFile)
             
             return (urlData, fileURL)
+        } catch {
+            print("error copying file: \(error)")
+        }
+        
+        return nil
+    }
+    
+    internal func copyItem(url: URL) -> (Data, URL)? {
+        do {
+            let manager = FileManager.default
+            let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = documentURL.appending(path: url.lastPathComponent)
+            
+            var error: NSError?
+            
+            // 업로드 전 로컬에 다운로드 진행
+            NSFileCoordinator().coordinate(readingItemAt: url, options: .forUploading, error: &error) { _ in
+//                print("coordinated URL: \(cloudURL)")
+            }
+            
+            let lastComponent = url.deletingPathExtension().lastPathComponent
+            var splitComp = lastComponent.split(separator: " ")
+            
+            let regex = Regex {
+                "("
+                OneOrMore(.digit)
+                ")"
+            }
+            
+            if let splitCompLast = splitComp.last?.prefixMatch(of: regex) {
+                var fileNumString = splitCompLast.output
+                fileNumString.removeFirst()
+                fileNumString.removeLast()
+                
+                splitComp.removeLast()
+                let fileName = splitComp.joined(separator: " ")
+                
+                var fileNum = Int(fileNumString)!
+                
+                while(fileNum < 9999) {
+                    let resultURL = documentURL.appending(path: fileName + " (\(fileNum+1)).pdf")
+                    
+                    if let _ = try? Data(contentsOf: resultURL) {
+                        fileNum += 1
+                        continue
+                    }
+                    
+                    try manager.copyItem(at: url, to: resultURL)
+                    let bookmarkData = try resultURL.bookmarkData(options: .suitableForBookmarkFile)
+                    return (bookmarkData, resultURL)
+                }
+            } else {
+                var num = 1
+                while(num < 9999) {
+                    let resultURL = documentURL.appending(path: lastComponent + " (\(num)).pdf")
+                    
+                    if let _ = try? Data(contentsOf: resultURL) {
+                        num += 1
+                        continue
+                    }
+                    
+                    try manager.copyItem(at: fileURL, to: resultURL)
+                    let urlData = try resultURL.bookmarkData(options: .suitableForBookmarkFile)
+                    
+                    return (urlData, resultURL)
+                }
+            }
         } catch {
             print("error copying file: \(error)")
         }
