@@ -16,13 +16,13 @@ extension Date {
         let formatter = DateFormatter()
         
         if calender.isDateInToday(self) {
-            formatter.dateFormat = "오늘 HH:mm"
+            formatter.dateFormat = String(localized: "오늘") + " HH:mm"
         } else if calender.isDateInYesterday(self) {
-            formatter.dateFormat = "어제 HH:mm"
+            formatter.dateFormat = String(localized: "어제") + " HH:mm"
         } else {
             formatter.dateFormat = "yyyy. MM. dd. a h:mm"
-            formatter.amSymbol = "오전"
-            formatter.pmSymbol = "오후"
+            formatter.amSymbol = String(localized: "오전")
+            formatter.pmSymbol = String(localized: "오후")
         }
         
         return formatter.string(from: self)

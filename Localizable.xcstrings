@@ -1,0 +1,1527 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "\"%@\"와\n일치하는 결과가 없어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no result that contains %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\"に一致する結果がありません"
+          }
+        }
+      }
+    },
+    "%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "%@을 삭제하시겠습니까?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete %@?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@を削除してもよろしいですか？"
+          }
+        }
+      }
+    },
+    "%lld개 일치" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld matches found"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld件一致"
+          }
+        }
+      }
+    },
+    "© 2024 chillin'. All rights reserved." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2024 chillin'. All rights reserved."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2024 chillin'. All rights reserved."
+          }
+        }
+      }
+    },
+    "Fig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fig"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fig"
+          }
+        }
+      }
+    },
+    "Fig & Table" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fig & Table"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fig & Table"
+          }
+        }
+      }
+    },
+    "Figure 추출은 10초 ~ 20초 정도 소요됩니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extracting figures may take 10–20 seconds"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Figureの抽出には約10秒から20秒かかります"
+          }
+        }
+      }
+    },
+    "Figure와 Table을 불러오기 위해\n네트워크 연결이 필요합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network connection is required to load Figures and Tables."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FigureとTableを読み込むために、ネットワーク接続が必要です。"
+          }
+        }
+      }
+    },
+    "Figure와 Table을 불러오는 중입니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading Figures and Tables..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FigureとTableを読み込み中です"
+          }
+        }
+      }
+    },
+    "Figure와 Table을 자동추출해서\n필요할 때 꺼내볼 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access automatically extracted Figures and Tables here"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FigureとTableを自動で抽出し、必要な時に表示できます"
+          }
+        }
+      }
+    },
+    "Figure와 Table이 있으면,\n여기에 표시됩니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically extracted Figures and Tables will appear here."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "図と表がある場合、こちらに表示されます"
+          }
+        }
+      }
+    },
+    "Hello, World!" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hello, World!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hello, World!"
+          }
+        }
+      }
+    },
+    "Ok" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ok"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ok"
+          }
+        }
+      }
+    },
+    "pdf 로드 실패 " : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load pdf"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF読み込み失敗"
+          }
+        }
+      }
+    },
+    "Reazy의 최신 버전을 확인해보세요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check out the latest version of Reazy!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reazyの最新バージョンを確認してください！"
+          }
+        }
+      }
+    },
+    "가져오기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インポート"
+          }
+        }
+      }
+    },
+    "검색" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索"
+          }
+        }
+      }
+    },
+    "논문 제목을 입력해 주세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter title"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "論文のタイトルを入力してください"
+          }
+        }
+      }
+    },
+    "논문의 레이아웃에 따라\nFigure 추출의 정확도가\n상이할 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Figure extraction accuracy may vary depending on the paper's layout"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "論文のレイアウトにより、Table抽出の精度が異なる場合があります"
+          }
+        }
+      }
+    },
+    "다른 파일을 선택해주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please Select different file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のファイルを選択してください。"
+          }
+        }
+      }
+    },
+    "다시 시도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再試行"
+          }
+        }
+      }
+    },
+    "닫기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閉じる"
+          }
+        }
+      }
+    },
+    "더 알아보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn more"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詳細を見る"
+          }
+        }
+      }
+    },
+    "마지막 수정 : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last edited : %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最終更新 : %@"
+          }
+        }
+      }
+    },
+    "모두 지우기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて削除"
+          }
+        }
+      }
+    },
+    "모아보기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capture List"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてを見る"
+          }
+        }
+      }
+    },
+    "목차가 있으면,\n여기에 표시됩니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Table of contents will appear here."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目次がある場合、こちらに表示されます"
+          }
+        }
+      }
+    },
+    "문의하기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact Us"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お問い合わせ"
+          }
+        }
+      }
+    },
+    "버전" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バージョン"
+          }
+        }
+      }
+    },
+    "번역 내용이 복사되었어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translation copied to clipboard"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "翻訳内容がコピーされました"
+          }
+        }
+      }
+    },
+    "복제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "複製"
+          }
+        }
+      }
+    },
+    "사진 앱에 저장" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save to Photos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真アプリに保存"
+          }
+        }
+      }
+    },
+    "사진 앱에 저장되었습니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved to Photos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真アプリに保存されました"
+          }
+        }
+      }
+    },
+    "삭제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除"
+          }
+        }
+      }
+    },
+    "삭제된 파일은 복구할 수 없습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleted files cannot be restored."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除されたファイルは復元できません。"
+          }
+        }
+      }
+    },
+    "삭제된 항목은 복구할 수 없습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleted files cannot be restored."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除された項目は復元できません。"
+          }
+        }
+      }
+    },
+    "삭제한 항목은 복구할 수 없습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleted files cannot be restored."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除した項目は復元できません。"
+          }
+        }
+      }
+    },
+    "새 폴더" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Folder"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいフォルダ"
+          }
+        }
+      }
+    },
+    "새로운 논문을 가져와 주세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload a new paper to get started"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい論文をインポートしてください"
+          }
+        }
+      }
+    },
+    "새로운 태그" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Tag"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいタグ"
+          }
+        }
+      }
+    },
+    "새로운 태그 생성" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add New Tag"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいタグ生成"
+          }
+        }
+      }
+    },
+    "새로운 태그를 만들거나\n추가할 태그를 검색하세요\n최대 30자" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search a tag or create one (up to 30 characters)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいタグを作るか\n追加するタグを検索してください\n最大30字"
+          }
+        }
+      }
+    },
+    "새로운 태그를 입력해주세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a new tag"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいタグを入力してください"
+          }
+        }
+      }
+    },
+    "생성" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成"
+          }
+        }
+      }
+    },
+    "설정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        }
+      }
+    },
+    "수정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集"
+          }
+        }
+      }
+    },
+    "아직 태그를 만들지 않았어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven’t created any tags yet"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだタグを作っていません"
+          }
+        }
+      }
+    },
+    "알 수 없음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        }
+      }
+    },
+    "앱스토어 리뷰 남기기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a Review"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Storeにレビューを書く"
+          }
+        }
+      }
+    },
+    "어제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "昨日"
+          }
+        }
+      }
+    },
+    "업데이트" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップデート"
+          }
+        }
+      }
+    },
+    "오늘" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日"
+          }
+        }
+      }
+    },
+    "오전" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AM"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "午前"
+          }
+        }
+      }
+    },
+    "오후" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "午後"
+          }
+        }
+      }
+    },
+    "완료" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了"
+          }
+        }
+      }
+    },
+    "원하는 논문을 태그로 찾아보세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find papers using tags."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "希望する論文をタグで探してみてください"
+          }
+        }
+      }
+    },
+    "원하는 영역을 캡쳐해 저장하고\n플로팅 창으로 볼 수 있어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capture and save selected area to view later in a floating panel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "希望する領域をキャプチャして保存し、フローティングウィンドウで表示できます"
+          }
+        }
+      }
+    },
+    "위치 선택" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Destination"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "位置選択"
+          }
+        }
+      }
+    },
+    "이동" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移動"
+          }
+        }
+      }
+    },
+    "이름 수정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Name"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前の編集"
+          }
+        }
+      }
+    },
+    "이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This tag already exists. Try a different one."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すでに追加されたタグです\n新しいタグを入力してください。"
+          }
+        }
+      }
+    },
+    "이전 페이지로" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前のページへ"
+          }
+        }
+      }
+    },
+    "일치하는 결과 없음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching results"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一致する結果はありません"
+          }
+        }
+      }
+    },
+    "저장" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "전체" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて"
+          }
+        }
+      }
+    },
+    "전체 선택" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて選択"
+          }
+        }
+      }
+    },
+    "전체 선택 해제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deselect All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての選択を解除"
+          }
+        }
+      }
+    },
+    "정말 삭제하시겠습니까?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本当に削除してもよろしいですか？"
+          }
+        }
+      }
+    },
+    "제목" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトル"
+          }
+        }
+      }
+    },
+    "제목 수정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Title"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトルの編集"
+          }
+        }
+      }
+    },
+    "제목을 입력해주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Title"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトルを入力してください。"
+          }
+        }
+      }
+    },
+    "중복된 파일 이름이 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重複したファイル名があります。"
+          }
+        }
+      }
+    },
+    "즐겨찾기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お気に入り"
+          }
+        }
+      }
+    },
+    "즐겨찾기 한 논문이 없어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No papers have been marked as favorites."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お気に入りの論文がありません。"
+          }
+        }
+      }
+    },
+    "집중 모드는 읽기 전용으로 제공됩니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus mode allows reading only"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "集中モードは読み取り専用です"
+          }
+        }
+      }
+    },
+    "최근 검색어가 없습니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no recent searches"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近の検索語はありません"
+          }
+        }
+      }
+    },
+    "최근 검색한 키워드" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent Searches"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近検索したキーワード"
+          }
+        }
+      }
+    },
+    "최근 검색한 키워드가 없어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no recent searches"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近検索したキーワードがありません"
+          }
+        }
+      }
+    },
+    "추출 시작" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start extraction"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抽出開始"
+          }
+        }
+      }
+    },
+    "취소" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "코멘트 추가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Comment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コメントを追加"
+          }
+        }
+      }
+    },
+    "태그" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タグ"
+          }
+        }
+      }
+    },
+    "태그 관리" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag Settings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タグ管理"
+          }
+        }
+      }
+    },
+    "태그 목록 편집" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit tag list"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タグリスト編集"
+          }
+        }
+      }
+    },
+    "태그로 원하는 논문을 찾아보세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find papers using tags"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タグで論文を探してみてください"
+          }
+        }
+      }
+    },
+    "태그를 만들거나 추가할 태그를 검색하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search a tag or create one"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タグを作るか、追加するタグを検索してください"
+          }
+        }
+      }
+    },
+    "파일 이름을 수정해주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please rename the file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイル名を編集してください。"
+          }
+        }
+      }
+    },
+    "파일 접근이 불가능합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to access this file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルにアクセスできません。"
+          }
+        }
+      }
+    },
+    "폴더" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ"
+          }
+        }
+      }
+    },
+    "폴더 제목을 입력해 주세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter folder title."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダのタイトルを入力してください"
+          }
+        }
+      }
+    },
+    "폴더 제목을 입력해주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter folder title."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダのタイトルを入力してください。"
+          }
+        }
+      }
+    },
+    "피규어 이름을 입력해주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter Figure name."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィギュアの名前を入力してください。"
+          }
+        }
+      }
+    },
+    "해당 번역 기능은 iPadOS 18.0 이상에서만 사용 가능합니다.\niPadOS 18.0 미만 버전에서는 소프트웨어 업데이트가 필요합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translation available on iPadOS 18.0 or later. Update your software to use this feature."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この翻訳機能はiPadOS 18.0以上でのみ使用可能です。iPadOS 18.0未満のバージョンでは、ソフトウェアのアップデートが必要です。"
+          }
+        }
+      }
+    },
+    "확인" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got it"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -535,7 +535,7 @@ struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        if text.isEmpty { text = "새 폴더" }
+                        if text.isEmpty { text = String(localized: "새 폴더") }
                         
                         if isEditingFolder {
                             if let folder = folder {
