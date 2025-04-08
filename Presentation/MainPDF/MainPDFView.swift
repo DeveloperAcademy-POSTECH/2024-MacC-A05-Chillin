@@ -33,7 +33,6 @@ struct MainPDFView: View {
     @State private var isReadMode: Bool = false
     
     @State private var isEditingTitle: Bool = false
-    @State private var isMovingFolder: Bool = false
     @State private var createMovingFolder: Bool = false
     
     @State private var moveToFolderID: UUID? = nil
@@ -397,7 +396,6 @@ struct MainPDFView: View {
                         ZStack {
                             PDFInfoMenu(
                                 isEditingTitle: $isEditingTitle,
-                                isMovingFolder: $isMovingFolder,
                                 createMovingFolder: $createMovingFolder
                             )
                             .environmentObject(homeViewModel)
@@ -413,7 +411,7 @@ struct MainPDFView: View {
                 }
                 
                 Color.black
-                    .opacity(isEditingTitle || isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .opacity(isEditingTitle || homeViewModel.isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
@@ -423,14 +421,11 @@ struct MainPDFView: View {
                         .zIndex(1)
                 }
                 
-                if isMovingFolder {
+                if homeViewModel.isMovingFolder {
                     if let paperInfo = PDFSharedData.shared.paperInfo {
-                        let itemsToMove: FileSystemItem = FileSystemItem.paper(paperInfo)
-                        
                         MoveFolderView(
                             createMovingFolder: $createMovingFolder,
-                            isMovingFolder: $isMovingFolder,
-                            items: [itemsToMove],
+                            items: [paperInfo],
                             selectedID: $moveToFolderID
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -446,9 +441,7 @@ struct MainPDFView: View {
                 if createMovingFolder {
                     let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
                     FolderView(
-                        createFolder: .constant(false),
                         createMovingFolder: $createMovingFolder,
-                        isEditingFolder: .constant(false),
                         folder: folder
                     )
                 }
@@ -464,13 +457,10 @@ struct MainPDFView: View {
                 self.homeViewModel.isInHomeView = true
                 self.searchViewModel.removeAllAnnotations()
                 PDFSharedData.shared.updatePaperInfo()
-                mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
+                // TODO: 에러 처리 필요
+                try? mainPDFViewModel.savePDF(pdfView: mainPDFViewModel.pdfDrawer.pdfView)
                 self.focusFigureViewModel.stopTask()
                 self.focusFigureViewModel.cancellables.removeAll()
-                
-                if self.homeViewModel.isSearching && !homeViewModel.searchText.isEmpty {
-                    self.homeViewModel.updateSearchList(with: homeViewModel.selectedFilter)
-                }
             }
             .gesture(
                 mainPDFViewModel.isMenuSelected

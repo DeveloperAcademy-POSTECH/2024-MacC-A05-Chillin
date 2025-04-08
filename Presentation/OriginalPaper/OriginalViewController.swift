@@ -73,6 +73,7 @@ final class OriginalViewController: UIViewController {
         self.setBinding()
         self.focusFigureViewModel.fetchAnnotations()
     }
+    
     // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)

@@ -6,18 +6,26 @@
 //
 
 import Foundation
+import CoreTransferable
 
-struct Tag: DynamicCell {
+struct Tag: DynamicCell, Codable, Transferable {
+    
     let id: UUID
     var name: String
+    var isSelected: Bool
     
-    init(id: UUID = .init(), name: String) {
+    init(id: UUID = .init(), name: String, isSelected: Bool = false) {
         self.id = id
         self.name = name
+        self.isSelected = isSelected
     }
     
     func getCellWidth() -> CGFloat {
         let count = self.name.count
-        return CGFloat(10 + count * 10)
+        return CGFloat(10 + count * 11)
+    }
+    
+    static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .text)
     }
 }

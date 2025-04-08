@@ -12,11 +12,11 @@ struct HomeSearchView: View {
     @EnvironmentObject private var homeSearchViewModel: HomeSearchViewModel
     
     var body: some View {
-            if !homeSearchViewModel.searchText.isEmpty {
-                HomeSearchListView()
-            } else {
-                RecentlySearchedKeywordView()
-            }
+        if !homeSearchViewModel.searchText.isEmpty {
+            HomeSearchListView()
+        } else {
+            RecentlySearchedKeywordView()
+        }
     }
 }
 
@@ -69,27 +69,29 @@ private struct HomeSearchListView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(homeSearchViewModel.searchList) { paperInfo in
-                            HomePDFCell(paperInfo: paperInfo) {
+                            HomePDFCell(paperInfo: paperInfo, cellStatus: .normal) {
                                 // TODO: 네비게이션 push 시 Date 업데이트 필요
                                 homeSearchViewModel.PaperCellTapped(paperInfo)
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                            } checkAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
                             } starAction: {
                                 homeSearchViewModel.starButtonTapped(paperInfo)
                             } tagAction: { id in
-                                // TODO: 추후 수정 필요
                                 homeSearchViewModel.tagTapped(id)
                             } editAction: {
                                 homeSearchViewModel.editButtonTapped(paperInfo)
+                            } setTagAction: {
+                                homeSearchViewModel.setTagButtonTapped(paperInfo)
                             } copyAction: {
                                 homeSearchViewModel.copyButtonTapped(paperInfo)
                             } deleteAction: {
                                 selectedPaper = paperInfo
                                 deleteAlertPresented.toggle()
+                            } moveAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                                homeViewModel.isMovingFolder.toggle()
                             }
-                            
-                            Rectangle()
-                                .foregroundStyle(.primary3)
-                                .frame(height: 1)
                         }
                         .padding(.leading, 30)
                     }
@@ -153,9 +155,13 @@ private struct RecentlySearchedKeywordView: View {
                     .foregroundStyle(.primary1)
                 }
                 
-                DynamicCellLayout(data: homeSearchViewModel.recentSearches) { title in
+                DynamicCellLayout(data: homeSearchViewModel.recentSearches,
+                                  screenWidth: UIScreen.main.bounds.width,
+                                  isMultiSelectable: false,
+                                  isEditMode: false,
+                                  selectAction: { title in
                     homeSearchViewModel.cellTapped(title: title)
-                }
+                }, deleteAction: {_ in })
                 .padding(.top, 20)
                 
                 Spacer()

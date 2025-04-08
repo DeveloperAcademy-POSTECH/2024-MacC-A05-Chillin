@@ -1,68 +1,87 @@
 //
-//  HomeSearchUseCase.swift
+//  TagViewUseCase.swift
 //  Reazy
 //
-//  Created by 문인범 on 2/13/25.
+//  Created by 김예림 on 2/17/25.
 //
 
 import Foundation
 import RegexBuilder
 
+typealias TagViewWithIOUseCase = TagViewUseCase & HomeSearchUseCase
 
-protocol HomeSearchUseCase: Sendable {
-    func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error>
-    func fetchByTagId(tagId: UUID) -> Result<[PaperInfo], any Error>
-    
-    @discardableResult
-    func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
-    
-    @discardableResult
-    func deletePDF(_ info: PaperInfo) -> Result<VoidResponse, any Error>
-    
-    @discardableResult
-    func duplicatePDF(_ info: PaperInfo) -> Result<PaperInfo, any Error>
+protocol TagViewUseCase {
+    func deleteTag(id: UUID) -> Bool
+    func createTag(name: String) throws -> Tag
+    func fetchTags() -> [Tag]
+    func fetchFilteredPaperList(tags: [Tag]) -> [PaperInfo]
 }
 
-enum SearchTarget {
-    case title
-    case tag
-}
-
-final class DefaultHomeSearchUseCase: HomeSearchUseCase {
-    private let paperDataRepository: PaperDataRepository
+final class DefaultTagViewUseCase: TagViewUseCase {
     private let tagDataRepository: TagDataRepository
+    private let paperDataRepository: PaperDataRepository
     
-    init(paperDataRepository: PaperDataRepository, tagDataRepository: TagDataRepository) {
+    init(
+        tagRepository: TagDataRepository,
+        paperDataRepository: PaperDataRepository
+    ) {
+        self.tagDataRepository = tagRepository
         self.paperDataRepository = paperDataRepository
-        self.tagDataRepository = tagDataRepository
     }
     
-    func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error> {
-        switch target {
-        case .title:
-            let response = paperDataRepository.loadPDFInfo()
-            if case let .success(papers) = response {
-                let result = papers.filter { $0.title.localizedStandardContains(matches) }
-                return .success(result)
-            } else {
-                return .failure(NSError())
-            }
-        case .tag:
-            let papers = fetchPapersByTagName(matches)
-            return .success(papers)
+    func deleteTag(id: UUID) -> Bool {
+        switch tagDataRepository.deleteTag(tagID: id) {
+        case .success(_):
+            return true
+        case .failure(_):
+            return false
         }
+    }
+    
+    func createTag(name: String) throws -> Tag {
+        switch tagDataRepository.addTag(name: name) {
+        case let .success(tag):
+            return tag
+        case .failure(_):
+            throw NSError()
+        }
+    }
+    
+    func fetchTags() -> [Tag] {
+        switch tagDataRepository.fetchAllTags() {
+        case let .success(tags):
+            return tags
+        case .failure(_):
+            return []
+        }
+    }
+    
+    func fetchFilteredPaperList(tags: [Tag]) -> [PaperInfo] {
+        if tags.isEmpty { return [] }
+        var result = Set<PaperInfo>()
+        
+        tags.forEach {
+            if case let .success(paperInfos) = tagDataRepository.fetchPapersByTag(tagID: $0.id) {
+                paperInfos.forEach { result.insert($0) }
+            }
+        }
+        
+        return Array(result)
+    }
+}
+
+
+extension DefaultTagViewUseCase: HomeSearchUseCase {
+    func fetchSearchList(target: SearchTarget, matches: String) -> Result<[PaperInfo], any Error> {
+        return .failure(NSError())
     }
     
     func fetchByTagId(tagId: UUID) -> Result<[PaperInfo], any Error> {
-        let response = tagDataRepository.fetchPapersByTag(tagID: tagId)
-        if case let .success(papers) = response {
-            return .success(papers)
-        }
         return .failure(NSError())
     }
     
     func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
-        self.paperDataRepository.editPDFInfo(info)
+        paperDataRepository.editPDFInfo(info)
     }
     
     func deletePDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
@@ -96,28 +115,12 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
             return .failure(PDFUploadError.fileNameDuplication)
         }
     }
+    
+    
 }
 
 
-
-extension DefaultHomeSearchUseCase {
-    private func fetchPapersByTagName(_ tagName: String) -> [PaperInfo] {
-        let response = tagDataRepository.fetchAllTags()
-        if case let .success(tags) = response {
-            let result = tags.filter { $0.name.localizedCaseInsensitiveContains(tagName) }
-            
-            if result.isEmpty {
-                return []
-            }
-            
-            let paperTagResponse = tagDataRepository.fetchPapersByTag(tagID: result.first!.id)
-            guard case let .success(papers) = paperTagResponse else { return [] }
-            
-            return papers
-        }
-        return []
-    }
-    
+extension DefaultTagViewUseCase {
     internal func copyItem(url: URL) -> (Data, URL)? {
         do {
             let manager = FileManager.default
@@ -185,5 +188,3 @@ extension DefaultHomeSearchUseCase {
         return nil
     }
 }
-
-

@@ -126,12 +126,12 @@ final class MainPDFViewModel: ObservableObject {
 
 // MARK: - 초기 세팅 메소드
 extension MainPDFViewModel {
-    public func savePDF(pdfView: PDFView) {
-        print("savePDF")
+    public func savePDF(pdfView: PDFView) throws {
+        var a = false
         guard let document = pdfView.document else { return }
-        guard let pdfURL = document.documentURL else {
+        guard let pdfURL = PDFSharedData.shared.paperInfo?.url, let url = try? URL(resolvingBookmarkData: pdfURL, bookmarkDataIsStale: &a) else {
             print("PDF URL을 찾을 수 없습니다.")
-            return
+            throw HomeViewError.cannotCreateBookmark
         }
         
         for pageIndex in 0..<document.pageCount {
@@ -148,7 +148,7 @@ extension MainPDFViewModel {
         // PDF 파일을 지정한 URL에 덮어쓰기 저장
         do {
             let pdfData = document.dataRepresentation()
-            try pdfData?.write(to: pdfURL)
+            try pdfData?.write(to: url)
             print("PDF 저장이 완료되었습니다.")
         } catch {
             print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
@@ -214,12 +214,9 @@ extension MainPDFViewModel {
     // UIMenu에서 하이라이트 기능
     func highlightUIMenu(in pdfView: PDFView, with color: HighlightColors) {
         
-        // PDFView 안에서 스크롤 영역 파악
-        guard let currentSelection = pdfView.currentSelection else { return }
         
-        // 선택된 텍스트를 줄 단위로 나눔
-        let selections = currentSelection.selectionsByLine()
-        
+        guard let currentSelection = pdfView.currentSelection else { return }                   // PDFView 안에서 스크롤 영역 파악
+        let selections = currentSelection.selectionsByLine()                                    // 선택된 텍스트 줄 단위로 나누기
         guard let page = selections.first?.pages.first else { return }
         
         let highlightColor = color.uiColor

@@ -41,7 +41,11 @@ class HomeViewModel: ObservableObject {
         return currentFolder == nil
     }
     
-    @Published var filteredLists: [FileSystemItem] = []
+    @Published var selectedFolderID: UUID? {
+        didSet {
+            updateFilteredList()
+        }
+    }
     
     @Published public var isFavoriteSelected: Bool = false {
         didSet {
@@ -55,20 +59,22 @@ class HomeViewModel: ObservableObject {
             updateFilteredList()
         }
     }
-    
-    @Published public var isSearching: Bool = false
-    @Published public var searchText: String = "" {
+    @Published public var isMainSelected: Bool = true {
         didSet {
-            if searchText.isEmpty {
-                updateFilteredList()
-            } else {
-                updateSearchList(with: selectedFilter)
-            }
+            updateFilteredList()
         }
     }
-    @Published public var recentSearches: [String] = UserDefaults.standard.recentSearches
     
-    @Published public var selectedFilter: SearchFilter = .total
+    @Published var filteredLists: [PaperInfo] = []
+    
+    @Published var isMovingFolder: Bool = false
+    @Published var selectedItems: Set<UUID> = []
+    
+    @Published public var isSearching: Bool = false
+    @Published public var searchText: String = ""
+    
+    @Published public var isEditing: Bool = false
+
     @Published public var selectedMenu: Options = .main
     
     public var changedTitle: String?
@@ -83,6 +89,13 @@ class HomeViewModel: ObservableObject {
     @Published public var isSettingMenu: Bool = false
     @Published public var viewStatus: SearchViewStatus = .normal
     public var isInHomeView: Bool = true
+    
+    @Published public var isEditingFolder: Bool = false
+    @Published public var createFolder: Bool = false
+    @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent
+    
+    @Published public var showDeleteAlert: Bool = false
+    @Published public var showFolderDepthAlert: Bool = false
     
     private let homeViewUseCase: HomeViewUseCase
     
@@ -116,22 +129,47 @@ class HomeViewModel: ObservableObject {
     }
     
     enum SearchViewStatus: Hashable {
-        case normal
-        case search(PaperInfo)
+        case normal             // 기본
+        case search(PaperInfo)  // 검색
+        case setTag(PaperInfo)  // 태그 관리
+        case addTagToPaperInfo(PaperInfo)
+        case folderPopover(CGPoint)
+        
+        var isBlurred: Bool {
+            switch self {
+            case .normal, .folderPopover(_), .setTag(_), .addTagToPaperInfo(_):
+                false
+            default:
+                true
+            }
+        }
+        
+        var isBlacked: Bool {
+            switch self {
+            case .search(_), .folderPopover(_), .setTag(_), .addTagToPaperInfo(_):
+                true
+            default:
+                false
+            }
+        }
     }
 }
 
 
 extension HomeViewModel {
+    public func fetchPaperList() {
+        self.paperInfos = (try? homeViewUseCase.loadPDFs().get()) ?? []
+    }
     public func uploadPDF(url: [URL]) -> UUID? {
         defer { self.isLoading = false }
         
         do {
-            let currentFolderID = currentFolder?.id
+            let folderID = selectedFolderID
             
-            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: currentFolderID)
-            if paperInfo != nil {
-                self.paperInfos.append(paperInfo!)
+            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: folderID)
+            if let paperInfo = paperInfo {
+                self.paperInfos.append(paperInfo)
+                updateFilteredList()
             }
             return paperInfo?.id
         } catch {
@@ -196,6 +234,15 @@ extension HomeViewModel {
                 }
             }
             .store(in: &self.cancellables)
+    }
+}
+
+// MARK: - EditingTitle 메소드
+extension HomeViewModel {
+    public func editButtonTapped(_ paperInfo: PaperInfo) {
+        withAnimation(.easeInOut) {
+            viewStatus = .search(paperInfo)
+        }
     }
 }
 
@@ -283,85 +330,68 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
+    func selectCategory(_ category: CategorySelection) {
+        switch category {
+        case .main:
+            isMainSelected = true
+            isFavoriteSelected = false
+            isTagSelected = false
+            selectedFolderID = nil
+            currentFolder = nil
+        case .favorite:
+            isMainSelected = false
+            isFavoriteSelected = true
+            isTagSelected = false
+            selectedFolderID = nil
+            currentFolder = nil
+        case .tag:
+            isMainSelected = false
+            isFavoriteSelected = false
+            isTagSelected = true
+            selectedFolderID = nil
+            currentFolder = nil
+        case .folder(let folderID):
+            isMainSelected = false
+            isFavoriteSelected = false
+            isTagSelected = false
+            selectedFolderID = folderID
+            currentFolder = folders.first { $0.id == folderID }
+        }
+        updateFilteredList()
+    }
+    
     func updateFilteredList() {
-        if isFavoriteSelected {
-            filteredLists = filteringFavList()
-        } else {
-            filteredLists = filteringList()
-        }
-    }
-    
-    func updateSearchList(with filter: SearchFilter) {
-        let items = sortLists(paperInfos: paperInfos, folders: folders)
-        
-        let lowercasedSearchText = searchText.lowercased()
-        
-        if filter == .total {
-            filteredLists = items.filter( { $0.title.lowercased().contains(lowercasedSearchText) })
-        } else if filter == .paper {
-            filteredLists = items.filter { item in
-                if case .paper = item {
-                    return item.title.lowercased().contains(lowercasedSearchText)
-                }
-                return false
+        filteredLists = paperInfos.filter { paper in
+            if isMainSelected {
+                return true
+            } else if isFavoriteSelected {
+                return paper.isFavorite
+            } else if isTagSelected {
+                return !paper.tags.isEmpty
+            } else if let folder = currentFolder {
+                return paper.folderID == folder.id
             }
-        } else if filter == .folder {
-            filteredLists = items.filter { item in
-                if case .folder = item {
-                    return item.title.lowercased().contains(lowercasedSearchText)
-                }
-                return false
-            }
-        }
-    }
-        
-    func filteringList() -> [FileSystemItem] {
-        var currentFolders: [Folder] {
-            guard let folder = currentFolder else {
-                return folders.filter { $0.parentFolderID == nil }
-            }
-            return folders.filter { $0.parentFolderID == folder.id }
-        }
-        
-        var currentDocuments: [PaperInfo] {
-            guard let folder = currentFolder else {
-                return paperInfos.filter { $0.folderID == nil }
-            }
-            return paperInfos.filter { $0.folderID == folder.id }
-        }
-        
-        return sortLists(paperInfos: currentDocuments, folders: currentFolders)
-    }
-    
-    func filteringFavList() -> [FileSystemItem] {
-        if let folder = currentFolder {
-            // 현재 선택된 폴더가 있을 경우, 해당 폴더의 모든 문서를 반환
-            let folderDocuments = paperInfos.filter { $0.folderID == folder.id }
-            let folders = folders.filter { $0.parentFolderID == folder.id }
-            return sortLists(paperInfos: folderDocuments, folders: folders)
-        } else {
-            // 즐겨찾기 필터
-            let paperItems = paperInfos.map { FileSystemItem.paper($0) }
-            let folderItems = folders.map { FileSystemItem.folder($0) }
-            
-            let combinedItems = paperItems + folderItems
-            return combinedItems.filter { $0.isFavorite }.sorted(by: { $0.date > $1.date })
-        }
-    }
-    
-    /// 전체 리스트
-    func sortLists(paperInfos: [PaperInfo], folders: [Folder]) -> [FileSystemItem] {
-        // PaperInfo와 Folder를 FileSystemItem으로 변환
-        let paperItems = paperInfos.map { FileSystemItem.paper($0) }
-        let folderItems = folders.map { FileSystemItem.folder($0) }
-        
-        // 두 리스트를 합치고 날짜 순서대로 정렬
-        let combinedItems = paperItems + folderItems
-        return combinedItems.sorted(by: { $0.date > $1.date })
+            return false
+        }.sorted { $0.lastModifiedDate > $1.lastModifiedDate }
     }
 }
 
 extension HomeViewModel {
+    func depth(of folder: Folder?) -> Int {
+        guard let folder = folder else { return 0 }
+        
+        var currentFolder = folder
+        var depth = 1
+
+        while let parentID = currentFolder.parentFolderID,
+              let parent = folders.first(where: { $0.id == parentID }) {
+            currentFolder = parent
+            depth += 1
+        }
+
+        return depth
+    }
+    
     public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let folder = Folder(
             id: UUID(),
@@ -373,15 +403,36 @@ extension HomeViewModel {
         return folder
     }
     
-    public func saveFolder(to parentFolderID: UUID?, title: String, color: String) {
+    private func saveFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
         
         self.homeViewUseCase.saveFolder(newFolder)
         folders.append(newFolder)
         
-        newFolderParentID = parentFolderID
-        newFolderID = newFolder.id
+        return newFolder
     }
+    
+    func createSubfolder(in folder: Folder?, title: String, color: String) {
+        let newFolder = saveFolder(to: folder?.id, title: title, color: color)
+        
+        newFolderID = newFolder.id
+        newFolderParentID = folder?.id
+    }
+
+    func createFolderAbove(_ folder: Folder?, title: String, color: String) {
+        guard let folder = folder else { return }
+
+        let newParent = saveFolder(to: folder.parentFolderID, title: title, color: color)
+        
+        if let index = folders.firstIndex(where: { $0.id == folder.id }) {
+            folders[index].parentFolderID = newParent.id
+            homeViewUseCase.editFolder(folders[index])
+        }
+
+        newFolderID = newParent.id
+        newFolderParentID = newParent.parentFolderID
+    }
+
     
     public func updateFolderInfo(at id: UUID, title: String, color: String) {
         if let index = folders.firstIndex(where: { $0.id == id }) {
@@ -399,38 +450,53 @@ extension HomeViewModel {
     }
     
     public func deleteFolder(at id: UUID) {
-        self.homeViewUseCase.deleteFolder(id: id)
-        self.folders.removeAll(where: { $0.id == id })
+        let folderIDsToDelete = collectFolderAndDescendants(from: id)
+
+        let fileIDsToDelete: [UUID] = paperInfos
+            .filter { file in
+                guard let folderID = file.folderID else { return false }
+                return folderIDsToDelete.contains(folderID)
+            }
+            .map { $0.id }
+
+
+        for fileID in fileIDsToDelete {
+            homeViewUseCase.deletePDF(id: fileID)
+        }
+
+        for folderID in folderIDsToDelete {
+            homeViewUseCase.deleteFolder(id: folderID)
+        }
+
+        paperInfos.removeAll { fileIDsToDelete.contains($0.id) }
+        folders.removeAll { folderIDsToDelete.contains($0.id) }
+
+        showDeleteAlert = false
     }
+
+
+
+    private func collectFolderAndDescendants(from parentID: UUID) -> [UUID] {
+        var result: [UUID] = [parentID]
+
+        let childFolders = folders.filter { $0.parentFolderID == parentID }
+
+        for child in childFolders {
+            result.append(contentsOf: collectFolderAndDescendants(from: child.id))
+        }
+
+        return result
+    }
+
 }
 
 extension HomeViewModel {
     public func navigateToParent() {
-        if isFavoriteSelected {
-            // 즐겨찾기 경로를 스택에서 복원
-            if let lastState = navigationStack.popLast() {
-                isFavoriteSelected = lastState.isFavoriteSelected
-                currentFolder = lastState.folder
-            } else {
-                // 기본 상태로 복원
-                isFavoriteSelected = true
-                currentFolder = nil
-            }
-        } else {
-            // 전체 탭에서는 부모 폴더로 이동
-            if let parentID = currentFolder?.parentFolderID {
-                currentFolder = folders.first { $0.id == parentID }
-            } else {
-                currentFolder = nil
-            }
+        if let parentID = currentFolder?.parentFolderID {
+            currentFolder = folders.first { $0.id == parentID }
+            selectedFolderID = parentID
         }
-    }
-    
-    public func navigateTo(folder: Folder) {
-        if isFavoriteSelected {
-            navigationStack.append((isFavoriteSelected: isFavoriteSelected, folder: currentFolder))
-        }
-        currentFolder = folder
+        updateFilteredList()
     }
     
     // 탭 변경 시 최초 상태로 초기화
@@ -454,39 +520,10 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    public func addSearchTerm(_ term: String) {
-        var searches = UserDefaults.standard.recentSearches
-        
-        // 중복 제거: 기존 검색어 목록에서 제거
-        if let index = searches.firstIndex(of: term) {
-            searches.remove(at: index)
-        }
-        
-        // 배열이 10개를 초과하면 가장 오래된 항목 제거
-        if searches.count == 10 {
-            searches.removeLast()
-        }
-        
-        searches.insert(term, at: 0)
-        UserDefaults.standard.recentSearches = searches
-    }
-
-    public func clearAllSearchTerms() {
-        UserDefaults.standard.recentSearches = []
-    }
-}
-
-extension HomeViewModel {
-    public func deleteFiles(_ items: [FileSystemItem]) {
-        for item in items {
-            switch item {
-            case .paper(let paperInfo):
-                self.homeViewUseCase.deletePDF(id: paperInfo.id)
-                self.paperInfos.removeAll(where: { $0.id == paperInfo.id })
-            case .folder(let folder):
-                self.homeViewUseCase.deleteFolder(id: folder.id)
-                self.folders.removeAll(where: { $0.id == folder.id })
-            }
+    public func deleteFiles(_ files: [PaperInfo]) {
+        for file in files {
+            self.homeViewUseCase.deletePDF(id: file.id)
+            self.paperInfos.removeAll(where: { $0.id == file.id })
         }
     }
 }
@@ -502,22 +539,9 @@ extension HomeViewModel {
         }
         return nil
     }
-}
-
-enum SearchFilter: CaseIterable {
-    case total
-    case paper
-    case folder
     
-    var title: String {
-        switch self {
-        case .total:
-            return "전체"
-        case .paper:
-            return "논문"
-        case .folder:
-            return "폴더"
-        }
+    func getParentFolderID(for folderID: UUID) -> UUID? {
+        return folders.first { $0.id == folderID }?.parentFolderID
     }
 }
 
@@ -591,4 +615,13 @@ extension HomeViewModel {
         self.setSample()
     }
      */
+}
+
+enum CategorySelection: Equatable {
+    case main, favorite, tag, folder(UUID)
+}
+
+enum FolderCreationPosition {
+    case intoCurrent
+    case aboveCurrent
 }

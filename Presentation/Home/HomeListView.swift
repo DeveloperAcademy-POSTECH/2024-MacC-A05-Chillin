@@ -9,99 +9,19 @@ import SwiftUI
 
 struct HomeListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
-    @Binding var createFolder: Bool
-    @Binding var selectedFolderID: UUID?
     @State private var expandedFolders: Set<UUID> = []
     
-    @State private var isMainSelected: Bool = true
-    @State private var isFavoriteSelected: Bool = false
-    @State private var isTagSelected: Bool = false
+    @State private var selectedCategory: CategorySelection = .main
+    
+    @State private var animationFolder: Folder?
+    @GestureState private var highlight = false
     
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(isMainSelected ? Color(hex: "EFEFF8") : .clear)
-                    .frame(height: 43)
-                    .overlay {
-                        HStack(spacing: 0) {
-                            Image(systemName: isMainSelected ? "text.page.fill" : "text.page")
-                                .font(.system(size: 18))
-                                .foregroundStyle(isMainSelected ? .primary1 : .gray700)
-                                .padding(.trailing, 11)
-                            
-                            Text("전체")
-                                .reazyFont(isMainSelected ? .button1 : .text1)
-                                .foregroundStyle(isMainSelected ? .primary1 : .gray700)
-                            
-                            Spacer()
-                        }
-                        .padding(.leading, 20)
-                    }
-                    .onTapGesture {
-                        self.isMainSelected = true
-                        self.isFavoriteSelected = false
-                        self.isTagSelected = false
-                        homeViewModel.isFavoriteSelected = false
-                        homeViewModel.isTagSelected = false
-                    }
-                    .padding(.bottom, 3)
-                
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(isFavoriteSelected ? Color(hex: "EFEFF8") : .clear)
-                    .frame(height: 43)
-                    .overlay {
-                        HStack(spacing: 0) {
-                            Image(isFavoriteSelected ? "starfill" : "star")
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 18, height: 18)
-                                .foregroundStyle(isFavoriteSelected ? .primary1 : .gray700)
-                                .padding(.trailing, 11)
-                            
-                            Text("즐겨찾기")
-                                .reazyFont(isFavoriteSelected ? .button1 : .text1)
-                                .foregroundStyle(isFavoriteSelected ? .primary1 : .gray700)
-                            
-                            Spacer()
-                        }
-                        .padding(.leading, 20)
-                    }
-                    .onTapGesture {
-                        self.isMainSelected = false
-                        self.isFavoriteSelected = true
-                        self.isTagSelected = false
-                        homeViewModel.isFavoriteSelected = true
-                        homeViewModel.isTagSelected = false
-                    }
-                    .padding(.bottom, 3)
-                
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(isTagSelected ? Color(hex: "EFEFF8") : .clear)
-                    .frame(height: 43)
-                    .overlay {
-                        HStack(spacing: 0) {
-                            Image(systemName: isTagSelected ? "tag.fill" : "tag")
-                                .font(.system(size: 14))
-                                .foregroundStyle(isTagSelected ? .primary1 : .gray700)
-                                .padding(.trailing, 11)
-                            
-                            Text("태그")
-                                .reazyFont(isTagSelected ? .button1 : .text1)
-                                .foregroundStyle(isTagSelected ? .primary1 : .gray700)
-                                
-                            Spacer()
-                        }
-                        .padding(.leading, 20)
-                    }
-                    .onTapGesture {
-                        self.isMainSelected = false
-                        self.isFavoriteSelected = false
-                        self.isTagSelected = true
-                        homeViewModel.isFavoriteSelected = false
-                        homeViewModel.isTagSelected = true
-                    }
+                categoryButton(icon: "text.page", selectedIcon: "text.page.fill", title: "전체", category: .main)
+                categoryButton(image: "star", selectedImage: "starfill", title: "즐겨찾기", category: .favorite)
+                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: "태그", category: .tag)
             }
             .padding(.leading, 10)
             .padding(.trailing, 12)
@@ -122,7 +42,12 @@ struct HomeListView: View {
                     Spacer()
                     
                     Button(action: {
-                        createFolder.toggle()
+                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                            homeViewModel.folderCreationPosition = .intoCurrent
+                            homeViewModel.createFolder = true
+                        } else {
+                            homeViewModel.showFolderDepthAlert = true
+                        }
                     }) {
                         Image("newfolder")
                             .renderingMode(.template)
@@ -133,6 +58,8 @@ struct HomeListView: View {
                     }
                 }
                 .padding(.bottom, 14)
+                .padding(.leading, 20)
+                .padding(.trailing, 6)
                 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -144,20 +71,93 @@ struct HomeListView: View {
                                 childFolders: childFolders(of:),
                                 toggleExpansion: toggleExpansion,
                                 hasChildren: hasChildren(folder:),
-                                selectedFolderID: $selectedFolderID
+                                selectedFolderID: $homeViewModel.selectedFolderID,
+                                didSelectFolder: { folderID in
+                                    selectedCategory = .folder(folderID)
+                                    homeViewModel.selectCategory(.folder(folderID))
+                                },
+                                handleDrop: handleDrop(to:droppedItem:)
                             )
                             .padding(.top, 10)
+                            .gesture(LongPressGesture(minimumDuration: 0.5)
+                                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+                                .updating($highlight) { currentState, gestureState, transaction in
+                                    self.animationFolder = folder
+                                    transaction.animation = .easeIn(duration: 1)
+                                    gestureState = true
+                                }
+                                .onEnded { value in
+                                    switch value {
+                                    case .second(true, let drag):
+                                        if let drag = drag {
+                                            homeViewModel.viewStatus = .folderPopover(
+                                                .init(x: 40 + 100, y: drag.location.y + 85)
+                                            )
+                                            homeViewModel.selectedFolderID = folder.id
+                                        }
+                                    default:
+                                        break
+                                    }
+                                }
+                            )
+                            .scaleEffect((animationFolder == folder && highlight) ? 1.2 : 1)
                         }
                     }
                 }
+                .listStyle(PlainListStyle())
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
-            .padding(.leading, 30)
-            .padding(.trailing, 16)
+            .padding(.leading, 10)
+            .padding(.trailing, 10)
             
             Spacer()
         }
         .padding(.top, 24)
         .background(.primary2)
+    }
+    
+    private func categoryButton(
+        icon: String? = nil,
+        selectedIcon: String? = nil,
+        image: String? = nil,
+        selectedImage: String? = nil,
+        title: String,
+        category: CategorySelection
+    ) -> some View {
+        RoundedRectangle(cornerRadius: 12)
+            .foregroundStyle(selectedCategory == category ? Color(hex: "EFEFF8") : .clear)
+            .frame(height: 43)
+            .overlay {
+                HStack(spacing: 0) {
+                    if let icon = icon, let selectedIcon = selectedIcon {
+                        Image(systemName: selectedCategory == category ? selectedIcon : icon)
+                            .font(.system(size: 18))
+                            .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                            .padding(.trailing, 11)
+                    } else if let image = image, let selectedImage = selectedImage {
+                        Image(selectedCategory == category ? selectedImage : image)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                            .padding(.trailing, 11)
+                    }
+                    
+                    Text(title)
+                        .reazyFont(selectedCategory == category ? .button1 : .text1)
+                        .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                    
+                    Spacer()
+                }
+                .padding(.leading, 20)
+            }
+            .onTapGesture {
+                selectedCategory = category
+                homeViewModel.selectCategory(category)
+            }
+            .padding(.bottom, 3)
     }
     
     private var rootFolders: [Folder] {
@@ -173,10 +173,18 @@ struct HomeListView: View {
     }
     
     private func toggleExpansion(_ folder: Folder) {
-        if expandedFolders.contains(folder.id) {
-            expandedFolders.remove(folder.id)
-        } else {
-            expandedFolders.insert(folder.id)
+        withAnimation {
+            if expandedFolders.contains(folder.id) {
+                expandedFolders.remove(folder.id)
+            } else {
+                expandedFolders.insert(folder.id)
+            }
+        }
+    }
+    
+    private func handleDrop(to folderId: UUID, droppedItem: PaperInfo) {
+        DispatchQueue.main.async {
+            homeViewModel.updatePaperLocation(at: droppedItem.id, folderID: folderId)
         }
     }
 }
@@ -190,8 +198,9 @@ private struct FolderListCell: View {
     let childFolders: (UUID) -> [Folder]
     let toggleExpansion: (Folder) -> Void
     let hasChildren: (Folder) -> Bool
-    
     @Binding var selectedFolderID: UUID?
+    var didSelectFolder: (UUID) -> Void
+    var handleDrop: (UUID, PaperInfo) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -205,6 +214,7 @@ private struct FolderListCell: View {
                             .scaledToFit()
                             .frame(width: 11.43, height: 9.13)
                     )
+                    .padding(.leading, 20)
                     .padding(.trailing, 10)
                 
                 VStack(spacing: 0) {
@@ -219,15 +229,14 @@ private struct FolderListCell: View {
                         
                         if hasChildren(folder) {
                             Button(action: {
-                                withAnimation {
-                                    toggleExpansion(folder)
-                                }
+                                toggleExpansion(folder)
                             }) {
                                 Image(systemName: expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundStyle(.gray600)
                                     .padding(.trailing, 4)
                             }
+                            .padding(.trailing, 10)
                         }
                     }
                     
@@ -239,7 +248,14 @@ private struct FolderListCell: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .contentShape(Rectangle())
             .onTapGesture {
-                onTap()
+                didSelectFolder(folder.id)
+            }
+            .dropDestination(for: PaperInfo.self) { droppedItems, location in
+                if let droppedItem = droppedItems.first {
+                    handleDrop(folder.id, droppedItem)
+                    return true
+                }
+                return false
             }
             
             if expandedFolders.contains(folder.id) {
@@ -251,7 +267,9 @@ private struct FolderListCell: View {
                         childFolders: childFolders,
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
-                        selectedFolderID: $selectedFolderID
+                        selectedFolderID: $selectedFolderID,
+                        didSelectFolder: didSelectFolder,
+                        handleDrop: handleDrop
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.top, 10)
@@ -261,18 +279,9 @@ private struct FolderListCell: View {
             }
         }
     }
-    
-    private func onTap() {
-        if selectedFolderID != folder.id {
-            selectedFolderID = folder.id
-        }
-    }
 }
 
 
 #Preview {
-    HomeListView(
-        createFolder: .constant(false),
-        selectedFolderID: .constant(nil)
-    )
+    HomeListView()
 }
