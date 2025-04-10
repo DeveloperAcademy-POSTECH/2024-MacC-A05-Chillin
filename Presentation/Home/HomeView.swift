@@ -236,13 +236,13 @@ struct HomeView: View {
                             confirmAction: tagViewModel.deleteTag)
             }
             
-//            if case .folderPopover = homeViewModel.viewStatus {
-//                if case let .folderPopover(position) = homeViewModel.viewStatus {
-//                    HomeFolderPopoverView()
-//                        .environmentObject(homeViewModel)
-//                        .position(position)
-//                }
-//            }
+            if case .folderPopover = homeViewModel.viewStatus {
+                if case let .folderPopover(position) = homeViewModel.viewStatus {
+                    HomeFolderPopoverView()
+                        .environmentObject(homeViewModel)
+                        .position(position)
+                }
+            }
             
             if homeViewModel.showDeleteAlert {
                 CustomAlert(

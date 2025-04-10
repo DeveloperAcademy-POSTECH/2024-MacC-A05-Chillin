@@ -12,33 +12,38 @@ struct HomeFolderPopoverView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     var body: some View {
-        VStack(spacing: 0) {
-            PopoverActionView(popoverAction: .changeName) {
-                homeViewModel.viewStatus = .normal
-                homeViewModel.isEditingFolder = true
-            }
-            divider
-            PopoverActionView(popoverAction: .addParentFolder) {
-                homeViewModel.viewStatus = .normal
-                homeViewModel.folderCreationPosition = .aboveCurrent
-                homeViewModel.createFolder = true
-            }
-            divider
-            PopoverActionView(popoverAction: .addSubFolder) {
-                homeViewModel.viewStatus = .normal
-                if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
-                    homeViewModel.folderCreationPosition = .intoCurrent
-                    homeViewModel.createFolder = true
-                } else {
-                    homeViewModel.showFolderDepthAlert = true
+        RoundedRectangle(cornerRadius: 12)
+            .frame(width: 200, height: 171)
+            .foregroundStyle(.white)
+            .overlay {
+                VStack(spacing: 0) {
+                    PopoverActionView(popoverAction: .changeName) {
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.isEditingFolder = true
+                    }
+                    divider
+                    PopoverActionView(popoverAction: .addParentFolder) {
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.folderCreationPosition = .aboveCurrent
+                        homeViewModel.createFolder = true
+                    }
+                    divider
+                    PopoverActionView(popoverAction: .addSubFolder) {
+                        homeViewModel.viewStatus = .normal
+                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                            homeViewModel.folderCreationPosition = .intoCurrent
+                            homeViewModel.createFolder = true
+                        } else {
+                            homeViewModel.showFolderDepthAlert = true
+                        }
+                    }
+                    divider
+                    PopoverActionView(popoverAction: .delete) {
+                        homeViewModel.viewStatus = .normal
+                        homeViewModel.showDeleteAlert = true
+                    }
                 }
             }
-            divider
-            PopoverActionView(popoverAction: .delete) {
-                homeViewModel.viewStatus = .normal
-                homeViewModel.showDeleteAlert = true
-            }
-        }
     }
     
     private var divider: some View {
