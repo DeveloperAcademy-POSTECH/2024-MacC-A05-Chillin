@@ -54,10 +54,12 @@ struct AppView: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        // for Google Analytics
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        // Google Analytics 설정
         FirebaseApp.configure()
+        FirebaseConfiguration.shared.setLoggerLevel(.min)
         
         // 전체 Tint Color 설정
         UIView.appearance().tintColor = UIColor.primary1
@@ -65,7 +67,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 }
-
 
 extension AppView {
     /// 외부 앱에서 업로드 시 실행 메소드
