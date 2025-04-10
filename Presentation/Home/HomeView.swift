@@ -240,7 +240,10 @@ struct HomeView: View {
                 if case let .folderPopover(position) = homeViewModel.viewStatus {
                     HomeFolderPopoverView()
                         .environmentObject(homeViewModel)
-                        .position(position)
+                        .position(.init(
+                            x: position.x,
+                            y: UIScreen.main.bounds.height - position.y < 171 ? position.y - 200 : position.y
+                        ))
                 }
             }
             

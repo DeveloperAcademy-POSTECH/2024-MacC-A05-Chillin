@@ -30,44 +30,51 @@ struct TagControlView: View {
         ZStack {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
-            HStack(alignment: .top, spacing: 40) {
-                Image(uiImage: .init(data: paperInfo.thumbnail) ?? .testThumbnail)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200)
-                
-                VStack(spacing: 0) {
-                    TagInputTextField(
-                        viewModel: viewModel,
-                        paperInfo: $paperInfo,
-                        textFieldFocus: $textFieldFocus
-                    )
+            
+            if viewModel.isOverMaximumTagAlertPresented {
+                OverMaximumTagAlertView {
+                    viewModel.isOverMaximumTagAlertPresented = false
+                }
+            } else {
+                HStack(alignment: .top, spacing: 40) {
+                    Image(uiImage: .init(data: paperInfo.thumbnail) ?? .testThumbnail)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200)
                     
-                    ZStack(alignment: .top) {
-                        VStack {
-                            Text("태그를 만들거나 추가할 태그를 검색하세요")
-                                .reazyFont(.text1)
-                                .foregroundStyle(.comment)
-                                .padding(.top, 14)
-                                .padding(.bottom, 20)
-                            
-                            ForEach(paperInfo.tags) { tag in
-                                IncludedTagView(tag: tag) {
-                                    viewModel.deleteTagButtonTapped(paperId: paperInfo.id, tag: tag)
-                                    paperInfo.tags.removeAll { $0.id == tag.id }
+                    VStack(spacing: 0) {
+                        TagInputTextField(
+                            viewModel: viewModel,
+                            paperInfo: $paperInfo,
+                            textFieldFocus: $textFieldFocus
+                        )
+                        
+                        ZStack(alignment: .top) {
+                            VStack {
+                                Text("태그를 만들거나 추가할 태그를 검색하세요")
+                                    .reazyFont(.text1)
+                                    .foregroundStyle(.comment)
+                                    .padding(.top, 14)
+                                    .padding(.bottom, 20)
+                                
+                                ForEach(paperInfo.tags) { tag in
+                                    IncludedTagView(tag: tag) {
+                                        viewModel.deleteTagButtonTapped(paperId: paperInfo.id, tag: tag)
+                                        paperInfo.tags.removeAll { $0.id == tag.id }
+                                    }
                                 }
                             }
+                            
+                            if textFieldFocus {
+                                NewTagSearchResultView(
+                                    viewModel: viewModel,
+                                    paperInfo: $paperInfo,
+                                    textFieldFocus: $textFieldFocus
+                                )
+                            }
                         }
-                        
-                        if textFieldFocus {
-                            NewTagSearchResultView(
-                                viewModel: viewModel,
-                                paperInfo: $paperInfo,
-                                textFieldFocus: $textFieldFocus
-                            )
-                        }
+                        .animation(.easeInOut, value: textFieldFocus)
                     }
-                    .animation(.easeInOut, value: textFieldFocus)
                 }
             }
         }
@@ -82,6 +89,7 @@ struct TagControlView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: 18))
                         .foregroundStyle(.gray100)
+                        .frame(width: 50, height: 50)
                 }
                 .padding(.top, 28)
                 
@@ -105,6 +113,7 @@ struct TagControlView: View {
             }
             .padding(.horizontal, 28)
         }
+        .animation(.easeInOut, value: viewModel.isOverMaximumTagAlertPresented)
     }
 }
 
@@ -293,9 +302,43 @@ private struct CreateNewTagCell: View {
                     .foregroundStyle(.gray600)
                 
                 TagControlCell(name: name)
+                    .disabled(true)
                 
                 Spacer()
             }
         }
+    }
+}
+
+
+private struct OverMaximumTagAlertView: View {
+    let action: () -> Void
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .foregroundStyle(.gray200)
+            
+            VStack(spacing: 0) {
+                Text("태그는 최대 7개까지 추가할 수 있어요.\n새 태그를 추가하려면 기존 태그를 삭제해주세요.")
+                    .font(.custom("Pretendard-SemiBold", size: 16))
+                    .multilineTextAlignment(.center)
+                    .frame(height: 106)
+                
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundStyle(Color(hex: "D9DBE9"))
+                
+                Button {
+                    action()
+                } label: {
+                    Text("확인")
+                        .font(.custom("Pretendard-Medium", size: 16))
+                        .foregroundStyle(.primary1)
+                        .frame(width: 364, height: 57)
+                }
+            }
+        }
+        .frame(width: 364, height: 163)
     }
 }

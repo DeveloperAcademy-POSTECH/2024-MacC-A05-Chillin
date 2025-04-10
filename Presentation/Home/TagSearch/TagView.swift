@@ -304,6 +304,8 @@ private struct FilteredPaperListView: View {
                         moveAction: {
                             homeViewModel.selectedItems.insert(paperInfo.id)
                             homeViewModel.isMovingFolder.toggle()
+                        }, addTagAction: {
+                            homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
                         }
                     )
                 }
