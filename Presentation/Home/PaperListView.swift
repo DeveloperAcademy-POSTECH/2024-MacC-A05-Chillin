@@ -218,7 +218,7 @@ extension PaperListView {
         
         if isStale {
             print("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let newURL = try? url.bookmarkData(options: .minimalBookmark) else {
+            guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
                 print("Unable to create bookmark")
                 return
             }
@@ -227,10 +227,7 @@ extension PaperListView {
             homeViewModel.paperInfos[idx].url = newURL
         }
         
-        if url.startAccessingSecurityScopedResource() {
-            navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
-            url.stopAccessingSecurityScopedResource()
-        }
+        navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
     }
 }
 
