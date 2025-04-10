@@ -69,7 +69,7 @@ private struct HomeSearchListView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(homeSearchViewModel.searchList) { paperInfo in
-                            HomePDFCell(paperInfo: paperInfo, cellStatus: .normal) {
+                            HomePDFCell(paperInfo: paperInfo, cellStatus: .search) {
                                 // TODO: 네비게이션 push 시 Date 업데이트 필요
                                 homeSearchViewModel.PaperCellTapped(paperInfo)
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))

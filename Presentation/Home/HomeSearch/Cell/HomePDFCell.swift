@@ -12,7 +12,7 @@ import SwiftUI
 struct HomePDFCell: View {
     @State private var popover = false
     @State var paperInfo: PaperInfo
-    // 이걸로 다중 선택 키기
+    
     var cellStatus: CellStatus
     
     let onTapGesture: () -> Void
@@ -41,7 +41,7 @@ struct HomePDFCell: View {
                     switch cellStatus {
                     case .normal:
                         onTapGesture()
-                    case .selection:
+                    default:
                         break
                     }
                 } label: {
@@ -49,7 +49,8 @@ struct HomePDFCell: View {
                         ThumbnailImageView(
                             thumbnailData: paperInfo.thumbnail,
                             isStared: paperInfo.isFavorite,
-                            starAction: starAction
+                            starAction: starAction,
+                            cellStatus: cellStatus
                         )
                         
                         PaperInformationView(
@@ -61,25 +62,27 @@ struct HomePDFCell: View {
                         
                         Spacer()
                         
-                        EllipsisView {
-                            popover.toggle()
-                        }
-                        .popover(isPresented: $popover, arrowEdge: .trailing) {
-                            EllipsisButtonView {
-                                editAction()
+                        if case .normal = cellStatus {
+                            EllipsisView {
                                 popover.toggle()
-                            } setTagAction: {
-                                setTagAction()
-                                popover.toggle()
-                            } copyPaperAction: {
-                                copyAction()
-                                popover.toggle()
-                            } deletePaperAction: {
-                                deleteAction()
-                                popover.toggle()
-                            } moveFolderAction: {
-                                moveAction()
-                                popover.toggle()
+                            }
+                            .popover(isPresented: $popover, arrowEdge: .trailing) {
+                                EllipsisButtonView {
+                                    editAction()
+                                    popover.toggle()
+                                } setTagAction: {
+                                    setTagAction()
+                                    popover.toggle()
+                                } copyPaperAction: {
+                                    copyAction()
+                                    popover.toggle()
+                                } deletePaperAction: {
+                                    deleteAction()
+                                    popover.toggle()
+                                } moveFolderAction: {
+                                    moveAction()
+                                    popover.toggle()
+                                }
                             }
                         }
                     }
@@ -101,19 +104,13 @@ struct HomePDFCell: View {
             }
         }
     }
-    
-    
-    enum CellStatus {
-        case normal
-        case selection
-    }
 }
-
 
 private struct ThumbnailImageView: View {
     let thumbnailData: Data
     let isStared: Bool
     let starAction: () -> Void
+    let cellStatus: CellStatus
     
     var body: some View {
         Image(uiImage: .init(data: thumbnailData) ?? .close)
@@ -121,14 +118,18 @@ private struct ThumbnailImageView: View {
             .scaledToFit()
             .frame(width: 82, height: 110)
             .overlay(alignment: .topTrailing) {
-                Button {
-                    starAction()
-                } label: {
-                    Image(systemName: isStared ? "star.fill" : "star")
-                        .font(.system(size: 18))
-                        .foregroundStyle(isStared ? .point4 : .gray600)
+                if case .normal = cellStatus {
+                    Button {
+                        starAction()
+                    } label: {
+                        Image(isStared ? "starfill" : "star")
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(isStared ? .point4 : .gray600)
+                    }
+                    .padding(6)
                 }
-                .padding(6)
             }
     }
 }
@@ -309,4 +310,10 @@ private struct SelectionCheckView: View {
             }
         }
     }
+}
+
+enum CellStatus {
+    case normal
+    case selection
+    case search
 }

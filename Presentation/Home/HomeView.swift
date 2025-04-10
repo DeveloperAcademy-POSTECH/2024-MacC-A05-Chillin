@@ -247,10 +247,10 @@ struct HomeView: View {
             if homeViewModel.showDeleteAlert {
                 CustomAlert(
                     mainText: "삭제하시겠습니까?\n삭제된 항목은 복구할 수 없습니다.",
-                    width: 350, height: 173,
+                    width: 364, height: 163,
                     cancelAction: { homeViewModel.showDeleteAlert = false },
                     confirmAction: {
-                        if let id = homeViewModel.currentFolder?.id {
+                        if let id = homeViewModel.selectedFolderID {
                             homeViewModel.deleteFolder(at: id)
                         }
                     }
@@ -261,9 +261,8 @@ struct HomeView: View {
                 CustomAlert(
                     type: .confirm,
                     mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
-                    width: 350, height: 173,
-                    cancelAction: { homeViewModel.showFolderDepthAlert = false },
-                    confirmAction: {}
+                    width: 340, height: 163,
+                    cancelAction: { homeViewModel.showFolderDepthAlert = false }
                 )
             }
             
@@ -576,9 +575,9 @@ struct FolderView: View {
                             } else {
                                 switch homeViewModel.folderCreationPosition {
                                 case .intoCurrent:
-                                    homeViewModel.createSubfolder(in: homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                    homeViewModel.createSubfolderInSelectedFolder(title: text, color: selectedColors.rawValue)
                                 case .aboveCurrent:
-                                    homeViewModel.createFolderAbove(homeViewModel.currentFolder, title: text, color: selectedColors.rawValue)
+                                    homeViewModel.createFolderAboveSelectedFolder(title: text, color: selectedColors.rawValue)
                                 }
                             }
                             homeViewModel.selectedFolderID = nil
