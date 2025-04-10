@@ -71,12 +71,7 @@ struct TagView: View {
                             .padding(.top, 24)
                             .padding(.horizontal, 20)
                             .frame(maxWidth: geometry.size.width - 40, minHeight: geometry.size.height * 0.33)
-                            .onAppear(){
-                                tagViewModel.getlistWidth(width: geometry.size.width)
-                            }
-                            .onChange(of: geometry.size.width) {
-                                tagViewModel.getlistWidth(width: geometry.size.width)
-                            }
+                            
                             
                             // 편집 버튼
                             HStack(spacing: 0) {
@@ -113,6 +108,12 @@ struct TagView: View {
                     }
                 }
                 .padding([.top, .horizontal], 20)
+                .onAppear(){
+                    tagViewModel.getlistWidth(width: geometry.size.width)
+                }
+                .onChange(of: geometry.size.width) {
+                    tagViewModel.getlistWidth(width: geometry.size.width)
+                }
             }
             if tagViewModel.popover {
                 EllipsisButtonView(namespace: nsPopover)
@@ -269,43 +270,48 @@ private struct FilteredPaperListView: View {
     
     @State private var deleteAlertPresented: Bool = false
     @State private var selectedPaper: PaperInfo?
+    @State private var isPortrait: Bool = false
+    
+    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
-                    HomePDFCell(
-                        paperInfo: paperInfo,
-                        cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                        onTapGesture: {
-                            navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
-                        },
-                        checkAction: {
-                            homeViewModel.selectedItems.insert(paperInfo.id)
-                        },
-                        starAction: {
-                            tagViewModel.starButtonTapped(paperInfo: paperInfo)
-                        },
-                        tagAction: { _ in },
-                        editAction: {
-                            homeViewModel.viewStatus = .search(paperInfo)
-                        },
-                        setTagAction: {
-                            // TODO: 뭐 들어가야 함?
-                            homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
-                        },
-                        copyAction: {
-                            tagViewModel.copyButtonTapped(paperInfo: paperInfo)
-                        },
-                        deleteAction: {
-                            selectedPaper = paperInfo
-                            deleteAlertPresented.toggle()
-                        },
-                        moveAction: {
-                            homeViewModel.selectedItems.insert(paperInfo.id)
-                            homeViewModel.isMovingFolder.toggle()
-                        }
-                    )
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
+                        HomePDFCell(
+                            paperInfo: paperInfo,
+                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal, screenWidth: isPortrait ? geometry.size.width * 0.63 :  geometry.size.width * 0.73,
+                            onTapGesture: {
+                                navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                            },
+                            checkAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                            },
+                            starAction: {
+                                tagViewModel.starButtonTapped(paperInfo: paperInfo)
+                            },
+                            tagAction: { _ in },
+                            editAction: {
+                                homeViewModel.viewStatus = .search(paperInfo)
+                            },
+                            setTagAction: {
+                                // TODO: 뭐 들어가야 함?
+                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                            },
+                            copyAction: {
+                                tagViewModel.copyButtonTapped(paperInfo: paperInfo)
+                            },
+                            deleteAction: {
+                                selectedPaper = paperInfo
+                                deleteAlertPresented.toggle()
+                            },
+                            moveAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                                homeViewModel.isMovingFolder.toggle()
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -320,6 +326,23 @@ private struct FilteredPaperListView: View {
             }
             
             Button("취소", role: .cancel, action: {})
+        }
+        .onAppear {
+            if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+                self.isPortrait = true
+            }
+        }
+        .onReceive(publisher) { noti in
+            let currentOrientation = UIDevice.current.orientation
+            
+            switch currentOrientation {
+            case .portrait, .portraitUpsideDown:
+                self.isPortrait = true
+            case .landscapeLeft, .landscapeRight:
+                self.isPortrait = false
+            default:
+                break
+            }
         }
     }
 }

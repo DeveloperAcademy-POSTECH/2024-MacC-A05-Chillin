@@ -14,6 +14,7 @@ struct HomePDFCell: View {
     @State var paperInfo: PaperInfo
     // 이걸로 다중 선택 키기
     var cellStatus: CellStatus
+    let screenWidth: CGFloat
     
     let onTapGesture: () -> Void
     let checkAction: () -> Void
@@ -56,6 +57,7 @@ struct HomePDFCell: View {
                             title: paperInfo.title,
                             date: paperInfo.lastModifiedDate,
                             tags: paperInfo.tags,
+                            screenWdith: screenWidth,
                             tagAction: tagAction
                         )
                         
@@ -138,8 +140,15 @@ private struct PaperInformationView: View {
     let title: String
     let date: Date
     let tags: [Tag]
+    let screenWdith: CGFloat
     
     let tagAction: (UUID) -> Void
+    
+    @State private var isShowingTags = false
+    var hiddenTags: [Tag] {
+        let shown = Set(getVisibleTags().map { $0.id })
+        return tags.filter { !shown.contains($0.id) }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -157,17 +166,68 @@ private struct PaperInformationView: View {
             Spacer()
             
             HStack {
-                ForEach(tags) { tag in
+                ForEach(getVisibleTags()) { tag in
                     PDFTagCell(isMultiSelectable: false,
                                isEditMode: false,
                                tag: tag,
                                selectAction: {tagAction(tag.id)},
                                deleteAction: {})
                 }
+                
+                if hiddenTags.count > 0 {
+                    Button {
+                        isShowingTags = true
+                    } label: {
+                        Text("+\(hiddenTags.count)")
+                            .reazyFont(.body1)
+                            .foregroundStyle(.gray800)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .foregroundStyle(.primary3)
+                    )
+                    .popover(isPresented: $isShowingTags) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            ForEach(hiddenTags) { tag in
+                                PDFTagCell(isMultiSelectable: false,
+                                           isEditMode: false,
+                                           tag: tag,
+                                           selectAction: {tagAction(tag.id)},
+                                           deleteAction: {})
+                            }
+                        }
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, 16)
+                    }
+                }
             }
             .padding(.bottom, 22)
         }
         .padding(.leading, 20)
+    }
+    
+    private func getVisibleTags() -> [Tag] {
+        var totalWidth: CGFloat = 0
+        var result = [Tag]()
+        
+        for tag in tags {
+            let width = tag.itemWidth(isEditMode: false)
+
+            if result.count < 6 && totalWidth + width <= screenWdith {
+                result.append(tag)
+                totalWidth += width
+            }
+            else if totalWidth + width <= screenWdith + 40 {
+                result.append(tag)
+                break
+            }
+            else {
+                break
+            }
+        }
+        return result
     }
 }
 

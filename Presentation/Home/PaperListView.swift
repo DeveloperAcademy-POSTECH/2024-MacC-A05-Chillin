@@ -23,6 +23,9 @@ struct PaperListView: View {
     
     @State private var isIPadMini: Bool = false
     @State private var isVertical = false
+    @State private var isPortrait: Bool = false
+    
+    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         GeometryReader { geometry in
@@ -86,53 +89,73 @@ struct PaperListView: View {
                             
                             Spacer()
                         } else {
-                            VStack(spacing: 0) {
-                                Spacer().frame(height: 6)
-                                
-                                List {
-                                    ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
-                                        HomePDFCell(
-                                            paperInfo: paperInfo,
-                                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                                            onTapGesture: {
-                                                navigateToPaper(paperInfo.id)
-                                                homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
-                                            },
-                                            checkAction: {
-                                                homeViewModel.selectedItems.insert(paperInfo.id)
-                                            },
-                                            starAction: {
-                                                homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
-                                            },
-                                            tagAction: { _ in },
-                                            editAction: {
-                                                homeViewModel.editButtonTapped(paperInfo)
-                                            },
-                                            setTagAction: {
-                                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
-                                            },
-                                            copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
-                                            deleteAction: {
-                                                selectedPaper = paperInfo
-                                                deleteAlertPresented.toggle()
-                                            },
-                                            moveAction: {
-                                                homeViewModel.selectedItems.insert(paperInfo.id)
-                                                homeViewModel.isMovingFolder.toggle()
+                            GeometryReader { geometry in
+                                VStack(spacing: 0) {
+                                    Spacer().frame(height: 6)
+                                    
+                                    List {
+                                        ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
+                                            HomePDFCell(
+                                                paperInfo: paperInfo,
+                                                cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
+                                                screenWidth: isPortrait ? geometry.size.width * 0.63 :  geometry.size.width * 0.73,
+                                                onTapGesture: {
+                                                    navigateToPaper(paperInfo.id)
+                                                    homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
+                                                },
+                                                checkAction: {
+                                                    homeViewModel.selectedItems.insert(paperInfo.id)
+                                                },
+                                                starAction: {
+                                                    homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
+                                                },
+                                                tagAction: { _ in },
+                                                editAction: {
+                                                    homeViewModel.editButtonTapped(paperInfo)
+                                                },
+                                                setTagAction: {
+                                                    homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                                },
+                                                copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
+                                                deleteAction: {
+                                                    selectedPaper = paperInfo
+                                                    deleteAlertPresented.toggle()
+                                                },
+                                                moveAction: {
+                                                    homeViewModel.selectedItems.insert(paperInfo.id)
+                                                    homeViewModel.isMovingFolder.toggle()
+                                                }
+                                            )
+                                            .draggable(paperInfo) {
+                                                EmptyView()
                                             }
-                                        )
-                                        .draggable(paperInfo) {
-                                            EmptyView()
+                                            .listRowSeparator(.hidden)
+                                            .listRowBackground(Color.clear)
+                                            .listRowInsets(EdgeInsets())
                                         }
-                                        .listRowSeparator(.hidden)
-                                        .listRowBackground(Color.clear)
-                                        .listRowInsets(EdgeInsets())
+                                        .padding(.leading, 24)
                                     }
-                                    .padding(.leading, 24)
+                                    .listStyle(PlainListStyle())
+                                    .scrollContentBackground(.hidden)
+                                    .background(Color.clear)
                                 }
-                                .listStyle(PlainListStyle())
-                                .scrollContentBackground(.hidden)
-                                .background(Color.clear)
+                                .onAppear {
+                                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+                                        self.isPortrait = true
+                                    }
+                                }
+                                .onReceive(publisher) { noti in
+                                    let currentOrientation = UIDevice.current.orientation
+                                    
+                                    switch currentOrientation {
+                                    case .portrait, .portraitUpsideDown:
+                                        self.isPortrait = true
+                                    case .landscapeLeft, .landscapeRight:
+                                        self.isPortrait = false
+                                    default:
+                                        break
+                                    }
+                                }
                             }
                         }
                     }

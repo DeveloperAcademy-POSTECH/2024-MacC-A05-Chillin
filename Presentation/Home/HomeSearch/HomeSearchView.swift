@@ -29,6 +29,9 @@ private struct HomeSearchListView: View {
     
     @State private var deleteAlertPresented: Bool = false
     @State private var selectedPaper: PaperInfo?
+    @State private var isPortrait: Bool = false
+    
+    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         VStack {
@@ -67,33 +70,52 @@ private struct HomeSearchListView: View {
                 Spacer()
             } else {
                 ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(homeSearchViewModel.searchList) { paperInfo in
-                            HomePDFCell(paperInfo: paperInfo, cellStatus: .normal) {
-                                // TODO: 네비게이션 push 시 Date 업데이트 필요
-                                homeSearchViewModel.PaperCellTapped(paperInfo)
-                                navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
-                            } checkAction: {
-                                homeViewModel.selectedItems.insert(paperInfo.id)
-                            } starAction: {
-                                homeSearchViewModel.starButtonTapped(paperInfo)
-                            } tagAction: { id in
-                                homeSearchViewModel.tagTapped(id)
-                            } editAction: {
-                                homeSearchViewModel.editButtonTapped(paperInfo)
-                            } setTagAction: {
-                                homeSearchViewModel.setTagButtonTapped(paperInfo)
-                            } copyAction: {
-                                homeSearchViewModel.copyButtonTapped(paperInfo)
-                            } deleteAction: {
-                                selectedPaper = paperInfo
-                                deleteAlertPresented.toggle()
-                            } moveAction: {
-                                homeViewModel.selectedItems.insert(paperInfo.id)
-                                homeViewModel.isMovingFolder.toggle()
+                    GeometryReader { geometry in
+                        VStack(spacing: 0) {
+                            ForEach(homeSearchViewModel.searchList) { paperInfo in
+                                HomePDFCell(paperInfo: paperInfo, cellStatus: .normal, screenWidth: isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
+                                    // TODO: 네비게이션 push 시 Date 업데이트 필요
+                                    homeSearchViewModel.PaperCellTapped(paperInfo)
+                                    navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                                } checkAction: {
+                                    homeViewModel.selectedItems.insert(paperInfo.id)
+                                } starAction: {
+                                    homeSearchViewModel.starButtonTapped(paperInfo)
+                                } tagAction: { id in
+                                    homeSearchViewModel.tagTapped(id)
+                                } editAction: {
+                                    homeSearchViewModel.editButtonTapped(paperInfo)
+                                } setTagAction: {
+                                    homeSearchViewModel.setTagButtonTapped(paperInfo)
+                                } copyAction: {
+                                    homeSearchViewModel.copyButtonTapped(paperInfo)
+                                } deleteAction: {
+                                    selectedPaper = paperInfo
+                                    deleteAlertPresented.toggle()
+                                } moveAction: {
+                                    homeViewModel.selectedItems.insert(paperInfo.id)
+                                    homeViewModel.isMovingFolder.toggle()
+                                }
                             }
+                            .padding(.leading, 30)
                         }
-                        .padding(.leading, 30)
+                    }
+                }
+                .onAppear {
+                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+                        self.isPortrait = true
+                    }
+                }
+                .onReceive(publisher) { noti in
+                    let currentOrientation = UIDevice.current.orientation
+                    
+                    switch currentOrientation {
+                    case .portrait, .portraitUpsideDown:
+                        self.isPortrait = true
+                    case .landscapeLeft, .landscapeRight:
+                        self.isPortrait = false
+                    default:
+                        break
                     }
                 }
             }

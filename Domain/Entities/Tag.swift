@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreTransferable
+import SwiftUI
 
 struct Tag: DynamicCell, Codable, Transferable {
     
@@ -21,8 +22,19 @@ struct Tag: DynamicCell, Codable, Transferable {
     }
     
     func getCellWidth() -> CGFloat {
-        let count = self.name.count
-        return CGFloat(10 + count * 11)
+        var totalWidth: CGFloat = 0
+
+        for char in name {
+            if char.isHangul {
+                totalWidth += 13
+            } else if char.isEnglish {
+                totalWidth += 8
+            } else {
+                totalWidth += 10 //기타
+            }
+        }
+        
+        return totalWidth + 10
     }
     
     static var transferRepresentation: some TransferRepresentation {
