@@ -12,6 +12,7 @@ struct HomeListView: View {
     
     @State private var selectedCategory: CategorySelection = .main
     
+  
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {

@@ -117,12 +117,18 @@ extension HomeSearchViewModel {
         }
     }
     
-    public func completeButtonTappedInEditingTitle(title: String) {
+    public func completeButtonTappedInEditingTitle(title: String, completion: @escaping (Bool) -> Void) {
         if case let .search(paper) = viewStatus,
            let index = searchList.firstIndex(of: paper) {
             searchList[index].title = title
             
-            useCase.editPDF(searchList[index])
+            switch useCase.editPDF(searchList[index]) {
+            case .success:
+                completion(true)
+            case .failure:
+                completion(false)
+            }
+            
         }
         
         cancelButtonTappedInEditingTitle()
@@ -169,6 +175,10 @@ extension HomeSearchViewModel {
     
     private func setRecentSearchList() {
         var current = UserDefaults.standard.recentSearches
+        
+        if current.contains(where: {$0 == self.searchText}) {
+            return
+        }
         
         if current.count == 30 {
             current.removeFirst()

@@ -19,7 +19,7 @@ final class SearchViewModel: ObservableObject {
     @Published public var isSearched: Bool = false          // 검색이 완료되었는지 알려주는 flag
     
     @Published public var searchSelection: PDFSelection?
-    @Published public var searchDestination: PDFDestination?
+    @Published public var searchDestination: (CGRect, Int) = (.zero, 0)
     
     private var searchAnnotations: [PDFAnnotation] = []     // 하이라이팅을 위한 annotation 배열
     private let pdfSharedData: PDFSharedData = .shared
@@ -33,7 +33,7 @@ final class SearchViewModel: ObservableObject {
     struct SearchResult: Hashable {
         let text: AttributedString      // 검색 결과가 포함된 텍스트
         let page: Int                   // 키워드가 포함된 페이지 인덱스
-        let selection: PDFSelection     // 선택된 selection
+        let position: CGRect
     }
 }
 
@@ -94,7 +94,8 @@ extension SearchViewModel {
                     results.append(.init(
                         text: resultText,
                         page: pageCount,
-                        selection: selection))
+                        position: selection.bounds(for: page)
+                    ))
                     
                 } else {
                     for i in currentIndex ..< textArray.count {
@@ -104,7 +105,7 @@ extension SearchViewModel {
                             results.append(.init(
                                 text: self.fetchKeywordContainedString(index: i, textArray: textArray, keyword: keyword),
                                 page: pageCount,
-                                selection: selection))
+                                position: selection.bounds(for: page)))
                             break
                         }
                     }
@@ -289,14 +290,10 @@ extension SearchViewModel {
         self.searchAnnotations.removeAll()
     }
     
-    public func goToPage(at num: Int) {
-        guard let page = self.pdfSharedData.document?.page(at: num) else {
-            return
-        }
+    public func goToPage(index: Int) {
+        let result = self.searchResults[index]
         
-        let destination = PDFDestination(page: page, at: .zero)
-        
-        self.searchDestination = destination
+        self.searchDestination = (result.position, result.page)
     }
 }
 

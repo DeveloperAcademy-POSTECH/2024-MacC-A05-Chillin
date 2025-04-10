@@ -45,9 +45,11 @@ struct AppView: App {
                 await self.checkAppVersion()
             }
             .onOpenURL(perform: openUrlScheme)
-            .alert("Reazy의 최신 버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
+            .alert("Reazy의 새로운\n버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
                 Button("취소", role: .none, action: {})
-                Button("업데이트", role: .none, action: openAppStore)
+                Button("업데이트", role: .cancel, action: openAppStore)
+            } message: {
+                Text("유저분들의 의견을 반영하여\n사용성을 개선했어요")
             }
         }
     }

@@ -29,6 +29,7 @@ struct HomeView: View {
     
     // 폴더 이동 변수
     @State private var moveToFolderID: UUID? = nil
+    @State private var isDuplicatedTitleAlertPresented: Bool = false
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
         useCase: DefaultHomeSearchUseCase(
@@ -98,7 +99,7 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert ? 0.5 : 0)
+                .opacity(isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || isDuplicatedTitleAlertPresented ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             Color.black
@@ -166,34 +167,22 @@ struct HomeView: View {
         .ignoresSafeArea(edges: .top)
         .animation(.easeInOut, value: isEditingTitle)
         .animation(.easeInOut, value: homeViewModel.isEditingFolder)
-        .alert(isPresented: $homeViewModel.isErrorOccured) {
-            // TODO: 예외 처리 수정 필요
-            switch homeViewModel.errorStatus {
-            case .failedToAccessingSecurityScope:
-                Alert(
-                    title: Text("파일 접근이 불가능합니다."),
-                    message: Text("다른 파일을 선택해주세요."),
-                    dismissButton: .default(Text("Ok")))
-            case .fileNameDuplication:
-                Alert(
-                    title: Text("중복된 파일 이름이 있습니다."),
-                    message: Text("파일 이름을 수정해주세요."),
-                    dismissButton: .default(Text("Ok")))
-            }
-        }
+        .animation(.easeInOut, value: isDuplicatedTitleAlertPresented)
         .alert(isPresented: $tagViewModel.isTagDuplicate) {
             Alert(
                 title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
                 dismissButton: .default(Text("확인"))
             )
         }
-        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal)) ? 5 : 0)
+        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal) || isDuplicatedTitleAlertPresented) ? 5 : 0)
         .overlay {
             if case let .search(paperInfo) = homeViewModel.viewStatus {
                 RenamePaperTitleView(paperInfo: paperInfo) {
                     homeViewModel.viewStatus = .normal
                 } completeAction: { text in
-                    homeViewModel.updateTitle(at: paperInfo.id, title: text)
+                    homeViewModel.updateTitle(at: paperInfo.id, title: text) {
+                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                    }
                     homeViewModel.viewStatus = .normal
                 }
                 .ignoresSafeArea(edges: .top)
@@ -203,7 +192,9 @@ struct HomeView: View {
                 RenamePaperTitleView(paperInfo: paperInfo) {
                     homeSearchViewModel.cancelButtonTappedInEditingTitle()
                 } completeAction: { text in
-                    homeSearchViewModel.completeButtonTappedInEditingTitle(title: text)
+                    homeSearchViewModel.completeButtonTappedInEditingTitle(title: text) {
+                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                    }
                 }
                 .onDisappear {
                     homeSearchViewModel.searchPapers()
@@ -272,6 +263,20 @@ struct HomeView: View {
                     mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
                     width: 340, height: 163,
                     cancelAction: { homeViewModel.showFolderDepthAlert = false }
+                )
+            }
+            
+            if self.isDuplicatedTitleAlertPresented {
+                CustomAlert(
+                    type: .confirm,
+                    mainText: "같은 제목의 논문이 이미 존재합니다",
+                    message: "다른 제목을 입력해주세요",
+                    width: 350,
+                    height: 176,
+                    cancelAction: {
+                        isDuplicatedTitleAlertPresented.toggle()
+                    },
+                    confirmAction: {}
                 )
             }
         }
