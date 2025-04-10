@@ -144,7 +144,9 @@ private struct PaperInformationView: View {
     
     let tagAction: (UUID) -> Void
     
+    @State private var selectedTagY: CGFloat = 0
     @State private var isShowingTags = false
+    
     var hiddenTags: [Tag] {
         let shown = Set(getVisibleTags().map { $0.id })
         return tags.filter { !shown.contains($0.id) }
@@ -185,10 +187,17 @@ private struct PaperInformationView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .foregroundStyle(.primary3)
+                        GeometryReader { geo in
+                            RoundedRectangle(cornerRadius: 4)
+                                .foregroundStyle(.primary3)
+                                .preference(key: TagPopoverPositionKey.self, value: geo.frame(in: .global).midY)
+                        }
                     )
-                    .popover(isPresented: $isShowingTags) {
+                    .popover(
+                        isPresented: $isShowingTags,
+                        attachmentAnchor: .rect(.bounds),
+                        arrowEdge: selectedTagY > CGFloat(hiddenTags.count * 38 + 28) ? .top : .bottom
+                    ) {
                         VStack(alignment: .leading, spacing: 14) {
                             ForEach(hiddenTags) { tag in
                                 PDFTagCell(isMultiSelectable: false,
@@ -200,6 +209,9 @@ private struct PaperInformationView: View {
                         }
                         .padding(.vertical, 14)
                         .padding(.horizontal, 16)
+                        .onPreferenceChange(TagPopoverPositionKey.self) { value in
+                            selectedTagY = value
+                        }
                     }
                 }
             }
