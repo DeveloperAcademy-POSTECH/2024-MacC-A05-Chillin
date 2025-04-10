@@ -16,7 +16,10 @@ struct TagView: View {
         ZStack(alignment: .top) {
             Color.gray300
                 .onTapGesture {
-                    tagViewModel.isBtnTapped = false
+                    withAnimation {
+                        tagViewModel.isBtnTapped = false
+                        tagViewModel.popover = false
+                    }
                 }
             
             if (tagViewModel.tagFilteredPapers.isEmpty) {
