@@ -165,7 +165,7 @@ struct TagListView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     
     var body: some View {
-        GeometryReader { geometry in 
+        GeometryReader { geometry in
             ScrollView(.vertical, showsIndicators: false) {
                 DynamicCellLayout(
                     data: tagViewModel.tags,
@@ -246,9 +246,9 @@ private struct EllipsisButtonView: View {
         )
         .padding(.trailing, 70)
         .matchedGeometryEffect(id: "popover",
-                                in: namespace,
-                                properties: .position,
-                                anchor: .topTrailing,
+                               in: namespace,
+                               properties: .position,
+                               anchor: .topTrailing,
                                isSource: false)
     }
 }
@@ -284,7 +284,8 @@ private struct FilteredPaperListView: View {
                     ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
                         HomePDFCell(
                             paperInfo: paperInfo,
-                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal, screenWidth: isPortrait ? geometry.size.width * 0.63 :  geometry.size.width * 0.73,
+                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
+                            screenWidth: isPortrait ? geometry.size.width * 0.6 :  geometry.size.width * 0.73,
                             onTapGesture: {
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
                             },
@@ -312,6 +313,9 @@ private struct FilteredPaperListView: View {
                             moveAction: {
                                 homeViewModel.selectedItems.insert(paperInfo.id)
                                 homeViewModel.isMovingFolder.toggle()
+                            },
+                            addTagAction: {
+                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
                             }
                         )
                     }

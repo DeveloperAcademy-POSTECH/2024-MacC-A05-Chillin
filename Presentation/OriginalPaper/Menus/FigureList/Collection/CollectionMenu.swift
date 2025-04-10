@@ -69,7 +69,7 @@ struct CollectionMenu: View {
                             
                             Spacer()
                             
-                            Image(.share)
+                            Image(systemName: "square.and.arrow.down")
                                 .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()

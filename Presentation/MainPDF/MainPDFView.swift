@@ -42,6 +42,7 @@ struct MainPDFView: View {
     
     @State private var dragAmount: CGPoint?
     @State private var dragOffset: CGSize = .zero
+    @State private var isDuplicatedTitleAlertPresented: Bool = false
     
     private let infoMenuHiddenPublisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
@@ -477,6 +478,7 @@ struct MainPDFView: View {
                 }
             }
         }
+        .animation(.easeInOut, value: isDuplicatedTitleAlertPresented)
         .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
         .overlay {
             if self.focusFigureViewModel.figureStatus == .loading {
@@ -487,8 +489,30 @@ struct MainPDFView: View {
                 RenamePaperTitleView(paperInfo: paper) {
                     homeViewModel.viewStatus = .normal
                 } completeAction: { text in
-                    homeViewModel.updateTitle(at: paper.id, title: text)
+                    homeViewModel.updateTitle(at: paper.id, title: text) {
+                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                    }
                     homeViewModel.viewStatus = .normal
+                }
+            }
+            
+            if isDuplicatedTitleAlertPresented {
+                ZStack {
+                    Color.black
+                        .opacity(0.5)
+                        .ignoresSafeArea()
+                    
+                    CustomAlert(
+                        type: .confirm,
+                        mainText: "같은 제목의 논문이 이미 존재합니다",
+                        message: "다른 제목을 입력해주세요",
+                        width: 350,
+                        height: 176,
+                        cancelAction: {
+                            isDuplicatedTitleAlertPresented.toggle()
+                        },
+                        confirmAction: {}
+                    )
                 }
             }
         }

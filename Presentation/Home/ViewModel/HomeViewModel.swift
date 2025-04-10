@@ -281,7 +281,7 @@ extension HomeViewModel {
         }
     }
     
-    public func updateTitle(at id: UUID, title: String) {
+    public func updateTitle(at id: UUID, title: String, completion: @escaping (Bool) -> Void) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             var changablePaper = paperInfos[index]
             changablePaper.title = title
@@ -294,11 +294,12 @@ extension HomeViewModel {
                 PDFSharedData.shared.paperInfo?.title = title
                 
                 self.changedTitle = title
+                completion(true)
             case .failure(let error):
                 print(error)
                 self.errorStatus = .fileNameDuplication
                 self.isErrorOccured.toggle()
-                break
+                completion(false)
             }
         }
     }

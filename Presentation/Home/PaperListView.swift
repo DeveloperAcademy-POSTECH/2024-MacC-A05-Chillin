@@ -89,7 +89,7 @@ struct PaperListView: View {
                             
                             Spacer()
                         } else {
-                            GeometryReader { geometry in
+                            GeometryReader { geo in
                                 VStack(spacing: 0) {
                                     Spacer().frame(height: 6)
                                     
@@ -98,7 +98,7 @@ struct PaperListView: View {
                                             HomePDFCell(
                                                 paperInfo: paperInfo,
                                                 cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                                                screenWidth: isPortrait ? geometry.size.width * 0.63 :  geometry.size.width * 0.73,
+                                                screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.73,
                                                 onTapGesture: {
                                                     navigateToPaper(paperInfo.id)
                                                     homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
@@ -124,6 +124,9 @@ struct PaperListView: View {
                                                 moveAction: {
                                                     homeViewModel.selectedItems.insert(paperInfo.id)
                                                     homeViewModel.isMovingFolder.toggle()
+                                                },
+                                                addTagAction: {
+                                                    homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
                                                 }
                                             )
                                             .draggable(paperInfo) {

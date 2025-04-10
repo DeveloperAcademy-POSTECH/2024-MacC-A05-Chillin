@@ -95,8 +95,9 @@ private struct HomeSearchListView: View {
                                 } moveAction: {
                                     homeViewModel.selectedItems.insert(paperInfo.id)
                                     homeViewModel.isMovingFolder.toggle()
+                                } addTagAction: {
+                                    homeSearchViewModel.setTagButtonTapped(paperInfo)
                                 }
-                                .padding(.leading, 30)
                             }
                         }
                     }

@@ -25,6 +25,7 @@ struct HomePDFCell: View {
     let copyAction: () -> Void
     let deleteAction: () -> Void
     let moveAction: () -> Void
+    let addTagAction: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -59,7 +60,8 @@ struct HomePDFCell: View {
                             date: paperInfo.lastModifiedDate,
                             tags: paperInfo.tags,
                             screenWdith: screenWidth,
-                            tagAction: tagAction
+                            tagAction: tagAction,
+                            addAction: addTagAction
                         )
                         
                         Spacer()
@@ -144,6 +146,7 @@ private struct PaperInformationView: View {
     let screenWdith: CGFloat
     
     let tagAction: (UUID) -> Void
+    let addAction: () -> Void
     
     @State private var selectedTagY: CGFloat = 0
     @State private var isShowingTags = false
@@ -169,12 +172,27 @@ private struct PaperInformationView: View {
             Spacer()
             
             HStack {
-                ForEach(getVisibleTags()) { tag in
-                    PDFTagCell(isMultiSelectable: false,
-                               isEditMode: false,
-                               tag: tag,
-                               selectAction: {tagAction(tag.id)},
-                               deleteAction: {})
+                if tags.isEmpty {
+                    Button {
+                        addAction()
+                    } label: {
+                        RoundedRectangle(cornerRadius: 4)
+                            .frame(width: 26, height: 24)
+                            .foregroundStyle(.primary3)
+                            .overlay {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(.gray800)
+                            }
+                    }
+                } else {
+                    ForEach(getVisibleTags()) { tag in
+                        PDFTagCell(isMultiSelectable: false,
+                                   isEditMode: false,
+                                   tag: tag,
+                                   selectAction: {tagAction(tag.id)},
+                                   deleteAction: {})
+                    }
                 }
                 
                 if hiddenTags.count > 0 {
