@@ -1,6 +1,8 @@
 import SwiftUI
 import Translation
 import UniformTypeIdentifiers
+import FirebaseAnalytics
+import NaturalLanguage
 
 @available(iOS 18.0, *)
 struct TranslateView: View {
@@ -34,6 +36,14 @@ struct TranslateView: View {
                         if !targetText.isEmpty {
                             isTranslationComplete = true
                             isPopoverVisible = true
+                            
+                            // word_count 계산 및 기능 사용 로그
+                            let wordCount = countWords(in: cleanedText)
+                            
+                            // GA - 번역에 사용된 글자수 로그
+                            Analytics.logEvent("translation_triggered", parameters: [
+                                "word_count": wordCount,
+                            ])
                         }
                     } catch {
                         print("translation do-catch")
@@ -97,7 +107,15 @@ struct TranslateView: View {
                     DispatchQueue.main.async {
                         bubblePositionForScreen(mainPDFViewModel.translateViewPosition, in: geometry.size)
                     }
+
+                    // 번역 기능 초기화
                     triggerTranslation()
+                    
+                    // GA - 번역 화면 로그
+                    Analytics.logEvent(AnalyticsEventScreenView, parameters: [
+                        AnalyticsParameterScreenName: "번역 기능 실행",
+                        AnalyticsParameterScreenClass: "TranslateView"
+                    ])
                 }
                 .onChange(of: mainPDFViewModel.selectedText) {
                     if !mainPDFViewModel.selectedText.isEmpty {
@@ -164,6 +182,19 @@ struct TranslateView: View {
                 isCopySuccess = false
             }
         }
+    }
+    
+    // GA - 번역에 사용된 글자 수
+    func countWords(in text: String) -> Int {
+        let tokenizer = NLTokenizer(unit: .word)
+        tokenizer.string = text
+        tokenizer.setLanguage(.english) // 혹은 .korean
+        var count = 0
+        tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { _, _ in
+            count += 1
+            return true
+        }
+        return count
     }
 }
 
