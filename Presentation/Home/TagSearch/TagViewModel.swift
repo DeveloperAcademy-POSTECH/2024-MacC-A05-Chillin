@@ -92,6 +92,7 @@ class TagViewModel: ObservableObject {
     func deleteTag() {
         if (tagViewUseCase.deleteTag(id: targetTagID)) {
             tags.removeAll{ $0.id == targetTagID }
+            selectedTags.removeAll(){ $0.id == targetTagID }
         } else {
             // Error 처리
         }
@@ -169,4 +170,10 @@ extension TagViewModel {
     public func fetchFilteredPaperList() {
         self.tagFilteredPapers = self.tagViewUseCase.fetchFilteredPaperList(tags: self.selectedTags)
     }
+}
+struct TagPopoverPositionKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /**
  파일 중복 확인 후 rename하는 메소드
@@ -26,3 +27,18 @@ extension FileManager {
         return true
     }
 }
+
+extension Character {
+    var isHangul: Bool {
+        guard let scalar = unicodeScalars.first else { return false }
+        return (scalar.value >= 0xAC00 && scalar.value <= 0xD7AF) ||
+               (scalar.value >= 0x1100 && scalar.value <= 0x11FF) ||
+               (scalar.value >= 0x3130 && scalar.value <= 0x318F)
+    }
+    
+    var isEnglish: Bool {
+        guard unicodeScalars.first != nil else { return false }
+        return ("a"..."z").contains(self) || ("A"..."Z").contains(self)
+    }
+}
+

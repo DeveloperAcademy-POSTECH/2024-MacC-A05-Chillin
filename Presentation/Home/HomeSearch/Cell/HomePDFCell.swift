@@ -14,6 +14,7 @@ struct HomePDFCell: View {
     @State var paperInfo: PaperInfo
     
     var cellStatus: CellStatus
+    let screenWidth: CGFloat
     
     let onTapGesture: () -> Void
     let checkAction: () -> Void
@@ -58,6 +59,7 @@ struct HomePDFCell: View {
                             title: paperInfo.title,
                             date: paperInfo.lastModifiedDate,
                             tags: paperInfo.tags,
+                            screenWdith: screenWidth,
                             tagAction: tagAction,
                             addAction: addTagAction
                         )
@@ -141,9 +143,18 @@ private struct PaperInformationView: View {
     let title: String
     let date: Date
     let tags: [Tag]
+    let screenWdith: CGFloat
     
     let tagAction: (UUID) -> Void
     let addAction: () -> Void
+    
+    @State private var selectedTagY: CGFloat = 0
+    @State private var isShowingTags = false
+    
+    var hiddenTags: [Tag] {
+        let shown = Set(getVisibleTags().map { $0.id })
+        return tags.filter { !shown.contains($0.id) }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -175,7 +186,7 @@ private struct PaperInformationView: View {
                             }
                     }
                 } else {
-                    ForEach(tags) { tag in
+                    ForEach(getVisibleTags()) { tag in
                         PDFTagCell(isMultiSelectable: false,
                                    isEditMode: false,
                                    tag: tag,
@@ -183,10 +194,71 @@ private struct PaperInformationView: View {
                                    deleteAction: {})
                     }
                 }
+                
+                if hiddenTags.count > 0 {
+                    Button {
+                        isShowingTags = true
+                    } label: {
+                        Text("+\(hiddenTags.count)")
+                            .reazyFont(.body1)
+                            .foregroundStyle(.gray800)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        GeometryReader { geo in
+                            RoundedRectangle(cornerRadius: 4)
+                                .foregroundStyle(.primary3)
+                                .preference(key: TagPopoverPositionKey.self, value: geo.frame(in: .global).midY)
+                        }
+                    )
+                    .popover(
+                        isPresented: $isShowingTags,
+                        attachmentAnchor: .rect(.bounds),
+                        arrowEdge: selectedTagY > CGFloat(hiddenTags.count * 38 + 28) ? .top : .bottom
+                    ) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            ForEach(hiddenTags) { tag in
+                                PDFTagCell(isMultiSelectable: false,
+                                           isEditMode: false,
+                                           tag: tag,
+                                           selectAction: {tagAction(tag.id)},
+                                           deleteAction: {})
+                            }
+                        }
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, 16)
+                        .onPreferenceChange(TagPopoverPositionKey.self) { value in
+                            selectedTagY = value
+                        }
+                    }
+                }
             }
             .padding(.bottom, 22)
         }
         .padding(.leading, 20)
+    }
+    
+    private func getVisibleTags() -> [Tag] {
+        var totalWidth: CGFloat = 0
+        var result = [Tag]()
+        
+        for tag in tags {
+            let width = tag.itemWidth(isEditMode: false)
+
+            if result.count < 6 && totalWidth + width <= screenWdith {
+                result.append(tag)
+                totalWidth += width
+            }
+            else if totalWidth + width <= screenWdith + 40 {
+                result.append(tag)
+                break
+            }
+            else {
+                break
+            }
+        }
+        return result
     }
 }
 
