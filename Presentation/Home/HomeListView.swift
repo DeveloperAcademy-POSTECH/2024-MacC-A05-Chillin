@@ -39,7 +39,7 @@ struct HomeListView: View {
                     Spacer()
                     
                     Button(action: {
-                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                        if homeViewModel.depth(of: homeViewModel.currentFolder?.id) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
                             homeViewModel.createFolder = true
                         } else {
