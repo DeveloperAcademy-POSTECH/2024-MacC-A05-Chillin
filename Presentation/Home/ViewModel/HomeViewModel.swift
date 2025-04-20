@@ -264,6 +264,7 @@ extension HomeViewModel {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].folderID = folderID
             self.homeViewUseCase.editPDF(paperInfos[index])
+            selectedItems.removeAll()
         }
     }
     

@@ -134,9 +134,6 @@ struct HomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: 740, height: 550)
                 .blur(radius: createMovingFolder ? 20 : 0)
-                .onDisappear {
-                    homeViewModel.selectedItems.removeAll()
-                }
             }
             
             Color.black
@@ -483,6 +480,7 @@ private struct EditMenuView: View {
                     .frame(width: 20, height: 20)
                     .foregroundStyle(homeViewModel.selectedItems.isEmpty ? .gray550 : .gray100)
             })
+            .disabled(homeViewModel.selectedItems.isEmpty)
             .padding(.trailing, 28)
             
             Button(action: {
