@@ -57,7 +57,6 @@ private struct HomeSearchListView: View {
                             homeSearchViewModel.searchTarget == .tag ? .primary1 : .gray550
                         )
                         .padding(.leading, 20)
-                        .padding(.vertical, 20)
                 }
                 
                 Spacer()
@@ -99,6 +98,7 @@ private struct HomeSearchListView: View {
                                     homeSearchViewModel.setTagButtonTapped(paperInfo)
                                 }
                             }
+                            .padding(.leading, 24)
                         }
                     }
                 }
@@ -121,6 +121,7 @@ private struct HomeSearchListView: View {
                 }
             }
         }
+        .background(.gray300)
         .alert("정말 삭제하시겠습니까?", isPresented: $deleteAlertPresented) {
             Button("삭제", role: .destructive) {
                 if let paperInfo = selectedPaper {
@@ -163,6 +164,7 @@ private struct RecentlySearchedKeywordView: View {
                 }
                 Spacer()
             }
+            .background(.gray300)
         } else {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
@@ -191,6 +193,7 @@ private struct RecentlySearchedKeywordView: View {
             }
             .padding(.top, 50)
             .padding(.horizontal, 20)
+            .background(.gray300)
         }
     }
 }

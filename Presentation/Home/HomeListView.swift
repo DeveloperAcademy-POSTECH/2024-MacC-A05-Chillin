@@ -109,7 +109,7 @@ struct HomeListView: View {
         category: CategorySelection
     ) -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .foregroundStyle(selectedCategory == category ? Color(hex: "EFEFF8") : .primary2)
+            .foregroundStyle(selectedCategory == category ? .gray300 : .primary2)
             .frame(height: 43)
             .overlay {
                 HStack(spacing: 0) {
