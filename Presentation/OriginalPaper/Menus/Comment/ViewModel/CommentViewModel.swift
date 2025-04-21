@@ -75,6 +75,7 @@ class CommentViewModel: ObservableObject {
             for pageIndex in 0..<pdfDocument.pageCount {
                 if let page = pdfDocument.page(at: pageIndex) {
                     let annotations = page.annotations
+                    
                     for annotation in annotations {
                         if annotation.type == "FreeText" || annotation.type == "Underline" || annotation.type == "Stamp" {
                             page.removeAnnotation(annotation)
@@ -87,9 +88,10 @@ class CommentViewModel: ObservableObject {
                 comments.append(comment)
                 drawUnderline(newComment: comment)
             }
+            
             for button in buttonGroup {
                 drawCommentIcon(button: button)
-                loadCommentcount(button: button)
+                loadCommentCount(button: button)
             }
         }
     }
@@ -99,16 +101,19 @@ class CommentViewModel: ObservableObject {
         if let document = self.document {
             getSelectionPages(selection: selection, document: document)
         }
+        
         if let text = selection.string {
             self.selectedText = text
         }
+        
         isNewButton = true
+        
         for group in buttonGroup {
             if group.selectedLine == getSelectedLine(selection: selection) {
-                // 해당 줄에 이미 다른 코멘트가 저장되어있는 경우
-                isNewButton = false
-                // 기존에 존재하는 그룹의 버튼 id를 추가될 코멘트의 id로 지정
-                newButtonId = group.id
+                
+                isNewButton = false         // 해당 줄에 이미 다른 코멘트가 저장되어있는 경우
+                newButtonId = group.id      // 기존에 존재하는 그룹의 버튼 id를 추가될 코멘트의 id로 지정
+                
                 break
             }
         }
@@ -119,6 +124,7 @@ class CommentViewModel: ObservableObject {
                 selectedLine: getSelectedLine(selection: selection),
                 buttonPosition: getCommentIconPostion(selection: selection)
             )
+            
             _ = buttonGroupService.saveButtonGroup(for: paperInfo.id, with: newGroup)
             buttonGroup.append(newGroup)
             newButtonId = newGroup.id
@@ -132,6 +138,7 @@ class CommentViewModel: ObservableObject {
                                  pages: pages,
                                  bounds: selectedBounds
         )
+        
         _ = commentService.saveCommentData(for: paperInfo.id, with: newComment)
         
         comments.append(newComment)
@@ -139,9 +146,11 @@ class CommentViewModel: ObservableObject {
         
         drawUnderline(newComment: newComment)
         
-        if isNewButton{
+
+        if isNewButton {
             // 방금 추가된 버튼의 아이콘을 그림
-            drawCommentIcon(button: buttonGroup.last!)
+            guard let newCommentIcon = buttonGroup.last else { return }
+            drawCommentIcon(button: newCommentIcon)
         }
         
         // 코멘트 개수 주석 추가
@@ -153,9 +162,10 @@ class CommentViewModel: ObservableObject {
     
     // 코멘트 삭제
     func deleteComment(commentId: UUID) {
-        let comment = comments.filter { $0.id == commentId }.first! ///전체 코멘트 그룹에서 삭제할 코멘트를 찾음
-        let buttonList = comments.filter { $0.buttonId == comment.buttonId } ///전체 코멘트 그룹에서 삭제할 코멘트와 같은 버튼 id를 공유하는 코멘트들 리스트 찾음
-        let currentButtonId = comment.buttonId // 삭제할 코멘트의 버튼 id를 변수에 담음
+        let comment = comments.filter { $0.id == commentId }.first!                 // 전체 코멘트 그룹에서 삭제할 코멘트를 찾음
+        let buttonList = comments.filter { $0.buttonId == comment.buttonId }        // 전체 코멘트 그룹에서 삭제할 코멘트와 같은 버튼 id를 공유하는 코멘트들 리스트 찾음
+        let currentButtonId = comment.buttonId                                      // 삭제할 코멘트의 버튼 id를 변수에 담음
+        
         _ = commentService.deleteCommentData(for: paperInfo.id, id: commentId)
         
         // 전체 코멘트 그룹에서 id가 일치하는 코멘트만 삭제
@@ -197,8 +207,8 @@ extension CommentViewModel {
     private func getSelectedLine(selection: PDFSelection) -> CGRect {
         var selectedLine: CGRect = .zero
         let lineSelection = selection.selectionsByLine()
+        
         if let firstLineSelection = lineSelection.first {
-            
             /// 배열 중 첫 번째 selection만 가져오기
             guard let page = firstLineSelection.pages.first else { return .zero}
             let bounds = firstLineSelection.bounds(for: page)
@@ -223,9 +233,9 @@ extension CommentViewModel {
         var commentX: CGFloat = 0.0
         var commentY: CGFloat = 0.0
         
-        guard let boundForOneComment = comments.filter ({ $0.id == commentId}).first?.bounds else { return }
+        guard let boundForOneComment = comments.filter({ $0.id == commentId }).first?.bounds else { return }
         // 같은 버튼 그룹에 있는 comment를 찾기
-        let commentsGroup = comments.filter ({ $0.buttonId == buttonId})
+        let commentsGroup = comments.filter ({ $0.buttonId == buttonId })
         var bounds = commentsGroup.first?.bounds ?? .zero
         
         for comment in commentsGroup {
@@ -262,7 +272,7 @@ extension CommentViewModel {
                 commentX = convertedBounds.midX
             }
             
-            if convertedBounds.maxY > pdfView.bounds.maxY - offset - 150 {                   /// 코멘트 뷰가 아래 화면 초과
+            if convertedBounds.maxY > pdfView.bounds.maxY - offset - 150 {          /// 코멘트 뷰가 아래 화면 초과
                 commentY = convertedBounds.minY - offset
             } else {
                 commentY = convertedBounds.maxY + offset
@@ -272,6 +282,7 @@ extension CommentViewModel {
                 x: commentX,
                 y: commentY
             )
+            
             self.commentPosition = position
         }
     }
@@ -279,6 +290,7 @@ extension CommentViewModel {
     // buttonAnnotation 추가를 위한 pdfView의 좌표 값
     func getPDFCoordinates(pdfView: PDFView) {
         guard let currentPage = pdfView.currentPage else { return }
+        
         let bounds = currentPage.bounds(for: pdfView.displayBox)
         let pdfCoordinates = pdfView.convert(bounds, from: currentPage)
         
@@ -298,10 +310,11 @@ extension CommentViewModel {
         
         ///colum에 따른 commentIcon 좌표 값 설정
         if isLeft {
-            iconPosition = CGRect(x: lineBounds.minX - 20, y: lineBounds.minY, width: 10, height: 10)
+            iconPosition = CGRect(x: lineBounds.minX - 15, y: lineBounds.minY, width: 10, height: 10)
         } else if isRight || isAcross {
             iconPosition = CGRect(x: lineBounds.maxX + 5, y: lineBounds.minY, width: 10, height: 10)
         }
+        
         return iconPosition
     }
     
@@ -374,8 +387,10 @@ extension CommentViewModel {
     
     func drawCommentCount(newComment: Comment, button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
+        
+        let isLeftSide = button.buttonPosition.origin.x < pdfCoordinates.midX
         let bound = CGRect(
-            x: button.buttonPosition.midX + 5,
+            x: isLeftSide ? button.buttonPosition.midX - 15 : button.buttonPosition.midX + 5,
             y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
@@ -385,9 +400,9 @@ extension CommentViewModel {
             forType: .freeText,
             withProperties: nil
         )
-        
         // 새로 생긴 comment와 같은 buttonGroup에 속해있는 comment 개수 반환
         let count = comments.filter { $0.buttonId == newComment.buttonId }.count
+        
         // count가 1보다 클 때만 개수 표시
         if count > 1 {
             commentCount.contents = "\(count)"
@@ -401,10 +416,12 @@ extension CommentViewModel {
         }
     }
     
-    func loadCommentcount(button: ButtonGroup) {
+    func loadCommentCount(button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
+        
+        let isLeftSide = button.buttonPosition.origin.x < pdfCoordinates.midX
         let bound = CGRect(
-            x: button.buttonPosition.midX + 5,
+            x: isLeftSide ? button.buttonPosition.midX - 15 : button.buttonPosition.midX + 5,
             y: button.buttonPosition.midY - 10,
             width: 20,
             height: 20
@@ -528,6 +545,7 @@ extension CommentViewModel {
         }
     }
 }
+
 struct CommentButtonPositionKey: PreferenceKey {
     static var defaultValue: CGPoint = .zero
     static func reduce(value: inout CGPoint, nextValue: () -> CGPoint) {
