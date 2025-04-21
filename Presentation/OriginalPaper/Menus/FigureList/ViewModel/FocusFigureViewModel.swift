@@ -142,13 +142,16 @@ extension FocusFigureViewModel {
             
             guard let url = try? URL.init(
                 resolvingBookmarkData: self.focusFigureUseCase.pdfSharedData.paperInfo!.url,
-                bookmarkDataIsStale: &isStale),
-                  url.startAccessingSecurityScopedResource() else {
+                bookmarkDataIsStale: &isStale) else {
                 return
             }
             
+            let accessed = url.startAccessingSecurityScopedResource()
+            // startAccessing이 실패해도 그냥 쓸 수 있게 guard 문에서 빼서 처리
             defer {
-                url.stopAccessingSecurityScopedResource()
+                if accessed {
+                    url.stopAccessingSecurityScopedResource()
+                }
             }
             
             Task.init {
