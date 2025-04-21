@@ -241,9 +241,11 @@ private struct FolderListCell: View {
                 LongPressGesture(minimumDuration: 0.5)
                     .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
                     .updating($highlight) { currentState, gestureState, transaction in
-                        self.animationFolder = folder
-                        transaction.animation = .easeIn(duration: 1)
-                        gestureState = true
+                        if case .second(true, _) = currentState {
+                            self.animationFolder = folder
+                            transaction.animation = .easeIn(duration: 1)
+                            gestureState = true
+                        }
                     }
                     .onEnded { value in
                         switch value {
