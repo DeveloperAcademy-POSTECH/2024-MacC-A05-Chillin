@@ -99,7 +99,12 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || isDuplicatedTitleAlertPresented ? 0.5 : 0)
+                .opacity(
+                    isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder
+                    || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag
+                    || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || isDuplicatedTitleAlertPresented
+                    || homeViewModel.showDeleteAlert
+                    ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             Color.black
@@ -246,7 +251,8 @@ struct HomeView: View {
             
             if homeViewModel.showDeleteAlert {
                 CustomAlert(
-                    mainText: "삭제하시겠습니까?\n삭제된 항목은 복구할 수 없습니다.",
+                    mainText: "폴더를 삭제하시겠습니까?",
+                    message: "폴더 안에 포함된 논문도 함께 삭제됩니다.",
                     width: 364, height: 163,
                     cancelAction: { homeViewModel.showDeleteAlert = false },
                     confirmAction: {
