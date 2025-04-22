@@ -190,7 +190,7 @@ private struct PaperInformationView: View {
                         PDFTagCell(isMultiSelectable: false,
                                    isEditMode: false,
                                    tag: tag,
-                                   selectAction: {tagAction(tag.id)},
+                                   selectAction: { tagAction(tag.id) },
                                    deleteAction: {})
                     }
                 }
@@ -222,7 +222,7 @@ private struct PaperInformationView: View {
                                 PDFTagCell(isMultiSelectable: false,
                                            isEditMode: false,
                                            tag: tag,
-                                           selectAction: {tagAction(tag.id)},
+                                           selectAction: { tagAction(tag.id) },
                                            deleteAction: {})
                             }
                         }

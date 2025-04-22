@@ -10,8 +10,9 @@ import SwiftUI
 
 struct PDFTagCell<Tag: DynamicCell>: View {
     @State private var isAlertPresented: Bool = false
+    
     let isMultiSelectable: Bool      // 멀티선택 가능 여부
-    let isEditMode: Bool            // 편집 가능 여부
+    let isEditMode: Bool             // 편집 가능 여부
 
     var tag: Tag
     
@@ -30,7 +31,6 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                     .reazyFont(isMultiSelectable ? .body1 : .h3)
                     .foregroundStyle(tag.isSelected ? .gray300 : .gray800)
                     .fixedSize(horizontal: true, vertical: false)
-                    .padding(.trailing, 4)
                 
                 // 삭제 버튼
                 if isEditMode {
