@@ -41,6 +41,7 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                             .foregroundStyle(.gray700)
                             .font(.system(size: 12))
                     }
+                    .padding(.leading, 4)
                 }
             }
             .frame(height: 24)
