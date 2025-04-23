@@ -10,12 +10,10 @@ import SwiftUI
 struct MoveFolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @State private var expandedFolders: Set<UUID> = []
-    @State private var isTopLevelExpanded: Bool = true
     
     @Binding var createMovingFolder: Bool
-    
-    let items: [PaperInfo] // 이동하고자 하는 Item 배열
-    @Binding var selectedID: UUID? // Item의 이동 목적지 ID
+    let items: [PaperInfo]
+    @Binding var selectedID: UUID?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -44,10 +42,9 @@ struct MoveFolderView: View {
                     
                     Button(action: {
                         items.forEach { item in
-                            if selectedID == topLevelFolder.id { selectedID = nil }
                             homeViewModel.updatePaperLocation(at: item.id, folderID: selectedID)
                         }
-                        homeViewModel.isMovingFolder.toggle()
+                        homeViewModel.isMovingFolder = false
                     }) {
                         Text("이동")
                             .reazyFont(.text1)
@@ -75,17 +72,17 @@ struct MoveFolderView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    FolderCell(
-                        folder: topLevelFolder,
-                        level: 0,
-                        expandedFolders: $expandedFolders,
-                        isTopLevel: true,  // <전체> 폴더
-                        childFolders: childFolders(of:),
-                        toggleExpansion: toggleExpansion,
-                        hasChildren: hasChildren,
-                        isTopLevelExpanded: $isTopLevelExpanded,
-                        selectedID: $selectedID
-                    )
+                    ForEach(rootFolders, id: \.id) { folder in
+                        FolderCell(
+                            folder: folder,
+                            level: 0,
+                            expandedFolders: $expandedFolders,
+                            childFolders: childFolders(of:),
+                            toggleExpansion: toggleExpansion,
+                            hasChildren: hasChildren,
+                            selectedID: $selectedID
+                        )
+                    }
                 }
             }
         }
@@ -107,28 +104,16 @@ struct MoveFolderView: View {
         .onChange(of: homeViewModel.newFolderParentID) { _ , parentID in
             if let parentID = parentID {
                 expandedFolders.insert(parentID)
-            } else {
-                isTopLevelExpanded = true
             }
         }
     }
     
-    // 존재하지 않는 <전체> 임의 폴더 생성
-    private var topLevelFolder: Folder {
-        Folder(
-            id: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
-            title: "전체",
-            color: ".primary1",
-            parentFolderID: nil
-        )
+    private var rootFolders: [Folder] {
+        homeViewModel.folders.filter { $0.parentFolderID == nil }
     }
     
     private func childFolders(of folderID: UUID?) -> [Folder] {
-        if folderID == topLevelFolder.id {
-            return homeViewModel.folders.filter { $0.parentFolderID == nil }
-        } else {
-            return homeViewModel.folders.filter { $0.parentFolderID == folderID }
-        }
+        homeViewModel.folders.filter { $0.parentFolderID == folderID }
     }
     
     private func hasChildren(folder: Folder) -> Bool {
@@ -155,12 +140,9 @@ struct FolderCell: View {
     let folder: Folder
     let level: Int
     @Binding var expandedFolders: Set<UUID>
-    let isTopLevel: Bool
     let childFolders: (UUID) -> [Folder]
     let toggleExpansion: (Folder) -> Void
     let hasChildren: (Folder) -> Bool
-    @Binding var isTopLevelExpanded: Bool
-    
     @Binding var selectedID: UUID?
     
     var body: some View {
@@ -168,7 +150,7 @@ struct FolderCell: View {
             HStack(spacing: 0) {
                 RoundedRectangle(cornerRadius: 7)
                     .frame(width: 29, height: 29)
-                    .foregroundStyle(level == 0 ? .primary1 : FolderColors.color(for: folder.color))
+                    .foregroundStyle(FolderColors.color(for: folder.color))
                     .overlay(
                         Image(.folder)
                             .resizable()
@@ -187,18 +169,7 @@ struct FolderCell: View {
                         
                         Spacer()
                         
-                        if isTopLevel {
-                            Button(action: {
-                                withAnimation {
-                                    self.isTopLevelExpanded.toggle()
-                                }
-                            }) {
-                                Image(systemName: isTopLevelExpanded ? "chevron.down" : "chevron.right")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(.gray600)
-                                    .padding(.trailing, 20)
-                            }
-                        } else if hasChildren(folder) {
+                        if hasChildren(folder) {
                             Button(action: {
                                 withAnimation {
                                     toggleExpansion(folder)
@@ -225,17 +196,15 @@ struct FolderCell: View {
                 onTap()
             }
             
-            if (isTopLevel && isTopLevelExpanded) || expandedFolders.contains(folder.id) {
+            if expandedFolders.contains(folder.id) {
                 ForEach(childFolders(folder.id), id: \.id) { subFolder in
                     FolderCell(
                         folder: subFolder,
                         level: level + 1,
                         expandedFolders: $expandedFolders,
-                        isTopLevel: false,
                         childFolders: childFolders,
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
-                        isTopLevelExpanded: $isTopLevelExpanded,
                         selectedID: $selectedID
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
