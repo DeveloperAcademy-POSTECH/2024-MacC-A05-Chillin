@@ -243,7 +243,10 @@ private struct PaperInformationView: View {
         var totalWidth: CGFloat = 0
         var result = [Tag]()
         
-        for tag in tags {
+        // 가나다, 알파벳 순으로 정렬
+        let sortedTags = tags.sorted(by: { $0.name < $1.name })
+        
+        for tag in sortedTags {
             let width = tag.itemWidth(isEditMode: false)
 
             if result.count < 6 && totalWidth + width <= screenWdith {
@@ -258,6 +261,7 @@ private struct PaperInformationView: View {
                 break
             }
         }
+        
         return result
     }
 }
