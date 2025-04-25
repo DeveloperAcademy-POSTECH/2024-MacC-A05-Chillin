@@ -446,11 +446,17 @@ extension CommentViewModel {
             for annotation in page.annotations {
                 if let annotationID = annotation.value(forAnnotationKey: .contents) as? String {
                     
+                    let isMatchingAnnotation = [
+                        comment.buttonId.uuidString,
+                        comment.id.uuidString,
+                        "UC|\(comment.selectedText)|\(comment.text)|\(comment.id.uuidString)"
+                    ].contains(annotationID)
+                    
                     // 마지막 버튼이었을 경우 버튼 아이콘, 밑줄 삭제
                     if buttonList.count == 1 {
-                        if annotationID == comment.buttonId.uuidString || annotationID == comment.id.uuidString {
+                        if isMatchingAnnotation {
                             _ = buttonGroupService.deleteButtonGroup(for: paperInfo.id, id: currentButtonId)
-                            buttonGroup.removeAll(where: { $0.id ==  currentButtonId})
+                            buttonGroup.removeAll { $0.id == currentButtonId }
                             page.removeAnnotation(annotation)
                         }
                     } else if buttonList.count > 1, annotationID == comment.id.uuidString {
