@@ -41,7 +41,7 @@ struct HomePDFCell: View {
                 
                 Button {
                     switch cellStatus {
-                    case .normal:
+                    case .normal, .search:
                         onTapGesture()
                     default:
                         break
