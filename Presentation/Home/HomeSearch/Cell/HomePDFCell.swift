@@ -56,6 +56,7 @@ struct HomePDFCell: View {
                         )
                         
                         PaperInformationView(
+                            cellStatus: cellStatus,
                             title: paperInfo.title,
                             date: paperInfo.lastModifiedDate,
                             tags: paperInfo.tags,
@@ -140,6 +141,7 @@ private struct ThumbnailImageView: View {
 
 
 private struct PaperInformationView: View {
+    let cellStatus: CellStatus
     let title: String
     let date: Date
     let tags: [Tag]
@@ -172,7 +174,7 @@ private struct PaperInformationView: View {
             Spacer()
             
             HStack {
-                if tags.isEmpty {
+                if tags.isEmpty, cellStatus == .normal {
                     Button {
                         addAction()
                     } label: {
