@@ -485,8 +485,6 @@ extension CommentViewModel {
     }
     
     func drawUnderline(newComment: Comment) {
-        var textInputed = false
-        
         for index in newComment.pages {
             guard let page = document?.page(at: index) else { continue }
             
@@ -516,13 +514,8 @@ extension CommentViewModel {
                 
                 let underline = lineAnnotation(bounds: bounds, forType: .line, withProperties: nil)
                 
-                if textInputed {
-                    underline.setValue("UC| |" + newComment.id.uuidString, forAnnotationKey: .contents)
-                } else {
-                    let text = "UC|\(newComment.selectedText)|\(newComment.text)|\(newComment.id.uuidString)"
-                    underline.contents = text
-                    textInputed = true
-                }
+                let text = "UC|\(newComment.selectedText)|\(newComment.text)|\(newComment.id.uuidString)"
+                underline.contents = text
                 page.addAnnotation(underline)
             }
         }
