@@ -29,14 +29,13 @@ final class ConcentrateViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        // TODO: 추후 수정 예정
-//        let focusPageNum = self.viewModel.focusAnnotations.firstIndex { $0.page == self.viewModel.changedPageNumber + 1}
-//        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum ?? 0) else { return }
-//        self.pdfView.go(to: page)
-        
-//        if let isFigureSaved = PDFSharedData.shared.paperInfo?.isFigureSaved, !isFigureSaved {
-//            viewModel.downloadFocusFigure(inOriginal: false)
-//        }
+        if viewModel.isFirstUpload {
+            Task {
+                await viewModel.downloadFocus {
+                    self.setData()
+                }
+            }
+        }
     }
     
     lazy var pdfView: PDFView = {

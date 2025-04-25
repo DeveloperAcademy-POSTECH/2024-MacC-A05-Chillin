@@ -23,9 +23,6 @@ struct FigureView: View {
                 case .beforeStart:
                     FigureBeforeStartView()
                     
-                case .networkDisconnection:
-                    FigureNetworkDisconnectionView()
-                    
                 case .loading:
                     Text("Figure와 Table이 있으면,\n여기에 표시됩니다")
                         .multilineTextAlignment(.center)
@@ -37,13 +34,6 @@ struct FigureView: View {
                 }
             }
         }
-    }
-    
-    enum FigureStatus {
-        case networkDisconnection
-        case loading
-        case empty
-        case complete
     }
 }
 
