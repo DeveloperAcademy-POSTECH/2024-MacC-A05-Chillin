@@ -51,13 +51,6 @@ class FocusFigureViewModel: ObservableObject {
             return true
         } else {
             return false
-//            var stale = false
-//            let data = PDFSharedData.shared.paperInfo!.focusURL!
-//            if let _ = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &stale) {
-//               return false
-//            } else {
-//                return true
-//            }
         }
     }
     
