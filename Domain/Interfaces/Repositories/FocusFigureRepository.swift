@@ -11,11 +11,13 @@ import PDFKit
 
 
 protocol FocusFigureRepository {
-    func fetchFocusAndFigures (
-        process: NetworkManager.ServiceName,
+    func fetchFigures(
         url: URL,
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async
     
-    func fetchFocusAndFigures(url: URL, completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void) async
+    func fetchFocus(
+        process: NetworkManager.ServiceName,
+        url: URL
+    ) async -> Result<PDFLayoutResponseDTO, NetworkManagerError>
 }

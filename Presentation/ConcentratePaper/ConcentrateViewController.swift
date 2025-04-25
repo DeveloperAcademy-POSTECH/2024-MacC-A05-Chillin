@@ -34,6 +34,9 @@ final class ConcentrateViewController: UIViewController {
 //        guard let page = self.viewModel.focusDocument?.page(at: focusPageNum ?? 0) else { return }
 //        self.pdfView.go(to: page)
         
+//        if let isFigureSaved = PDFSharedData.shared.paperInfo?.isFigureSaved, !isFigureSaved {
+//            viewModel.downloadFocusFigure(inOriginal: false)
+//        }
     }
     
     lazy var pdfView: PDFView = {

@@ -12,11 +12,14 @@ import PDFKit
 protocol FocusFigureUseCase {
     var pdfSharedData: PDFSharedData { get set }
     
-    func excute(
-        process: NetworkManager.ServiceName,
+    func excuteFigures(
         url: URL,
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async
+    
+    func excuteFocus(
+        url: URL
+    ) async -> Result<PDFLayoutResponseDTO, any Error>
     
     func stopTask()
     
@@ -90,13 +93,12 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         self.collectionDataRepository = collectionDataRepository
     }
     
-    public func excute(
-        process: NetworkManager.ServiceName,
+    public func excuteFigures(
         url: URL,
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async {
         self.currentTask = Task {
-            await self.focusFigureRepository.fetchFocusAndFigures(url: url) { result in
+            await self.focusFigureRepository.fetchFigures(url: url) { result in
                 switch result {
                 case .success(let layout):
                     completion(.success(layout))
@@ -104,6 +106,16 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
                     completion(.failure(error))
                 }
             }
+        }
+    }
+    
+    public func excuteFocus(url: URL) async -> Result<PDFLayoutResponseDTO, any Error> {
+        let result = await self.focusFigureRepository.fetchFocus(process: .processFulltextDocument, url: url)
+        switch result {
+        case .success(let layout):
+            return .success(layout)
+        case .failure(let failure):
+            return .failure(failure)
         }
     }
     

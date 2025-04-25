@@ -59,7 +59,7 @@ private struct FigureBeforeStartView: View {
             .multilineTextAlignment(.center)
         
         Button {
-            focusFigureViewModel.downloadFocusFigure()
+            focusFigureViewModel.downloadFigure()
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
@@ -88,7 +88,7 @@ private struct FigureNetworkDisconnectionView: View {
                 .foregroundStyle(.gray600)
             
             Button {
-                focusFigureViewModel.downloadFocusFigure()
+                focusFigureViewModel.downloadFigure()
             } label: {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -197,7 +197,7 @@ private struct FigureCompleteView: View {
                     .foregroundStyle(.gray600)
                 
                 Button {
-                    focusFigureViewModel.downloadFocusFigure()
+                    focusFigureViewModel.downloadFigure()
                 } label: {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
