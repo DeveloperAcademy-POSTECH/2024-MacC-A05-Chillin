@@ -100,7 +100,7 @@ struct PaperListView: View {
                                                 .foregroundStyle(.primary1)
                                                 .padding(.trailing, 7)
                                             
-                                            Text(homeViewModel.parentFolderTitle ?? (homeViewModel.isFavoriteSelected ? "즐겨찾기" : "전체"))
+                                            Text(homeViewModel.parentFolderTitle ?? (homeViewModel.isFavoriteSelected ? String(localized: "즐겨찾기") : String(localized: "전체")))
                                                 .reazyFont(.h2)
                                                 .foregroundStyle(.primary1)
                                         }
@@ -110,7 +110,7 @@ struct PaperListView: View {
                                 Spacer()
                                 
                                 Text((homeViewModel.isAtRoot ? (homeViewModel.isFavoriteSelected ?
-                                                                "즐겨찾기" : "전체") : homeViewModel.currentFolder?.title) ?? "새 폴더")
+                                                                String(localized: "즐겨찾기") : String(localized: "전체")) : homeViewModel.currentFolder?.title) ?? String(localized: "새 폴더"))
                                 .reazyFont(.text3)
                                 .foregroundStyle(.primary1)
                                 

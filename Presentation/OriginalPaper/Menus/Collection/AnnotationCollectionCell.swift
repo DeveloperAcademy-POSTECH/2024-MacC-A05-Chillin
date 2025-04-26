@@ -20,7 +20,7 @@ struct AnnotationCollectionCell: View {
                         .frame(width: 1, height: 35)
                         .padding(.trailing, 8)
                     
-                    Text(annotation.commenText ?? "알 수 없음")
+                    Text(annotation.commenText ?? String(localized: "알 수 없음"))
                         .font(.custom(ReazyFontType.pretendardMediumFont, size: 12))
                         .foregroundStyle(.point4)
                         .lineSpacing(5)

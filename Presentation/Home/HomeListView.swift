@@ -16,9 +16,9 @@ struct HomeListView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                categoryButton(image: "emptydoc", selectedImage: "document", title: "전체", category: .main)
-                categoryButton(image: "star", selectedImage: "starfill", title: "즐겨찾기", category: .favorite)
-                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: "태그", category: .tag)
+                categoryButton(image: "emptydoc", selectedImage: "document", title: String(localized: "전체"), category: .main)
+                categoryButton(image: "star", selectedImage: "starfill", title: String(localized: "즐겨찾기"), category: .favorite)
+                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: String(localized: "태그"), category: .tag)
             }
             .padding(.leading, 10)
             .padding(.trailing, 12)
