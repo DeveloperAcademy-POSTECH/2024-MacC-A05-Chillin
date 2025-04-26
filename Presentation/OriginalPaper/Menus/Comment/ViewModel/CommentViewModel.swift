@@ -338,40 +338,59 @@ extension CommentViewModel {
         let image = UIImage(resource: .comment)
         
         let commentIcon = ImageAnnotation(imageBounds: button.buttonPosition, image: image)
-        
         commentIcon.widgetFieldType = .button
-        
-        /// 버튼에 코멘트 정보 참조
         commentIcon.setValue(button.id.uuidString, forAnnotationKey: .contents)
         PDFPage?.addAnnotation(commentIcon)
     }
     
     public class ImageAnnotation: PDFAnnotation {
-        
         private var _image: UIImage?
+        private let horizontalPadding: CGFloat
+        private let verticalPadding: CGFloat
+        private let imageRect: CGRect
 
-            public init(imageBounds: CGRect, image: UIImage?) {
-                self._image = image
-                super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
-            }
+        public init(
+            imageBounds: CGRect,
+            image: UIImage?,
+            horizontalPadding: CGFloat = 10,
+            verticalPadding: CGFloat = 5
+        ) {
+            self._image = image
+            self.horizontalPadding = horizontalPadding
+            self.verticalPadding = verticalPadding
+            self.imageRect = imageBounds
 
-            required public init?(coder aDecoder: NSCoder) {
-                fatalError("init(coder:) has not been implemented")
-            }
-        
-        // 이미지를 그릴 때 사용하는 메서드
+            let expandedBounds = CGRect(
+                x: imageBounds.origin.x - horizontalPadding,
+                y: imageBounds.origin.y - verticalPadding,
+                width: imageBounds.width + horizontalPadding * 2,
+                height: imageBounds.height + verticalPadding * 2
+            )
+            super.init(bounds: expandedBounds, forType: .stamp, withProperties: nil)
+        }
+
+        required public init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
         override public func draw(with box: PDFDisplayBox, in context: CGContext) {
-                guard let cgImage = self._image?.cgImage else {
-                    return
-                }
-            
-            let drawingBox = self.page?.bounds(for: box)
-                   context.draw(cgImage, in: self.bounds.applying(CGAffineTransform(
-                   translationX: (drawingBox?.origin.x)! * -1.0,
-                              y: (drawingBox?.origin.y)! * -1.0)))
+            guard let cgImage = _image?.cgImage,
+                  let pageBounds = page?.bounds(for: box) else { return }
+
+            context.saveGState()
+            context.translateBy(x: -pageBounds.origin.x, y: -pageBounds.origin.y)
+
+            let drawRect = bounds.insetBy(
+                dx: horizontalPadding,
+                dy: verticalPadding
+            )
+            context.draw(cgImage, in: drawRect)
+
+            context.restoreGState()
         }
     }
-    
+
+
     func drawCommentCount(newComment: Comment, button: ButtonGroup) {
         let PDFPage = document?.page(at: button.page)
         let bound = CGRect(
