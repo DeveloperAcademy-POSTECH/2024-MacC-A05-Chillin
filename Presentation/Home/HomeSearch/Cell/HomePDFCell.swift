@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-
-
 struct HomePDFCell: View {
     @State private var popover = false
     @State var paperInfo: PaperInfo
@@ -187,11 +185,13 @@ private struct PaperInformationView: View {
                     }
                 } else {
                     ForEach(getVisibleTags()) { tag in
-                        PDFTagCell(isMultiSelectable: false,
-                                   isEditMode: false,
-                                   tag: tag,
-                                   selectAction: { tagAction(tag.id) },
-                                   deleteAction: {})
+                        PDFTagCell(
+                            isMultiSelectable: false,
+                            isEditMode: false,
+                            tag: tag,
+                            selectAction: { tagAction(tag.id) },
+                            deleteAction: {}
+                        )
                     }
                 }
                 
@@ -240,6 +240,7 @@ private struct PaperInformationView: View {
     }
     
     private func getVisibleTags() -> [Tag] {
+        
         var totalWidth: CGFloat = 0
         var result = [Tag]()
         
