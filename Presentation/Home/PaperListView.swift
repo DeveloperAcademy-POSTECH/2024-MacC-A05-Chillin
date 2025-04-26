@@ -196,9 +196,9 @@ struct PaperListView: View {
     
     private func emptyStateMessage() -> String {
         if homeViewModel.isFavoriteSelected {
-            return "즐겨찾기 한 논문이 없어요"
+            return String(localized: "즐겨찾기 한 논문이 없어요")
         } else {
-            return "새로운 논문을 가져와 주세요"
+            return String(localized: "새로운 논문을 가져와 주세요")
         }
     }
 }

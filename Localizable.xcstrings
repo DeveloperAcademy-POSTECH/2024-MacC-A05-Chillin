@@ -81,6 +81,22 @@
         }
       }
     },
+    "+%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        }
+      }
+    },
     "Fig" : {
       "localizations" : {
         "en" : {
@@ -193,39 +209,6 @@
         }
       }
     },
-    "Hello, World!" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hello, World!"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hello, World!"
-          }
-        }
-      }
-    },
-    "Ok" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ok"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ok"
-          }
-        }
-      }
-    },
     "pdf 로드 실패 " : {
       "localizations" : {
         "en" : {
@@ -242,18 +225,34 @@
         }
       }
     },
-    "Reazy의 최신 버전을 확인해보세요!" : {
+    "Reazy 인스타그램" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check out the latest version of Reazy!"
+            "value" : "Reazy Instagram"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reazyの最新バージョンを確認してください！"
+            "value" : "Reazy インスタグラム"
+          }
+        }
+      }
+    },
+    "Reazy의 새로운\n버전을 확인해보세요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New version of Reazy\nis available!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reazyの新しいアップデートを\n確認してみてください！"
           }
         }
       }
@@ -322,22 +321,6 @@
         }
       }
     },
-    "다른 파일을 선택해주세요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please Select different file."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "他のファイルを選択してください。"
-          }
-        }
-      }
-    },
     "다시 시도" : {
       "localizations" : {
         "en" : {
@@ -366,22 +349,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "閉じる"
-          }
-        }
-      }
-    },
-    "더 알아보기" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Learn more"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "詳細を見る"
           }
         }
       }
@@ -631,13 +598,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Upload a new paper to get started"
+            "value" : "Please import a new thesis"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しい論文をインポートしてください"
+            "value" : "新しい論文を入れてください"
           }
         }
       }
@@ -946,6 +913,22 @@
         }
       }
     },
+    "유저분들의 의견을 반영하여\n사용성을 개선했어요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We improved usability\nwith your feedback"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "皆さまのご意見を反映して、\n使いやすさを改善しました"
+          }
+        }
+      }
+    },
     "이동" : {
       "localizations" : {
         "en" : {
@@ -1058,38 +1041,6 @@
         }
       }
     },
-    "전체 선택" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select All"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべて選択"
-          }
-        }
-      }
-    },
-    "전체 선택 해제" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deselect All"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべての選択を解除"
-          }
-        }
-      }
-    },
     "정말 삭제하시겠습니까?" : {
       "localizations" : {
         "en" : {
@@ -1154,22 +1105,6 @@
         }
       }
     },
-    "중복된 파일 이름이 있습니다." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A file with this name already exists."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重複したファイル名があります。"
-          }
-        }
-      }
-    },
     "즐겨찾기" : {
       "localizations" : {
         "en" : {
@@ -1186,18 +1121,18 @@
         }
       }
     },
-    "즐겨찾기 한 논문이 없어요." : {
+    "즐겨찾기 한 논문이 없어요" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No papers have been marked as favorites."
+            "value" : "Your favorite list is empty"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "お気に入りの論文がありません。"
+            "value" : "お気に入りの論文がないです"
           }
         }
       }
@@ -1214,22 +1149,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "集中モードは読み取り専用です"
-          }
-        }
-      }
-    },
-    "최근 검색어가 없습니다" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "There are no recent searches"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最近の検索語はありません"
           }
         }
       }
@@ -1362,6 +1281,22 @@
         }
       }
     },
+    "태그는 최대 7개까지 추가할 수 있어요.\n새 태그를 추가하려면 기존 태그를 삭제해주세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can add up to 7 tags.\nTo add a new tag, please delete an existing tag."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タグは最大7個まで追加できます。\n新しいタグを追加するには、既存のタグを削除してください。"
+          }
+        }
+      }
+    },
     "태그로 원하는 논문을 찾아보세요" : {
       "localizations" : {
         "en" : {
@@ -1390,38 +1325,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "タグを作るか、追加するタグを検索してください"
-          }
-        }
-      }
-    },
-    "파일 이름을 수정해주세요." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please rename the file."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ファイル名を編集してください。"
-          }
-        }
-      }
-    },
-    "파일 접근이 불가능합니다." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to access this file."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ファイルにアクセスできません。"
           }
         }
       }
