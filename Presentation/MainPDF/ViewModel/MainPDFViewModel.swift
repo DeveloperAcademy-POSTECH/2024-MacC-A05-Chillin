@@ -214,12 +214,9 @@ extension MainPDFViewModel {
     // UIMenu에서 하이라이트 기능
     func highlightUIMenu(in pdfView: PDFView, with color: HighlightColors) {
         
-        // PDFView 안에서 스크롤 영역 파악
-        guard let currentSelection = pdfView.currentSelection else { return }
         
-        // 선택된 텍스트를 줄 단위로 나눔
-        let selections = currentSelection.selectionsByLine()
-        
+        guard let currentSelection = pdfView.currentSelection else { return }                   // PDFView 안에서 스크롤 영역 파악
+        let selections = currentSelection.selectionsByLine()                                    // 선택된 텍스트 줄 단위로 나누기
         guard let page = selections.first?.pages.first else { return }
         
         let highlightColor = color.uiColor

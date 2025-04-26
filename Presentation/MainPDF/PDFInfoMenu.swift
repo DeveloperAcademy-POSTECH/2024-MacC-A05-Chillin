@@ -39,7 +39,6 @@ struct PDFInfoMenu: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     @Binding var isEditingTitle: Bool
-    @Binding var isMovingFolder: Bool
     @Binding var createMovingFolder: Bool
     
     @State var title: String?
@@ -143,7 +142,7 @@ struct PDFInfoMenu: View {
                 
                 Button(action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    self.isMovingFolder = true
+                    homeViewModel.isMovingFolder = true
                 }, label: {
                     HStack{
                         Text("이동")
@@ -199,6 +198,9 @@ struct PDFInfoMenu: View {
                     x: 0,
                     y: 0)
         )
+        .onAppear {
+            self.title = pdfSharedData.paperInfo?.title ?? "알 수 없음"
+        }
         .onDisappear {
             homeViewModel.changedTitle = nil
         }
@@ -213,7 +215,10 @@ struct PDFInfoMenu: View {
             
             // 각 페이지의 모든 주석을 반복하며 밑줄과 코멘트 아이콘 지우기
             for annotation in page.annotations {
-                if annotation.value(forAnnotationKey: .contents) != nil {
+                guard let contents = annotation.contents else { continue }
+                
+                // 하이라이트의 contents가 "UH|"로 시작하면 지우지 않기
+                if !contents.hasPrefix("UH|") {
                     page.removeAnnotation(annotation)
                 }
             }
@@ -234,7 +239,6 @@ struct PDFInfoMenu: View {
 #Preview {
     PDFInfoMenu(
         isEditingTitle: .constant(false),
-        isMovingFolder: .constant(false),
         createMovingFolder: .constant(false),
         title: "Reazy",
         isStarSelected: false

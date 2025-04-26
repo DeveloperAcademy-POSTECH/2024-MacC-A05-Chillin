@@ -45,19 +45,23 @@ struct AppView: App {
                 await self.checkAppVersion()
             }
             .onOpenURL(perform: openUrlScheme)
-            .alert("Reazy의 최신 버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
+            .alert("Reazy의 새로운\n버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
                 Button("취소", role: .none, action: {})
-                Button("업데이트", role: .none, action: openAppStore)
+                Button("업데이트", role: .cancel, action: openAppStore)
+            } message: {
+                Text("유저분들의 의견을 반영하여\n사용성을 개선했어요")
             }
         }
     }
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        // for Google Analytics
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        // Google Analytics 설정
         FirebaseApp.configure()
+        FirebaseConfiguration.shared.setLoggerLevel(.min)
         
         // 전체 Tint Color 설정
         UIView.appearance().tintColor = UIColor.primary1
@@ -65,7 +69,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 }
-
 
 extension AppView {
     /// 외부 앱에서 업로드 시 실행 메소드

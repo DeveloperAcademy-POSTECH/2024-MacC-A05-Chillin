@@ -22,13 +22,8 @@ class PDFSharedData {
     public func makeDocument(from paperInfo: PaperInfo) {
         var isStale: Bool = false
         
-        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
-           url.startAccessingSecurityScopedResource() {
-            
-            defer {
-                url.stopAccessingSecurityScopedResource()
-            }
-            
+        do {
+            let url = try URL(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale)
             let document = PDFDocument(url: url)
             self.document = document
             
@@ -36,6 +31,9 @@ class PDFSharedData {
                 return
             }
             self.paperInfo = paperInfo
+            
+        } catch {
+            print("Failed to make Document \(#function)")
         }
     }
     

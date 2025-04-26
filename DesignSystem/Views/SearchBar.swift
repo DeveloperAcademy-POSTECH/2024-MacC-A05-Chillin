@@ -21,7 +21,7 @@ struct SearchBar: View {
                     .foregroundStyle(.gray600)
                 
                 TextField("검색", text: $homeSearchViewModel.searchText)
-                    .foregroundStyle(.gray600)
+                    .foregroundStyle(.gray800)
                     .onChange(of: homeSearchViewModel.searchText) {
                         homeSearchViewModel.searchPapers()
                     }

@@ -13,9 +13,8 @@ struct MoveFolderView: View {
     @State private var isTopLevelExpanded: Bool = true
     
     @Binding var createMovingFolder: Bool
-    @Binding var isMovingFolder: Bool
     
-    let items: [FileSystemItem] // 이동하고자 하는 Item 배열
+    let items: [PaperInfo] // 이동하고자 하는 Item 배열
     @Binding var selectedID: UUID? // Item의 이동 목적지 ID
     
     var body: some View {
@@ -23,7 +22,7 @@ struct MoveFolderView: View {
             ZStack {
                 HStack(spacing: 0) {
                     Button(action: {
-                        self.isMovingFolder.toggle()
+                        homeViewModel.isMovingFolder.toggle()
                     }) {
                         Text("취소")
                             .reazyFont(.text1)
@@ -46,15 +45,9 @@ struct MoveFolderView: View {
                     Button(action: {
                         items.forEach { item in
                             if selectedID == topLevelFolder.id { selectedID = nil }
-                            
-                            switch item {
-                            case .paper(let paperInfo):
-                                homeViewModel.updatePaperLocation(at: paperInfo.id, folderID: selectedID)
-                            case .folder(let folder):
-                                homeViewModel.updateFolderLocation(at: folder.id, folderID: selectedID)
-                            }
+                            homeViewModel.updatePaperLocation(at: item.id, folderID: selectedID)
                         }
-                        self.isMovingFolder.toggle()
+                        homeViewModel.isMovingFolder.toggle()
                     }) {
                         Text("이동")
                             .reazyFont(.text1)
@@ -97,6 +90,17 @@ struct MoveFolderView: View {
             }
         }
         .background(Color(hex: "F7F7FC"))
+        .onAppear {
+            if items.count == 1, let firstItem = items.first {
+                selectedID = firstItem.folderID
+                
+                DispatchQueue.main.async {
+                    if let selectedID = selectedID {
+                        expandOnlyParentFolders(of: selectedID)
+                    }
+                }
+            }
+        }
         .onChange(of: homeViewModel.newFolderID) { _ , newFolderID in
             selectedID = newFolderID
         }
@@ -120,17 +124,10 @@ struct MoveFolderView: View {
     }
     
     private func childFolders(of folderID: UUID?) -> [Folder] {
-        let excludedFolderIDs = items.compactMap { item in
-            if case .folder(let folder) = item {
-                return folder.id
-            }
-            return nil
-        }
-        
         if folderID == topLevelFolder.id {
-            return homeViewModel.folders.filter { $0.parentFolderID == nil && !excludedFolderIDs.contains($0.id) }
+            return homeViewModel.folders.filter { $0.parentFolderID == nil }
         } else {
-            return homeViewModel.folders.filter { $0.parentFolderID == folderID && !excludedFolderIDs.contains($0.id) }
+            return homeViewModel.folders.filter { $0.parentFolderID == folderID }
         }
     }
     
@@ -143,6 +140,13 @@ struct MoveFolderView: View {
             expandedFolders.remove(folder.id)
         } else {
             expandedFolders.insert(folder.id)
+        }
+    }
+    
+    private func expandOnlyParentFolders(of folderID: UUID) {
+        if let parentID = homeViewModel.getParentFolderID(for: folderID) {
+            expandedFolders.insert(parentID)
+            expandOnlyParentFolders(of: parentID)
         }
     }
 }
@@ -250,5 +254,5 @@ struct FolderCell: View {
 }
 
 #Preview {
-    MoveFolderView(createMovingFolder: .constant(false), isMovingFolder: .constant(false), items: [], selectedID: .constant(UUID()))
+    MoveFolderView(createMovingFolder: .constant(false), items: [], selectedID: .constant(UUID()))
 }

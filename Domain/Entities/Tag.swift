@@ -6,20 +6,38 @@
 //
 
 import Foundation
+import CoreTransferable
+import SwiftUI
 
-struct Tag: DynamicCell {
+struct Tag: DynamicCell, Codable, Transferable {
+    
     let id: UUID
     var name: String
-    var isSeleted: Bool
+    var isSelected: Bool
     
-    init(id: UUID = .init(), name: String, isSeleted: Bool = false) {
+    init(id: UUID = .init(), name: String, isSelected: Bool = false) {
         self.id = id
         self.name = name
-        self.isSeleted = isSeleted
+        self.isSelected = isSelected
     }
     
     func getCellWidth() -> CGFloat {
-        let count = self.name.count
-        return CGFloat(10 + count * 10)
+        var totalWidth: CGFloat = 0
+
+        for char in name {
+            if char.isHangul {
+                totalWidth += 13
+            } else if char.isEnglish {
+                totalWidth += 8
+            } else {
+                totalWidth += 10 //기타
+            }
+        }
+        
+        return totalWidth + 10
+    }
+    
+    static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .text)
     }
 }

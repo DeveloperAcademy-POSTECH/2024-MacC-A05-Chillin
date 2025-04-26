@@ -397,10 +397,11 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         
         if (pdfView.document?.index(for: page)) != nil {
             for annotation in annotations {
-                // 하이라이트랑 드로잉만 지우기
-                if annotation.type == "Ink" || (annotation.type == "Highlight" && annotation.value(forAnnotationKey: .contents) == nil) {
-                    _ = annotation.bounds
-                    
+                // 드로잉 또는 하이라이트 지우기
+                if annotation.type == "Ink" ||
+                    (annotation.type == "Highlight" &&
+                     // 기존 하이라이트 (highlight.contents의 값이 없는 경우) || 새로운 하이라이트 (highlight.contents의 값이 있는 경우) 지우기
+                     (annotation.value(forAnnotationKey: .contents) == nil || annotation.contents?.hasPrefix("UH|") == true)) {
                     annotationHistory.append((action: .remove(annotation), annotation: annotation, page: page))
                     page.removeAnnotation(annotation)
                 }

@@ -96,7 +96,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         completion: @escaping (Result<PDFLayoutResponseDTO, NetworkManagerError>) -> Void
     ) async {
         self.currentTask = Task {
-            await self.focusFigureRepository.fetchFocusAndFigures(process: process, url: url) { result in
+            await self.focusFigureRepository.fetchFocusAndFigures(url: url) { result in
                 switch result {
                 case .success(let layout):
                     completion(.success(layout))

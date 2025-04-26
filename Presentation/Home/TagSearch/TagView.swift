@@ -15,14 +15,18 @@ struct TagView: View {
     var body: some View {
         ZStack(alignment: .top) {
             Color.gray300
+                .onTapGesture {
+                    withAnimation {
+                        tagViewModel.isBtnTapped = false
+                        tagViewModel.popover = false
+                    }
+                }
             
-            VStack(spacing: 0) {
-                Spacer()
-                Image(.tagfill)
-                Text("원하는 논문을 태그로 찾아보세요")
-                    .reazyFont(.h5)
-                    .foregroundColor(.gray550)
-                Spacer()
+            if (tagViewModel.tagFilteredPapers.isEmpty) {
+                EmptyPaperListView()
+            } else {
+                FilteredPaperListView()
+                    .padding(.top, 92)
             }
             
             GeometryReader { geometry in
@@ -57,7 +61,7 @@ struct TagView: View {
                     )
                     
                     if tagViewModel.isBtnTapped {
-                        VStack(alignment: .center, spacing: 0) {
+                        LazyVStack(alignment: .center, spacing: 0) {
                             VStack {
                                 if tagViewModel.isTagExist {
                                     TagListView()
@@ -70,6 +74,7 @@ struct TagView: View {
                             .padding(.top, 24)
                             .padding(.horizontal, 20)
                             .frame(maxWidth: geometry.size.width - 40, minHeight: geometry.size.height * 0.33)
+                            
                             
                             // 편집 버튼
                             HStack(spacing: 0) {
@@ -106,6 +111,12 @@ struct TagView: View {
                     }
                 }
                 .padding([.top, .horizontal], 20)
+                .onAppear(){
+                    tagViewModel.getlistWidth(width: geometry.size.width)
+                }
+                .onChange(of: geometry.size.width) {
+                    tagViewModel.getlistWidth(width: geometry.size.width)
+                }
             }
             if tagViewModel.popover {
                 EllipsisButtonView(namespace: nsPopover)
@@ -158,7 +169,7 @@ struct TagListView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 DynamicCellLayout(
                     data: tagViewModel.tags,
-                    screenWidth: geometry.size.width,
+                    screenWidth: tagViewModel.listWidth,
                     isMultiSelectable: true,
                     isEditMode: tagViewModel.isEditMode,
                     selectAction: { tagName in
@@ -169,6 +180,9 @@ struct TagListView: View {
                     }
                 )
             }
+        }
+        .onAppear {
+            tagViewModel.fetchTags()
         }
     }
 }
@@ -232,10 +246,111 @@ private struct EllipsisButtonView: View {
         )
         .padding(.trailing, 70)
         .matchedGeometryEffect(id: "popover",
-                                in: namespace,
-                                properties: .position,
-                                anchor: .topTrailing,
+                               in: namespace,
+                               properties: .position,
+                               anchor: .topTrailing,
                                isSource: false)
+    }
+}
+
+private struct EmptyPaperListView: View {
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            Image(.tagfill)
+            Text("원하는 논문을 태그로 찾아보세요")
+                .reazyFont(.h5)
+                .foregroundColor(.gray550)
+            Spacer()
+        }
+    }
+}
+
+private struct FilteredPaperListView: View {
+    @EnvironmentObject private var tagViewModel: TagViewModel
+    @EnvironmentObject private var homeViewModel: HomeViewModel
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    
+    @State private var deleteAlertPresented: Bool = false
+    @State private var selectedPaper: PaperInfo?
+    @State private var isPortrait: Bool = false
+    
+    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
+    
+    var body: some View {
+        ScrollView {
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
+                        HomePDFCell(
+                            paperInfo: paperInfo,
+                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
+                            screenWidth: isPortrait ? geometry.size.width * 0.6 :  geometry.size.width * 0.73,
+                            onTapGesture: {
+                                navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
+                            },
+                            checkAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                            },
+                            starAction: {
+                                tagViewModel.starButtonTapped(paperInfo: paperInfo)
+                            },
+                            tagAction: { _ in },
+                            editAction: {
+                                homeViewModel.viewStatus = .search(paperInfo)
+                            },
+                            setTagAction: {
+                                // TODO: 뭐 들어가야 함?
+                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                            },
+                            copyAction: {
+                                tagViewModel.copyButtonTapped(paperInfo: paperInfo)
+                            },
+                            deleteAction: {
+                                selectedPaper = paperInfo
+                                deleteAlertPresented.toggle()
+                            },
+                            moveAction: {
+                                homeViewModel.selectedItems.insert(paperInfo.id)
+                                homeViewModel.isMovingFolder.toggle()
+                            },
+                            addTagAction: {
+                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+        .padding(.leading, 24)
+        .alert("정말 삭제하시겠습니까?", isPresented: $deleteAlertPresented) {
+            Button("삭제", role: .destructive) {
+                if let paperInfo = selectedPaper {
+                    tagViewModel.deleteButtonTapped(paperInfo: paperInfo)
+                }
+            }
+            
+            Button("취소", role: .cancel, action: {})
+        }
+        .onAppear {
+            if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+                self.isPortrait = true
+            }
+        }
+        .onReceive(publisher) { noti in
+            let currentOrientation = UIDevice.current.orientation
+            
+            switch currentOrientation {
+            case .portrait, .portraitUpsideDown:
+                self.isPortrait = true
+            case .landscapeLeft, .landscapeRight:
+                self.isPortrait = false
+            default:
+                break
+            }
+        }
     }
 }
 
