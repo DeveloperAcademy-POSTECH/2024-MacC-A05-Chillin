@@ -160,6 +160,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             self.paperDataRepository.savePDFInfo(samplePaperInfo)
             
             self.paperDataRepository.addTag(to: guidePaperInfo.id, with: "Reazy")
+            self.paperDataRepository.addTag(to: samplePaperInfo.id, with: "Reazy")
 
             return [guidePaperInfo, samplePaperInfo]
         } else {

@@ -284,6 +284,7 @@ private struct FilteredPaperListView: View {
                     ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
                         HomePDFCell(
                             paperInfo: paperInfo,
+                            isSelected: .constant(false),
                             cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
                             screenWidth: isPortrait ? geometry.size.width * 0.6 :  geometry.size.width * 0.73,
                             onTapGesture: {

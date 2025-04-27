@@ -39,7 +39,7 @@ struct HomeListView: View {
                     Spacer()
                     
                     Button(action: {
-                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                        if homeViewModel.depth(of: homeViewModel.currentFolder?.id) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
                             homeViewModel.createFolder = true
                         } else {
@@ -109,7 +109,7 @@ struct HomeListView: View {
         category: CategorySelection
     ) -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .foregroundStyle(selectedCategory == category ? Color(hex: "EFEFF8") : .primary2)
+            .foregroundStyle(selectedCategory == category ? .gray300 : .primary2)
             .frame(height: 43)
             .overlay {
                 HStack(spacing: 0) {
@@ -241,9 +241,11 @@ private struct FolderListCell: View {
                 LongPressGesture(minimumDuration: 0.5)
                     .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
                     .updating($highlight) { currentState, gestureState, transaction in
-                        self.animationFolder = folder
-                        transaction.animation = .easeIn(duration: 1)
-                        gestureState = true
+                        if case .second(true, _) = currentState {
+                            self.animationFolder = folder
+                            transaction.animation = .easeIn(duration: 1)
+                            gestureState = true
+                        }
                     }
                     .onEnded { value in
                         switch value {

@@ -41,3 +41,16 @@ struct Tag: DynamicCell, Codable, Transferable {
         CodableRepresentation(contentType: .text)
     }
 }
+
+
+extension Tag: Hashable {
+    static func == (lhs: Tag, rhs: Tag) -> Bool {
+        if lhs.id == rhs.id, lhs.name == rhs.name { return true }
+        return false
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+    }
+}

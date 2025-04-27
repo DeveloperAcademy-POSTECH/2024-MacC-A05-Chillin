@@ -264,6 +264,7 @@ extension HomeViewModel {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].folderID = folderID
             self.homeViewUseCase.editPDF(paperInfos[index])
+            selectedItems.removeAll()
         }
     }
     
@@ -375,8 +376,11 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    func depth(of folder: Folder?) -> Int {
-        guard let folder = folder else { return 0 }
+    func depth(of folderID: UUID?) -> Int {
+        guard let folderID = folderID,
+              let folder = folders.first(where: { $0.id == folderID }) else {
+            return 0
+        }
         
         var currentFolder = folder
         var depth = 1
@@ -390,6 +394,39 @@ extension HomeViewModel {
         return depth
     }
     
+    func depthAbove(folderID: UUID?) -> Int {
+        guard let folderID = folderID,
+              let folder = folders.first(where: { $0.id == folderID }) else { return 0 }
+
+        var current = folder
+        var depth = 0
+
+        while let parentID = current.parentFolderID,
+              let parent = folders.first(where: { $0.id == parentID }) {
+            current = parent
+            depth += 1
+        }
+
+        return depth
+    }
+
+    func depthBelow(folderID: UUID?) -> Int {
+        guard let folderID = folderID else { return 0 }
+
+        let children = folders.filter { $0.parentFolderID == folderID }
+
+        if children.isEmpty {
+            return 0
+        }
+
+        let childDepths = children.map { depthBelow(folderID: $0.id) }
+        return 1 + (childDepths.max() ?? 0)
+    }
+
+    func totalDepthInBranch(for folderID: UUID?) -> Int {
+        return depthAbove(folderID: folderID) + 1 + depthBelow(folderID: folderID)
+    }
+
     private func selectedFolder() -> Folder? {
         guard let selectedID = selectedFolderID else { return nil }
         return folders.first(where: { $0.id == selectedID })

@@ -97,6 +97,16 @@ struct PaperListView: View {
                                         ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
                                             HomePDFCell(
                                                 paperInfo: paperInfo,
+                                                isSelected: Binding(
+                                                    get: { homeViewModel.selectedItems.contains(paperInfo.id) },
+                                                    set: { newValue in
+                                                        if newValue {
+                                                            homeViewModel.selectedItems.insert(paperInfo.id)
+                                                        } else {
+                                                            homeViewModel.selectedItems.remove(paperInfo.id)
+                                                        }
+                                                    }
+                                                ),
                                                 cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
                                                 screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.73,
                                                 onTapGesture: {
