@@ -13,7 +13,7 @@ struct AnnotationCollectionView: View {
     
     var body: some View {
         ScrollView {
-            VStack {
+            VStack(alignment: .leading) {
                 ForEach(viewModel.annotations) { annotation in
                     AnnotationCollectionCell(annotation: annotation)
                     
