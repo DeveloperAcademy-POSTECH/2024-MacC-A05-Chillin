@@ -108,7 +108,7 @@ struct PaperListView: View {
                                                     }
                                                 ),
                                                 cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                                                screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.73,
+                                                screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.7,
                                                 onTapGesture: {
                                                     navigateToPaper(paperInfo.id)
                                                     homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())

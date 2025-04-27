@@ -101,6 +101,7 @@ private struct HomeSearchListView: View {
                             .padding(.leading, 24)
                         }
                     }
+                    .padding(.leading, 30)
                 }
                 .onAppear {
                     if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
