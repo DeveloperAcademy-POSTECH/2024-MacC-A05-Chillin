@@ -12,6 +12,7 @@ import SwiftUI
 struct HomePDFCell: View {
     @State private var popover = false
     @State var paperInfo: PaperInfo
+    @Binding var isSelected: Bool
     
     var cellStatus: CellStatus
     let screenWidth: CGFloat
@@ -31,8 +32,8 @@ struct HomePDFCell: View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 if case .selection = cellStatus {
-                    SelectionCheckView(isSelected: paperInfo.isSelected) {
-                        paperInfo.isSelected.toggle()
+                    SelectionCheckView(isSelected: isSelected) {
+                        isSelected.toggle()
                         checkAction()
                     }
                     .padding(.leading, 10)
@@ -100,7 +101,7 @@ struct HomePDFCell: View {
                 .frame(height: 1)
         }
         .background {
-            if case .selection = cellStatus, paperInfo.isSelected {
+            if case .selection = cellStatus, isSelected {
                 RoundedRectangle(cornerRadius: 12)
                     .foregroundStyle(.primary2)
                     .padding(.vertical, 6)

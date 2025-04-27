@@ -72,7 +72,7 @@ private struct HomeSearchListView: View {
                     GeometryReader { geometry in
                         VStack(spacing: 0) {
                             ForEach(homeSearchViewModel.searchList) { paperInfo in
-                                HomePDFCell(paperInfo: paperInfo, cellStatus: .search, screenWidth: isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
+                                HomePDFCell(paperInfo: paperInfo, isSelected: .constant(false), cellStatus: .search, screenWidth: isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
                                     // TODO: 네비게이션 push 시 Date 업데이트 필요
                                     homeSearchViewModel.PaperCellTapped(paperInfo)
                                     navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
