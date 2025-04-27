@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-
-
 struct HomePDFCell: View {
     @State private var popover = false
     @State var paperInfo: PaperInfo
@@ -188,11 +186,13 @@ private struct PaperInformationView: View {
                     }
                 } else {
                     ForEach(getVisibleTags()) { tag in
-                        PDFTagCell(isMultiSelectable: false,
-                                   isEditMode: false,
-                                   tag: tag,
-                                   selectAction: {tagAction(tag.id)},
-                                   deleteAction: {})
+                        PDFTagCell(
+                            isMultiSelectable: false,
+                            isEditMode: false,
+                            tag: tag,
+                            selectAction: { tagAction(tag.id) },
+                            deleteAction: {}
+                        )
                     }
                 }
                 
@@ -223,7 +223,7 @@ private struct PaperInformationView: View {
                                 PDFTagCell(isMultiSelectable: false,
                                            isEditMode: false,
                                            tag: tag,
-                                           selectAction: {tagAction(tag.id)},
+                                           selectAction: { tagAction(tag.id) },
                                            deleteAction: {})
                             }
                         }
@@ -241,10 +241,14 @@ private struct PaperInformationView: View {
     }
     
     private func getVisibleTags() -> [Tag] {
+        
         var totalWidth: CGFloat = 0
         var result = [Tag]()
         
-        for tag in tags {
+        // 가나다, 알파벳 순으로 정렬
+        let sortedTags = tags.sorted(by: { $0.name < $1.name })
+        
+        for tag in sortedTags {
             let width = tag.itemWidth(isEditMode: false)
 
             if result.count < 6 && totalWidth + width <= screenWdith {
@@ -259,6 +263,7 @@ private struct PaperInformationView: View {
                 break
             }
         }
+        
         return result
     }
 }

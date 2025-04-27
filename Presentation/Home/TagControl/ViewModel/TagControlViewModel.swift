@@ -23,8 +23,8 @@ final class TagControlViewModel: ObservableObject {
     }
     private var timer: Timer?
     
-    
     private let useCase: TagControlUseCase
+    
     init(useCase: TagControlUseCase) {
         self.useCase = useCase
     }
@@ -59,9 +59,8 @@ extension TagControlViewModel {
             return nil
         }
         
-        if let firstTag = searchedTags.first, paperInfo.tags.contains(where: { $0 == firstTag }) {
-            return nil
-        }
+        if let firstTag = searchedTags.first, paperInfo.tags.contains(where: { $0 == firstTag }) { return nil }
+        
         if searchedTags.isEmpty {
             createNewTagButtonTapped()
         }
@@ -81,6 +80,7 @@ extension TagControlViewModel {
             isOverMaximumTagAlertPresented = true
             return nil
         }
+        
         if paperInfo.tags.contains(tag) { return nil }
         
         if let tag = addTagToPDF(pdfId: paperInfo.id, tagName: tag.name) {

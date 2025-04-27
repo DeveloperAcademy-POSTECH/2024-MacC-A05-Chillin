@@ -171,6 +171,7 @@ extension TagViewModel {
         self.tagFilteredPapers = self.tagViewUseCase.fetchFilteredPaperList(tags: self.selectedTags)
     }
 }
+
 struct TagPopoverPositionKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
         static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
