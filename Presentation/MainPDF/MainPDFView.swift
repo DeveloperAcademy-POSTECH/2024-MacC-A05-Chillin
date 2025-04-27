@@ -482,17 +482,20 @@ struct MainPDFView: View {
         .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
         .overlay {
             if self.focusFigureViewModel.figureStatus == .loading {
-                FigureLoadingView()
+                FigureLoadingView(isOriginal: true)
+            } else if self.focusFigureViewModel.focusStatus == .loading {
+                FigureLoadingView(isOriginal: false)
             }
             
-            if case let .search(paper) = homeViewModel.viewStatus {
-                RenamePaperTitleView(paperInfo: paper) {
-                    homeViewModel.viewStatus = .normal
-                } completeAction: { text in
-                    homeViewModel.updateTitle(at: paper.id, title: text) {
-                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+            if self.focusFigureViewModel.focusStatus == .networkDisconnection {
+                ZStack {
+                    Color.gray900
+                        .opacity(0.4)
+                        .ignoresSafeArea()
+                    
+                    NetworkDisconnectionAlert {
+                        focusFigureViewModel.focusStatus = .beforeStart
                     }
-                    homeViewModel.viewStatus = .normal
                 }
             }
             
@@ -829,6 +832,8 @@ private struct FigureLoadingView: View {
     @State private var timer: Timer?
     @State private var loadingTextFlag: Bool = false
     
+    let isOriginal: Bool
+    
     var body: some View {
         ZStack {
             Color.gray900
@@ -845,9 +850,16 @@ private struct FigureLoadingView: View {
                     .tint(.primary1)
                     .frame(width: 16)
                 
-                Text( self.loadingTextFlag ? "Figure 추출은 10초 ~ 20초 정도 소요됩니다" : "Figure와 Table을 불러오는 중입니다")
-                    .reazyFont(.body1)
-                    .foregroundStyle(.primary1)
+                if isOriginal {
+                    Text( self.loadingTextFlag ? "Figure 추출은 10초 ~ 20초 정도 소요됩니다" : "Figure와 Table을 불러오는 중입니다" )
+                        .reazyFont(.body1)
+                        .foregroundStyle(.primary1)
+                } else {
+                    Text( self.loadingTextFlag ? "집중모드를 활성화 중입니다" : "집중모드는 논문을 한 단으로\n정렬하는 읽기전용 모드입니다" )
+                        .reazyFont(.body1)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.primary1)
+                }
             }
         }
         .onAppear {
@@ -858,5 +870,41 @@ private struct FigureLoadingView: View {
         .onDisappear {
             self.timer?.invalidate()
         }
+    }
+}
+
+private struct NetworkDisconnectionAlert: View {
+    let completeAction: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Text("집중모드 활성화를 위해\n네트워크 연결이 필요합니다")
+                .reazyFont(.button1)
+                .foregroundStyle(.gray900)
+                .multilineTextAlignment(.center)
+                .padding(.top, 36)
+                .padding(.horizontal, 30)
+            
+            Spacer()
+            
+            Rectangle()
+                .frame(height: 1)
+                .foregroundStyle(.gray400)
+            
+            Button {
+                completeAction()
+            } label: {
+                Text("취소")
+                    .reazyFont(.h3)
+                    .foregroundStyle(.primary1)
+                    .frame(width: 300, height: 52)
+            }
+
+        }
+        .frame(width: 340, height: 163)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .foregroundStyle(.gray200)
+        )
     }
 }

@@ -24,13 +24,18 @@ struct HomeFolderPopoverView: View {
                     divider
                     PopoverActionView(popoverAction: .addParentFolder) {
                         homeViewModel.viewStatus = .normal
-                        homeViewModel.folderCreationPosition = .aboveCurrent
-                        homeViewModel.createFolder = true
+                        
+                        if homeViewModel.totalDepthInBranch(for: homeViewModel.selectedFolderID) < 4 {
+                            homeViewModel.folderCreationPosition = .aboveCurrent
+                            homeViewModel.createFolder = true
+                        } else {
+                            homeViewModel.showFolderDepthAlert = true
+                        }
                     }
                     divider
                     PopoverActionView(popoverAction: .addSubFolder) {
                         homeViewModel.viewStatus = .normal
-                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                        if homeViewModel.depth(of: homeViewModel.selectedFolderID) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
                             homeViewModel.createFolder = true
                         } else {

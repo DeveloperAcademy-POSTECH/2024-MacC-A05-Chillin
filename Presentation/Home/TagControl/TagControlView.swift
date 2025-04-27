@@ -25,7 +25,6 @@ struct TagControlView: View {
     let cancelAction: () -> Void
     let completeAction: () -> Void
     
-    
     var body: some View {
         ZStack {
             Color.black.opacity(0.3)
@@ -60,7 +59,9 @@ struct TagControlView: View {
                                 ForEach(paperInfo.tags) { tag in
                                     IncludedTagView(tag: tag) {
                                         viewModel.deleteTagButtonTapped(paperId: paperInfo.id, tag: tag)
-                                        paperInfo.tags.removeAll { $0.id == tag.id }
+                                        if paperInfo.tags.contains(where: { $0.id == tag.id }) {
+                                            paperInfo.tags.removeAll { $0.id == tag.id }
+                                        }
                                     }
                                 }
                             }
@@ -124,7 +125,6 @@ private struct TagInputTextField: View {
     
     @Binding var paperInfo: PaperInfo
     var textFieldFocus: FocusState<Bool>.Binding
-    
     
     var body: some View {
         ZStack {

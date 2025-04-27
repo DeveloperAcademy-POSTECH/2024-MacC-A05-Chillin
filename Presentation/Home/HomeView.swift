@@ -99,7 +99,12 @@ struct HomeView: View {
             
             
             Color.black
-                .opacity(isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || isDuplicatedTitleAlertPresented ? 0.5 : 0)
+                .opacity(
+                    isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder
+                    || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag
+                    || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || isDuplicatedTitleAlertPresented
+                    || homeViewModel.showDeleteAlert
+                    ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             Color.black
@@ -134,9 +139,6 @@ struct HomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: 740, height: 550)
                 .blur(radius: createMovingFolder ? 20 : 0)
-                .onDisappear {
-                    homeViewModel.selectedItems.removeAll()
-                }
             }
             
             Color.black
@@ -229,6 +231,7 @@ struct HomeView: View {
                 CreateTagView()
                     .environmentObject(tagViewModel)
             }
+            
             if tagViewModel.showDeleteAlert {
                 CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
                             message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.", width: 350, height: 173,
@@ -249,7 +252,8 @@ struct HomeView: View {
             
             if homeViewModel.showDeleteAlert {
                 CustomAlert(
-                    mainText: "삭제하시겠습니까?\n삭제된 항목은 복구할 수 없습니다.",
+                    mainText: "폴더를 삭제하시겠습니까?",
+                    message: "폴더 안에 포함된 논문도 함께 삭제됩니다.",
                     width: 364, height: 163,
                     cancelAction: { homeViewModel.showDeleteAlert = false },
                     confirmAction: {
@@ -483,6 +487,7 @@ private struct EditMenuView: View {
                     .frame(width: 20, height: 20)
                     .foregroundStyle(homeViewModel.selectedItems.isEmpty ? .gray550 : .gray100)
             })
+            .disabled(homeViewModel.selectedItems.isEmpty)
             .padding(.trailing, 28)
             
             Button(action: {
@@ -563,7 +568,7 @@ struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        if text.isEmpty { text = "새 폴더" }
+                        if text.isEmpty { text = String(localized: "새 폴더") }
                         
                         if homeViewModel.isEditingFolder {
                             if let folder = folder {

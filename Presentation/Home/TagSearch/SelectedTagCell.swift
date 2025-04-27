@@ -11,11 +11,13 @@ struct SelectedTagCell<Tag: DynamicCell>: View {
     let tag: Tag
     let action: () -> Void
     let isBtnTapped: Bool
+    
     var body: some View {
         HStack {
             Text(tag.name)
                 .reazyFont(.text1)
                 .foregroundStyle(isBtnTapped ? .gray300 : .gray800)
+
             if isBtnTapped {
                 Button {
                     action()

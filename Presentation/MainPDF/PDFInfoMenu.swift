@@ -58,7 +58,7 @@ struct PDFInfoMenu: View {
             }, label: {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(title ?? "알 수 없음")
+                        Text(title ?? String(localized: "알 수 없음"))
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                             .reazyFont(.h3)

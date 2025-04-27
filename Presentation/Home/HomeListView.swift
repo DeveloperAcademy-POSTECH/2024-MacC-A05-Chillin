@@ -16,9 +16,9 @@ struct HomeListView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                categoryButton(image: "emptydoc", selectedImage: "document", title: "전체", category: .main)
-                categoryButton(image: "star", selectedImage: "starfill", title: "즐겨찾기", category: .favorite)
-                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: "태그", category: .tag)
+                categoryButton(image: "emptydoc", selectedImage: "document", title: String(localized: "전체"), category: .main)
+                categoryButton(image: "star", selectedImage: "starfill", title: String(localized: "즐겨찾기"), category: .favorite)
+                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: String(localized: "태그"), category: .tag)
             }
             .padding(.leading, 10)
             .padding(.trailing, 12)
@@ -39,7 +39,7 @@ struct HomeListView: View {
                     Spacer()
                     
                     Button(action: {
-                        if homeViewModel.depth(of: homeViewModel.currentFolder) < 4 {
+                        if homeViewModel.depth(of: homeViewModel.currentFolder?.id) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
                             homeViewModel.createFolder = true
                         } else {
@@ -109,7 +109,7 @@ struct HomeListView: View {
         category: CategorySelection
     ) -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .foregroundStyle(selectedCategory == category ? Color(hex: "EFEFF8") : .primary2)
+            .foregroundStyle(selectedCategory == category ? .gray300 : .primary2)
             .frame(height: 43)
             .overlay {
                 HStack(spacing: 0) {
@@ -241,9 +241,11 @@ private struct FolderListCell: View {
                 LongPressGesture(minimumDuration: 0.5)
                     .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
                     .updating($highlight) { currentState, gestureState, transaction in
-                        self.animationFolder = folder
-                        transaction.animation = .easeIn(duration: 1)
-                        gestureState = true
+                        if case .second(true, _) = currentState {
+                            self.animationFolder = folder
+                            transaction.animation = .easeIn(duration: 1)
+                            gestureState = true
+                        }
                     }
                     .onEnded { value in
                         switch value {

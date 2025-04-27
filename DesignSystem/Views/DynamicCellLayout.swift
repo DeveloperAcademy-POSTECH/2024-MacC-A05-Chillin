@@ -15,7 +15,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
     let screenWidth: CGFloat
     
     let isMultiSelectable: Bool     // 여러 셀 선택 가능
-    let isEditMode: Bool           // x마크
+    let isEditMode: Bool            // x 마크
     
     let selectAction: (String) -> Void
     let deleteAction: (UUID) -> Void
@@ -48,6 +48,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
             currentWidth += itemWidth
             currentArrays.append(item)
         }
+        
         return VStack(alignment: .leading) {
             ForEach(resultRows, id: \.self) { row in
                 HStack {
@@ -55,8 +56,8 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                         PDFTagCell(isMultiSelectable: isMultiSelectable,
                                    isEditMode: isEditMode,
                                    tag: tag,
-                                   selectAction: {selectAction(tag.name)},
-                                   deleteAction: {deleteAction(tag.id)}
+                                   selectAction: { selectAction(tag.name) },
+                                   deleteAction: { deleteAction(tag.id) }
                         )
                     }
                 }

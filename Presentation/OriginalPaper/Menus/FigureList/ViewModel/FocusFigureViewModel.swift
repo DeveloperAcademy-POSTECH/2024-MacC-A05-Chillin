@@ -32,6 +32,7 @@ class FocusFigureViewModel: ObservableObject {
     @Published public var figureDocuments: [PDFDocument] = []
     @Published public var collectionDocuments: [PDFDocument] = []
     @Published public var figureStatus: FigureStatus = .beforeStart
+    @Published public var focusStatus: FocusStatus = .beforeStart
     @Published public var changedPageNumber: Int = 0
     
     @Published public var isEditFigName: Bool = false
@@ -45,6 +46,13 @@ class FocusFigureViewModel: ObservableObject {
     let collectionPublisher = NotificationCenter.default.publisher(for: .isCollectionCaptured)
     let figureUpdatedPublisher = PassthroughSubject<FigureAnnotation, Never>()
     let collectionUpdatedPublisher = PassthroughSubject<FigureAnnotation, Never>()
+    public var isFirstUpload: Bool {
+        if PDFSharedData.shared.paperInfo?.focusURL == nil {
+            return true
+        } else {
+            return false
+        }
+    }
     
     var cancellables: Set<AnyCancellable> = []
     private var focusFigureUseCase: FocusFigureUseCase
@@ -118,88 +126,130 @@ extension FocusFigureViewModel {
         self.focusFigureUseCase.pdfSharedData.document
     }
     
+    public func downloadFocus(completion: @escaping () -> Void) async {
+        if self.focusStatus == .loading { return }
+        
+        self.focusStatus = .loading
+        let isNetworkConneted = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+            NWPathMonitor().startMonitoring {
+                if $0 { continuation.resume(returning: true) }
+                else { continuation.resume(returning: false) }
+            }
+        }
+        
+        if !isNetworkConneted {
+            self.focusStatus = .networkDisconnection
+            return
+        }
+        
+        var isStale: Bool = false
+        
+        guard let url = try? URL.init(
+            resolvingBookmarkData: self.focusFigureUseCase.pdfSharedData.paperInfo!.url,
+            bookmarkDataIsStale: &isStale) else {
+            self.focusStatus = .empty
+            return
+        }
+        
+        let height = self.focusFigureUseCase.getPDFHeight()
+        var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
+        
+        let result = await self.focusFigureUseCase.excuteFocus(url: url)
+        
+        switch result {
+        case .success(let layout):
+            self.figures = layout.toFigureEntities(pageHeight: height)
+            self.focusPages = layout.toFocusEntities(pageHeight: height)
+                self.focusFigureUseCase.makeFocusDocument(
+                    focusAnnotations: self.focusPages,
+                    fileName: paperInfo.title) {
+                        if !$1 {
+                            paperInfo.focusURL = .init()
+                            self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                            self.focusStatus = .empty
+                            return
+                        }
+                        
+                        self.focusDocument = PDFDocument(url: $0!)
+                        
+                        let focusURLData = try? $0!.bookmarkData(options: .minimalBookmark)
+                        
+                        self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
+                        paperInfo.focusURL = focusURLData
+                        
+                        self.saveFigures(figures: layout.toCoreData())
+                        self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                        DispatchQueue.main.async {
+                            self.focusStatus = .complete
+                            completion()
+                        }
+                    }
+        case .failure(let error):
+            paperInfo.isFigureSaved = true
+            paperInfo.focusURL = .init()
+            
+            PDFSharedData.shared.paperInfo?.focusURL = .init()
+            
+            self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+            DispatchQueue.main.async {
+                self.focusStatus = .empty
+                print(error)
+            }
+        }
+    }
     
-    public func downloadFocusFigure() {
+    public func downloadFigure() {
         if self.figureStatus == .loading { return }
         
         var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo
         
         paperInfo?.isFigureSaved = true
         
-        NWPathMonitor().startMonitoring { isConnected in
-            if !isConnected {
-                DispatchQueue.main.async {
-                    self.figureStatus = .networkDisconnection
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                self.figureStatus = .loading
-            }
-            
-            var isStale = false
-            
-            guard let url = try? URL.init(
-                resolvingBookmarkData: self.focusFigureUseCase.pdfSharedData.paperInfo!.url,
-                bookmarkDataIsStale: &isStale),
-                  url.startAccessingSecurityScopedResource() else {
-                return
-            }
-            
-            defer {
+        self.figureStatus = .loading
+        
+        var isStale = false
+        
+        guard let url = try? URL.init(
+            resolvingBookmarkData: self.focusFigureUseCase.pdfSharedData.paperInfo!.url,
+            bookmarkDataIsStale: &isStale) else {
+            return
+        }
+        
+        let accessed = url.startAccessingSecurityScopedResource()
+        // startAccessing이 실패해도 그냥 쓸 수 있게 guard 문에서 빼서 처리
+        defer {
+            if accessed {
                 url.stopAccessingSecurityScopedResource()
             }
+        }
+        
+        Task.init {
+            let height = self.focusFigureUseCase.getPDFHeight()
+            var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
             
-            Task.init {
-                let height = self.focusFigureUseCase.getPDFHeight()
-                var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
-                
-                await self.focusFigureUseCase.excute(process: .processFulltextDocument, url: url) {
-                    switch $0 {
-                    case .success(let layout):
-                        DispatchQueue.main.async {
-                            self.figures = layout.toFigureEntities(pageHeight: height)
-//                            self.focusPages = layout.toFocusEntities(pageHeight: height)
-//                            
-//                            self.focusFigureUseCase.makeFocusDocument(
-//                                focusAnnotations: self.focusPages,
-//                                fileName: paperInfo.title) {
-//                                    if !$1 {
-//                                        self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
-//                                        paperInfo.isFigureSaved = true
-//                                        self.focusFigureUseCase.editPaperInfo(info: paperInfo)
-//                                        self.figureStatus = .empty
-//                                        return
-//                                    }
-//                                    
-//                                    self.focusDocument = PDFDocument(url: $0!)
-//
-//                                    let focusURLData = try? $0!.bookmarkData(options: .minimalBookmark)
-//
-//                                    self.focusFigureUseCase.pdfSharedData.paperInfo!.focusURL = focusURLData
-//                                    paperInfo.focusURL = focusURLData
-//                                }
-                            
-                            self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
-                            paperInfo.isFigureSaved = true
-                            
-                            self.saveFigures(figures: layout.toCoreData())
-                            self.focusFigureUseCase.editPaperInfo(info: paperInfo)
-                            
-                            DispatchQueue.main.async {
-                                self.figureStatus = .complete
-                            }
-                        }
-                    case .failure(let error):
+            await self.focusFigureUseCase.excuteFigures(url: url) {
+                switch $0 {
+                case .success(let layout):
+                    DispatchQueue.main.async {
+                        self.figures = layout.toFigureEntities(pageHeight: height)
                         self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
                         paperInfo.isFigureSaved = true
+                        
+                        self.saveFigures(figures: layout.toCoreData())
                         self.focusFigureUseCase.editPaperInfo(info: paperInfo)
                         
                         DispatchQueue.main.async {
-                            self.figureStatus = .empty
-                            print(error)
+                            self.figureStatus = .complete
                         }
+                    }
+                case .failure(let error):
+                    self.focusFigureUseCase.pdfSharedData.paperInfo!.isFigureSaved = true
+                    paperInfo.isFigureSaved = true
+                    self.focusFigureUseCase.editPaperInfo(info: paperInfo)
+                    
+                    DispatchQueue.main.async {
+                        self.figureStatus = .empty
+                        print(error)
                     }
                 }
             }
@@ -300,8 +350,15 @@ extension FocusFigureViewModel {
     
     enum FigureStatus {
         case beforeStart
-        case networkDisconnection
         case loading
+        case empty
+        case complete
+    }
+    
+    enum FocusStatus {
+        case beforeStart
+        case loading
+        case networkDisconnection
         case empty
         case complete
     }

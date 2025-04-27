@@ -31,34 +31,33 @@ struct TagView: View {
             
             GeometryReader { geometry in
                 VStack(spacing: 1) {
-                    HStack {
-                        if tagViewModel.isTagSelected {
-                            SelectedTagView(selectedTags: tagViewModel.selectedTags)
-                        } else {
-                            TagEmptyView()
+                    Button(action: {
+                        withAnimation {
+                            tagViewModel.isBtnTapped.toggle()
                         }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation {
-                                tagViewModel.isBtnTapped.toggle()
+                    }, label: {
+                        HStack {
+                            if tagViewModel.isTagSelected {
+                                SelectedTagView(selectedTags: tagViewModel.selectedTags)
+                            } else {
+                                TagEmptyView()
                             }
-                        }, label: {
+                            
+                            Spacer()
+                            
                             Image(systemName: tagViewModel.isBtnTapped ? "chevron.down" : "chevron.right")
                                 .font(.system(size: 16))
                                 .foregroundStyle(.gray600)
-                        })
-                        .frame(alignment: .trailing)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-                    .frame(height: 52)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.gray100)
-                            .stroke(Color.gray400, lineWidth: 1)
-                    )
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        .frame(height: 52)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.gray100)
+                                .stroke(Color.gray400, lineWidth: 1)
+                        )
+                    })
                     
                     if tagViewModel.isBtnTapped {
                         LazyVStack(alignment: .center, spacing: 0) {
@@ -284,6 +283,7 @@ private struct FilteredPaperListView: View {
                     ForEach(tagViewModel.tagFilteredPapers, id: \.self) { paperInfo in
                         HomePDFCell(
                             paperInfo: paperInfo,
+                            isSelected: .constant(false),
                             cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
                             screenWidth: isPortrait ? geometry.size.width * 0.6 :  geometry.size.width * 0.73,
                             onTapGesture: {

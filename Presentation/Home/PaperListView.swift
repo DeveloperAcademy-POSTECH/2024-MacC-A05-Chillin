@@ -97,8 +97,18 @@ struct PaperListView: View {
                                         ForEach(homeViewModel.filteredLists, id: \.self) { paperInfo in
                                             HomePDFCell(
                                                 paperInfo: paperInfo,
+                                                isSelected: Binding(
+                                                    get: { homeViewModel.selectedItems.contains(paperInfo.id) },
+                                                    set: { newValue in
+                                                        if newValue {
+                                                            homeViewModel.selectedItems.insert(paperInfo.id)
+                                                        } else {
+                                                            homeViewModel.selectedItems.remove(paperInfo.id)
+                                                        }
+                                                    }
+                                                ),
                                                 cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                                                screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.73,
+                                                screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.7,
                                                 onTapGesture: {
                                                     navigateToPaper(paperInfo.id)
                                                     homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
@@ -196,9 +206,9 @@ struct PaperListView: View {
     
     private func emptyStateMessage() -> String {
         if homeViewModel.isFavoriteSelected {
-            return "즐겨찾기 한 논문이 없어요"
+            return String(localized: "즐겨찾기 한 논문이 없어요")
         } else {
-            return "새로운 논문을 가져와 주세요"
+            return String(localized: "새로운 논문을 가져와 주세요")
         }
     }
 }

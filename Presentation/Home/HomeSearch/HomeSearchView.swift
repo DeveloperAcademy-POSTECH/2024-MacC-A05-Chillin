@@ -57,7 +57,6 @@ private struct HomeSearchListView: View {
                             homeSearchViewModel.searchTarget == .tag ? .primary1 : .gray550
                         )
                         .padding(.leading, 20)
-                        .padding(.vertical, 20)
                 }
                 
                 Spacer()
@@ -73,7 +72,7 @@ private struct HomeSearchListView: View {
                     GeometryReader { geometry in
                         VStack(spacing: 0) {
                             ForEach(homeSearchViewModel.searchList) { paperInfo in
-                                HomePDFCell(paperInfo: paperInfo, cellStatus: .search, screenWidth: isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
+                                HomePDFCell(paperInfo: paperInfo, isSelected: .constant(false), cellStatus: .search, screenWidth: isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
                                     // TODO: 네비게이션 push 시 Date 업데이트 필요
                                     homeSearchViewModel.PaperCellTapped(paperInfo)
                                     navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
@@ -99,8 +98,10 @@ private struct HomeSearchListView: View {
                                     homeSearchViewModel.setTagButtonTapped(paperInfo)
                                 }
                             }
+                            .padding(.leading, 24)
                         }
                     }
+                    .padding(.leading, 30)
                 }
                 .onAppear {
                     if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
@@ -121,6 +122,7 @@ private struct HomeSearchListView: View {
                 }
             }
         }
+        .background(.gray300)
         .alert("정말 삭제하시겠습니까?", isPresented: $deleteAlertPresented) {
             Button("삭제", role: .destructive) {
                 if let paperInfo = selectedPaper {
@@ -163,6 +165,7 @@ private struct RecentlySearchedKeywordView: View {
                 }
                 Spacer()
             }
+            .background(.gray300)
         } else {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
@@ -191,6 +194,7 @@ private struct RecentlySearchedKeywordView: View {
             }
             .padding(.top, 50)
             .padding(.horizontal, 20)
+            .background(.gray300)
         }
     }
 }

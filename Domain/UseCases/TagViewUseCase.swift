@@ -62,7 +62,17 @@ final class DefaultTagViewUseCase: TagViewUseCase {
         
         tags.forEach {
             if case let .success(paperInfos) = tagDataRepository.fetchPapersByTag(tagID: $0.id) {
-                paperInfos.forEach { result.insert($0) }
+                var isTagContained = true
+                paperInfos.forEach { paperInfo in
+                    for tag in tags {
+                        if !paperInfo.tags.contains(tag) {
+                            isTagContained = false
+                            break
+                        }
+                    }
+                    
+                    if isTagContained { result.insert(paperInfo) }
+                }
             }
         }
         

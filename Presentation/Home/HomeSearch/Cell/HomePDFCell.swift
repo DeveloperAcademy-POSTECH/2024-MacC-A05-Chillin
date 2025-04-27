@@ -7,11 +7,10 @@
 
 import SwiftUI
 
-
-
 struct HomePDFCell: View {
     @State private var popover = false
     @State var paperInfo: PaperInfo
+    @Binding var isSelected: Bool
     
     var cellStatus: CellStatus
     let screenWidth: CGFloat
@@ -31,8 +30,8 @@ struct HomePDFCell: View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 if case .selection = cellStatus {
-                    SelectionCheckView(isSelected: paperInfo.isSelected) {
-                        paperInfo.isSelected.toggle()
+                    SelectionCheckView(isSelected: isSelected) {
+                        isSelected.toggle()
                         checkAction()
                     }
                     .padding(.leading, 10)
@@ -41,7 +40,7 @@ struct HomePDFCell: View {
                 
                 Button {
                     switch cellStatus {
-                    case .normal:
+                    case .normal, .search:
                         onTapGesture()
                     default:
                         break
@@ -56,6 +55,7 @@ struct HomePDFCell: View {
                         )
                         
                         PaperInformationView(
+                            cellStatus: cellStatus,
                             title: paperInfo.title,
                             date: paperInfo.lastModifiedDate,
                             tags: paperInfo.tags,
@@ -100,7 +100,7 @@ struct HomePDFCell: View {
                 .frame(height: 1)
         }
         .background {
-            if case .selection = cellStatus, paperInfo.isSelected {
+            if case .selection = cellStatus, isSelected {
                 RoundedRectangle(cornerRadius: 12)
                     .foregroundStyle(.primary2)
                     .padding(.vertical, 6)
@@ -140,6 +140,7 @@ private struct ThumbnailImageView: View {
 
 
 private struct PaperInformationView: View {
+    let cellStatus: CellStatus
     let title: String
     let date: Date
     let tags: [Tag]
@@ -172,7 +173,7 @@ private struct PaperInformationView: View {
             Spacer()
             
             HStack {
-                if tags.isEmpty {
+                if tags.isEmpty, cellStatus == .normal {
                     Button {
                         addAction()
                     } label: {
@@ -187,11 +188,13 @@ private struct PaperInformationView: View {
                     }
                 } else {
                     ForEach(getVisibleTags()) { tag in
-                        PDFTagCell(isMultiSelectable: false,
-                                   isEditMode: false,
-                                   tag: tag,
-                                   selectAction: {tagAction(tag.id)},
-                                   deleteAction: {})
+                        PDFTagCell(
+                            isMultiSelectable: false,
+                            isEditMode: false,
+                            tag: tag,
+                            selectAction: { tagAction(tag.id) },
+                            deleteAction: {}
+                        )
                     }
                 }
                 
@@ -222,7 +225,7 @@ private struct PaperInformationView: View {
                                 PDFTagCell(isMultiSelectable: false,
                                            isEditMode: false,
                                            tag: tag,
-                                           selectAction: {tagAction(tag.id)},
+                                           selectAction: { tagAction(tag.id) },
                                            deleteAction: {})
                             }
                         }
@@ -240,10 +243,14 @@ private struct PaperInformationView: View {
     }
     
     private func getVisibleTags() -> [Tag] {
+        
         var totalWidth: CGFloat = 0
         var result = [Tag]()
         
-        for tag in tags {
+        // 가나다, 알파벳 순으로 정렬
+        let sortedTags = tags.sorted(by: { $0.name < $1.name })
+        
+        for tag in sortedTags {
             let width = tag.itemWidth(isEditMode: false)
 
             if result.count < 6 && totalWidth + width <= screenWdith {
@@ -258,6 +265,7 @@ private struct PaperInformationView: View {
                 break
             }
         }
+        
         return result
     }
 }
