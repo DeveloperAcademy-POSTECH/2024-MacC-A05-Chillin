@@ -30,10 +30,10 @@ struct PDFTagCell<Tag: DynamicCell>: View {
                     .reazyFont(isMultiSelectable ? .body1 : .h3)
                     .foregroundStyle(tag.isSelected ? .gray300 : .gray800)
                     .fixedSize(horizontal: true, vertical: false)
-                    .padding(.trailing, 4)
                 
                 // 삭제 버튼
                 if isEditMode {
+                    Spacer().frame(width: 4)
                     Button {
                         deleteAction()
                     } label: {
