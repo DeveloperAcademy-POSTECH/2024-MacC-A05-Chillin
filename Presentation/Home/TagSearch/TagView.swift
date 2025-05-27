@@ -129,6 +129,9 @@ struct TagView: View {
                 tagViewModel.popover = false
             }
         }
+        .onAppear {
+            tagViewModel.onAppear()
+        }
     }
 }
 

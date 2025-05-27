@@ -40,10 +40,6 @@ class TagViewModel: ObservableObject {
         tagViewUseCase: TagViewWithIOUseCase
     ) {
         self.tagViewUseCase = tagViewUseCase
-        let tags = tagViewUseCase.fetchTags()
-        
-        self.tags = tags
-        self.isTagExist = !tags.isEmpty
         self.targetTagID = UUID()
         setBindings()
     }
@@ -64,6 +60,13 @@ class TagViewModel: ObservableObject {
     
     deinit {
         self.cancellables.forEach { $0.cancel() }
+    }
+    
+    func onAppear() {
+        let tags = tagViewUseCase.fetchTags()
+        
+        self.tags = tags
+        self.isTagExist = !tags.isEmpty
     }
     
     func tagTapped(for tagName: String){

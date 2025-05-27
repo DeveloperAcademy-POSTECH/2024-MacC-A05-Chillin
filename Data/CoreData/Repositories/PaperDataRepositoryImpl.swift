@@ -213,6 +213,7 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
     
     func addTag(to id: UUID, with tag: String) -> Result<Tag, any Error> {
         let dataContext = container.viewContext
+        dataContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
