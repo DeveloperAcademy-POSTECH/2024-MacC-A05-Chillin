@@ -14,7 +14,7 @@ import SwiftUI
 struct TagControlView: View {
     @StateObject private var viewModel: TagControlViewModel = .init(
         useCase: DefaultTagControlUseCase(
-            paperDataRepository: PaperDataRepositoryImpl(),
+            paperDataRepository: PaperDataRepositoryTagImpl(),
             tagRepository: TagDataRepositoryImpl()
         )
     )
@@ -86,6 +86,7 @@ struct TagControlView: View {
             HStack {
                 Button {
                     cancelAction()
+                    viewModel.cancelButtonTapped()
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 18))
@@ -98,6 +99,7 @@ struct TagControlView: View {
                 
                 Button {
                     completeAction()
+                    viewModel.saveButtonTapped()
                 } label: {
                     ZStack {
                         Capsule()

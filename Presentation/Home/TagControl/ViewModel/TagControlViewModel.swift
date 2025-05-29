@@ -99,6 +99,14 @@ extension TagControlViewModel {
     public func deleteTagButtonTapped(paperId: UUID, tag: Tag) {
         self.useCase.removeTagFromPaper(to: paperId, with: tag.id)
     }
+    
+    public func saveButtonTapped() {
+        self.useCase.saveProgress()
+    }
+    
+    public func cancelButtonTapped() {
+        self.useCase.discardProgress()
+    }
 }
 
 

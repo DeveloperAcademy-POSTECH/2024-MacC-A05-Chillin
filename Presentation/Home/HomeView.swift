@@ -304,6 +304,9 @@ struct HomeView: View {
                 .environmentObject(tagViewModel)
         } else {
             PaperListView()
+                .onAppear {
+                    homeViewModel.fetchPaperList()
+                }
         }
     }
 }

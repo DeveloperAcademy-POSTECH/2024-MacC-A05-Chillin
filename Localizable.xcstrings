@@ -289,6 +289,22 @@
         }
       }
     },
+    "곧 다가올 업데이트를 기대해주세요!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stay tuned for the next update!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まもなく行われるアップデートをお楽しみに！"
+          }
+        }
+      }
+    },
     "논문 제목을 입력해 주세요" : {
       "localizations" : {
         "en" : {
@@ -1153,6 +1169,15 @@
         }
       }
     },
+    "집중모드 활성화를 위해\n네트워크 연결이 필요합니다" : {
+
+    },
+    "집중모드는 논문을 한 단으로\n정렬하는 읽기전용 모드입니다" : {
+
+    },
+    "집중모드를 활성화 중입니다" : {
+
+    },
     "최근 검색한 키워드" : {
       "localizations" : {
         "en" : {
@@ -1405,6 +1430,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "この翻訳機能はiPadOS 18.0以上でのみ使用可能です。iPadOS 18.0未満のバージョンでは、ソフトウェアのアップデートが必要です。"
+          }
+        }
+      }
+    },
+    "현재 집중모드가 공사중에 있습니다!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus Mode is under construction."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在、集中モードは工事中です！"
+          }
+        }
+      }
+    },
+    "현재 집중모드가 공사중에 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus Mode is under construction."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在、集中モードは工事中です！"
           }
         }
       }
