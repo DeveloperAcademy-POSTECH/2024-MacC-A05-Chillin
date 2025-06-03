@@ -1,8 +1,8 @@
 //
-//  PaperDataRepositoryImpl.swift
+//  PaperDataRepositoryTagImpl.swift
 //  Reazy
 //
-//  Created by 유지수 on 11/6/24.
+//  Created by 문인범 on 5/27/25.
 //
 
 import Foundation
@@ -10,7 +10,12 @@ import CoreData
 import SwiftUI
 import UIKit
 
-final class PaperDataRepositoryImpl: PaperDataRepository {
+
+/**
+ 태그 추가 뷰에서 사용되는 Repository
+ CoreData 저장을 미루어 태그 추가 후 취소할 시 롤백 될 수 있도록 도와줌
+ */
+final class PaperDataRepositoryTagImpl: PaperDataRepository {
     private let container: NSPersistentContainer = PersistantContainer.shared.container
     
     // 저장된 PDF 정보를 모두 불러옵니다
@@ -60,12 +65,7 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
         newPaperData.isFigureSaved = info.isFigureSaved
         newPaperData.folderID = info.folderID
         
-        do {
-            try dataContext.save()
-            return .success(VoidResponse())
-        } catch {
-            return .failure(error)
-        }
+        return .success(VoidResponse())
     }
     
     // 기존 PDF 정보를 수정합니다
@@ -102,7 +102,6 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                 dataToEdit.isFigureSaved = info.isFigureSaved
                 dataToEdit.folderID = info.folderID
                 
-                try dataContext.save()
                 return .success(VoidResponse())
             } else {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
@@ -138,7 +137,7 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                 }
                 
                 dataContext.delete(dataToDelete)
-                try dataContext.save()
+                
                 return .success(VoidResponse())
             } else {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
@@ -200,7 +199,6 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                 newPaperData.url = info.url
                 newPaperData.folderID = info.folderID
                 
-                try dataContext.save()
                 return .success(VoidResponse())
             } else {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
@@ -240,8 +238,6 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
             paperTag.paperData = paper
             paperTag.tagData = tag
             
-            try dataContext.save()
-            
             // 추가된 Tag 반환
             let result = Tag(id: tag.id, name: tag.name)
             return .success(result)
@@ -276,7 +272,6 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                 dataContext.delete(paperTag)
             }
             
-            try dataContext.save()
             return .success(VoidResponse())
         } catch {
             return .failure(error)
@@ -317,10 +312,10 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "PaperTag not found"]))
             }
             
-            try dataContext.save()
             return .success(VoidResponse())
         } catch {
             return .failure(error)
         }
     }
 }
+

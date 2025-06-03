@@ -22,6 +22,11 @@ protocol TagControlUseCase {
     func createTag(_ name: String) -> Result<Tag, Error>
     
     func searchTags(_ name: String) throws -> [Tag]
+    
+    @discardableResult
+    func saveProgress() -> Result<Void, Error>
+    
+    func discardProgress()
 }
 
 
@@ -56,5 +61,18 @@ final class DefaultTagControlUseCase: TagControlUseCase {
         case .failure:
             throw NSError()
         }
+    }
+    
+    func saveProgress() -> Result<Void, any Error> {
+        do {
+            try tagRepository.saveContext()
+            return .success(())
+        } catch {
+            return .failure(error)
+        }
+    }
+    
+    func discardProgress() {
+        tagRepository.discardContext()
     }
 }

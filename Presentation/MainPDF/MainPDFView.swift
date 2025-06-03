@@ -487,6 +487,17 @@ struct MainPDFView: View {
                 FigureLoadingView(isOriginal: false)
             }
             
+            if case let .search(paper) = homeViewModel.viewStatus {
+                RenamePaperTitleView(paperInfo: paper) {
+                    homeViewModel.viewStatus = .normal
+                } completeAction: { text in
+                    homeViewModel.updateTitle(at: paper.id, title: text) {
+                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                    }
+                    homeViewModel.viewStatus = .normal
+                }
+            }
+            
             if self.focusFigureViewModel.focusStatus == .networkDisconnection {
                 ZStack {
                     Color.gray900
@@ -518,6 +529,13 @@ struct MainPDFView: View {
                     )
                 }
             }
+        }
+        .alert("현재 집중모드가 공사중에 있습니다.", isPresented: $isReadMode) {
+            Button("확인", role: .cancel) {
+                isReadMode = false
+            }
+        } message: {
+            Text("곧 다가올 업데이트를 기대해주세요!")
         }
     }
 }
@@ -821,9 +839,12 @@ private struct MainView: View {
         ZStack {
             OriginalView()
             
+            // MARK: 집중모드 임시 차단
+            /*
             if isReadMode {
                 ConcentrateView()
             }
+             */
         }
     }
 }

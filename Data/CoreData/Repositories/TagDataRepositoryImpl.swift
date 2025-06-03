@@ -84,7 +84,6 @@ final class TagDataRepositoryImpl: TagDataRepository {
             newTag.id = UUID()
             newTag.name = name
             
-            try dataContext.save()
             return .success(Tag(id: newTag.id, name: newTag.name))
         } catch {
             return .failure(error)
@@ -111,7 +110,6 @@ final class TagDataRepositoryImpl: TagDataRepository {
             }
             
             dataContext.delete(tag)
-            try dataContext.save()
             
             return .success(VoidResponse())
         } catch {
@@ -137,5 +135,15 @@ final class TagDataRepositoryImpl: TagDataRepository {
         } catch {
             return .failure(error)
         }
+    }
+    
+    func saveContext() throws {
+        let context = container.viewContext
+        try context.save()
+    }
+    
+    func discardContext() {
+        let context = container.viewContext
+        context.rollback()
     }
 }

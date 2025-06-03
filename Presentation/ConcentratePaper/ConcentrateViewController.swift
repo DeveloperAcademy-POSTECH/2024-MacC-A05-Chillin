@@ -29,6 +29,8 @@ final class ConcentrateViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        // TODO: 5/27 집중모드 수정
+        /*
         if viewModel.isFirstUpload {
             Task {
                 await viewModel.downloadFocus {
@@ -36,6 +38,7 @@ final class ConcentrateViewController: UIViewController {
                 }
             }
         }
+         */
     }
     
     lazy var pdfView: PDFView = {

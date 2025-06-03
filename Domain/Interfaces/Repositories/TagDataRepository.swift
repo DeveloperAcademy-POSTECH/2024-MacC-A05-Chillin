@@ -23,4 +23,8 @@ protocol TagDataRepository: Sendable {
     
     // 태그를 수정합니다
     func renameTag(tagID: UUID, newName: String) -> Result<Tag, Error>
+    
+    func saveContext() throws
+    
+    func discardContext()
 }
