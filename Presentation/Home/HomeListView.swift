@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State private var selectedCategory: CategorySelection = .main
+//    @State private var selectedCategory: CategorySelection = .main
     
   
     var body: some View {
@@ -70,7 +70,7 @@ struct HomeListView: View {
                                 hasChildren: hasChildren(folder:),
                                 selectedFolderID: $homeViewModel.selectedFolderID,
                                 didSelectFolder: { folderID in
-                                    selectedCategory = .folder(folderID)
+                                    homeViewModel.selectedCategory = .folder(folderID)
                                     homeViewModel.selectCategory(.folder(folderID))
                                 },
                                 handleDrop: handleDrop(to:droppedItem:),
@@ -109,35 +109,35 @@ struct HomeListView: View {
         category: CategorySelection
     ) -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .foregroundStyle(selectedCategory == category ? .gray300 : .primary2)
+            .foregroundStyle(homeViewModel.selectedCategory == category ? .gray300 : .primary2)
             .frame(height: 43)
             .overlay {
                 HStack(spacing: 0) {
                     if let icon = icon, let selectedIcon = selectedIcon {
-                        Image(systemName: selectedCategory == category ? selectedIcon : icon)
+                        Image(systemName: homeViewModel.selectedCategory == category ? selectedIcon : icon)
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                            .foregroundStyle(homeViewModel.selectedCategory == category ? .primary1 : .gray700)
                             .padding(.trailing, 11)
                     } else if let image = image, let selectedImage = selectedImage {
-                        Image(selectedCategory == category ? selectedImage : image)
+                        Image(homeViewModel.selectedCategory == category ? selectedImage : image)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 18, height: 18)
-                            .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                            .foregroundStyle(homeViewModel.selectedCategory == category ? .primary1 : .gray700)
                             .padding(.trailing, 11)
                     }
                     
                     Text(title)
-                        .reazyFont(selectedCategory == category ? .button1 : .text1)
-                        .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                        .reazyFont(homeViewModel.selectedCategory == category ? .button1 : .text1)
+                        .foregroundStyle(homeViewModel.selectedCategory == category ? .primary1 : .gray700)
                     
                     Spacer()
                 }
                 .padding(.leading, 20)
             }
             .onTapGesture {
-                selectedCategory = category
+                homeViewModel.selectedCategory = category
                 homeViewModel.selectCategory(category)
             }
             .padding(.bottom, 3)

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2A2F23FF2DA56BF100414718 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2A2F23FE2DA56BF100414718 /* Localizable.xcstrings */; };
 		2C0AC4912D79DAB200F57C71 /* TagControlUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AC4902D79DAB200F57C71 /* TagControlUseCase.swift */; };
-		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
 		2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 2C14693F2CE25B7600B35D92 /* Settings.bundle */; };
 		2C14737F2CE73B6F00B35D92 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1472FA2CE73B6F00B35D92 /* AppView.swift */; };
 		2C14738E2CE73B6F00B35D92 /* PersistantContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14730D2CE73B6F00B35D92 /* PersistantContainer.swift */; };
@@ -148,7 +147,6 @@
 /* Begin PBXFileReference section */
 		2A2F23FE2DA56BF100414718 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		2C0AC4902D79DAB200F57C71 /* TagControlUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagControlUseCase.swift; sourceTree = "<group>"; };
-		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 		2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkUnitTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C14693F2CE25B7600B35D92 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		2C1472FA2CE73B6F00B35D92 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
@@ -800,7 +798,6 @@
 			children = (
 				2A2F23FE2DA56BF100414718 /* Localizable.xcstrings */,
 				2C2C37882CEC6EC700552185 /* Reazy.entitlements */,
-				2C14588E2CD769FB00B35D92 /* Server.xcconfig */,
 				2C1473D92CE73C3E00B35D92 /* Data */,
 				2C1473D82CE73C2900B35D92 /* Domain */,
 				2C1473D72CE73C2100B35D92 /* Presentation */,
@@ -1028,7 +1025,6 @@
 				2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */,
 				6EF40DB22CFC724200BAD3D3 /* GoogleService-Info.plist in Resources */,
 				2A2F23FF2DA56BF100414718 /* Localizable.xcstrings in Resources */,
-				2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1446,7 +1442,6 @@
 		};
 		2C7AE8992CBCF291004098AF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1484,7 +1479,6 @@
 		};
 		2C7AE89A2CBCF291004098AF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

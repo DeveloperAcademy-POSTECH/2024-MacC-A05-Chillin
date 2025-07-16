@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MoveFolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
-    @State private var expandedFolders: Set<UUID> = []
+//    @State private var expandedFolders: Set<UUID> = []
     
     @Binding var createMovingFolder: Bool
     let items: [PaperInfo]
@@ -72,14 +72,14 @@ struct MoveFolderView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(rootFolders, id: \.id) { folder in
+                    ForEach(homeViewModel.rootFolders, id: \.id) { folder in
                         FolderCell(
                             folder: folder,
                             level: 0,
-                            expandedFolders: $expandedFolders,
-                            childFolders: childFolders(of:),
-                            toggleExpansion: toggleExpansion,
-                            hasChildren: hasChildren,
+                            expandedFolders: $homeViewModel.expandedMoveFolders,
+                            childFolders: homeViewModel.childFolders(of:),
+                            toggleExpansion: homeViewModel.toggleExpansion,
+                            hasChildren: homeViewModel.hasChildren,
                             selectedID: $selectedID
                         )
                     }
@@ -93,7 +93,7 @@ struct MoveFolderView: View {
                 
                 DispatchQueue.main.async {
                     if let selectedID = selectedID {
-                        expandOnlyParentFolders(of: selectedID)
+                        homeViewModel.expandOnlyParentFolders(of: selectedID)
                     }
                 }
             }
@@ -103,37 +103,37 @@ struct MoveFolderView: View {
         }
         .onChange(of: homeViewModel.newFolderParentID) { _ , parentID in
             if let parentID = parentID {
-                expandedFolders.insert(parentID)
+                homeViewModel.expandedMoveFolders.insert(parentID)
             }
         }
     }
     
-    private var rootFolders: [Folder] {
-        homeViewModel.folders.filter { $0.parentFolderID == nil }
-    }
+//    private var rootFolders: [Folder] {
+//        homeViewModel.folders.filter { $0.parentFolderID == nil }
+//    }
     
-    private func childFolders(of folderID: UUID?) -> [Folder] {
-        homeViewModel.folders.filter { $0.parentFolderID == folderID }
-    }
+//    private func childFolders(of folderID: UUID?) -> [Folder] {
+//        homeViewModel.folders.filter { $0.parentFolderID == folderID }
+//    }
     
-    private func hasChildren(folder: Folder) -> Bool {
-        !childFolders(of: folder.id).isEmpty
-    }
+//    private func hasChildren(folder: Folder) -> Bool {
+//        !childFolders(of: folder.id).isEmpty
+//    }
     
-    private func toggleExpansion(folder: Folder) {
-        if expandedFolders.contains(folder.id) {
-            expandedFolders.remove(folder.id)
-        } else {
-            expandedFolders.insert(folder.id)
-        }
-    }
+//    private func toggleExpansion(folder: Folder) {
+//        if homeViewModel.expandedMoveFolders.contains(folder.id) {
+//            homeViewModel.expandedMoveFolders.remove(folder.id)
+//        } else {
+//            homeViewModel.expandedMoveFolders.insert(folder.id)
+//        }
+//    }
     
-    private func expandOnlyParentFolders(of folderID: UUID) {
-        if let parentID = homeViewModel.getParentFolderID(for: folderID) {
-            expandedFolders.insert(parentID)
-            expandOnlyParentFolders(of: parentID)
-        }
-    }
+//    private func expandOnlyParentFolders(of folderID: UUID) {
+//        if let parentID = homeViewModel.getParentFolderID(for: folderID) {
+//            homeViewModel.expandedMoveFolders.insert(parentID)
+//            expandOnlyParentFolders(of: parentID)
+//        }
+//    }
 }
 
 struct FolderCell: View {

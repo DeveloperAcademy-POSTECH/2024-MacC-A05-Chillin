@@ -17,19 +17,19 @@ struct HomeView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State var selectedItemID: UUID?
-    
-    @State private var isStarSelected: Bool = false
-    @State private var isFolderSelected: Bool = false
-    
-    @State private var isEditingTitle: Bool = false
-    
-    // 폴더 추가 페이지 변수
-    @State private var createMovingFolder: Bool = false
-    
-    // 폴더 이동 변수
-    @State private var moveToFolderID: UUID? = nil
-    @State private var isDuplicatedTitleAlertPresented: Bool = false
+//    @State var selectedItemID: UUID?
+//    
+//    @State private var isStarSelected: Bool = false
+//    @State private var isFolderSelected: Bool = false
+//    
+//    @State private var isEditingTitle: Bool = false
+//    
+//    // 폴더 추가 페이지 변수
+//    @State private var createMovingFolder: Bool = false
+//    
+//    // 폴더 이동 변수
+//    @State private var moveToFolderID: UUID? = nil
+//    @State private var isDuplicatedTitleAlertPresented: Bool = false
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
         useCase: DefaultHomeSearchUseCase(
@@ -65,7 +65,7 @@ struct HomeView: View {
                         case .main:
                             MainMenuView(
                                 selectedMenu: $homeViewModel.selectedMenu,
-                                selectedItemID: $selectedItemID
+                                selectedItemID: $homeViewModel.selectedItemID
                             )
                             
                         case .search:
@@ -95,14 +95,14 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
+            .blur(radius: homeViewModel.isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
             
             
             Color.black
                 .opacity(
-                    isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder
+                    homeViewModel.isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder
                     || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag
-                    || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || isDuplicatedTitleAlertPresented
+                    || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || homeViewModel.isDuplicatedTitleAlertPresented
                     || homeViewModel.showDeleteAlert
                     ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
@@ -116,41 +116,32 @@ struct HomeView: View {
             
             if homeViewModel.createFolder || homeViewModel.isEditingFolder {
                 FolderView(
-                    createMovingFolder: $createMovingFolder,
+                    createMovingFolder: $homeViewModel.createMovingFolder,
                     folder: homeViewModel.folders.first { $0.id == homeViewModel.selectedFolderID }
                 )
             }
             
             // 폴더 이동 View
             if homeViewModel.isMovingFolder {
-                let itemsToMove: [PaperInfo] = homeViewModel.selectedItems.isEmpty
-                ? (selectedItemID.flatMap { id in
-                    homeViewModel.filteredLists.first(where: { $0.id == id })
-                }).map { [$0] } ?? []
-                : homeViewModel.selectedItems.compactMap { id in
-                    homeViewModel.filteredLists.first(where: { $0.id == id })
-                }
-                
                 MoveFolderView(
-                    createMovingFolder: $createMovingFolder,
-                    items: itemsToMove,
-                    selectedID: $moveToFolderID
+                    createMovingFolder: $homeViewModel.createMovingFolder,
+                    items: homeViewModel.itemsToMove,
+                    selectedID: $homeViewModel.moveToFolderID
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: 740, height: 550)
-                .blur(radius: createMovingFolder ? 20 : 0)
+                .blur(radius: homeViewModel.createMovingFolder ? 20 : 0)
             }
             
             Color.black
-                .opacity(createMovingFolder ? 0.5 : 0)
+                .opacity(homeViewModel.createMovingFolder ? 0.5 : 0)
                 .ignoresSafeArea(edges: .bottom)
             
             // 폴더 이동 시 새 폴더 생성
-            if createMovingFolder {
-                let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
+            if homeViewModel.createMovingFolder {
                 FolderView(
-                    createMovingFolder: $createMovingFolder,
-                    folder: folder
+                    createMovingFolder: $homeViewModel.createMovingFolder,
+                    folder: homeViewModel.newFolder
                 )
             }
             
@@ -167,23 +158,23 @@ struct HomeView: View {
         }
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
-        .animation(.easeInOut, value: isEditingTitle)
+        .animation(.easeInOut, value: homeViewModel.isEditingTitle)
         .animation(.easeInOut, value: homeViewModel.isEditingFolder)
-        .animation(.easeInOut, value: isDuplicatedTitleAlertPresented)
+        .animation(.easeInOut, value: homeViewModel.isDuplicatedTitleAlertPresented)
         .alert(isPresented: $tagViewModel.isTagDuplicate) {
             Alert(
                 title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
                 dismissButton: .default(Text("확인"))
             )
         }
-        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal) || isDuplicatedTitleAlertPresented) ? 5 : 0)
+        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal) || homeViewModel.isDuplicatedTitleAlertPresented) ? 5 : 0)
         .overlay {
             if case let .search(paperInfo) = homeViewModel.viewStatus {
                 RenamePaperTitleView(paperInfo: paperInfo) {
                     homeViewModel.viewStatus = .normal
                 } completeAction: { text in
                     homeViewModel.updateTitle(at: paperInfo.id, title: text) {
-                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                        if !$0 { homeViewModel.isDuplicatedTitleAlertPresented.toggle() }
                     }
                     homeViewModel.viewStatus = .normal
                 }
@@ -195,7 +186,7 @@ struct HomeView: View {
                     homeSearchViewModel.cancelButtonTappedInEditingTitle()
                 } completeAction: { text in
                     homeSearchViewModel.completeButtonTappedInEditingTitle(title: text) {
-                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                        if !$0 { homeViewModel.isDuplicatedTitleAlertPresented.toggle() }
                     }
                 }
                 .onDisappear {
@@ -273,7 +264,7 @@ struct HomeView: View {
                 )
             }
             
-            if self.isDuplicatedTitleAlertPresented {
+            if self.homeViewModel.isDuplicatedTitleAlertPresented {
                 CustomAlert(
                     type: .confirm,
                     mainText: "같은 제목의 논문이 이미 존재합니다",
@@ -281,7 +272,7 @@ struct HomeView: View {
                     width: 350,
                     height: 176,
                     cancelAction: {
-                        isDuplicatedTitleAlertPresented.toggle()
+                        homeViewModel.isDuplicatedTitleAlertPresented.toggle()
                     },
                     confirmAction: {}
                 )
@@ -560,7 +551,7 @@ struct FolderView: View {
                         } else if homeViewModel.createFolder {
                             homeViewModel.createFolder = false
                         } else {
-                            createMovingFolder.toggle()
+                            homeViewModel.createMovingFolder.toggle()
                         }
                     }) {
                         Image(systemName: "xmark")
@@ -599,7 +590,7 @@ struct FolderView: View {
                             } else {
                                 homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             }
-                            createMovingFolder.toggle()
+                            homeViewModel.createMovingFolder.toggle()
                         }
                     }) {
                         RoundedRectangle(cornerRadius: 20)

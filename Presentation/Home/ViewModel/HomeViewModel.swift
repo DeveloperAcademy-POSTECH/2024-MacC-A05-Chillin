@@ -9,11 +9,114 @@ import Foundation
 import SwiftUI
 import Combine
 
-@MainActor
+
 class HomeViewModel: ObservableObject {
     private let pdfSharedData: PDFSharedData = .shared
     
-    @Published public var paperInfos: [PaperInfo] = [] {
+    
+    // MARK: - HomeView 변수
+    public var selectedItemID: UUID?
+    public var itemsToMove: [PaperInfo] {
+        self.selectedItems.isEmpty
+        ? (self.selectedItemID.flatMap { id in
+            self.filteredLists.first(where: { $0.id == id })
+        }).map { [$0] } ?? []
+        : self.selectedItems.compactMap { id in
+            self.filteredLists.first(where: { $0.id == id })
+        }
+    }
+    
+//    public var isStarSelected: Bool = false
+    
+//    public var isFolderSelected: Bool = false
+    
+    public var isEditingTitle: Bool = false
+    
+    // 폴더 추가 페이지 변수
+    public var createMovingFolder: Bool = false
+    
+    // 폴더 이동 변수
+    public var moveToFolderID: UUID? = nil
+    public var newFolder: Folder? {
+        self.folders.first(where: { $0.id == self.moveToFolderID })
+    }
+    
+    
+    public var isDuplicatedTitleAlertPresented: Bool = false
+    
+    // MARK: - MoveFolderView 변수
+    public var expandedMoveFolders: Set<UUID> = []
+    
+    public var rootFolders: [Folder] {
+        self.folders.filter { $0.parentFolderID == nil }
+    }
+    
+    public func childFolders(of folderID: UUID?) -> [Folder] {
+        self.folders.filter { $0.parentFolderID == folderID }
+    }
+    
+    public func hasChildren(folder: Folder) -> Bool {
+        !childFolders(of: folder.id).isEmpty
+    }
+    
+    public func toggleExpansion(folder: Folder) {
+        if self.expandedMoveFolders.contains(folder.id) {
+            self.expandedMoveFolders.remove(folder.id)
+        } else {
+            self.expandedMoveFolders.insert(folder.id)
+        }
+    }
+    
+    public func expandOnlyParentFolders(of folderID: UUID) {
+        if let parentID = self.getParentFolderID(for: folderID) {
+            self.expandedMoveFolders.insert(parentID)
+            expandOnlyParentFolders(of: parentID)
+        }
+    }
+
+    // MARK: - PaperListView 변수
+    
+    public var isNavigationPushed: Bool = false
+    
+    public var selectedPaper: PaperInfo?
+    
+    public var deleteAlertPresented: Bool = false
+    
+//    public var isFavorite: Bool = false
+    
+//    public var keyboardHeight: CGFloat = 0
+    
+    public var isIPadMini: Bool {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let screenSize = UIScreen.main.nativeBounds.size
+            let isMiniSize = (screenSize.width == 1536 && screenSize.height == 2048) ||
+            (screenSize.width == 1488 && screenSize.height == 2266)
+            return isMiniSize
+        }
+        return false
+    }
+    
+//    public func isVertical(with geometry: GeometryProxy) -> Bool {
+//        geometry.size.height > geometry.size.width
+//    }
+    
+    public var isPortrait: Bool = false
+    
+    public func updatePortrait() {
+        if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+            self.isPortrait = true
+        }
+    }
+    
+    private let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
+    
+        
+    // MARK: - HomeListView 변수
+    public var selectedCategory: CategorySelection = .main
+    
+    
+    
+    public var paperInfos: [PaperInfo] = [] {
         didSet {
             updateFilteredList()
         }
@@ -53,6 +156,7 @@ class HomeViewModel: ObservableObject {
             updateFilteredList()
         }
     }
+    
     @Published public var isTagSelected: Bool = false {
         didSet {
             resetToRoot()
@@ -231,6 +335,21 @@ extension HomeViewModel {
                 }
             }
             .store(in: &self.cancellables)
+        
+        self.orientationPublisher
+            .sink { _ in
+                let currentOrientation = UIDevice.current.orientation
+                
+                switch currentOrientation {
+                case .portrait, .portraitUpsideDown:
+                    self.isPortrait = true
+                case .landscapeLeft, .landscapeRight:
+                    self.isPortrait = false
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -693,4 +812,25 @@ enum CategorySelection: Equatable {
 enum FolderCreationPosition {
     case intoCurrent
     case aboveCurrent
+}
+
+
+
+
+class AlertManager {
+    
+    
+    
+    
+    enum Status {
+        case editingTitle
+        case editingFolder
+        case movingFolder
+        case creatingFolder
+        case creatingTag
+        case settingMenu
+        case deleteTag
+        case deletePaper
+        case duplicatedTitle
+    }
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: - [쿠로] 태그 뷰!
+
 struct TagView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     @Namespace private var nsPopover

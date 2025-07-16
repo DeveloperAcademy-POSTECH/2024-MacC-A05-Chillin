@@ -29,9 +29,9 @@ private struct HomeSearchListView: View {
     
     @State private var deleteAlertPresented: Bool = false
     @State private var selectedPaper: PaperInfo?
-    @State private var isPortrait: Bool = false
+//    @State private var isPortrait: Bool = false
     
-    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
+//    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         VStack {
@@ -72,7 +72,7 @@ private struct HomeSearchListView: View {
                     GeometryReader { geometry in
                         VStack(spacing: 0) {
                             ForEach(homeSearchViewModel.searchList) { paperInfo in
-                                HomePDFCell(paperInfo: paperInfo, isSelected: .constant(false), cellStatus: .search, screenWidth: isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
+                                HomePDFCell(paperInfo: paperInfo, isSelected: .constant(false), cellStatus: .search, screenWidth: homeViewModel.isPortrait ? geometry.size.width * 0.7 :  geometry.size.width * 0.8) {
                                     // TODO: 네비게이션 push 시 Date 업데이트 필요
                                     homeSearchViewModel.PaperCellTapped(paperInfo)
                                     navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
@@ -103,23 +103,23 @@ private struct HomeSearchListView: View {
                     }
                     .padding(.leading, 30)
                 }
-                .onAppear {
-                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
-                        self.isPortrait = true
-                    }
-                }
-                .onReceive(publisher) { noti in
-                    let currentOrientation = UIDevice.current.orientation
-                    
-                    switch currentOrientation {
-                    case .portrait, .portraitUpsideDown:
-                        self.isPortrait = true
-                    case .landscapeLeft, .landscapeRight:
-                        self.isPortrait = false
-                    default:
-                        break
-                    }
-                }
+//                .onAppear {
+//                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+//                        self.isPortrait = true
+//                    }
+//                }
+//                .onReceive(publisher) { noti in
+//                    let currentOrientation = UIDevice.current.orientation
+//                    
+//                    switch currentOrientation {
+//                    case .portrait, .portraitUpsideDown:
+//                        self.isPortrait = true
+//                    case .landscapeLeft, .landscapeRight:
+//                        self.isPortrait = false
+//                    default:
+//                        break
+//                    }
+//                }
             }
         }
         .background(.gray300)
