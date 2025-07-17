@@ -29,9 +29,7 @@ private struct HomeSearchListView: View {
     
     @State private var deleteAlertPresented: Bool = false
     @State private var selectedPaper: PaperInfo?
-//    @State private var isPortrait: Bool = false
     
-//    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         VStack {
@@ -103,23 +101,6 @@ private struct HomeSearchListView: View {
                     }
                     .padding(.leading, 30)
                 }
-//                .onAppear {
-//                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
-//                        self.isPortrait = true
-//                    }
-//                }
-//                .onReceive(publisher) { noti in
-//                    let currentOrientation = UIDevice.current.orientation
-//                    
-//                    switch currentOrientation {
-//                    case .portrait, .portraitUpsideDown:
-//                        self.isPortrait = true
-//                    case .landscapeLeft, .landscapeRight:
-//                        self.isPortrait = false
-//                    default:
-//                        break
-//                    }
-//                }
             }
         }
         .background(.gray300)

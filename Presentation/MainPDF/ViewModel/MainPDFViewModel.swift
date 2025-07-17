@@ -7,7 +7,7 @@
 
 import PDFKit
 import SwiftUI
-import Network
+import Combine
 
 
 /**
@@ -67,6 +67,36 @@ final class MainPDFViewModel: ObservableObject {
     @Published var tempHighlightColor: HighlightColors?
     
     
+    // MARK: - MainPDFView 변수
+    public var isListSelected: Bool = false
+    
+    public var isFigSelected: Bool = false
+    
+    public var isCollectionSelected: Bool = false
+    
+    public var isSearchSelected: Bool = false
+    
+    public var isReadMode: Bool = false
+    
+    public var isEditingTitle: Bool = false
+    
+    public var createMovingFolder: Bool = false
+    
+    public var moveToFolderID: UUID?
+    
+    public var dragAmount: CGPoint?
+    
+    public var dragOffset: CGSize = .zero
+    
+    public var isDuplicatedTitleAlertPresented: Bool = false
+    
+    private let infoMenuHiddenPublisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: -
+    
+    
     func toggleHighlight() {
         isHighlight.toggle()
         pdfDrawer.drawingTool = isHighlight ? .highlights : .none
@@ -100,26 +130,11 @@ final class MainPDFViewModel: ObservableObject {
         pdfDrawer.onHistoryChange = { [weak self] in
             self?.updateUndoRedoState()
         }
-        
-        //        self.paperInfo = paperInfo
-        //        
-        //        var isStale = false
-        //        
-        //        // TODO: 경로 바뀔 시 모델에 Update 필요
-        //        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
-        //        url.startAccessingSecurityScopedResource() {
-        //            self.document = PDFDocument(url: url)
-        //            url.stopAccessingSecurityScopedResource()
-        //        } else {
-        //            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
-        //               id == paperInfo.id.uuidString {
-        //                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
-        //            }
-        //        }
+        self.setBindings()
     }
     
     deinit {
-        print(#function)
+        self.cancellables.forEach { $0.cancel() }
     }
 }
 
@@ -155,41 +170,15 @@ extension MainPDFViewModel {
         }
     }
     
-    // 텍스트 PDF 붙이는 함수
-    //    public func setFocusDocument() {
-    //        
-    //        let document = PDFDocument()
-    //        
-    //        var pageIndex = 0
-    //
-    //        self.focusAnnotations.forEach { annotation in
-    //            guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
-    //                return
-    //            }
-    //            
-    //            let original = page.bounds(for: .mediaBox)
-    //            let croppedRect = original.intersection(annotation.position)
-    //            
-    //            page.setBounds(croppedRect, for: .mediaBox)
-    //            document.insert(page, at: pageIndex)
-    //            pageIndex += 1
-    //        }
-    //        
-    //        self.focusDocument = document
-    //    }
-}
-
-/// Sample 메소드
-extension MainPDFViewModel {
-    
-    //    public func fetchSampleFocusAnnotations() {
-    //        guard let page = self.document?.page(at: 0) else {
-    //            return
-    //        }
-    //        let input = try! NetworkManager.getSamplePDFData()
-    //        
-    //        self.figureAnnotations = NetworkManager.filterFigure(input: input)
-    //    }
+    public func setBindings() {
+        self.infoMenuHiddenPublisher
+            .sink { notification in
+                if let _ = notification.userInfo?["hitted"] as? Bool {
+                    self.isMenuSelected = false
+                }
+            }
+            .store(in: &cancellables)
+    }
 }
 
 // MARK: - 뷰 상호작용 메소드

@@ -10,8 +10,6 @@ import SwiftUI
 struct HomeListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-//    @State private var selectedCategory: CategorySelection = .main
-    
   
     var body: some View {
         VStack(spacing: 0) {

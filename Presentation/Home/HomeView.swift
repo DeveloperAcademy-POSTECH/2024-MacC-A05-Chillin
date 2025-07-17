@@ -17,19 +17,6 @@ struct HomeView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-//    @State var selectedItemID: UUID?
-//    
-//    @State private var isStarSelected: Bool = false
-//    @State private var isFolderSelected: Bool = false
-//    
-//    @State private var isEditingTitle: Bool = false
-//    
-//    // 폴더 추가 페이지 변수
-//    @State private var createMovingFolder: Bool = false
-//    
-//    // 폴더 이동 변수
-//    @State private var moveToFolderID: UUID? = nil
-//    @State private var isDuplicatedTitleAlertPresented: Bool = false
     
     @StateObject private var homeSearchViewModel: HomeSearchViewModel = .init(
         useCase: DefaultHomeSearchUseCase(
@@ -450,27 +437,6 @@ private struct EditMenuView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            /*
-            let containsFolder = items.contains { file in
-                if case .folder = file {
-                    return true
-                }
-                return false
-            }
-            
-            Button(action: {
-                // TODO: - 복제 버튼 활성화 필요
-            }, label: {
-                Image(.copyLight)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 17, height: 17)
-                    .foregroundStyle(containsFolder ? .gray550 : .gray100)
-            })
-            .padding(.trailing, 28)
-            .disabled(containsFolder)
-            */
             Button(action: {
                 homeViewModel.isMovingFolder.toggle()
             }, label: {

@@ -23,28 +23,6 @@ struct MainPDFView: View {
     @StateObject public var indexViewModel: IndexViewModel
     @StateObject public var backPageBtnViewModel: BackPageBtnViewModel
     
-    @State private var selectedIndex: Int = 0
-    @State private var isReadModeFirstSelected: Bool = false
-    
-    @State private var isListSelected: Bool = false
-    @State private var isFigSelected: Bool = false
-    @State private var isCollectionSelected: Bool = false
-    @State private var isSearchSelected: Bool = false
-    @State private var isReadMode: Bool = false
-    
-    @State private var isEditingTitle: Bool = false
-    @State private var createMovingFolder: Bool = false
-    
-    @State private var moveToFolderID: UUID? = nil
-    
-    @State private var isModifyTitlePresented: Bool = false         // 타이틀 바꿀 때 활용하는 Bool값
-    @State private var titleText: String = ""
-    
-    @State private var dragAmount: CGPoint?
-    @State private var dragOffset: CGSize = .zero
-    @State private var isDuplicatedTitleAlertPresented: Bool = false
-    
-    private let infoMenuHiddenPublisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     
     var body: some View {
         GeometryReader { geometry in
@@ -67,11 +45,11 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                isListSelected.toggle()
-                                isSearchSelected = false
+                                mainPDFViewModel.isListSelected.toggle()
+                                mainPDFViewModel.isSearchSelected = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle(isListSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.isListSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.index)
@@ -79,17 +57,17 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            .foregroundStyle(isListSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.isListSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                isSearchSelected.toggle()
-                                isListSelected = false
+                                mainPDFViewModel.isSearchSelected.toggle()
+                                mainPDFViewModel.isListSelected = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle( isSearchSelected ? .primary1 : .clear)
+                                    .foregroundStyle( mainPDFViewModel.isSearchSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.search)
@@ -97,16 +75,16 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 22)
-                                            .foregroundStyle(isSearchSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.isSearchSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                isReadMode.toggle()
+                                mainPDFViewModel.isReadMode.toggle()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle( isReadMode ? .primary1 : .clear )
+                                    .foregroundStyle( mainPDFViewModel.isReadMode ? .primary1 : .clear )
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.focus)
@@ -114,16 +92,16 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            .foregroundStyle(isReadMode ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.isReadMode ? .gray100 : .gray800)
                                     )
                             }
                             
                             Spacer()
                             
                             Button(action: {
-                                isFigSelected.toggle()
+                                mainPDFViewModel.isFigSelected.toggle()
                                 mainPDFViewModel.isMenuSelected = false
-                                isCollectionSelected = false
+                                mainPDFViewModel.isCollectionSelected = false
                                 
                                 mainPDFViewModel.pdfDrawer.drawingTool = .none
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
@@ -132,18 +110,18 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(isFigSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.isFigSelected ? .primary1 : .clear)
                                     .overlay (
                                         Text("Fig")
                                             .font(.system(size: 14))
-                                            .foregroundStyle(isFigSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.isFigSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 25)
                             
                             Button(action: {
-                                isCollectionSelected.toggle()
-                                isFigSelected = false
+                                mainPDFViewModel.isCollectionSelected.toggle()
+                                mainPDFViewModel.isFigSelected = false
                                 mainPDFViewModel.isMenuSelected = false
                                 
                                 mainPDFViewModel.pdfDrawer.drawingTool = .none
@@ -152,14 +130,14 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(isCollectionSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.isCollectionSelected ? .primary1 : .clear)
                                     .overlay(
                                         Image(.window)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 16, height: 16)
-                                            .foregroundStyle(isCollectionSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.isCollectionSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 25)
@@ -167,8 +145,8 @@ struct MainPDFView: View {
                             Button(action: {
                                 withAnimation {
                                     mainPDFViewModel.isMenuSelected.toggle()
-                                    isFigSelected = false
-                                    isCollectionSelected = false
+                                    mainPDFViewModel.isFigSelected = false
+                                    mainPDFViewModel.isCollectionSelected = false
                                 }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
@@ -182,7 +160,7 @@ struct MainPDFView: View {
                             }
                         }
                         
-                        if !isReadMode {
+                        if !mainPDFViewModel.isReadMode {
                             HStack(spacing: 0) {
                                 Spacer()
                                 
@@ -235,7 +213,7 @@ struct MainPDFView: View {
                     // MARK: - PDF뷰 영역
                     GeometryReader { geometry in
                         HStack(spacing: 0) {
-                            if isListSelected {
+                            if mainPDFViewModel.isListSelected {
                                 MenuView()
                                     .environmentObject(mainPDFViewModel)
                                     .environmentObject(indexViewModel)
@@ -251,7 +229,7 @@ struct MainPDFView: View {
                                     .transition(.move(edge: .leading))
                             }
                             
-                            if isSearchSelected {
+                            if mainPDFViewModel.isSearchSelected {
                                 SearchView()
                                     .environmentObject(searchViewModel)
                                     .overlay(
@@ -263,7 +241,7 @@ struct MainPDFView: View {
                                     .transition(.move(edge: .leading))
                             }
                             
-                            MainOriginalView(isFigSelected: $isFigSelected, isCollectionSelected: $isCollectionSelected, isReadMode: $isReadMode)
+                            MainOriginalView()
                                 .environmentObject(mainPDFViewModel)
                                 .environmentObject(floatingViewModel)
                                 .environmentObject(commentViewModel)
@@ -273,7 +251,7 @@ struct MainPDFView: View {
                                 .environmentObject(indexViewModel)
                                 .environmentObject(backPageBtnViewModel)
                             
-                            if isFigSelected && !floatingViewModel.splitMode {
+                            if mainPDFViewModel.isFigSelected && !floatingViewModel.splitMode {
                                 FigureView(onSelect: { id, documentID, document, head in
                                     floatingViewModel.isFigure = true
                                     floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
@@ -293,7 +271,7 @@ struct MainPDFView: View {
                             }
                             
                             // TODO: - 모아보기 기능
-                            if isCollectionSelected && !floatingViewModel.splitMode {
+                            if mainPDFViewModel.isCollectionSelected && !floatingViewModel.splitMode {
                                 CollectionView(onSelect: { id, documentID, document, head in
                                     floatingViewModel.isFigure = false
                                     floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
@@ -317,7 +295,7 @@ struct MainPDFView: View {
                         .ignoresSafeArea()
                     }
                 }
-                .blur(radius: isEditingTitle || createMovingFolder ? 20 : 0)
+                .blur(radius: mainPDFViewModel.isEditingTitle || mainPDFViewModel.createMovingFolder ? 20 : 0)
                 
                 // MARK: - 드로잉 툴바
                 if mainPDFViewModel.toolMode == .drawing {
@@ -333,30 +311,30 @@ struct MainPDFView: View {
                                     .shadow(color: Color(hex: "05043E").opacity(0.1), radius: 20, x: 0, y: 4)
                                     .position(
                                         CGPoint(
-                                            x: max(0, min(gp.size.width, (self.dragAmount?.x ?? 24) + dragOffset.width)),
-                                            y: max(0, min(gp.size.height, (self.dragAmount?.y ?? gp.size.height / 2) + dragOffset.height))
+                                            x: max(0, min(gp.size.width, (mainPDFViewModel.dragAmount?.x ?? 24) + mainPDFViewModel.dragOffset.width)),
+                                            y: max(0, min(gp.size.height, (mainPDFViewModel.dragAmount?.y ?? gp.size.height / 2) + mainPDFViewModel.dragOffset.height))
                                         )
                                     )
                                     .highPriorityGesture(
                                         DragGesture()
                                             .onChanged { value in
-                                                self.dragOffset = value.translation
+                                                mainPDFViewModel.dragOffset = value.translation
                                             }
                                             .onEnded { value in
-                                                self.dragAmount = CGPoint(
-                                                    x: (self.dragAmount?.x ?? 24) + value.translation.width,
-                                                    y: (self.dragAmount?.y ?? gp.size.height / 2) + value.translation.height
+                                                mainPDFViewModel.dragAmount = CGPoint(
+                                                    x: (mainPDFViewModel.dragAmount?.x ?? 24) + value.translation.width,
+                                                    y: (mainPDFViewModel.dragAmount?.y ?? gp.size.height / 2) + value.translation.height
                                                 )
-                                                self.dragOffset = .zero
+                                                mainPDFViewModel.dragOffset = .zero
                                             }
                                     )
-                                    .animation(.bouncy(duration: 0.5), value: dragOffset)
+                                    .animation(.bouncy(duration: 0.5), value: mainPDFViewModel.dragOffset)
                                 Spacer()
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 20)
-                        .padding(.leading, isListSelected || isSearchSelected ? 272 : 20)
+                        .padding(.leading, mainPDFViewModel.isListSelected || mainPDFViewModel.isSearchSelected ? 272 : 20)
                     }
                 }
                 
@@ -383,7 +361,7 @@ struct MainPDFView: View {
                     }
                 }
                                 
-                if isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
+                if mainPDFViewModel.isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
                     TemporaryAlertView(mode: "lasso")                               // Lasso 도구가 활성화되어 있고 캡처 모드일 때 표시
                 }
                 
@@ -395,10 +373,7 @@ struct MainPDFView: View {
                 if mainPDFViewModel.isMenuSelected {
                     GeometryReader { gp in
                         ZStack {
-                            PDFInfoMenu(
-                                isEditingTitle: $isEditingTitle,
-                                createMovingFolder: $createMovingFolder
-                            )
+                            PDFInfoMenu()
                             .environmentObject(homeViewModel)
                             .environmentObject(mainPDFViewModel)
                             .environmentObject(pdfInfoMenuViewModel)
@@ -412,7 +387,7 @@ struct MainPDFView: View {
                 }
                 
                 Color.black
-                    .opacity(isEditingTitle || homeViewModel.isMovingFolder || createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .opacity(mainPDFViewModel.isEditingTitle || homeViewModel.isMovingFolder || mainPDFViewModel.createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
@@ -425,24 +400,24 @@ struct MainPDFView: View {
                 if homeViewModel.isMovingFolder {
                     if let paperInfo = PDFSharedData.shared.paperInfo {
                         MoveFolderView(
-                            createMovingFolder: $createMovingFolder,
+                            createMovingFolder: $mainPDFViewModel.createMovingFolder,
                             items: [paperInfo],
-                            selectedID: $moveToFolderID
+                            selectedID: $mainPDFViewModel.moveToFolderID
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .frame(width: 740, height: 550)
-                        .blur(radius: createMovingFolder ? 20 : 0)
+                        .blur(radius: mainPDFViewModel.createMovingFolder ? 20 : 0)
                     }
                 }
                 
                 Color.black
-                    .opacity(createMovingFolder ? 0.5 : 0)
+                    .opacity(mainPDFViewModel.createMovingFolder ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
                 
-                if createMovingFolder {
-                    let folder = homeViewModel.folders.first(where: { $0.id == moveToFolderID })
+                if mainPDFViewModel.createMovingFolder {
+                    let folder = homeViewModel.folders.first(where: { $0.id == mainPDFViewModel.moveToFolderID })
                     FolderView(
-                        createMovingFolder: $createMovingFolder,
+                        createMovingFolder: $mainPDFViewModel.createMovingFolder,
                         folder: folder
                     )
                 }
@@ -472,13 +447,8 @@ struct MainPDFView: View {
                     }
                 : nil
             )
-            .onReceive(infoMenuHiddenPublisher) { a in
-                if let _ = a.userInfo?["hitted"] as? Bool {
-                    mainPDFViewModel.isMenuSelected = false
-                }
-            }
         }
-        .animation(.easeInOut, value: isDuplicatedTitleAlertPresented)
+        .animation(.easeInOut, value: mainPDFViewModel.isDuplicatedTitleAlertPresented)
         .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
         .overlay {
             if self.focusFigureViewModel.figureStatus == .loading {
@@ -492,7 +462,7 @@ struct MainPDFView: View {
                     homeViewModel.viewStatus = .normal
                 } completeAction: { text in
                     homeViewModel.updateTitle(at: paper.id, title: text) {
-                        if !$0 { isDuplicatedTitleAlertPresented.toggle() }
+                        if !$0 { mainPDFViewModel.isDuplicatedTitleAlertPresented.toggle() }
                     }
                     homeViewModel.viewStatus = .normal
                 }
@@ -510,7 +480,7 @@ struct MainPDFView: View {
                 }
             }
             
-            if isDuplicatedTitleAlertPresented {
+            if mainPDFViewModel.isDuplicatedTitleAlertPresented {
                 ZStack {
                     Color.black
                         .opacity(0.5)
@@ -523,16 +493,16 @@ struct MainPDFView: View {
                         width: 350,
                         height: 176,
                         cancelAction: {
-                            isDuplicatedTitleAlertPresented.toggle()
+                            mainPDFViewModel.isDuplicatedTitleAlertPresented.toggle()
                         },
                         confirmAction: {}
                     )
                 }
             }
         }
-        .alert("현재 집중모드가 공사중에 있습니다.", isPresented: $isReadMode) {
+        .alert("현재 집중모드가 공사중에 있습니다.", isPresented: $mainPDFViewModel.isReadMode) {
             Button("확인", role: .cancel) {
-                isReadMode = false
+                mainPDFViewModel.isReadMode = false
             }
         } message: {
             Text("곧 다가올 업데이트를 기대해주세요!")
@@ -548,10 +518,6 @@ private struct MainOriginalView: View {
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     
     @State private var orientation: LayoutOrientation = .horizontal
-    
-    @Binding var isFigSelected: Bool
-    @Binding var isCollectionSelected: Bool
-    @Binding var isReadMode: Bool
     
     @State private var dynamicWidth: CGFloat = 0
     @State private var dynamicHeight: CGFloat = 0
@@ -574,8 +540,8 @@ private struct MainOriginalView: View {
                                             documentID: splitDetails.documentID,
                                             document: splitDetails.document,
                                             head: splitDetails.head,
-                                            isFigSelected: isFigSelected,
-                                            isCollectionSelected: isCollectionSelected,
+                                            isFigSelected: mainPDFViewModel.isFigSelected,
+                                            isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                             onSelect: {
                                                 withAnimation {
                                                     mainPDFViewModel.isPaperViewFirst.toggle()
@@ -615,7 +581,7 @@ private struct MainOriginalView: View {
                         .zIndex(1)
                         
                         ZStack {
-                            MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
+                            MainView()
                         }
                         
                         ZStack {
@@ -630,8 +596,8 @@ private struct MainOriginalView: View {
                                             documentID: splitDetails.documentID,
                                             document: splitDetails.document,
                                             head: splitDetails.head,
-                                            isFigSelected: isFigSelected,
-                                            isCollectionSelected: isCollectionSelected,
+                                            isFigSelected: mainPDFViewModel.isFigSelected,
+                                            isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                             onSelect: {
                                                 withAnimation {
                                                     mainPDFViewModel.isPaperViewFirst.toggle()
@@ -687,8 +653,8 @@ private struct MainOriginalView: View {
                                         documentID: splitDetails.documentID,
                                         document: splitDetails.document,
                                         head: splitDetails.head,
-                                        isFigSelected: isFigSelected,
-                                        isCollectionSelected: isCollectionSelected,
+                                        isFigSelected: mainPDFViewModel.isFigSelected,
+                                        isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                         onSelect: {
                                             withAnimation {
                                                 mainPDFViewModel.isPaperViewFirst.toggle()
@@ -725,7 +691,7 @@ private struct MainOriginalView: View {
                             .frame(width: dynamicWidth)
                         }
                         
-                        MainView(isReadMode: $isReadMode, isFigSelected: $isFigSelected)
+                        MainView()
                         
                         if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
                            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
@@ -738,8 +704,8 @@ private struct MainOriginalView: View {
                                         documentID: splitDetails.documentID,
                                         document: splitDetails.document,
                                         head: splitDetails.head,
-                                        isFigSelected: isFigSelected,
-                                        isCollectionSelected: isCollectionSelected,
+                                        isFigSelected: mainPDFViewModel.isFigSelected,
+                                        isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                         onSelect: {
                                             withAnimation {
                                                 mainPDFViewModel.isPaperViewFirst.toggle()
@@ -831,9 +797,6 @@ private struct MainOriginalView: View {
 private struct MainView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
-    
-    @Binding var isReadMode: Bool
-    @Binding var isFigSelected: Bool
     
     var body: some View {
         ZStack {

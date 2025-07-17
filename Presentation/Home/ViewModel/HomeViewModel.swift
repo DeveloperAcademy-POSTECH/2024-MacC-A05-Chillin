@@ -26,10 +26,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-//    public var isStarSelected: Bool = false
-    
-//    public var isFolderSelected: Bool = false
-    
     public var isEditingTitle: Bool = false
     
     // 폴더 추가 페이지 변수
@@ -82,11 +78,7 @@ class HomeViewModel: ObservableObject {
     
     public var deleteAlertPresented: Bool = false
     
-//    public var isFavorite: Bool = false
-    
-//    public var keyboardHeight: CGFloat = 0
-    
-    public var isIPadMini: Bool {
+    private var isIPadMini: Bool {
         if UIDevice.current.userInterfaceIdiom == .pad {
             let screenSize = UIScreen.main.nativeBounds.size
             let isMiniSize = (screenSize.width == 1536 && screenSize.height == 2048) ||
@@ -95,10 +87,6 @@ class HomeViewModel: ObservableObject {
         }
         return false
     }
-    
-//    public func isVertical(with geometry: GeometryProxy) -> Bool {
-//        geometry.size.height > geometry.size.width
-//    }
     
     public var isPortrait: Bool = false
     
@@ -121,6 +109,8 @@ class HomeViewModel: ObservableObject {
             updateFilteredList()
         }
     }
+    
+    // MARK: -
     
     // 전체 폴더 배열
     @Published public var folders: [Folder] = [] {
@@ -760,49 +750,6 @@ extension HomeViewModel {
         
         UserDefaults.standard.set(true, forKey: "sample")
     }
-    
-    /// Deprecated
-    /*
-    public func resetViewModel() {
-        PersistantContainer.shared.resetContainer()
-        
-        let fileManager = FileManager.default
-        
-        let documentURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let fileURLs = try! fileManager.contentsOfDirectory(
-            at: documentURL,
-            includingPropertiesForKeys: nil)
-        
-        fileURLs.forEach { try! fileManager.removeItem(at: $0)}
-        
-        pdfSharedData.paperInfo = nil
-        pdfSharedData.document = nil
-        self.paperInfos.removeAll()
-        self.folders.removeAll()
-        self.currentFolder = nil
-        self.newFolderID = nil
-        self.newFolderParentID = nil
-        self.filteredLists.removeAll()
-        self.isFavoriteSelected = false
-        self.isSearching = false
-        self.searchText.removeAll()
-        self.recentSearches.removeAll()
-        self.selectedFilter = .total
-        self.selectedMenu = .main
-        self.changedTitle = nil
-        self.changedMemo = nil
-        self.navigationStack.removeAll()
-        self.isLoading = false
-        self.memoText.removeAll()
-        self.isErrorOccured = false
-        self.errorStatus = .failedToAccessingSecurityScope
-        self.isSettingMenu = false
-        self.isInHomeView = false
-        
-        UserDefaults.standard.set(false, forKey: "sample")
-        self.setSample()
-    }
-     */
 }
 
 enum CategorySelection: Equatable {

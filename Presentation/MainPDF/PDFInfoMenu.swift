@@ -38,9 +38,6 @@ struct PDFInfoMenu: View {
     @EnvironmentObject private var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
-    @Binding var isEditingTitle: Bool
-    @Binding var createMovingFolder: Bool
-    
     @State var title: String?
     @State var isStarSelected: Bool = false
     
@@ -238,8 +235,6 @@ struct PDFInfoMenu: View {
 
 #Preview {
     PDFInfoMenu(
-        isEditingTitle: .constant(false),
-        createMovingFolder: .constant(false),
         title: "Reazy",
         isStarSelected: false
     )

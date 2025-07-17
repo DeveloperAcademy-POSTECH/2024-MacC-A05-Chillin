@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MoveFolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
-//    @State private var expandedFolders: Set<UUID> = []
     
     @Binding var createMovingFolder: Bool
     let items: [PaperInfo]
@@ -107,33 +106,6 @@ struct MoveFolderView: View {
             }
         }
     }
-    
-//    private var rootFolders: [Folder] {
-//        homeViewModel.folders.filter { $0.parentFolderID == nil }
-//    }
-    
-//    private func childFolders(of folderID: UUID?) -> [Folder] {
-//        homeViewModel.folders.filter { $0.parentFolderID == folderID }
-//    }
-    
-//    private func hasChildren(folder: Folder) -> Bool {
-//        !childFolders(of: folder.id).isEmpty
-//    }
-    
-//    private func toggleExpansion(folder: Folder) {
-//        if homeViewModel.expandedMoveFolders.contains(folder.id) {
-//            homeViewModel.expandedMoveFolders.remove(folder.id)
-//        } else {
-//            homeViewModel.expandedMoveFolders.insert(folder.id)
-//        }
-//    }
-    
-//    private func expandOnlyParentFolders(of folderID: UUID) {
-//        if let parentID = homeViewModel.getParentFolderID(for: folderID) {
-//            homeViewModel.expandedMoveFolders.insert(parentID)
-//            expandOnlyParentFolders(of: parentID)
-//        }
-//    }
 }
 
 struct FolderCell: View {

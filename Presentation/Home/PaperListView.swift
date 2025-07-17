@@ -12,20 +12,6 @@ struct PaperListView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-//    @State private var isNavigationPushed: Bool = false
-    
-//    @State private var selectedPaper: PaperInfo?
-//    @State private var deleteAlertPresented: Bool = false
-    
-//    @State var isFavorite: Bool = false
-    
-//    @State private var keyboardHeight: CGFloat = 0
-    
-//    @State private var isIPadMini: Bool = false
-//    @State private var isVertical = false
-//    @State private var isPortrait: Bool = false
-    
-//    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         GeometryReader { geometry in
@@ -153,40 +139,14 @@ struct PaperListView: View {
                                     .background(Color.clear)
                                 }
                                 .onAppear(perform: homeViewModel.updatePortrait)
-//                                .onAppear {
-//                                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
-//                                        self.isPortrait = true
-//                                    }
-//                                }
-//                                .onReceive(publisher) { noti in
-//                                    let currentOrientation = UIDevice.current.orientation
-//                                    
-//                                    switch currentOrientation {
-//                                    case .portrait, .portraitUpsideDown:
-//                                        self.isPortrait = true
-//                                    case .landscapeLeft, .landscapeRight:
-//                                        self.isPortrait = false
-//                                    default:
-//                                        break
-//                                    }
-//                                }
                             }
                         }
                     }
                 }
                 .background(.gray300)
             }
-            
-            .onAppear {
-//                detectIPadMini()
-//                updateOrientation(with: geometry)
-            }
             .onDisappear {
                 homeViewModel.isNavigationPushed = false
-            }
-            .onChange(of: geometry.size) {
-//                detectIPadMini()
-//                updateOrientation(with: geometry)
             }
             .alert(
                 "정말 삭제하시겠습니까?",
@@ -243,19 +203,4 @@ extension PaperListView {
         
         navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
     }
-}
-
-extension PaperListView {
-//    private func detectIPadMini() {
-//        if UIDevice.current.userInterfaceIdiom == .pad {
-//            let screenSize = UIScreen.main.nativeBounds.size
-//            let isMiniSize = (screenSize.width == 1536 && screenSize.height == 2048) ||
-//            (screenSize.width == 1488 && screenSize.height == 2266)
-//            self.isIPadMini = isMiniSize
-//        }
-//    }
-    
-//    private func updateOrientation(with geometry: GeometryProxy) {
-//        isVertical = geometry.size.height > geometry.size.width
-//    }
 }
