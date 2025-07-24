@@ -68,27 +68,27 @@ final class MainPDFViewModel: ObservableObject {
     
     
     // MARK: - MainPDFView 변수
-    public var isListSelected: Bool = false
+    @Published public var isListSelected: Bool = false
     
-    public var isFigSelected: Bool = false
+    @Published public var isFigSelected: Bool = false
     
-    public var isCollectionSelected: Bool = false
+    @Published public var isCollectionSelected: Bool = false
     
-    public var isSearchSelected: Bool = false
+    @Published public var isSearchSelected: Bool = false
     
-    public var isReadMode: Bool = false
+    @Published public var isReadMode: Bool = false
     
-    public var isEditingTitle: Bool = false
+    @Published public var isEditingTitle: Bool = false
     
-    public var createMovingFolder: Bool = false
+    @Published public var createMovingFolder: Bool = false
     
-    public var moveToFolderID: UUID?
+    @Published public var moveToFolderID: UUID?
     
-    public var dragAmount: CGPoint?
+    @Published public var dragAmount: CGPoint?
     
-    public var dragOffset: CGSize = .zero
+    @Published public var dragOffset: CGSize = .zero
     
-    public var isDuplicatedTitleAlertPresented: Bool = false
+    @Published public var isDuplicatedTitleAlertPresented: Bool = false
     
     private let infoMenuHiddenPublisher = NotificationCenter.default.publisher(for: .isPDFInfoMenuHidden)
     

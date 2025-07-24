@@ -21,7 +21,6 @@ final class HomeSearchViewModel: ObservableObject, Sendable {
         }
         return result
     }()
-    @Published public var viewStatus: SearchViewStatus = .normal
     
     private let useCase: HomeSearchUseCase
 
@@ -108,48 +107,6 @@ extension HomeSearchViewModel {
         }
     }
 }
-
-// MARK: - EditingTitle 메소드
-extension HomeSearchViewModel {
-    public func editButtonTapped(_ paperInfo: PaperInfo) {
-        withAnimation(.easeInOut) {
-            viewStatus = .search(paperInfo)
-        }
-    }
-    
-    public func completeButtonTappedInEditingTitle(title: String, completion: @escaping (Bool) -> Void) {
-        if case let .search(paper) = viewStatus,
-           let index = searchList.firstIndex(of: paper) {
-            searchList[index].title = title
-            
-            switch useCase.editPDF(searchList[index]) {
-            case .success:
-                completion(true)
-            case .failure:
-                completion(false)
-            }
-            
-        }
-        
-        cancelButtonTappedInEditingTitle()
-    }
-    
-    public func cancelButtonTappedInEditingTitle() {
-        withAnimation(.easeInOut) {
-            viewStatus = .normal
-        }
-    }
-}
-
-// MARK: - TagControl 메소드
-extension HomeSearchViewModel {
-    public func setTagButtonTapped(_ paperInfo: PaperInfo) {
-        withAnimation(.easeInOut) {
-            viewStatus = .setTag(paperInfo)
-        }
-    }
-}
-
 
 // MARK: - Internal Method
 extension HomeSearchViewModel {

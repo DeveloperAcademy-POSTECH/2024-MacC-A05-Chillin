@@ -10,16 +10,15 @@ import SwiftUI
 struct MoveFolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var createMovingFolder: Bool
+    @State private var id: UUID?
     let items: [PaperInfo]
-    @Binding var selectedID: UUID?
     
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
                 HStack(spacing: 0) {
                     Button(action: {
-                        homeViewModel.isMovingFolder.toggle()
+                        homeViewModel.homeViewAction = .none
                     }) {
                         Text("취소")
                             .reazyFont(.text1)
@@ -29,7 +28,11 @@ struct MoveFolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        self.createMovingFolder.toggle()
+                        if homeViewModel.depth(of: self.id) < 4 {
+                            homeViewModel.homeViewAction = .creatingMovingFolder(id)
+                        } else {
+                            homeViewModel.homeViewAction = .folderDepthAlert
+                        }
                     }) {
                         Image(systemName: "folder.badge.plus")
                             .resizable()
@@ -41,15 +44,15 @@ struct MoveFolderView: View {
                     
                     Button(action: {
                         items.forEach { item in
-                            homeViewModel.updatePaperLocation(at: item.id, folderID: selectedID)
+                            homeViewModel.updatePaperLocation(at: item.id, folderID: id)
                         }
-                        homeViewModel.isMovingFolder = false
+                        homeViewModel.homeViewAction = .none
                     }) {
                         Text("이동")
                             .reazyFont(.text1)
-                            .foregroundStyle(selectedID == nil ? .gray550 : .primary1)
+                            .foregroundStyle(id == nil ? .gray550 : .primary1)
                     }
-                    .disabled(selectedID == nil)
+                    .disabled(id == nil)
                 }
                 .padding(.horizontal, 20)
                 
@@ -72,14 +75,14 @@ struct MoveFolderView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(homeViewModel.rootFolders, id: \.id) { folder in
-                        FolderCell(
+                        FolderMoveCell(
                             folder: folder,
                             level: 0,
-                            expandedFolders: $homeViewModel.expandedMoveFolders,
+                            expandedMoveFolders: $homeViewModel.expandedMoveFolders,
                             childFolders: homeViewModel.childFolders(of:),
-                            toggleExpansion: homeViewModel.toggleExpansion,
+                            toggleExpansion: homeViewModel.toggleExpansionMoveFolders(folder:),
                             hasChildren: homeViewModel.hasChildren,
-                            selectedID: $selectedID
+                            selectedID: $id
                         )
                     }
                 }
@@ -87,18 +90,30 @@ struct MoveFolderView: View {
         }
         .background(Color(hex: "F7F7FC"))
         .onAppear {
+            if let action = homeViewModel.previousAction,
+               case let .creatingMovingFolder(id) = action,
+               let id = id
+            {
+                self.id = id
+                DispatchQueue.main.async {
+                    homeViewModel.expandOnlyParentFolders(of: id)
+                }
+                return
+            }
+            
+            
             if items.count == 1, let firstItem = items.first {
-                selectedID = firstItem.folderID
+                id = firstItem.folderID
                 
                 DispatchQueue.main.async {
-                    if let selectedID = selectedID {
-                        homeViewModel.expandOnlyParentFolders(of: selectedID)
+                    if let id = id {
+                        homeViewModel.expandOnlyParentFolders(of: id)
                     }
                 }
             }
         }
         .onChange(of: homeViewModel.newFolderID) { _ , newFolderID in
-            selectedID = newFolderID
+            id = newFolderID
         }
         .onChange(of: homeViewModel.newFolderParentID) { _ , parentID in
             if let parentID = parentID {
@@ -108,10 +123,10 @@ struct MoveFolderView: View {
     }
 }
 
-struct FolderCell: View {
+private struct FolderMoveCell: View {
     let folder: Folder
     let level: Int
-    @Binding var expandedFolders: Set<UUID>
+    @Binding var expandedMoveFolders: Set<UUID>
     let childFolders: (UUID) -> [Folder]
     let toggleExpansion: (Folder) -> Void
     let hasChildren: (Folder) -> Bool
@@ -147,7 +162,7 @@ struct FolderCell: View {
                                     toggleExpansion(folder)
                                 }
                             }) {
-                                Image(systemName: expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
+                                Image(systemName: expandedMoveFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
                                     .font(.system(size: 12))
                                     .foregroundStyle(.gray600)
                                     .padding(.trailing, 20)
@@ -168,12 +183,12 @@ struct FolderCell: View {
                 onTap()
             }
             
-            if expandedFolders.contains(folder.id) {
+            if expandedMoveFolders.contains(folder.id) {
                 ForEach(childFolders(folder.id), id: \.id) { subFolder in
-                    FolderCell(
+                    FolderMoveCell(
                         folder: subFolder,
                         level: level + 1,
-                        expandedFolders: $expandedFolders,
+                        expandedMoveFolders: $expandedMoveFolders,
                         childFolders: childFolders,
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
@@ -195,5 +210,5 @@ struct FolderCell: View {
 }
 
 #Preview {
-    MoveFolderView(createMovingFolder: .constant(false), items: [], selectedID: .constant(UUID()))
+    MoveFolderView(items: [])
 }

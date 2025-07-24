@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import PDFKit
 
 
@@ -28,7 +29,21 @@ final class SearchViewModel: ObservableObject {
         !searchText.isEmpty && searchResults.isEmpty && !isLoading && isSearched
     }
     
-
+    // MARK: - SearchView 변수
+    
+    @Published public var searchTimer: Timer?
+    @Published public var selectedIndex: Int?
+    @Published public var isTapGesture: Bool = false
+    @Published public var isPortrait: Bool = false
+    
+    private let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    deinit {
+        self.cancellables.forEach { $0.cancel() }
+    }
+    
     /// 검색 결과 구조체
     struct SearchResult: Hashable {
         let text: AttributedString      // 검색 결과가 포함된 텍스트
@@ -40,6 +55,103 @@ final class SearchViewModel: ObservableObject {
 
 // MARK: - 데이터 Fetch method
 extension SearchViewModel {
+    public func onAppear() {
+        setBindings()
+        
+        UITextField.appearance().clearButtonMode = .whileEditing
+        if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+            self.isPortrait = true
+        }
+    }
+    
+    public func previousButtonTapped() {
+        self.isTapGesture = false
+        if self.selectedIndex == nil { return }
+        
+        if self.selectedIndex! == 0 {
+            self.selectedIndex = self.searchResults.count - 1
+            return
+        }
+        
+        self.selectedIndex! -= 1
+    }
+    
+    public func nextButtonTapped() {
+        self.isTapGesture = false
+        if self.selectedIndex == nil { return }
+        
+        let count = self.searchResults.count
+        
+        if self.selectedIndex! == count - 1 {
+            self.selectedIndex = 0
+            return
+        }
+        
+        self.selectedIndex! += 1
+    }
+    
+    public func searchResultCellTapped(index: Int) {
+        self.isTapGesture = true
+        self.selectedIndex = index
+    }
+    
+    private func setBindings() {
+        self.orientationPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { noti in
+                let currentOrientation = UIDevice.current.orientation
+                
+                switch currentOrientation {
+                case .portrait, .portraitUpsideDown:
+                    self.isPortrait = true
+                case .landscapeLeft, .landscapeRight:
+                    self.isPortrait = false
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
+        
+        $searchText
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.isSearched = false
+                self?.fetchSearchResult()
+            }
+            .store(in: &cancellables)
+        
+        $selectedIndex
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if self.searchResults.isEmpty { return }
+                guard let index = self.selectedIndex else { return }
+                
+                self.goToPage(index: index)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func fetchSearchResult() {
+        if self.searchText.isEmpty {
+            self.searchResults.removeAll()
+            self.isSearched = false
+            self.isLoading = false
+            return
+        }
+
+        guard let document = PDFSharedData.shared.document else { return }
+        
+        if let timer = self.searchTimer {
+            timer.invalidate()
+        }
+        
+        self.searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            self.removeAllAnnotations()
+            self.fetchSearchResults(document: document)
+            self.selectedIndex = nil
+        }
+    }
     
     /// pdf 검색 메소드
     public func fetchSearchResults(document: PDFDocument) {
@@ -296,4 +408,3 @@ extension SearchViewModel {
         self.searchDestination = (result.position, result.page)
     }
 }
-

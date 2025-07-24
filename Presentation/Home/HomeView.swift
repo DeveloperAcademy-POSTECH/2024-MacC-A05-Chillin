@@ -7,11 +7,7 @@
 
 import SwiftUI
 
-enum Options {
-    case main
-    case search
-    case edit
-}
+
 
 struct HomeView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
@@ -48,19 +44,14 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        switch homeViewModel.selectedMenu {
-                        case .main:
-                            MainMenuView(
-                                selectedMenu: $homeViewModel.selectedMenu,
-                                selectedItemID: $homeViewModel.selectedItemID
-                            )
-                            
+                        switch homeViewModel.homeViewStatus {
                         case .search:
-                            SearchMenuView(selectedMenu: $homeViewModel.selectedMenu)
+                            SearchMenuView()
                                 .environmentObject(homeSearchViewModel)
-                            
                         case .edit:
-                            EditMenuView(selectedMenu: $homeViewModel.selectedMenu)
+                            EditMenuView()
+                        default:
+                            MainMenuView()
                         }
                     }
                     .padding(.top, 46)
@@ -69,10 +60,11 @@ struct HomeView: View {
                 .frame(height: 80)
                 
                 GeometryReader { geometry in
-                    if homeViewModel.isSearching {
+                    switch homeViewModel.homeViewStatus {
+                    case .search:
                         HomeSearchView()
                             .environmentObject(homeSearchViewModel)
-                    } else {
+                    default:
                         HStack(spacing: 0) {
                             SidePanelView(geometry: geometry)
                             
@@ -82,60 +74,14 @@ struct HomeView: View {
                     }
                 }
             }
-            .blur(radius: homeViewModel.isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder || homeViewModel.createMovingFolder || tagViewModel.createTag || tagViewModel.isTagDuplicate ? 20 : 0)
-            
-            
-            Color.black
-                .opacity(
-                    homeViewModel.isEditingTitle || homeViewModel.createFolder || homeViewModel.isEditingFolder
-                    || homeViewModel.isMovingFolder || homeViewModel.isSettingMenu || tagViewModel.createTag
-                    || tagViewModel.isTagDuplicate || tagViewModel.showDeleteAlert || homeViewModel.isDuplicatedTitleAlertPresented
-                    || homeViewModel.showDeleteAlert
-                    ? 0.5 : 0)
-                .ignoresSafeArea(edges: .bottom)
+            .blur(radius: homeViewModel.homeViewAction.blurredConstant)
             
             Color.black
-                .opacity(homeViewModel.viewStatus.isBlacked ? 0.5 : 0)
+                .opacity(homeViewModel.homeViewAction.backgroundOpacity)
                 .ignoresSafeArea(edges: .bottom)
                 .onTapGesture {
-                    homeViewModel.viewStatus = .normal
+                    // MARK: 배결 터치시 이전 화면 돌아가기 필요 시 넣기
                 }
-            
-            if homeViewModel.createFolder || homeViewModel.isEditingFolder {
-                FolderView(
-                    createMovingFolder: $homeViewModel.createMovingFolder,
-                    folder: homeViewModel.folders.first { $0.id == homeViewModel.selectedFolderID }
-                )
-            }
-            
-            // 폴더 이동 View
-            if homeViewModel.isMovingFolder {
-                MoveFolderView(
-                    createMovingFolder: $homeViewModel.createMovingFolder,
-                    items: homeViewModel.itemsToMove,
-                    selectedID: $homeViewModel.moveToFolderID
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .frame(width: 740, height: 550)
-                .blur(radius: homeViewModel.createMovingFolder ? 20 : 0)
-            }
-            
-            Color.black
-                .opacity(homeViewModel.createMovingFolder ? 0.5 : 0)
-                .ignoresSafeArea(edges: .bottom)
-            
-            // 폴더 이동 시 새 폴더 생성
-            if homeViewModel.createMovingFolder {
-                FolderView(
-                    createMovingFolder: $homeViewModel.createMovingFolder,
-                    folder: homeViewModel.newFolder
-                )
-            }
-            
-            // 세팅 메뉴 뷰
-            if homeViewModel.isSettingMenu {
-                SettingView()
-            }
             
             if homeViewModel.isLoading {
                 ProgressView()
@@ -145,113 +91,65 @@ struct HomeView: View {
         }
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
-        .animation(.easeInOut, value: homeViewModel.isEditingTitle)
-        .animation(.easeInOut, value: homeViewModel.isEditingFolder)
-        .animation(.easeInOut, value: homeViewModel.isDuplicatedTitleAlertPresented)
+        .animation(.easeInOut, value: homeViewModel.homeViewAction)
         .alert(isPresented: $tagViewModel.isTagDuplicate) {
             Alert(
                 title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
                 dismissButton: .default(Text("확인"))
             )
         }
-        .blur(radius: ((homeViewModel.viewStatus.isBlurred) || (homeSearchViewModel.viewStatus != .normal) || homeViewModel.isDuplicatedTitleAlertPresented) ? 5 : 0)
         .overlay {
-            if case let .search(paperInfo) = homeViewModel.viewStatus {
-                RenamePaperTitleView(paperInfo: paperInfo) {
-                    homeViewModel.viewStatus = .normal
-                } completeAction: { text in
-                    homeViewModel.updateTitle(at: paperInfo.id, title: text) {
-                        if !$0 { homeViewModel.isDuplicatedTitleAlertPresented.toggle() }
-                    }
-                    homeViewModel.viewStatus = .normal
-                }
-                .ignoresSafeArea(edges: .top)
-            }
-            
-            if case let .search(paperInfo) = homeSearchViewModel.viewStatus {
-                RenamePaperTitleView(paperInfo: paperInfo) {
-                    homeSearchViewModel.cancelButtonTappedInEditingTitle()
-                } completeAction: { text in
-                    homeSearchViewModel.completeButtonTappedInEditingTitle(title: text) {
-                        if !$0 { homeViewModel.isDuplicatedTitleAlertPresented.toggle() }
-                    }
-                }
-                .onDisappear {
-                    homeSearchViewModel.searchPapers()
-                }
-            }
-            // 태그 관리
-            if case let .setTag(paperInfo) = homeSearchViewModel.viewStatus {
+            switch homeViewModel.homeViewAction {
+            case .setting:
+                SettingView()
+            case .creatingFolder, .editingFolder:
+                FolderView(
+                    folder: homeViewModel.folders.first { $0.id == homeViewModel.homeViewStatus.currentFolderID }
+                )
+            case let .creatingMovingFolder(id):
+                FolderView(
+                    folder: homeViewModel.folders.first { $0.id == id }
+                )
+            case .movingFolder:
+                MoveFolderView(
+                    items: homeViewModel.itemsToMove
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 740, height: 550)
+            case .creatingTag:
+                CreateTagView()
+                    .environmentObject(tagViewModel)
+            case let .addTagToPaper(paperInfo):
                 TagControlView(paperInfo: paperInfo) {
-                    homeSearchViewModel.viewStatus = .normal
+                    homeViewModel.homeViewAction = .none
                 } completeAction: {
-                    homeSearchViewModel.viewStatus = .normal
-                }
-                .onDisappear {
-                    homeSearchViewModel.searchPapers()
-                }
-            }
-            
-            if case let .addTagToPaperInfo(paperInfo) = homeViewModel.viewStatus {
-                TagControlView(paperInfo: paperInfo) {
-                    homeViewModel.viewStatus = .normal
-                } completeAction: {
-                    homeViewModel.viewStatus = .normal
+                    homeViewModel.homeViewAction = .none
                 }
                 .onDisappear {
                     homeViewModel.fetchPaperList()
                     tagViewModel.fetchFilteredPaperList()
                 }
-            }
-            
-            // 태그 생성
-            if tagViewModel.createTag {
-                CreateTagView()
-                    .environmentObject(tagViewModel)
-            }
-            
-            if tagViewModel.showDeleteAlert {
-                CustomAlert(mainText: "\"\(tagViewModel.getTagName())\"\n태그를 삭제하시겠습니까?",
-                            message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.", width: 350, height: 173,
-                            cancelAction: { tagViewModel.showDeleteAlert = false },
-                            confirmAction: tagViewModel.deleteTag)
-            }
-            
-            if case .folderPopover = homeViewModel.viewStatus {
-                if case let .folderPopover(position) = homeViewModel.viewStatus {
-                    HomeFolderPopoverView()
-                        .environmentObject(homeViewModel)
-                        .position(.init(
-                            x: position.x,
-                            y: UIScreen.main.bounds.height - position.y < 171 ? position.y - 200 : position.y
-                        ))
-                }
-            }
-            
-            if homeViewModel.showDeleteAlert {
-                CustomAlert(
-                    mainText: "폴더를 삭제하시겠습니까?",
-                    message: "폴더 안에 포함된 논문도 함께 삭제됩니다.",
-                    width: 364, height: 163,
-                    cancelAction: { homeViewModel.showDeleteAlert = false },
-                    confirmAction: {
-                        if let id = homeViewModel.selectedFolderID {
-                            homeViewModel.deleteFolder(at: id)
+            case let .editingPaperTitle(paperInfo):
+                RenamePaperTitleView(paperInfo: paperInfo) {
+                    homeViewModel.homeViewAction = .none
+                } completeAction: { text in
+                    homeViewModel.updateTitle(at: paperInfo.id, title: text) {
+                        if !$0 {
+                            homeViewModel.homeViewAction = .duplicatedTitleAlert
+                        } else {
+                            homeViewModel.homeViewAction = .none
                         }
                     }
-                )
-            }
-            
-            if homeViewModel.showFolderDepthAlert {
-                CustomAlert(
-                    type: .confirm,
-                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
-                    width: 340, height: 163,
-                    cancelAction: { homeViewModel.showFolderDepthAlert = false }
-                )
-            }
-            
-            if self.homeViewModel.isDuplicatedTitleAlertPresented {
+                }
+                .ignoresSafeArea(edges: .top)
+            case let .folderPopover(position):
+                HomeFolderPopoverView()
+                    .environmentObject(homeViewModel)
+                    .position(.init(
+                        x: position.x,
+                        y: UIScreen.main.bounds.height - position.y < 171 ? position.y - 200 : position.y
+                    ))
+            case .duplicatedTitleAlert:
                 CustomAlert(
                     type: .confirm,
                     mainText: "같은 제목의 논문이 이미 존재합니다",
@@ -259,17 +157,57 @@ struct HomeView: View {
                     width: 350,
                     height: 176,
                     cancelAction: {
-                        homeViewModel.isDuplicatedTitleAlertPresented.toggle()
+                        homeViewModel.homeViewAction = .none
                     },
                     confirmAction: {}
                 )
+            case let .deletingTagAlert(name, id):
+                CustomAlert(
+                    mainText: "\"\(name)\"\n태그를 삭제하시겠습니까?",
+                    message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.", width: 350, height: 173,
+                    cancelAction: {
+                        homeViewModel.homeViewAction = .none
+                    },
+                    confirmAction: {
+                        tagViewModel.deleteTagButtonTapped(id: id)
+                        homeViewModel.homeViewAction = .none
+                    }
+                )
+            case .deletingFolderAlert:
+                CustomAlert(
+                    mainText: "폴더를 삭제하시겠습니까?",
+                    message: "폴더 안에 포함된 논문도 함께 삭제됩니다.",
+                    width: 364, height: 163,
+                    cancelAction: { homeViewModel.homeViewAction = .none },
+                    confirmAction: {
+                        if let id = homeViewModel.homeViewStatus.currentFolderID {
+                            homeViewModel.deleteFolder(at: id)
+                        }
+                    }
+                )
+            case .folderDepthAlert:
+                CustomAlert(
+                    type: .confirm,
+                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
+                    width: 340, height: 163,
+                    cancelAction: {
+                        if let action = homeViewModel.previousAction,
+                           case .movingFolder = action {
+                            homeViewModel.homeViewAction = .movingFolder
+                        } else {
+                            homeViewModel.homeViewAction = .none
+                        }
+                    }
+                )
+            case .none, .deletingPaperAlert, .deletingMultiPapersAlert:
+                EmptyView()
             }
         }
     }
     
     @ViewBuilder
     private func SidePanelView(geometry: GeometryProxy) -> some View {
-        if !homeViewModel.isEditing {
+        if homeViewModel.homeViewStatus != .edit {
             HomeListView()
                 .frame(width: geometry.size.width / 4)
         }
@@ -277,10 +215,11 @@ struct HomeView: View {
     
     @ViewBuilder
     private func ContentPanelView() -> some View {
-        if homeViewModel.isTagSelected {
+        switch homeViewModel.homeViewStatus {
+        case .tag:
             TagView()
                 .environmentObject(tagViewModel)
-        } else {
+        default:
             PaperListView()
                 .onAppear {
                     homeViewModel.fetchPaperList()
@@ -301,17 +240,12 @@ private struct MainMenuView: View {
     @State private var isFileImporterPresented: Bool = false
     @State private var errorAlert: Bool = false
     
-    @Binding var selectedMenu: Options
-    
-    @Binding var selectedItemID: UUID?
-    
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .search
+                    homeViewModel.homeViewStatus = .search
                 }
-                self.homeViewModel.isSearching.toggle()
             }) {
                 Image(.search)
                     .renderingMode(.template)
@@ -324,9 +258,8 @@ private struct MainMenuView: View {
             
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .edit
+                    homeViewModel.homeViewStatus = .edit
                 }
-                homeViewModel.isEditing.toggle()
             }) {
                 Image(systemName: "checkmark.circle")
                     .font(.system(size: 17.68))
@@ -336,7 +269,7 @@ private struct MainMenuView: View {
             
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    homeViewModel.isSettingMenu = true
+                    homeViewModel.homeViewAction = .setting
                 }
             }) {
                 Image(.setting)
@@ -370,25 +303,16 @@ private struct MainMenuView: View {
         }
     }
     
-    private enum ErrorStatus {
-        case accessError
-        case invalidURL
-        case etc
-    }
-    
     private func importPDFToDevice(result: Result<[Foundation.URL], any Error>) {
         switch result {
         case .success(let url):
             if let newPaperID = homeViewModel.uploadPDF(url: url) {
-                selectedItemID = newPaperID
+                homeViewModel.selectedItemID = newPaperID
             } else {
-                homeViewModel.errorStatus = .fileNameDuplication
-                homeViewModel.isErrorOccured.toggle()
+                print("Duplicated File Name")
             }
         case .failure(let error):
             print(String(describing: error))
-            homeViewModel.errorStatus = .failedToAccessingSecurityScope
-            homeViewModel.isErrorOccured.toggle()
         }
     }
 }
@@ -396,7 +320,6 @@ private struct MainMenuView: View {
 /// 검색 화면 버튼 뷰
 private struct SearchMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
-    @Binding var selectedMenu: Options
     
     // 검색 버튼 클릭 시 검색창 자동 포커싱
     @FocusState private var isSearchFieldFocused: Bool
@@ -409,10 +332,8 @@ private struct SearchMenuView: View {
             
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    selectedMenu = .main
+                    homeViewModel.homeViewStatus = .main
                 }
-                self.homeViewModel.isSearching.toggle()
-                homeViewModel.searchText = ""
                 isSearchFieldFocused = false
             }, label: {
                 Text("취소")
@@ -431,14 +352,11 @@ private struct SearchMenuView: View {
 private struct EditMenuView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @Binding var selectedMenu: Options
-    
-    @State var isDeleteConfirm: Bool = false
     
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {
-                homeViewModel.isMovingFolder.toggle()
+                homeViewModel.homeViewAction = .movingFolder
             }, label: {
                 Image(.move)
                     .renderingMode(.template)
@@ -451,7 +369,7 @@ private struct EditMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                self.isDeleteConfirm.toggle()
+                homeViewModel.homeViewAction = .deletingMultiPapersAlert
             }, label: {
                 Image(.trash)
                     .renderingMode(.template)
@@ -464,8 +382,7 @@ private struct EditMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                selectedMenu = .main
-                homeViewModel.isEditing = false
+                homeViewModel.homeViewStatus = .main
                 homeViewModel.selectedItems.removeAll()
             }, label: {
                 Text("완료")
@@ -476,7 +393,7 @@ private struct EditMenuView: View {
         }
         .alert(
             "정말 삭제하시겠습니까?",
-            isPresented: $isDeleteConfirm,
+            isPresented: homeViewModel.homeViewAction.isDeleteMultiPapersAlertPresented,
             presenting: homeViewModel.selectedItems
         ) { itemList in
             Button("취소", role: .cancel) {}
@@ -500,9 +417,6 @@ struct FolderView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
     @State private var selectedColors: FolderColors = .folder1
-    
-    @Binding var createMovingFolder: Bool
-    
     @State private var text: String = ""
     
     let folder: Folder?
@@ -512,12 +426,10 @@ struct FolderView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        if homeViewModel.isEditingFolder {
-                            homeViewModel.isEditingFolder = false
-                        } else if homeViewModel.createFolder {
-                            homeViewModel.createFolder = false
+                        if let action = homeViewModel.previousAction, action == .movingFolder {
+                            homeViewModel.homeViewAction = action
                         } else {
-                            homeViewModel.createMovingFolder.toggle()
+                            homeViewModel.homeViewAction = .none
                         }
                     }) {
                         Image(systemName: "xmark")
@@ -530,14 +442,12 @@ struct FolderView: View {
                     Button(action: {
                         if text.isEmpty { text = String(localized: "새 폴더") }
                         
-                        if homeViewModel.isEditingFolder {
+                        switch homeViewModel.homeViewAction {
+                        case .editingFolder:
                             if let folder = folder {
                                 homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
-                                homeViewModel.selectedFolderID = nil
-                                homeViewModel.isEditingFolder = false
                             }
-                        } else if homeViewModel.createFolder {
-                            // 최상위 단계와 폴더 진입 단계 구분
+                        case .creatingFolder:
                             if homeViewModel.isAtRoot {
                                 homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             } else {
@@ -548,15 +458,18 @@ struct FolderView: View {
                                     homeViewModel.createFolderAboveSelectedFolder(title: text, color: selectedColors.rawValue)
                                 }
                             }
-                            homeViewModel.selectedFolderID = nil
-                            homeViewModel.createFolder = false
-                        } else {
+                        default:
                             if let folder = folder {
-                                homeViewModel.createSubfolder(in: folder, title: text, color: selectedColors.rawValue)
+                                homeViewModel.createSubfolder(in: folder.id, title: text, color: selectedColors.rawValue)
                             } else {
                                 homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
                             }
-                            homeViewModel.createMovingFolder.toggle()
+                        }
+                        
+                        if let action = homeViewModel.previousAction, action == .movingFolder {
+                            homeViewModel.homeViewAction = action
+                        } else {
+                            homeViewModel.homeViewAction = .none
                         }
                     }) {
                         RoundedRectangle(cornerRadius: 20)
@@ -640,11 +553,9 @@ struct FolderView: View {
             }
         }
         .onAppear {
-            if homeViewModel.isEditingFolder {
-                if let folder = folder {
-                    text = folder.title
-                    selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
-                }
+            if homeViewModel.homeViewAction == .editingFolder, let folder = folder {
+                text = folder.title
+                selectedColors = FolderColors(rawValue: folder.color) ?? .folder1
             }
         }
     }
@@ -652,6 +563,7 @@ struct FolderView: View {
 
 /// 태그 생성 뷰
 private struct CreateTagView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var tagViewModel: TagViewModel
     @State private var text: String = ""
     
@@ -660,7 +572,7 @@ private struct CreateTagView: View {
             VStack {
                 HStack {
                     Button {
-                        tagViewModel.createTag = false
+                        homeViewModel.homeViewAction = .none
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -673,16 +585,15 @@ private struct CreateTagView: View {
                     Button {
                         if text.isEmpty {
                             text = "새 태그"
-                            tagViewModel.createTag = false
+                            homeViewModel.homeViewAction = .none
                             return
                         }
                         if let _ = tagViewModel.tags.filter({$0.name == text}).first {
-                            tagViewModel.createTag = false
+                            homeViewModel.homeViewAction = .none
                             tagViewModel.isTagDuplicate = true
-                            
                         } else {
                             tagViewModel.createTag(name: text)
-                            tagViewModel.createTag = false
+                            homeViewModel.homeViewAction = .none
                         }
                     } label: {
                         RoundedRectangle(cornerRadius: 20)
@@ -729,7 +640,6 @@ private struct CreateTagView: View {
                 }
             }
         }
-        .animation(.easeInOut, value: tagViewModel.createTag)
         .animation(.easeInOut, value: tagViewModel.isTagDuplicate)
         .onChange(of: text) { _, newValue in
             if newValue.count > 30 {

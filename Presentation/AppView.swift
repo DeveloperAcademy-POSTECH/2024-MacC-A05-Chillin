@@ -14,7 +14,7 @@ struct AppView: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     // Navigation 컨트롤
-    @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
+    @StateObject private var navigationCoordinator: NavigationCoordinator = .shared
     @StateObject private var homeViewModel: HomeViewModel = .init(
         homeViewUseCase: DefaultHomeViewUseCase(
             paperDataRepository: PaperDataRepositoryImpl(),

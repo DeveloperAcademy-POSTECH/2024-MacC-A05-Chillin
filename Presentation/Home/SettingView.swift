@@ -37,7 +37,7 @@ struct SettingView: View {
                 Spacer()
                 
                 Button(action: {
-                    homeViewModel.isSettingMenu = false
+                    homeViewModel.homeViewAction = .none
                 }, label: {
                     Text("닫기")
                         .reazyFont(.text1)

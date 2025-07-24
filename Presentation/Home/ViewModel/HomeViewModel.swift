@@ -13,10 +13,38 @@ import Combine
 class HomeViewModel: ObservableObject {
     private let pdfSharedData: PDFSharedData = .shared
     
+    // MARK: - Home 상태 관리
+    /// 홈 뷰 상태 관리 변수
+    @Published public var homeViewStatus: HomeViewStatus = .main {
+        didSet {
+            if case let .folder(folderID) = homeViewStatus {
+                currentFolder = folders.first { $0.id == folderID }
+            } else {
+                currentFolder = nil
+            }
+            updateFilteredList()
+        }
+    }
     
-    // MARK: - HomeView 변수
-    public var selectedItemID: UUID?
-    public var itemsToMove: [PaperInfo] {
+    /// 홈 뷰 Alert 관리 변수
+    @Published public var homeViewAction: HomeViewAction = .none {
+        didSet {
+            self.previousAction = oldValue
+        }
+    }
+    public var previousAction: HomeViewAction?
+
+    
+    
+    // MARK: - HomeView 프로퍼티
+    @Published public var filteredLists: [PaperInfo] = []  // HomeView, PaperListView
+    @Published public var selectedItems: Set<UUID> = []    // HomeSearchView, HomeView, PaperListView, TagView
+    @Published public var isLoading: Bool = false   // TagControlView, HomeSearchView, HomeView, SearchView
+    
+
+    
+    public var selectedItemID: UUID?    // HomeView
+    public var itemsToMove: [PaperInfo] {   // HomeView
         self.selectedItems.isEmpty
         ? (self.selectedItemID.flatMap { id in
             self.filteredLists.first(where: { $0.id == id })
@@ -26,175 +54,63 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    public var isEditingTitle: Bool = false
-    
-    // 폴더 추가 페이지 변수
-    public var createMovingFolder: Bool = false
-    
-    // 폴더 이동 변수
-    public var moveToFolderID: UUID? = nil
-    public var newFolder: Folder? {
-        self.folders.first(where: { $0.id == self.moveToFolderID })
+    public var selectedPaper: PaperInfo?    // HomeSearchView, PaperListView, TagView
+    public var isAtRoot: Bool { // HomeView
+        currentFolder == nil && homeViewStatus.currentFolderID == nil
     }
     
+    public func handleDrop(to folderId: UUID, droppedItem: PaperInfo) { // HomeListView
+        DispatchQueue.main.async {
+            self.updatePaperLocation(at: droppedItem.id, folderID: folderId)
+        }
+    }
     
-    public var isDuplicatedTitleAlertPresented: Bool = false
+    // MARK: - 폴더 상태 관리
+    // 전체 폴더 배열
+    @Published public var folders: [Folder] = [] {  // HomeView, MainPDFView
+        didSet {
+            updateFilteredList()
+        }
+    }
+    @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent // HomeView, HomeFolderPopoverView, HomeListView
+    @Published public var expandedFolders: Set<UUID> = []   // MoveFolderView, HomeListView
+    @Published public var expandedMoveFolders: Set<UUID> = []  // MoveFolderView
     
-    // MARK: - MoveFolderView 변수
-    public var expandedMoveFolders: Set<UUID> = []
+    // 폴더 이동 화면에서 새 폴더 생성했을 경우 Focus하기 위한 변수
+    @Published public var newFolderParentID: UUID?  // MoveFolderView
+    @Published public var newFolderID: UUID?    // MoveFolderView
+    @Published public var currentFolder: Folder? = nil {    // PaperListView, HomeListView
+        didSet {
+            updateFilteredList()
+        }
+    }
     
-    public var rootFolders: [Folder] {
+    public var rootFolders: [Folder] {  // MoveFolderView, HomeListView
         self.folders.filter { $0.parentFolderID == nil }
     }
     
-    public func childFolders(of folderID: UUID?) -> [Folder] {
-        self.folders.filter { $0.parentFolderID == folderID }
-    }
     
-    public func hasChildren(folder: Folder) -> Bool {
-        !childFolders(of: folder.id).isEmpty
-    }
-    
-    public func toggleExpansion(folder: Folder) {
-        if self.expandedMoveFolders.contains(folder.id) {
-            self.expandedMoveFolders.remove(folder.id)
-        } else {
-            self.expandedMoveFolders.insert(folder.id)
-        }
-    }
-    
-    public func expandOnlyParentFolders(of folderID: UUID) {
-        if let parentID = self.getParentFolderID(for: folderID) {
-            self.expandedMoveFolders.insert(parentID)
-            expandOnlyParentFolders(of: parentID)
-        }
-    }
-
-    // MARK: - PaperListView 변수
-    
-    public var isNavigationPushed: Bool = false
-    
-    public var selectedPaper: PaperInfo?
-    
-    public var deleteAlertPresented: Bool = false
-    
-    private var isIPadMini: Bool {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let screenSize = UIScreen.main.nativeBounds.size
-            let isMiniSize = (screenSize.width == 1536 && screenSize.height == 2048) ||
-            (screenSize.width == 1488 && screenSize.height == 2266)
-            return isMiniSize
-        }
-        return false
-    }
-    
-    public var isPortrait: Bool = false
-    
-    public func updatePortrait() {
+    // MARK: - Oreintation 관련 변수
+    public func updatePortrait() {  // PaperListView
         if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
             self.isPortrait = true
         }
     }
+    public var isPortrait: Bool = false // HomeSearchView, PaperListView, TagView, SearchView
     
+    // HomeViewModel, TagViewModel
     private let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
-        
-    // MARK: - HomeListView 변수
-    public var selectedCategory: CategorySelection = .main
-    
-    
-    
-    public var paperInfos: [PaperInfo] = [] {
-        didSet {
-            updateFilteredList()
-        }
-    }
-    
-    // MARK: -
-    
-    // 전체 폴더 배열
-    @Published public var folders: [Folder] = [] {
-        didSet {
-            updateFilteredList()
-        }
-    }
-    
-    // 현재 위치한 폴더
-    @Published public var currentFolder: Folder? = nil {
-        didSet {
-            updateFilteredList()
-        }
-    }
-    
-    // 폴더 이동 화면에서 새 폴더 생성했을 경우 Focus하기 위한 변수
-    @Published public var newFolderParentID: UUID?
-    @Published public var newFolderID: UUID?
-    
-    public var isAtRoot: Bool {
-        return currentFolder == nil && selectedFolderID == nil
-    }
-    
-    @Published var selectedFolderID: UUID? {
-        didSet {
-            updateFilteredList()
-        }
-    }
-    
-    @Published public var isFavoriteSelected: Bool = false {
-        didSet {
-            resetToRoot()
-            updateFilteredList()
-        }
-    }
-    
-    @Published public var isTagSelected: Bool = false {
-        didSet {
-            resetToRoot()
-            updateFilteredList()
-        }
-    }
-    @Published public var isMainSelected: Bool = true {
-        didSet {
-            updateFilteredList()
-        }
-    }
-    
-    @Published var filteredLists: [PaperInfo] = []
-    
-    @Published var isMovingFolder: Bool = false
-    @Published var selectedItems: Set<UUID> = []
-    
-    @Published public var isSearching: Bool = false
-    @Published public var searchText: String = ""
-    
-    @Published public var isEditing: Bool = false
-
-    @Published public var selectedMenu: Options = .main
-    
-    public var changedTitle: String?
-    
-    // 진입 경로 추적 스택
-    private var navigationStack: [(isFavoriteSelected: Bool, folder: Folder?)] = []
-    
-    @Published public var isLoading: Bool = false
-    @Published public var isErrorOccured: Bool = false
-    @Published public var errorStatus: PDFUploadError = .failedToAccessingSecurityScope
-    
-    @Published public var isSettingMenu: Bool = false
-    @Published public var viewStatus: SearchViewStatus = .normal
-    public var isInHomeView: Bool = true
-    
-    @Published public var isEditingFolder: Bool = false
-    @Published public var createFolder: Bool = false
-    @Published public var folderCreationPosition: FolderCreationPosition = .intoCurrent
-    @Published public var expandedFolders: Set<UUID> = []
-    
-    @Published public var showDeleteAlert: Bool = false
-    @Published public var showFolderDepthAlert: Bool = false
-    
+    // MARK: - 나머지
     private let homeViewUseCase: HomeViewUseCase
     
     private var cancellables: Set<AnyCancellable> = []
+    
+    private var paperInfos: [PaperInfo] = [] {
+        didSet {
+            updateFilteredList()
+        }
+    }
     
     init(homeViewUseCase: HomeViewUseCase) {
         self.homeViewUseCase = homeViewUseCase
@@ -222,90 +138,10 @@ class HomeViewModel: ObservableObject {
     deinit {
         self.cancellables.forEach { $0.cancel() }
     }
-    
-    enum SearchViewStatus: Hashable {
-        case normal             // 기본
-        case search(PaperInfo)  // 검색
-        case setTag(PaperInfo)  // 태그 관리
-        case addTagToPaperInfo(PaperInfo)
-        case folderPopover(CGPoint)
-        
-        var isBlurred: Bool {
-            switch self {
-            case .normal, .folderPopover(_), .setTag(_), .addTagToPaperInfo(_):
-                false
-            default:
-                true
-            }
-        }
-        
-        var isBlacked: Bool {
-            switch self {
-            case .search(_), .folderPopover(_), .setTag(_), .addTagToPaperInfo(_):
-                true
-            default:
-                false
-            }
-        }
-    }
 }
 
-
+// MARK: - 초기 세팅
 extension HomeViewModel {
-    public func fetchPaperList() {
-        self.paperInfos = (try? homeViewUseCase.loadPDFs().get()) ?? []
-    }
-    public func uploadPDF(url: [URL]) -> UUID? {
-        defer { self.isLoading = false }
-        
-        do {
-            let folderID = selectedFolderID
-            
-            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: folderID)
-            if let paperInfo = paperInfo {
-                self.paperInfos.append(paperInfo)
-                updateFilteredList()
-            }
-            return paperInfo?.id
-        } catch {
-            if let error = error as? PDFUploadError {
-                self.errorStatus = error
-            }
-            print(error)
-            return nil
-        }
-    }
-    
-    public func uploadSamplePDF() -> UUID? {
-        let paperInfo = self.homeViewUseCase.uploadSamplePDFFile()
-        
-        fetchPaperList()
-        
-        return paperInfo[1]?.id
-    }
-    
-    public func deletePDF(at id: UUID) {
-        self.homeViewUseCase.deletePDF(id: id)
-        self.paperInfos.removeAll(where: { $0.id == id })
-    }
-    
-    public func duplicatePDF(at id: UUID) {
-        guard let paper = self.paperInfos.first(where: { $0.id == id }) else {
-            return
-        }
-        
-        do {
-            if let result = try self.homeViewUseCase.duplicatePDF(paperInfo: paper) {
-                self.paperInfos.append(result)
-            }
-        } catch {
-            if let error = error as? PDFUploadError {
-                self.errorStatus = error
-                self.isErrorOccured.toggle()
-            }
-        }
-    }
-    
     private func setBinding() {
         NotificationCenter.default.publisher(for: .changeHomePaperInfo)
             .sink { [weak self] noti in
@@ -343,16 +179,55 @@ extension HomeViewModel {
     }
 }
 
-// MARK: - EditingTitle 메소드
+
+// MARK: - PaperInfo CRUD 메소드
 extension HomeViewModel {
-    public func editButtonTapped(_ paperInfo: PaperInfo) {
-        withAnimation(.easeInOut) {
-            viewStatus = .search(paperInfo)
+    public func fetchPaperList() {
+        self.paperInfos = (try? homeViewUseCase.loadPDFs().get()) ?? []
+    }
+    public func uploadPDF(url: [URL]) -> UUID? {
+        defer { self.isLoading = false }
+        
+        do {
+            let folderID = homeViewStatus.currentFolderID
+            let paperInfo = try self.homeViewUseCase.uploadPDFFile(url: url, folderID: folderID)
+            if let paperInfo = paperInfo {
+                self.paperInfos.append(paperInfo)
+                updateFilteredList()
+            }
+            return paperInfo?.id
+        } catch {
+            print(error)
+            return nil
         }
     }
-}
-
-extension HomeViewModel {
+    
+    public func deletePDF(at id: UUID) {
+        self.homeViewUseCase.deletePDF(id: id)
+        self.paperInfos.removeAll(where: { $0.id == id })
+    }
+    
+    public func deleteFiles(_ files: [PaperInfo]) {
+        for file in files {
+            self.homeViewUseCase.deletePDF(id: file.id)
+            self.paperInfos.removeAll(where: { $0.id == file.id })
+        }
+    }
+    
+    public func duplicatePDF(at id: UUID) {
+        guard let paper = self.paperInfos.first(where: { $0.id == id }) else {
+            return
+        }
+        
+        do {
+            if let result = try self.homeViewUseCase.duplicatePDF(paperInfo: paper) {
+                self.paperInfos.append(result)
+            }
+        } catch {
+            print(error)
+        }
+    }
+    
     public func updatePaperFavorite(at id: UUID, isFavorite: Bool) {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite
@@ -403,12 +278,9 @@ extension HomeViewModel {
                 
                 PDFSharedData.shared.paperInfo?.title = title
                 
-                self.changedTitle = title
                 completion(true)
             case .failure(let error):
                 print(error)
-                self.errorStatus = .fileNameDuplication
-                self.isErrorOccured.toggle()
                 completion(false)
             }
         }
@@ -420,10 +292,16 @@ extension HomeViewModel {
             self.homeViewUseCase.editPDF(paperInfos[index])
         }
     }
-}
-
-
-extension HomeViewModel {
+    
+    // MARK: - Sample 업로드 메소드
+    public func uploadSamplePDF() -> UUID? {
+        let paperInfo = self.homeViewUseCase.uploadSamplePDFFile()
+        
+        fetchPaperList()
+        
+        return paperInfo[1]?.id
+    }
+    
     public func uploadSampleData(focuses: [FocusAnnotation]) {
         let sampleUrl = Bundle.main.url(forResource: "engPD5", withExtension: "pdf")!
         self.paperInfos.append(PaperInfo(
@@ -435,57 +313,62 @@ extension HomeViewModel {
             folderID: nil
         ))
     }
+    
+    public func setSample() {
+        let isFirst = UserDefaults.standard.bool(forKey: "sample")
+        
+        if isFirst {
+            return
+        }
+        
+        let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
+        
+        let layout = try! JSONDecoder().decode(PDFLayoutResponseDTO.self, from: .init(contentsOf: url))
+        
+        let id = self.uploadSamplePDF()!
+        UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
+        self.updateIsFigureSaved(at: id, isFigureSaved: true)
+        
+        
+        
+        layout.fig.forEach {
+            let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
+                id: $0.id,
+                head: $0.head,
+                coords: $0.coords))
+        }
+        
+        UserDefaults.standard.set(true, forKey: "sample")
+    }
 }
 
+// MARK: - 버튼 액션 메소드
 extension HomeViewModel {
-    func selectCategory(_ category: CategorySelection) {
-        switch category {
-        case .main:
-            isMainSelected = true
-            isFavoriteSelected = false
-            isTagSelected = false
-            selectedFolderID = nil
-            currentFolder = nil
-        case .favorite:
-            isMainSelected = false
-            isFavoriteSelected = true
-            isTagSelected = false
-            selectedFolderID = nil
-            currentFolder = nil
-        case .tag:
-            isMainSelected = false
-            isFavoriteSelected = false
-            isTagSelected = true
-            selectedFolderID = nil
-            currentFolder = nil
-        case .folder(let folderID):
-            isMainSelected = false
-            isFavoriteSelected = false
-            isTagSelected = false
-            selectedFolderID = folderID
-            currentFolder = folders.first { $0.id == folderID }
+    public func checkPaperButtonTapped(paperInfo: PaperInfo) {
+        switch self.selectedItems.contains(paperInfo.id) {
+        case true:
+            self.selectedItems.remove(paperInfo.id)
+        case false:
+            self.selectedItems.insert(paperInfo.id)
         }
-        updateFilteredList()
     }
     
-    func updateFilteredList() {
-        filteredLists = paperInfos.filter { paper in
-            if isMainSelected {
-                return true
-            } else if isFavoriteSelected {
-                return paper.isFavorite
-            } else if isTagSelected {
-                return !paper.tags.isEmpty
-            } else if let folder = currentFolder {
-                return paper.folderID == folder.id
-            }
-            return false
-        }.sorted { $0.lastModifiedDate > $1.lastModifiedDate }
+    public func editButtonTapped(_ paperInfo: PaperInfo) {
+        withAnimation(.easeInOut) {
+            homeViewAction = .editingPaperTitle(paperInfo)
+        }
+    }
+    
+    public func categoryButtonTapped(_ status: HomeViewStatus) {
+        self.homeViewStatus = status
+        updateFilteredList()
     }
 }
 
+
+// MARK: - 폴더 관련 메소드
 extension HomeViewModel {
-    func depth(of folderID: UUID?) -> Int {
+    public func depth(of folderID: UUID?) -> Int {
         guard let folderID = folderID,
               let folder = folders.first(where: { $0.id == folderID }) else {
             return 0
@@ -503,57 +386,9 @@ extension HomeViewModel {
         return depth
     }
     
-    func depthAbove(folderID: UUID?) -> Int {
-        guard let folderID = folderID,
-              let folder = folders.first(where: { $0.id == folderID }) else { return 0 }
-
-        var current = folder
-        var depth = 0
-
-        while let parentID = current.parentFolderID,
-              let parent = folders.first(where: { $0.id == parentID }) {
-            current = parent
-            depth += 1
-        }
-
-        return depth
-    }
-
-    func depthBelow(folderID: UUID?) -> Int {
-        guard let folderID = folderID else { return 0 }
-
-        let children = folders.filter { $0.parentFolderID == folderID }
-
-        if children.isEmpty {
-            return 0
-        }
-
-        let childDepths = children.map { depthBelow(folderID: $0.id) }
-        return 1 + (childDepths.max() ?? 0)
-    }
-
-    func totalDepthInBranch(for folderID: UUID?) -> Int {
+    public func totalDepthInBranch(for folderID: UUID?) -> Int {
         return depthAbove(folderID: folderID) + 1 + depthBelow(folderID: folderID)
     }
-
-    private func selectedFolder() -> Folder? {
-        guard let selectedID = selectedFolderID else { return nil }
-        return folders.first(where: { $0.id == selectedID })
-    }
-    
-    private func collectParentFolderIDs(from folder: Folder?) -> [UUID] {
-        var result: [UUID] = []
-        var currentFolder = folder
-
-        while let parentID = currentFolder?.parentFolderID,
-              let parentFolder = folders.first(where: { $0.id == parentID }) {
-            result.append(parentID)
-            currentFolder = parentFolder
-        }
-
-        return result
-    }
-
     
     public func createFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
         let folder = Folder(
@@ -566,48 +401,22 @@ extension HomeViewModel {
         return folder
     }
     
-    private func saveFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
-        let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
-        
-        self.homeViewUseCase.saveFolder(newFolder)
-        folders.append(newFolder)
-        
-        return newFolder
-    }
-    
-    func createSubfolder(in folder: Folder?, title: String, color: String) {
-        let newFolder = saveFolder(to: folder?.id, title: title, color: color)
+    public func createSubfolder(in folderId: UUID?, title: String, color: String) {
+        let newFolder = saveFolder(to: folderId, title: title, color: color)
         
         newFolderID = newFolder.id
-        newFolderParentID = folder?.id
+        newFolderParentID = folderId
         
         let parentIDs = collectParentFolderIDs(from: newFolder)
         expandedFolders.formUnion(parentIDs)
     }
-
-    func createFolderAbove(_ folder: Folder?, title: String, color: String) {
-        guard let folder = folder else { return }
-
-        let newParent = saveFolder(to: folder.parentFolderID, title: title, color: color)
-        
-        if let index = folders.firstIndex(where: { $0.id == folder.id }) {
-            folders[index].parentFolderID = newParent.id
-            homeViewUseCase.editFolder(folders[index])
-        }
-
-        newFolderID = newParent.id
-        newFolderParentID = newParent.parentFolderID
-        
-        let parentIDs = collectParentFolderIDs(from: newParent)
-        expandedFolders.formUnion(parentIDs)
-    }
     
-    func createSubfolderInSelectedFolder(title: String, color: String) {
+    public func createSubfolderInSelectedFolder(title: String, color: String) {
         let folder = selectedFolder()
-        createSubfolder(in: folder, title: title, color: color)
+        createSubfolder(in: folder?.id, title: title, color: color)
     }
 
-    func createFolderAboveSelectedFolder(title: String, color: String) {
+    public func createFolderAboveSelectedFolder(title: String, color: String) {
         let folder = selectedFolder()
         createFolderAbove(folder, title: title, color: color)
     }
@@ -648,12 +457,121 @@ extension HomeViewModel {
 
         paperInfos.removeAll { fileIDsToDelete.contains($0.id) }
         folders.removeAll { folderIDsToDelete.contains($0.id) }
-
-        showDeleteAlert = false
+        homeViewAction = .deletingFolderAlert
     }
+    
+    public func navigateToParent() {
+        if let parentID = currentFolder?.parentFolderID {
+            currentFolder = folders.first { $0.id == parentID }
+            homeViewStatus = .folder(parentID)
+        }
+        updateFilteredList()
+    }
+    
+    public func childFolders(of folderID: UUID?) -> [Folder] {  // MoveFolderView, HomeListView
+        self.folders.filter { $0.parentFolderID == folderID }
+    }
+    
+    public func hasChildren(folder: Folder) -> Bool {   // MoveFolderView, HomeListView
+        !childFolders(of: folder.id).isEmpty
+    }
+    
+    public func toggleExpansionMoveFolders(folder: Folder) {   // MoveFolderView, HomeListView
+        if self.expandedMoveFolders.contains(folder.id) {
+            self.expandedMoveFolders.remove(folder.id)
+        } else {
+            self.expandedMoveFolders.insert(folder.id)
+        }
+    }
+    
+    public func expandOnlyParentFolders(of folderID: UUID) {    // MoveFolderView
+        if let parentID = self.getParentFolderID(for: folderID) {
+            self.expandedMoveFolders.insert(parentID)
+            expandOnlyParentFolders(of: parentID)
+        }
+    }
+    
+    public func toggleExpansionFolder(folder: Folder) {
+        if self.expandedFolders.contains(folder.id) {
+            self.expandedFolders.remove(folder.id)
+        } else {
+            self.expandedFolders.insert(folder.id)
+        }
+    }
+    
+    private func depthAbove(folderID: UUID?) -> Int {
+        guard let folderID = folderID,
+              let folder = folders.first(where: { $0.id == folderID }) else { return 0 }
 
+        var current = folder
+        var depth = 0
 
+        while let parentID = current.parentFolderID,
+              let parent = folders.first(where: { $0.id == parentID }) {
+            current = parent
+            depth += 1
+        }
 
+        return depth
+    }
+    
+    private func depthBelow(folderID: UUID?) -> Int {
+        guard let folderID = folderID else { return 0 }
+
+        let children = folders.filter { $0.parentFolderID == folderID }
+
+        if children.isEmpty {
+            return 0
+        }
+
+        let childDepths = children.map { depthBelow(folderID: $0.id) }
+        return 1 + (childDepths.max() ?? 0)
+    }
+    
+    private func selectedFolder() -> Folder? {
+        guard let selectedID = homeViewStatus.currentFolderID else { return nil }
+        return folders.first(where: { $0.id == selectedID })
+    }
+    
+    private func collectParentFolderIDs(from folder: Folder?) -> [UUID] {
+        var result: [UUID] = []
+        var currentFolder = folder
+
+        while let parentID = currentFolder?.parentFolderID,
+              let parentFolder = folders.first(where: { $0.id == parentID }) {
+            result.append(parentID)
+            currentFolder = parentFolder
+        }
+
+        return result
+    }
+    
+    private func saveFolder(to parentFolderID: UUID?, title: String, color: String) -> Folder {
+        let newFolder = self.createFolder(to: parentFolderID, title: title, color: color)
+        
+        self.homeViewUseCase.saveFolder(newFolder)
+        folders.append(newFolder)
+        
+        return newFolder
+    }
+    
+    private func createFolderAbove(_ folder: Folder?, title: String, color: String) {
+        guard let folder = folder else { return }
+
+        let newParent = saveFolder(to: folder.parentFolderID, title: title, color: color)
+        
+        if let index = folders.firstIndex(where: { $0.id == folder.id }) {
+            folders[index].parentFolderID = newParent.id
+            homeViewUseCase.editFolder(folders[index])
+        }
+
+        newFolderID = newParent.id
+        newFolderParentID = newParent.parentFolderID
+        
+        let parentIDs = collectParentFolderIDs(from: newParent)
+        expandedFolders.formUnion(parentIDs)
+    }
+    
     private func collectFolderAndDescendants(from parentID: UUID) -> [UUID] {
         var result: [UUID] = [parentID]
 
@@ -665,119 +583,60 @@ extension HomeViewModel {
 
         return result
     }
-
-}
-
-extension HomeViewModel {
-    public func navigateToParent() {
-        if let parentID = currentFolder?.parentFolderID {
-            currentFolder = folders.first { $0.id == parentID }
-            selectedFolderID = parentID
-        }
-        updateFilteredList()
-    }
     
-    // 탭 변경 시 최초 상태로 초기화
-    private func resetToRoot() {
-        currentFolder = nil
-        navigationStack.removeAll()
-    }
-    
-    var parentFolderTitle: String? {
-        if isFavoriteSelected {
-            // 즐겨찾기 경로에서는 스택의 마지막 폴더를 확인
-            return navigationStack.last?.folder?.title
-        } else {
-            // 전체 경로에서는 현재 폴더의 부모 폴더를 확인
-            guard let parentID = currentFolder?.parentFolderID else {
-                return nil
-            }
-            return folders.first { $0.id == parentID }?.title
-        }
-    }
-}
-
-extension HomeViewModel {
-    public func deleteFiles(_ files: [PaperInfo]) {
-        for file in files {
-            self.homeViewUseCase.deletePDF(id: file.id)
-            self.paperInfos.removeAll(where: { $0.id == file.id })
-        }
-    }
-}
-
-extension HomeViewModel {
-    public func getPapaerURL(at id: UUID) -> URL? {
-        var isStale: Bool = false
-        
-        if let index = paperInfos.firstIndex(where: { $0.id == id }) {
-            if let url = try? URL.init(resolvingBookmarkData: paperInfos[index].url, bookmarkDataIsStale: &isStale) {
-                return url
-            }
-        }
-        return nil
-    }
-    
-    func getParentFolderID(for folderID: UUID) -> UUID? {
+    private func getParentFolderID(for folderID: UUID) -> UUID? {
         return folders.first { $0.id == folderID }?.parentFolderID
     }
 }
 
+// MARK: - 그 외 나머지
 extension HomeViewModel {
-    public func setSample() {
-        let isFirst = UserDefaults.standard.bool(forKey: "sample")
-        
-        if isFirst {
+    public func navigateToPaper(_ id: UUID) {
+        guard let selectedPaper = self.paperInfos.first(where: { $0.id == id }) else {
             return
         }
         
-        let url = Bundle.main.url(forResource: "sample", withExtension: "json")!
+        var isStale = false
+        let data = selectedPaper.url
         
-        let layout = try! JSONDecoder().decode(PDFLayoutResponseDTO.self, from: .init(contentsOf: url))
-        
-        let id = self.uploadSamplePDF()!
-        UserDefaults.standard.set(id.uuidString, forKey: "sampleId")
-        self.updateIsFigureSaved(at: id, isFigureSaved: true)
-        
-        
-        
-        layout.fig.forEach {
-            let _ = FigureDataRepositoryImpl().saveFigureData(for: id, with: .init(
-                id: $0.id,
-                head: $0.head,
-                coords: $0.coords))
+        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
+            print("bookmarkdata to url failed")
+            return
         }
         
-        UserDefaults.standard.set(true, forKey: "sample")
+        if isStale {
+            print("Bookmark(\(url.lastPathComponent)) is stale")
+            guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
+                print("Unable to create bookmark")
+                return
+            }
+            
+            let idx = self.paperInfos.firstIndex { $0.id == id }!
+            self.paperInfos[idx].url = newURL
+        }
+        
+        NavigationCoordinator.shared.push(.mainPDF(paperInfo: selectedPaper))
     }
-}
-
-enum CategorySelection: Equatable {
-    case main, favorite, tag, folder(UUID)
+    
+    private func updateFilteredList() {
+        filteredLists = paperInfos.filter { paper in
+            switch self.homeViewStatus {
+            case .main, .edit:
+                return true
+            case .favorite:
+                return paper.isFavorite
+            case .tag:
+                return !paper.tags.isEmpty
+            case let .folder(id):
+                return paper.folderID == id
+            default:
+                return true
+            }
+        }.sorted { $0.lastModifiedDate > $1.lastModifiedDate }
+    }
 }
 
 enum FolderCreationPosition {
     case intoCurrent
     case aboveCurrent
-}
-
-
-
-
-class AlertManager {
-    
-    
-    
-    
-    enum Status {
-        case editingTitle
-        case editingFolder
-        case movingFolder
-        case creatingFolder
-        case creatingTag
-        case settingMenu
-        case deleteTag
-        case deletePaper
-        case duplicatedTitle
-    }
 }

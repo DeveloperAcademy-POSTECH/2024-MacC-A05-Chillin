@@ -18,34 +18,29 @@ struct HomeFolderPopoverView: View {
             .overlay {
                 VStack(spacing: 0) {
                     PopoverActionView(popoverAction: .changeName) {
-                        homeViewModel.viewStatus = .normal
-                        homeViewModel.isEditingFolder = true
+                        homeViewModel.homeViewAction = .editingFolder
                     }
                     divider
                     PopoverActionView(popoverAction: .addParentFolder) {
-                        homeViewModel.viewStatus = .normal
-                        
-                        if homeViewModel.totalDepthInBranch(for: homeViewModel.selectedFolderID) < 4 {
+                        if homeViewModel.totalDepthInBranch(for: homeViewModel.homeViewStatus.currentFolderID) < 4 {
                             homeViewModel.folderCreationPosition = .aboveCurrent
-                            homeViewModel.createFolder = true
+                            homeViewModel.homeViewAction = .creatingFolder
                         } else {
-                            homeViewModel.showFolderDepthAlert = true
+                            homeViewModel.homeViewAction = .folderDepthAlert
                         }
                     }
                     divider
                     PopoverActionView(popoverAction: .addSubFolder) {
-                        homeViewModel.viewStatus = .normal
-                        if homeViewModel.depth(of: homeViewModel.selectedFolderID) < 4 {
+                        if homeViewModel.totalDepthInBranch(for: homeViewModel.homeViewStatus.currentFolderID) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
-                            homeViewModel.createFolder = true
+                            homeViewModel.homeViewAction = .creatingFolder
                         } else {
-                            homeViewModel.showFolderDepthAlert = true
+                            homeViewModel.homeViewAction = .folderDepthAlert
                         }
                     }
                     divider
                     PopoverActionView(popoverAction: .delete) {
-                        homeViewModel.viewStatus = .normal
-                        homeViewModel.showDeleteAlert = true
+                        homeViewModel.homeViewAction = .deletingFolderAlert
                     }
                 }
             }

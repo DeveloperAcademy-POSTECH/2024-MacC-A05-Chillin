@@ -387,7 +387,7 @@ struct MainPDFView: View {
                 }
                 
                 Color.black
-                    .opacity(mainPDFViewModel.isEditingTitle || homeViewModel.isMovingFolder || mainPDFViewModel.createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .opacity(mainPDFViewModel.isEditingTitle /*|| homeViewModel.isMovingFolder*/ || mainPDFViewModel.createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
@@ -397,18 +397,20 @@ struct MainPDFView: View {
                         .zIndex(1)
                 }
                 
-                if homeViewModel.isMovingFolder {
-                    if let paperInfo = PDFSharedData.shared.paperInfo {
-                        MoveFolderView(
-                            createMovingFolder: $mainPDFViewModel.createMovingFolder,
-                            items: [paperInfo],
-                            selectedID: $mainPDFViewModel.moveToFolderID
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .frame(width: 740, height: 550)
-                        .blur(radius: mainPDFViewModel.createMovingFolder ? 20 : 0)
-                    }
-                }
+                
+                // TODO: 추후 수정해야함
+//                if homeViewModel.isMovingFolder {
+//                    if let paperInfo = PDFSharedData.shared.paperInfo {
+//                        MoveFolderView(
+//                            createMovingFolder: $mainPDFViewModel.createMovingFolder,
+//                            items: [paperInfo],
+//                            selectedID: $mainPDFViewModel.moveToFolderID
+//                        )
+//                        .clipShape(RoundedRectangle(cornerRadius: 20))
+//                        .frame(width: 740, height: 550)
+//                        .blur(radius: mainPDFViewModel.createMovingFolder ? 20 : 0)
+//                    }
+//                }
                 
                 Color.black
                     .opacity(mainPDFViewModel.createMovingFolder ? 0.5 : 0)
@@ -417,20 +419,18 @@ struct MainPDFView: View {
                 if mainPDFViewModel.createMovingFolder {
                     let folder = homeViewModel.folders.first(where: { $0.id == mainPDFViewModel.moveToFolderID })
                     FolderView(
-                        createMovingFolder: $mainPDFViewModel.createMovingFolder,
+//                        createMovingFolder: $mainPDFViewModel.createMovingFolder,
                         folder: folder
                     )
                 }
             }
             .navigationBarHidden(true)
             .onAppear {
-                self.homeViewModel.isInHomeView = false
                 self.focusFigureViewModel.isFigureCaptured()
                 self.focusFigureViewModel.isCollectionCaptured()
                 self.floatingViewModel.subscribeToFocusFigureViewModel(focusFigureViewModel)
             }
             .onDisappear {
-                self.homeViewModel.isInHomeView = true
                 self.searchViewModel.removeAllAnnotations()
                 PDFSharedData.shared.updatePaperInfo()
                 // TODO: 에러 처리 필요
@@ -449,7 +449,7 @@ struct MainPDFView: View {
             )
         }
         .animation(.easeInOut, value: mainPDFViewModel.isDuplicatedTitleAlertPresented)
-        .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
+//        .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
         .overlay {
             if self.focusFigureViewModel.figureStatus == .loading {
                 FigureLoadingView(isOriginal: true)
@@ -457,16 +457,16 @@ struct MainPDFView: View {
                 FigureLoadingView(isOriginal: false)
             }
             
-            if case let .search(paper) = homeViewModel.viewStatus {
-                RenamePaperTitleView(paperInfo: paper) {
-                    homeViewModel.viewStatus = .normal
-                } completeAction: { text in
-                    homeViewModel.updateTitle(at: paper.id, title: text) {
-                        if !$0 { mainPDFViewModel.isDuplicatedTitleAlertPresented.toggle() }
-                    }
-                    homeViewModel.viewStatus = .normal
-                }
-            }
+//            if case let .search(paper) = homeViewModel.viewStatus {
+//                RenamePaperTitleView(paperInfo: paper) {
+//                    homeViewModel.viewStatus = .normal
+//                } completeAction: { text in
+//                    homeViewModel.updateTitle(at: paper.id, title: text) {
+//                        if !$0 { mainPDFViewModel.isDuplicatedTitleAlertPresented.toggle() }
+//                    }
+//                    homeViewModel.viewStatus = .normal
+//                }
+//            }
             
             if self.focusFigureViewModel.focusStatus == .networkDisconnection {
                 ZStack {

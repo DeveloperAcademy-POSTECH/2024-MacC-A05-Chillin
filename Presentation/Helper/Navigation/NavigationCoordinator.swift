@@ -12,6 +12,11 @@ import SwiftUI
  Navigation 관리하는 클래스
  */
 final class NavigationCoordinator: CoordinatorProtocol {
+    static let shared = NavigationCoordinator()
+    
+    private init() {}
+    
+    
     @Published public var path: NavigationPath = .init()
     @Published var sheet: Sheet?
     @Published var fullScreenCover: FullScreenCover?

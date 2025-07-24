@@ -85,22 +85,16 @@ struct PaperListView: View {
                                                 paperInfo: paperInfo,
                                                 isSelected: Binding(
                                                     get: { homeViewModel.selectedItems.contains(paperInfo.id) },
-                                                    set: { newValue in
-                                                        if newValue {
-                                                            homeViewModel.selectedItems.insert(paperInfo.id)
-                                                        } else {
-                                                            homeViewModel.selectedItems.remove(paperInfo.id)
-                                                        }
-                                                    }
+                                                    set: { _ in }
                                                 ),
-                                                cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
+                                                cellStatus: homeViewModel.homeViewStatus == .edit ? .selection : .normal,
                                                 screenWidth: homeViewModel.isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.7,
                                                 onTapGesture: {
-                                                    navigateToPaper(paperInfo.id)
+                                                    homeViewModel.navigateToPaper(paperInfo.id)
                                                     homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
                                                 },
                                                 checkAction: {
-                                                    homeViewModel.selectedItems.insert(paperInfo.id)
+                                                    homeViewModel.checkPaperButtonTapped(paperInfo: paperInfo)
                                                 },
                                                 starAction: {
                                                     homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
@@ -110,19 +104,19 @@ struct PaperListView: View {
                                                     homeViewModel.editButtonTapped(paperInfo)
                                                 },
                                                 setTagAction: {
-                                                    homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                                    homeViewModel.homeViewAction = .addTagToPaper(paperInfo)
                                                 },
                                                 copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
                                                 deleteAction: {
                                                     homeViewModel.selectedPaper = paperInfo
-                                                    homeViewModel.deleteAlertPresented.toggle()
+                                                    homeViewModel.homeViewAction = .deletingPaperAlert
                                                 },
                                                 moveAction: {
                                                     homeViewModel.selectedItems.insert(paperInfo.id)
-                                                    homeViewModel.isMovingFolder.toggle()
+                                                    homeViewModel.homeViewAction = .movingFolder
                                                 },
                                                 addTagAction: {
-                                                    homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                                    homeViewModel.homeViewAction = .addTagToPaper(paperInfo)
                                                 }
                                             )
                                             .draggable(paperInfo) {
@@ -145,17 +139,17 @@ struct PaperListView: View {
                 }
                 .background(.gray300)
             }
-            .onDisappear {
-                homeViewModel.isNavigationPushed = false
-            }
             .alert(
                 "정말 삭제하시겠습니까?",
-                isPresented: $homeViewModel.deleteAlertPresented,
+                isPresented: homeViewModel.homeViewAction.isDeletePaperAlertPresented,
                 presenting: homeViewModel.selectedPaper
             ) { paperInfo in
-                Button("취소", role: .cancel) {}
+                Button("취소", role: .cancel) {
+                    homeViewModel.homeViewAction = .none
+                }
                 Button("삭제", role: .destructive) {
                     homeViewModel.deletePDF(at: paperInfo.id)
+                    homeViewModel.homeViewAction = .none
                 }
             } message: { paperInfo in
                 Text("삭제된 파일은 복구할 수 없습니다.")
@@ -166,41 +160,11 @@ struct PaperListView: View {
     }
     
     private func emptyStateMessage() -> String {
-        if homeViewModel.isFavoriteSelected {
-            return String(localized: "즐겨찾기 한 논문이 없어요")
-        } else {
-            return String(localized: "새로운 논문을 가져와 주세요")
+        switch homeViewModel.homeViewStatus {
+        case .favorite:
+            String(localized: "즐겨찾기 한 논문이 없어요")
+        default:
+            String(localized: "새로운 논문을 가져와 주세요")
         }
-    }
-}
-
-extension PaperListView {
-    
-    // TODO: URL 분리 필요
-    private func navigateToPaper(_ id: UUID) {
-        guard let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == id }) else {
-            return
-        }
-        
-        var isStale = false
-        let data = selectedPaper.url
-        
-        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            print("bookmarkdata to url failed")
-            return
-        }
-        
-        if isStale {
-            print("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
-                print("Unable to create bookmark")
-                return
-            }
-            
-            let idx = homeViewModel.paperInfos.firstIndex { $0.id == id }!
-            homeViewModel.paperInfos[idx].url = newURL
-        }
-        
-        navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
     }
 }

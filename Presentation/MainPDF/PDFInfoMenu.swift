@@ -85,7 +85,8 @@ struct PDFInfoMenu: View {
             VStack(spacing: 10) {
                 Button(action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    homeViewModel.viewStatus = .search(pdfSharedData.paperInfo!)
+//                    homeViewModel.viewStatus = .search(pdfSharedData.paperInfo!)
+                    homeViewModel.homeViewAction = .editingPaperTitle(pdfSharedData.paperInfo!)
                 }, label: {
                     HStack{
                         Text("제목 수정")
@@ -132,7 +133,8 @@ struct PDFInfoMenu: View {
                 
                 Button(action: {
                     self.mainPDFViewModel.isMenuSelected = false
-                    homeViewModel.isMovingFolder = true
+//                    homeViewModel.isMovingFolder = true
+                    homeViewModel.homeViewAction = .movingFolder
                 }, label: {
                     HStack{
                         Text("이동")
@@ -190,9 +192,6 @@ struct PDFInfoMenu: View {
         )
         .onAppear {
             self.title = pdfSharedData.paperInfo?.title ?? "알 수 없음"
-        }
-        .onDisappear {
-            homeViewModel.changedTitle = nil
         }
     }
 }
