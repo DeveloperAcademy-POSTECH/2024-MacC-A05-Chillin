@@ -60,14 +60,20 @@ final class NavigationCoordinator: CoordinatorProtocol {
         case .mainPDF(let paperInfo):
             if path.count != 0 {
                 let _ = PDFSharedData.shared.makeDocument(from: paperInfo)
+                let paperDataRepository = PaperDataRepositoryImpl()
                 
                 MainPDFView(
                     pdfInfoMenuViewModel: .init(
                         pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(
-                            paperDataRepository: PaperDataRepositoryImpl()
+//                            paperDataRepository: PaperDataRepositoryImpl()
+                            paperDataRepository: paperDataRepository
                         )
                     ),
-                    mainPDFViewModel: .init(),
+                    mainPDFViewModel: .init(
+                        basicPaperCRUDUseCase: DefaultBasicPaperCRUDUseCase(
+                            paperDataRepository: paperDataRepository
+                        )
+                    ),
                     commentViewModel: .init(
                         commentService: CommentDataRepositoryImpl(),
                         buttonGroupService: ButtonGroupDataRepositoryImpl()

@@ -17,6 +17,8 @@ struct OriginalView: View {
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject private var backPageBtnViewModel: BackPageBtnViewModel
     
+    @State private var translationManager: TranslationManager = .init()
+    
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
     @State private var pdfViewOffset: CGFloat = 50
@@ -38,6 +40,7 @@ struct OriginalView: View {
             ZStack {
                 VStack(spacing: 0) {
                     OriginalViewControllerRepresent() // PDF 뷰를 표시
+                        .environment(translationManager)
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .gesture(
@@ -106,7 +109,8 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if self.orientation == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
+//                if self.orientation == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
+                if self.orientation == .vertical && floatingViewModel.isPaperViewLeft { return } else {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation {
                             if viewModel.isCommentVisible {

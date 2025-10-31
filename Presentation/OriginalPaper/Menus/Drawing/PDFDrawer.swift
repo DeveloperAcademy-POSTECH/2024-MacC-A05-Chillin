@@ -8,6 +8,7 @@
 import Foundation
 import PDFKit
 import SwiftUI
+import Combine
 
 enum DrawingTool: Int {
     case none = 0
@@ -43,16 +44,16 @@ enum Storage {
 }
 
 class PDFDrawer {
-    @EnvironmentObject var focusFigureViewModel: FocusFigureViewModel
-    @Published var drawingTool: DrawingTool = .none
+    weak var mainPDFViewModel: MainPDFViewModel?
     
+//    @Published var drawingTool: DrawingTool = .none
     @Published var selectedStorage: Storage = .figure
     
     weak var pdfView: PDFView!
     private var path: UIBezierPath?
     private var currentAnnotation: DrawingAnnotation?
     private var currentPage: PDFPage?
-    var penColor: PenColors = .black
+    var penColor: PenColors?/* = .black*/
 
     private var eraserLayer: CAShapeLayer? = nil
     
@@ -76,6 +77,36 @@ class PDFDrawer {
     @State private var selectedRect: CGRect = .zero
     private var totalPageCount: Int = 0
     private var pageNum: Int = 0
+    
+    init(mainPDFViewModel: MainPDFViewModel) {
+        self.mainPDFViewModel = mainPDFViewModel
+        
+//        mainPDFViewModel.$statusStack
+//            .sink { [weak self] statusStack in
+//                if !statusStack.isToolSelected {
+//                    self?.penColor = nil
+//                }
+//            }
+//            .store(in: &cancellables)
+        
+        mainPDFViewModel.$selectedPenColor
+            .sink { [weak self] color in
+                if let color = color {
+                    self?.penColor = color
+                }
+            }
+            .store(in: &cancellables)
+        
+//        mainPDFViewModel.$statusStack
+//            .sink { [weak self] statusStack in
+//                if !statusStack.isCenterMenuSelected {
+//                    self?.penColor = .black
+//                }
+//            }
+//            .store(in: &cancellables)
+    }
+    
+    private var cancellables: Set<AnyCancellable> = []
     
     // 새로운 주석 히스토리에 저장
     private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
@@ -134,12 +165,16 @@ class PDFDrawer {
 extension PDFDrawer: DrawingGestureRecognizerDelegate {
     // MARK: - 제스처 최초 시작 시 한 번 실행되는 함수
     func gestureRecognizerBegan(_ location: CGPoint) {
-        if drawingTool == .none { return }
+        guard let viewModel = mainPDFViewModel else { return }
+        
+//        if drawingTool == .none { return }
+        if !viewModel.statusStack.isCenterMenuSelected { return }
         
         guard let page = pdfView.page(for: location, nearest: true) else { return }
         currentPage = page
 
-        if drawingTool == .lasso {
+//        if drawingTool == .lasso {
+        if viewModel.statusStack.isCaptureSelected {
             
             lassoRectangleLayer?.removeFromSuperlayer()
             checkButton.removeFromSuperview()
@@ -176,12 +211,17 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     
     // MARK: - 제스처 움직이는 동안 실행되는 함수
     func gestureRecognizerMoved(_ location: CGPoint) {
-        if drawingTool == .none { return }
+        guard let viewModel = mainPDFViewModel else { return }
+
+//        if drawingTool == .none { return }
+        if !viewModel.statusStack.isCenterMenuSelected { return }
+        
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         let pageBounds = pdfView.convert(page.bounds(for: pdfView.displayBox), from: page)
         
-        if drawingTool == .lasso {
+//        if drawingTool == .lasso {
+        if viewModel.statusStack.isCaptureSelected {
             guard let startPoint = self.startPoint else { return }
 
             // 현재 위치에 따라 실시간으로 사각형의 위치와 크기를 계산
@@ -204,7 +244,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             return
         }
         
-        if drawingTool == .eraser {
+//        if drawingTool == .eraser {
+        if viewModel.statusStack.isEraserSelected {
             updateEraserLayer(at: location)
             removeAnnotationAtPoint(point: location, page: page)
             return
@@ -221,11 +262,16 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     
     // MARK: - 패드에서 제스처 뗄 때 실행되는 함수
     func gestureRecognizerEnded(_ location: CGPoint) {
-        if drawingTool == .none { return }
+        guard let viewModel = mainPDFViewModel else { return }
+        
+//        if drawingTool == .none { return }
+        if !viewModel.statusStack.isCenterMenuSelected { return }
+        
         guard let page = currentPage else { return }
         let convertedPoint = pdfView.convert(location, to: page)
         
-        if drawingTool == .lasso {
+//        if drawingTool == .lasso {
+        if viewModel.statusStack.isCaptureSelected {
             if checkButton.frame.contains(location) {
                 // MARK: PDF 저장하는 부분
                 guard let startConvertedPoint = self.startPoint else { return }
@@ -294,7 +340,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             return
             
         }
-        if drawingTool == .eraser {
+//        if drawingTool == .eraser {
+        if viewModel.statusStack.isEraserSelected {
             removeAnnotationAtPoint(point: location, page: page)
             eraserLayer?.removeFromSuperlayer()
             eraserLayer = nil
@@ -307,7 +354,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         path?.move(to: convertedPoint)
         page.removeAnnotation(currentAnnotation!)
         
-        if drawingTool == .pencil {
+//        if drawingTool == .pencil {
+        if viewModel.statusStack.isPencilSelected {
             let _ = createFinalAnnotation(path: path!, page: page)
         }
         currentAnnotation = nil
@@ -340,11 +388,13 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     
     private func createAnnotation(path: UIBezierPath, page: PDFPage) -> DrawingAnnotation {
         let border = PDFBorder()
-        border.lineWidth = drawingTool.width
+//        border.lineWidth = drawingTool.width
+        border.lineWidth = self.mainPDFViewModel?.statusStack.toolWidth ?? 0.5
         
         let annotation = DrawingAnnotation(bounds: page.bounds(for: pdfView.displayBox), forType: .ink, withProperties: nil)
         // 펜 디자인 설정
-        annotation.color = penColor.uiColor.withAlphaComponent(drawingTool.alpha)
+//        annotation.color = penColor.uiColor.withAlphaComponent(drawingTool.alpha)
+        annotation.color = penColor?.uiColor.withAlphaComponent(self.mainPDFViewModel?.statusStack.toolAlpha ?? 0) ?? .black
         annotation.border = border
         return annotation
     }
@@ -363,7 +413,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     // MARK: -획을 그리고 배열에 저장하는 함수
     private func createFinalAnnotation(path: UIBezierPath, page: PDFPage) -> PDFAnnotation {
         let border = PDFBorder()
-        border.lineWidth = drawingTool.width
+//        border.lineWidth = drawingTool.width
+        border.lineWidth = self.mainPDFViewModel?.statusStack.toolWidth ?? 0.5
         
         let bounds = CGRect(x: path.bounds.origin.x - 5,
                             y: path.bounds.origin.y - 5,
@@ -374,7 +425,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         let _ = signingPathCentered.moveCenter(to: bounds.center)
         
         let annotation = PDFAnnotation(bounds: bounds, forType: .ink, withProperties: nil)
-        annotation.color = penColor.uiColor.withAlphaComponent(drawingTool.alpha)
+//        annotation.color = penColor.uiColor.withAlphaComponent(drawingTool.alpha)
+        annotation.color = penColor?.uiColor.withAlphaComponent(self.mainPDFViewModel?.statusStack.toolAlpha ?? 0) ?? .black
         annotation.border = border
         annotation.add(signingPathCentered)
         page.addAnnotation(annotation)
@@ -435,7 +487,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
     }
     
     func endCaptureMode() {
-        drawingTool = .none
+//        drawingTool = .none
+//        self.mainPDFViewModel?.statusStack.centerMenuOff()
         lassoRectangleLayer?.removeFromSuperlayer()
         checkButton.removeFromSuperview()
     }

@@ -29,23 +29,23 @@ struct FloatingSplitView: View {
     let documentID: String
     let document: PDFDocument
     let head: String
-    let isFigSelected: Bool
-    let isCollectionSelected: Bool
+//    let isFigSelected: Bool
+//    let isCollectionSelected: Bool
     let onSelect: () -> Void
     let isVertical: Bool
     
     @State private var isSavedLocation: Bool = false
     @Binding private var dynamicHeight: CGFloat
     
-    init(id: UUID, documentID: String, document: PDFDocument, head: String, isFigSelected: Bool, isCollectionSelected: Bool, onSelect: @escaping () -> Void, isVertical: Bool, dynamicHeight: Binding<CGFloat>) {
+    init(id: UUID, documentID: String, document: PDFDocument, head: String, onSelect: @escaping () -> Void, isVertical: Bool, dynamicHeight: Binding<CGFloat>) {
         self.document = document
         _observableDocument = ObservedObject(wrappedValue: ObservableDocument(document: document))
         
         self.id = id
         self.documentID = documentID
         self.head = head
-        self.isFigSelected = isFigSelected
-        self.isCollectionSelected = isCollectionSelected
+//        self.isFigSelected = isFigSelected
+//        self.isCollectionSelected = isCollectionSelected
         self.onSelect = onSelect
         self.isVertical = isVertical
         self._dynamicHeight = dynamicHeight
@@ -168,7 +168,8 @@ struct FloatingSplitView: View {
                 }
                 
                 
-                if (isFigSelected || isCollectionSelected) && !(isVertical && dynamicHeight <= 400) {
+//                if (isFigSelected || isCollectionSelected) && !(isVertical && dynamicHeight <= 400) {
+                if (mainPDFViewModel.statusStack.isFigureSelected || mainPDFViewModel.statusStack.isCollectionSelected) && !(isVertical && dynamicHeight <= 400) {
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(.gray300)
@@ -176,7 +177,7 @@ struct FloatingSplitView: View {
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal) {
                             HStack(spacing: 8) {
-                                if isFigSelected {
+                                if mainPDFViewModel.statusStack.isFigureSelected {
                                     ForEach(focusFigureViewModel.figures, id: \.self) { item in
                                         let id = item.uuid
                                         

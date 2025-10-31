@@ -35,6 +35,9 @@ public struct RenamePaperTitleView: View {
             Color.black
                 .opacity(0.5)
                 .ignoresSafeArea()
+                .onTapGesture {
+                    isTextFieldFocused = false
+                }
             
             VStack {
                 HStack {

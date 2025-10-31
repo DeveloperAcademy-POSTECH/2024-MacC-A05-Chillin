@@ -11,13 +11,14 @@ import SwiftUI
 struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
     typealias UIViewControllerType = OriginalViewController
     
-    @EnvironmentObject var mainPDFViewModel: MainPDFViewModel
+    @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject private var pageListViewModel: PageListViewModel
     @EnvironmentObject private var searchViewModel: SearchViewModel
     @EnvironmentObject private var indexViewModel: IndexViewModel
-    @EnvironmentObject var commentViewModel: CommentViewModel
-    @EnvironmentObject var backpageBtnViewModel: BackPageBtnViewModel
+    @EnvironmentObject private var commentViewModel: CommentViewModel
+    @EnvironmentObject private var backpageBtnViewModel: BackPageBtnViewModel
+    @Environment(TranslationManager.self) var translationManager: TranslationManager
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
         OriginalViewController(
@@ -27,7 +28,9 @@ struct OriginalViewControllerRepresent: UIViewControllerRepresentable {
             pageListViewModel: pageListViewModel,
             searchViewModel: searchViewModel,
             indexViewModel: indexViewModel,
-            backpageBtnViewModel: backpageBtnViewModel)
+            backpageBtnViewModel: backpageBtnViewModel,
+            translationManager: translationManager
+        )
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {

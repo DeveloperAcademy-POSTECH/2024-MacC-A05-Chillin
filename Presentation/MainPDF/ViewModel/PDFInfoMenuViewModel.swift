@@ -12,6 +12,9 @@ import PDFKit
 class PDFInfoMenuViewModel: ObservableObject {
     private let pdfInfoMenuUsecase: PDFInfoMenuUseCase
     
+    @Published public var paperTitle: String = ""
+    @Published public var isFavorite: Bool = false
+    
     @Published public var isActivityViewPresented: Bool = false
     
     public var fileURL: URL {
@@ -21,6 +24,20 @@ class PDFInfoMenuViewModel: ObservableObject {
     
     init(pdfInfoMenuUsecase: PDFInfoMenuUseCase) {
         self.pdfInfoMenuUsecase = pdfInfoMenuUsecase
+    }
+    
+    public func onAppear() {
+        self.paperTitle = PDFSharedData.shared.paperInfo?.title ?? "알 수 없음"
+        self.isFavorite = PDFSharedData.shared.paperInfo?.isFavorite ?? false
+    }
+    
+    public func favoriteButtonTapped() {
+        self.isFavorite.toggle()
+        PDFSharedData.shared.paperInfo?.isFavorite = self.isFavorite
+        
+        if let paperInfo = PDFSharedData.shared.paperInfo {
+            self.pdfInfoMenuUsecase.editPDF(paperInfo)
+        }
     }
     
     public func timeAgoString(from date: Date) -> String {

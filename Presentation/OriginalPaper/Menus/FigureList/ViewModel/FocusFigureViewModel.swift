@@ -62,6 +62,7 @@ class FocusFigureViewModel: ObservableObject {
     
     init(focusFigureUseCase: FocusFigureUseCase) {
         self.focusFigureUseCase = focusFigureUseCase
+        self.binding()
     }
     
     deinit {
@@ -392,8 +393,13 @@ extension FocusFigureViewModel {
         return document
     }
     
+    private func binding() {
+        isFigureCaptured()
+        isCollectionCaptured()
+    }
+    
     // 올가미로 새 Figure 추가하는 부분
-    func isFigureCaptured() {
+    private func isFigureCaptured() {
         self.figurePublisher
             .sink { [weak self] in
                 self?.isCaptureMode.toggle()
@@ -426,7 +432,7 @@ extension FocusFigureViewModel {
             .store(in: &self.cancellables)
     }
     
-    func isCollectionCaptured() {
+    private func isCollectionCaptured() {
         self.collectionPublisher
             .sink { [weak self] in
                 self?.isCaptureMode.toggle()

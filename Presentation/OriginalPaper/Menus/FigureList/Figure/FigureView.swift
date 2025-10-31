@@ -243,14 +243,18 @@ private struct FigureCompleteView: View {
                 focusFigureViewModel.isCaptureMode.toggle()
                 if focusFigureViewModel.isCaptureMode {
                     mainPDFViewModel.pdfDrawer.selectedStorage = .figure
-                    mainPDFViewModel.pdfDrawer.drawingTool = .lasso
-                    mainPDFViewModel.toolMode = .lasso
+//                    mainPDFViewModel.pdfDrawer.drawingTool = .lasso
+//                    mainPDFViewModel.toolMode = .lasso
+//                    mainPDFViewModel.statusStack.captureToggle()
                 } else {
-                    mainPDFViewModel.toolMode = .none
-                    mainPDFViewModel.pdfDrawer.drawingTool = .none
+//                    mainPDFViewModel.toolMode = .none
+//                    mainPDFViewModel.pdfDrawer.drawingTool = .none
                     mainPDFViewModel.pdfDrawer.endCaptureMode()
                 }
-                mainPDFViewModel.selectedButton = nil
+                
+                mainPDFViewModel.statusStack.captureToggle()
+//                mainPDFViewModel.selectedButton = nil
+                mainPDFViewModel.statusStack.centerMenuOff()
             }) {
                 ZStack(alignment: .top) {
                     RoundedRectangle(cornerRadius: 8)

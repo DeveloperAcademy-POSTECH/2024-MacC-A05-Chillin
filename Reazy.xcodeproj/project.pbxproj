@@ -83,6 +83,7 @@
 		2CD48F562CFC3F8D004A5949 /* OrientationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */; };
 		2CDB3D332E32052300609333 /* HomeViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D322E32052300609333 /* HomeViewAction.swift */; };
 		2CDB3D352E32052D00609333 /* HomeViewStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D342E32052D00609333 /* HomeViewStatus.swift */; };
+		2CDB3D372E335D3400609333 /* Set + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D362E335D3400609333 /* Set + Extension.swift */; };
 		2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE743912D65BBE6006A81BE /* DynamicCell.swift */; };
 		2CE9E4E42D9BD22400DA3A81 /* PaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */; };
 		2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */; };
@@ -226,6 +227,7 @@
 		2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationManager.swift; sourceTree = "<group>"; };
 		2CDB3D322E32052300609333 /* HomeViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewAction.swift; sourceTree = "<group>"; };
 		2CDB3D342E32052D00609333 /* HomeViewStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewStatus.swift; sourceTree = "<group>"; };
+		2CDB3D362E335D3400609333 /* Set + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set + Extension.swift"; sourceTree = "<group>"; };
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
@@ -650,6 +652,7 @@
 				2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */,
 				2C1474142CE8F2D500B35D92 /* Navigation */,
 				2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */,
+				2CDB3D362E335D3400609333 /* Set + Extension.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -1066,6 +1069,7 @@
 				2C5C24172CE9DB9E00C37A1B /* PDFUploadError.swift in Sources */,
 				2C1474422CE900A700B35D92 /* UIBezierPath+.swift in Sources */,
 				2C1473F42CE8828800B35D92 /* PageListUseCase.swift in Sources */,
+				2CDB3D372E335D3400609333 /* Set + Extension.swift in Sources */,
 				2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */,
 				2C14741A2CE8F52200B35D92 /* TranslationUseCase.swift in Sources */,
 				2C2C358A2CEB24D800552185 /* MenuView.swift in Sources */,
@@ -1455,7 +1459,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202505291747;
+				CURRENT_PROJECT_VERSION = 2025103101;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
@@ -1473,7 +1477,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1492,7 +1496,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202505291747;
+				CURRENT_PROJECT_VERSION = 2025103101;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
@@ -1510,7 +1514,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

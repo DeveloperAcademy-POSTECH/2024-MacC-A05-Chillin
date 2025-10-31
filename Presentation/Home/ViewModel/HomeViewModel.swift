@@ -143,24 +143,25 @@ class HomeViewModel: ObservableObject {
 // MARK: - 초기 세팅
 extension HomeViewModel {
     private func setBinding() {
-        NotificationCenter.default.publisher(for: .changeHomePaperInfo)
-            .sink { [weak self] noti in
-                if let paper = noti.object as? PaperInfo,
-                   let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
-                    guard var toChangePaper = self?.paperInfos[idx] else { return }
-                    
-                    toChangePaper.isFavorite = paper.isFavorite
-                    toChangePaper.isFigureSaved = paper.isFigureSaved
-                    toChangePaper.focusURL = paper.focusURL
-                    toChangePaper.title = paper.title
-                    toChangePaper.tags = paper.tags
-                    
-                    self?.paperInfos[idx] = toChangePaper
-                    
-                    self?.homeViewUseCase.editPDF(toChangePaper)
-                }
-            }
-            .store(in: &self.cancellables)
+        // TODO: 여기 주석처리함
+//        NotificationCenter.default.publisher(for: .changeHomePaperInfo)
+//            .sink { [weak self] noti in
+//                if let paper = noti.object as? PaperInfo,
+//                   let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
+//                    guard var toChangePaper = self?.paperInfos[idx] else { return }
+//                    
+//                    toChangePaper.isFavorite = paper.isFavorite
+//                    toChangePaper.isFigureSaved = paper.isFigureSaved
+//                    toChangePaper.focusURL = paper.focusURL
+//                    toChangePaper.title = paper.title
+//                    toChangePaper.tags = paper.tags
+//                    
+//                    self?.paperInfos[idx] = toChangePaper
+//                    
+//                    self?.homeViewUseCase.editPDF(toChangePaper)
+//                }
+//            }
+//            .store(in: &self.cancellables)
         
         self.orientationPublisher
             .sink { _ in
@@ -183,7 +184,10 @@ extension HomeViewModel {
 // MARK: - PaperInfo CRUD 메소드
 extension HomeViewModel {
     public func fetchPaperList() {
+//        self.paperInfos.removeAll()
         self.paperInfos = (try? homeViewUseCase.loadPDFs().get()) ?? []
+        print("----------------------------")
+        self.paperInfos.forEach { print($0) }
     }
     public func uploadPDF(url: [URL]) -> UUID? {
         defer { self.isLoading = false }
@@ -232,6 +236,8 @@ extension HomeViewModel {
         if let index = paperInfos.firstIndex(where: { $0.id == id }) {
             paperInfos[index].isFavorite = isFavorite
             self.homeViewUseCase.editPDF(paperInfos[index])
+//            updateFilteredList()
+//            self.fetchPaperList()
         }
     }
     
@@ -615,11 +621,14 @@ extension HomeViewModel {
             self.paperInfos[idx].url = newURL
         }
         
+//        print("🚨navigating - ", selectedPaper.title, selectedPaper.isFavorite)
         NavigationCoordinator.shared.push(.mainPDF(paperInfo: selectedPaper))
     }
     
     private func updateFilteredList() {
+//        filteredLists.removeAll()
         filteredLists = paperInfos.filter { paper in
+//            print("🧹filtering - ", paper.title, paper.isFavorite)
             switch self.homeViewStatus {
             case .main, .edit:
                 return true

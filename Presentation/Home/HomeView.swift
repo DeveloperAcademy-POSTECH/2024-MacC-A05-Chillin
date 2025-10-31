@@ -104,15 +104,89 @@ struct HomeView: View {
                 SettingView()
             case .creatingFolder, .editingFolder:
                 FolderView(
-                    folder: homeViewModel.folders.first { $0.id == homeViewModel.homeViewStatus.currentFolderID }
+                    folder: homeViewModel.folders.first { $0.id == homeViewModel.homeViewStatus.currentFolderID },
+                    cancelAction: {
+                        if let action = homeViewModel.previousAction, action == .movingFolder {
+                            homeViewModel.homeViewAction = action
+                        } else {
+                            homeViewModel.homeViewAction = .none
+                        }
+                    },
+                    completeAction: { color, title, folder in
+                        let text = title.isEmpty ? String(localized: "새 폴더") : title
+
+                        if case .creatingFolder = homeViewModel.homeViewAction {
+                            if homeViewModel.isAtRoot {
+                                homeViewModel.createSubfolder(in: nil, title: text, color: color.rawValue)
+                            } else {
+                                switch homeViewModel.folderCreationPosition {
+                                case .intoCurrent:
+                                    homeViewModel.createSubfolderInSelectedFolder(title: text, color: color.rawValue)
+                                case .aboveCurrent:
+                                    homeViewModel.createFolderAboveSelectedFolder(title: text, color: color.rawValue)
+                                }
+                            }
+                        } else {
+                            if let folder = folder {
+                                homeViewModel.updateFolderInfo(at: folder.id, title: text, color: color.rawValue)
+                            }
+                        }
+                        
+                        if let action = homeViewModel.previousAction, action == .movingFolder {
+                            homeViewModel.homeViewAction = action
+                        } else {
+                            homeViewModel.homeViewAction = .none
+                        }
+                    }
                 )
             case let .creatingMovingFolder(id):
                 FolderView(
-                    folder: homeViewModel.folders.first { $0.id == id }
+                    folder: homeViewModel.folders.first { $0.id == id },
+                    cancelAction: {
+                        if let action = homeViewModel.previousAction, action == .movingFolder {
+                            homeViewModel.homeViewAction = action
+                        } else {
+                            homeViewModel.homeViewAction = .none
+                        }
+                    },
+                    completeAction: { color, title, folder in
+                        let text = title.isEmpty ? String(localized: "새 폴더") : title
+                        
+                        if let folder = folder {
+                            homeViewModel.createSubfolder(in: folder.id, title: text, color: color.rawValue)
+                        } else {
+                            homeViewModel.createSubfolder(in: nil, title: text, color: color.rawValue)
+                        }
+                        
+                        if let action = homeViewModel.previousAction, action == .movingFolder {
+                            homeViewModel.homeViewAction = action
+                        } else {
+                            homeViewModel.homeViewAction = .none
+                        }
+                    }
                 )
             case .movingFolder:
                 MoveFolderView(
-                    items: homeViewModel.itemsToMove
+                    items: homeViewModel.itemsToMove,
+                    cancelAction: {
+                        homeViewModel.homeViewAction = .none
+                    },
+                    createFolderAction: { folderId in
+                        if homeViewModel.depth(of: folderId) < 4 {
+                            homeViewModel.homeViewAction = .creatingMovingFolder(folderId)
+                        } else {
+                            homeViewModel.homeViewAction = .folderDepthAlert
+                        }
+                    },
+                    moveAction: { folderId in
+//                        items.forEach { item in
+//                            homeViewModel.updatePaperLocation(at: item.id, folderID: folderId)
+//                        }
+                        homeViewModel.itemsToMove.forEach { item in
+                            homeViewModel.updatePaperLocation(at: item.id, folderID: folderId)
+                        }
+                        homeViewModel.homeViewAction = .none
+                    }
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: 740, height: 550)
@@ -421,16 +495,21 @@ struct FolderView: View {
     
     let folder: Folder?
     
+    let cancelAction: () -> Void
+    let completeAction: (FolderColors, String, Folder?) -> Void
+        
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Button(action: {
-                        if let action = homeViewModel.previousAction, action == .movingFolder {
-                            homeViewModel.homeViewAction = action
-                        } else {
-                            homeViewModel.homeViewAction = .none
-                        }
+//                        if let action = homeViewModel.previousAction, action == .movingFolder {
+//                            homeViewModel.homeViewAction = action
+//                        } else {
+//                            homeViewModel.homeViewAction = .none
+//                        }
+                        cancelAction()
+                        
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -440,37 +519,38 @@ struct FolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        if text.isEmpty { text = String(localized: "새 폴더") }
-                        
-                        switch homeViewModel.homeViewAction {
-                        case .editingFolder:
-                            if let folder = folder {
-                                homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
-                            }
-                        case .creatingFolder:
-                            if homeViewModel.isAtRoot {
-                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
-                            } else {
-                                switch homeViewModel.folderCreationPosition {
-                                case .intoCurrent:
-                                    homeViewModel.createSubfolderInSelectedFolder(title: text, color: selectedColors.rawValue)
-                                case .aboveCurrent:
-                                    homeViewModel.createFolderAboveSelectedFolder(title: text, color: selectedColors.rawValue)
-                                }
-                            }
-                        default:
-                            if let folder = folder {
-                                homeViewModel.createSubfolder(in: folder.id, title: text, color: selectedColors.rawValue)
-                            } else {
-                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
-                            }
-                        }
-                        
-                        if let action = homeViewModel.previousAction, action == .movingFolder {
-                            homeViewModel.homeViewAction = action
-                        } else {
-                            homeViewModel.homeViewAction = .none
-                        }
+//                        if text.isEmpty { text = String(localized: "새 폴더") }
+//                        
+//                        switch homeViewModel.homeViewAction {
+//                        case .editingFolder:
+//                            if let folder = folder {
+//                                homeViewModel.updateFolderInfo(at: folder.id, title: text, color: selectedColors.rawValue)
+//                            }
+//                        case .creatingFolder:
+//                            if homeViewModel.isAtRoot {
+//                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
+//                            } else {
+//                                switch homeViewModel.folderCreationPosition {
+//                                case .intoCurrent:
+//                                    homeViewModel.createSubfolderInSelectedFolder(title: text, color: selectedColors.rawValue)
+//                                case .aboveCurrent:
+//                                    homeViewModel.createFolderAboveSelectedFolder(title: text, color: selectedColors.rawValue)
+//                                }
+//                            }
+//                        default:
+//                            if let folder = folder {
+//                                homeViewModel.createSubfolder(in: folder.id, title: text, color: selectedColors.rawValue)
+//                            } else {
+//                                homeViewModel.createSubfolder(in: nil, title: text, color: selectedColors.rawValue)
+//                            }
+//                        }
+//                        
+//                        if let action = homeViewModel.previousAction, action == .movingFolder {
+//                            homeViewModel.homeViewAction = action
+//                        } else {
+//                            homeViewModel.homeViewAction = .none
+//                        }
+                        completeAction(selectedColors, text, folder)
                     }) {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(.gray100, lineWidth: 1)
