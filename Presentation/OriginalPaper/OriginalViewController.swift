@@ -313,8 +313,10 @@ extension OriginalViewController {
                 if let document = PDFSharedData.shared.document {
                     let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
                     
+                    if (num &+ 1) < 0 { return }
+                    
                     // 오버플로우 순환 연산
-                    self?.pageLabelView.text = "\(num &+ 1) / \(document.pageCount)"
+                    self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
                     self?.pageListViewModel.changedPageNumber = num
                     self?.focusFigureViewModel.changedPageNumber = num
                     self?.backpageBtnViewModel.handleBtnVisible()
