@@ -57,6 +57,13 @@ struct FloatingView: View {
                     }()
                     floatingViewModel.selectedFigureCellID = uuid
                     floatingViewModel.setSplitDocument(at: index, uuid: id)
+                    
+                    // TODO: QA 스플릿 뷰 오픈
+                    
+                    AnalyticsManager.sendEvent(
+                        eventType: .splitViewOpen,
+                        parameters: PDFSharedData.shared.articleId(), "floating"
+                    )
                 }, label: {
                     Image(systemName: "rectangle.split.2x1")
                         .font(.system(size: 14))
@@ -99,6 +106,11 @@ struct FloatingView: View {
                 
                 Button(action: {
                     floatingViewModel.deselect(uuid: id)
+                    // TODO: QA 플로팅 창 닫기
+                    AnalyticsManager.sendEvent(
+                        eventType: .floatingWindowClose,
+                        parameters: PDFSharedData.shared.articleId(), id.uuidString
+                    )
                 }, label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 14))
@@ -167,6 +179,17 @@ struct FloatingView: View {
                 self.aspectRatio = pageRect.width / pageRect.height
                 self.viewWidth = pageRect.width
             }
+            
+            // TODO: QA 플로팅 창 사용 시간
+            AnalyticsManager.shared.startFloatingViewEnterTime(id: self.id)
+        }
+        .onDisappear {
+            let result = AnalyticsManager.shared.logFloatingViewEnterTime(id: self.id)
+            
+            AnalyticsManager.sendEvent(
+                eventType: .floatingWindowDuration,
+                parameters: PDFSharedData.shared.articleId(), self.id.uuidString, String(result)
+            )
         }
     }
 }

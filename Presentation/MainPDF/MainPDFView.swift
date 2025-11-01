@@ -102,6 +102,9 @@ struct MainPDFView: View {
                                 mainPDFViewModel.statusStack.figureToggle()
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                                 focusFigureViewModel.isCaptureMode = false
+                                // TODO: QA Fig버튼 클릭
+                                let articleId = PDFSharedData.shared.articleId()
+                                AnalyticsManager.sendEvent(eventType: .figureButtonClick, parameters: articleId)
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
@@ -222,6 +225,11 @@ struct MainPDFView: View {
                                 FigureView(onSelect: { id, documentID, document, head in
                                     floatingViewModel.isFigure = true
                                     floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
+                                    // TODO: QA 피규어 블록 클릭 수
+                                    AnalyticsManager.sendEvent(
+                                        eventType: .figureBlockClick,
+                                        parameters: PDFSharedData.shared.articleId(), id.uuidString
+                                    )
                                 })
                                 .environmentObject(mainPDFViewModel)
                                 .environmentObject(floatingViewModel)

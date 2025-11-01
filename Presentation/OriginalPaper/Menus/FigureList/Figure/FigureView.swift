@@ -50,6 +50,12 @@ private struct FigureBeforeStartView: View {
         
         Button {
             focusFigureViewModel.downloadFigure()
+            // TODO: QA 추출하기 버튼 클릭
+            
+            AnalyticsManager.sendEvent(
+                eventType: .extractButtonClick,
+                parameters: PDFSharedData.shared.articleId(), Date.now.ISO8601Format()
+            )
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
@@ -140,6 +146,12 @@ private struct FigureCompleteView: View {
                             floatingViewModel.isFigure = true
                             floatingViewModel.selectedFigureCellID = id
                             floatingViewModel.setSplitDocument(at: 0, uuid: id)
+                            
+                            // TODO: QA 스플릿 뷰 오픈
+                            AnalyticsManager.sendEvent(
+                                eventType: .splitViewOpen,
+                                parameters: PDFSharedData.shared.articleId(), "list_top"
+                            )
                         }
                     }) {
                         Image(.dualwindow)

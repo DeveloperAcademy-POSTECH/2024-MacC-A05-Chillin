@@ -86,6 +86,7 @@
 		2CDB3D372E335D3400609333 /* Set + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D362E335D3400609333 /* Set + Extension.swift */; };
 		2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */; };
 		2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1F2EB6262100341B46 /* TranslationManager.swift */; };
+		2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C212EB6290200341B46 /* AnalyticsManager.swift */; };
 		2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE743912D65BBE6006A81BE /* DynamicCell.swift */; };
 		2CE9E4E42D9BD22400DA3A81 /* PaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */; };
 		2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */; };
@@ -232,6 +233,7 @@
 		2CDB3D362E335D3400609333 /* Set + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set + Extension.swift"; sourceTree = "<group>"; };
 		2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPDFViewAction.swift; sourceTree = "<group>"; };
 		2CE05C1F2EB6262100341B46 /* TranslationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationManager.swift; sourceTree = "<group>"; };
+		2CE05C212EB6290200341B46 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
@@ -658,6 +660,7 @@
 				2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */,
 				2CDB3D362E335D3400609333 /* Set + Extension.swift */,
 				2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */,
+				2CE05C212EB6290200341B46 /* AnalyticsManager.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -1140,6 +1143,7 @@
 				2C1474402CE900A700B35D92 /* DrawingGestureRecognizer.swift in Sources */,
 				2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */,
 				2C1473C32CE73B6F00B35D92 /* IndexCell.swift in Sources */,
+				2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */,
 				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,
 				2C1473C62CE73B6F00B35D92 /* OriginalViewController.swift in Sources */,
 				2C1473C82CE73B6F00B35D92 /* OriginalViewRepresentable.swift in Sources */,

@@ -121,6 +121,11 @@ struct FloatingSplitView: View {
                         
                         Button(action: {
                             floatingViewModel.deselect(uuid: id)
+                            // TODO: QA 스플릿 뷰 닫기 선택
+                            AnalyticsManager.sendEvent(
+                                eventType: .splitViewClose,
+                                parameters: PDFSharedData.shared.articleId()
+                            )
                         }, label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 14, weight: .medium))
@@ -185,6 +190,11 @@ struct FloatingSplitView: View {
                                                     }
                                                 }
                                             }
+                                            // TODO: QA 스플릿 뷰 내 피규어 클릭
+                                            AnalyticsManager.sendEvent(
+                                                eventType: .splitViewFigureClick,
+                                                parameters: PDFSharedData.shared.articleId(), id.uuidString
+                                            )
                                         })
                                         .environmentObject(floatingViewModel)
                                         .padding(.trailing, 5)
@@ -235,6 +245,18 @@ struct FloatingSplitView: View {
                 }
             }
             .background(.gray100)
+        }
+        .onAppear {
+            // TODO: QA
+            AnalyticsManager.shared.startSplitEnterTime()
+        }
+        .onDisappear {
+            let result = AnalyticsManager.shared.logSplitEnterTime()
+            
+            AnalyticsManager.sendEvent(
+                eventType: .splitViewDuration,
+                parameters: PDFSharedData.shared.articleId(), String(result)
+            )
         }
     }
 }
