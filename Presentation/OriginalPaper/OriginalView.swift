@@ -106,7 +106,7 @@ struct OriginalView: View {
             
             // 키보드 열릴 때
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                if self.orientation == .vertical && floatingViewModel.splitMode && viewModel.isPaperViewFirst { return } else {
+                if self.orientation == .vertical && floatingViewModel.isPaperViewLeft { return } else {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation {
                             if viewModel.isCommentVisible {

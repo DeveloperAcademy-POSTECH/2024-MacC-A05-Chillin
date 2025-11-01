@@ -143,25 +143,6 @@ class HomeViewModel: ObservableObject {
 // MARK: - 초기 세팅
 extension HomeViewModel {
     private func setBinding() {
-        NotificationCenter.default.publisher(for: .changeHomePaperInfo)
-            .sink { [weak self] noti in
-                if let paper = noti.object as? PaperInfo,
-                   let idx = self?.paperInfos.firstIndex(where: { $0.id == paper.id }) {
-                    guard var toChangePaper = self?.paperInfos[idx] else { return }
-                    
-                    toChangePaper.isFavorite = paper.isFavorite
-                    toChangePaper.isFigureSaved = paper.isFigureSaved
-                    toChangePaper.focusURL = paper.focusURL
-                    toChangePaper.title = paper.title
-                    toChangePaper.tags = paper.tags
-                    
-                    self?.paperInfos[idx] = toChangePaper
-                    
-                    self?.homeViewUseCase.editPDF(toChangePaper)
-                }
-            }
-            .store(in: &self.cancellables)
-        
         self.orientationPublisher
             .sink { _ in
                 let currentOrientation = UIDevice.current.orientation

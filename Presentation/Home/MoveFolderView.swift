@@ -13,12 +13,24 @@ struct MoveFolderView: View {
     @State private var id: UUID?
     let items: [PaperInfo]
     
+    let cancelAction: () -> Void
+    let createFolderAction: (UUID?) -> Void
+    let moveAction: (UUID?) -> Void
+    
+    init(id: UUID? = nil, items: [PaperInfo], cancelAction: @escaping () -> Void, createFolderAction: @escaping (UUID?) -> Void, moveAction: @escaping (UUID?) -> Void) {
+        self.id = id
+        self.items = items
+        self.cancelAction = cancelAction
+        self.createFolderAction = createFolderAction
+        self.moveAction = moveAction
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
                 HStack(spacing: 0) {
                     Button(action: {
-                        homeViewModel.homeViewAction = .none
+                        cancelAction()
                     }) {
                         Text("취소")
                             .reazyFont(.text1)
@@ -28,11 +40,7 @@ struct MoveFolderView: View {
                     Spacer()
                     
                     Button(action: {
-                        if homeViewModel.depth(of: self.id) < 4 {
-                            homeViewModel.homeViewAction = .creatingMovingFolder(id)
-                        } else {
-                            homeViewModel.homeViewAction = .folderDepthAlert
-                        }
+                        createFolderAction(self.id)
                     }) {
                         Image(systemName: "folder.badge.plus")
                             .resizable()
@@ -43,10 +51,7 @@ struct MoveFolderView: View {
                     .padding(.trailing, 26)
                     
                     Button(action: {
-                        items.forEach { item in
-                            homeViewModel.updatePaperLocation(at: item.id, folderID: id)
-                        }
-                        homeViewModel.homeViewAction = .none
+                        moveAction(self.id)
                     }) {
                         Text("이동")
                             .reazyFont(.text1)
@@ -210,5 +215,10 @@ private struct FolderMoveCell: View {
 }
 
 #Preview {
-    MoveFolderView(items: [])
+    MoveFolderView(
+        items: [],
+        cancelAction: {},
+        createFolderAction: {_ in },
+        moveAction: {_ in }
+    )
 }

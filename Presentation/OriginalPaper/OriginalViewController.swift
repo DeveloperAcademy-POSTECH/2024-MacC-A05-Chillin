@@ -22,6 +22,7 @@ final class OriginalViewController: UIViewController {
     let searchViewModel: SearchViewModel
     let indexViewModel: IndexViewModel
     let backpageBtnViewModel: BackPageBtnViewModel
+    let translationManager: TranslationManager
     
     var cancellable: Set<AnyCancellable> = []
     
@@ -101,13 +102,11 @@ final class OriginalViewController: UIViewController {
         let newMenu = UIMenu(title: String(), image: nil, identifier: nil, options: .displayInline, children: [searchWebAction, highlightAction, commentAction])
         builder.insertSibling(newMenu, afterMenu: .standardEdit)
         
-        /// 모드에 따라 뜨는 메뉴 다르게 설정
-        switch viewModel.toolMode {
-        case .comment, .drawing, .translate:
+        if viewModel.statusStack.isCenterMenuSelected {
             builder.remove(menu: .lookup)
             builder.remove(menu: .share)
             builder.remove(menu: newMenu.identifier)
-        default :
+        } else {
             builder.replaceChildren(ofMenu: .lookup) { elements in
                 return elements.filter { item in
                     switch (item as? UICommand)?.title.description {
@@ -130,7 +129,8 @@ final class OriginalViewController: UIViewController {
         pageListViewModel: PageListViewModel,
         searchViewModel: SearchViewModel,
         indexViewModel: IndexViewModel,
-        backpageBtnViewModel: BackPageBtnViewModel
+        backpageBtnViewModel: BackPageBtnViewModel,
+        translationManager: TranslationManager
     ) {
         self.viewModel = viewModel
         self.commentViewModel = commentViewModel
@@ -140,6 +140,7 @@ final class OriginalViewController: UIViewController {
         self.searchViewModel = searchViewModel
         self.indexViewModel = indexViewModel
         self.backpageBtnViewModel = backpageBtnViewModel
+        self.translationManager = translationManager
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -201,7 +202,6 @@ extension OriginalViewController {
     
     private func setGestures() {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
-        viewModel.pdfDrawer.drawingTool = .none
         
         // 애플 펜슬 제스처
         let pencilInteraction = UIPencilInteraction()
@@ -264,17 +264,13 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        self.viewModel.$toolMode
-            .sink { [weak self] mode in
-                self?.mainPDFView.toolMode = mode
+        self.viewModel.$statusStack
+            .sink { [weak self] statusStack in
+                print("First: ", statusStack)
+                self?.mainPDFView.performActionFlag = statusStack.isCenterMenuSelected
+                self?.updateGestureRecognizer(statusStack: statusStack)
             }
             .store(in: &self.cancellable)
-        
-        self.viewModel.pdfDrawer.$drawingTool
-            .sink { [weak self] drawingTool in
-                self?.updateGestureRecognizer(mode: drawingTool)
-            }
-            .store(in: &cancellable)
         
         NotificationCenter.default.publisher(for: .PDFViewAnnotationHit)
             .sink { [weak self] notification in
@@ -282,7 +278,7 @@ extension OriginalViewController {
                 
                 if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
                     if let type = annotation.type {
-                        if type == "Stamp" {      // 코멘트 탭횄을 때
+                        if type == "Stamp" {      // 코멘트 탭 했을 때
                             self.viewModel.isCommentTapped.toggle()
                             self.commentViewModel.isMenuTapped = false
                             
@@ -296,8 +292,7 @@ extension OriginalViewController {
                                 self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
                             }
                             self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
-                        } else if type == "Link" {        // 링크 탭횄을 때
-                            
+                        } else if type == "Link" {        // 링크 탭 했을 때
                             backpageBtnViewModel.backScaleFactor = mainPDFView.scaleFactor
                             backpageBtnViewModel.setDestination(pdfView: self.mainPDFView)
                             backpageBtnViewModel.delayBtnVisible(after: 0.8)
@@ -318,7 +313,8 @@ extension OriginalViewController {
                 if let document = PDFSharedData.shared.document {
                     let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
                     
-                    self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
+                    // 오버플로우 순환 연산
+                    self?.pageLabelView.text = "\(num &+ 1) / \(document.pageCount)"
                     self?.pageListViewModel.changedPageNumber = num
                     self?.focusFigureViewModel.changedPageNumber = num
                     self?.backpageBtnViewModel.handleBtnVisible()
@@ -328,21 +324,6 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
-        
-        
-        // 하이라이트 기능 실행
-        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
-            .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
-        
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                
-                DispatchQueue.main.async {
-                    self.viewModel.highlightText(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
-                }
-            }
-            .store(in: &self.cancellable)
-        
         
         // 번역 및 코멘트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
@@ -414,7 +395,8 @@ extension OriginalViewController {
                     DispatchQueue.main.async {
                         // ViewModel에 선택된 텍스트와 위치 업데이트
                         self.viewModel.selectedText = selectedText
-                        self.viewModel.translateViewPosition = screenPosition
+                        self.translationManager.selectedText = selectedText
+                        self.translationManager.translateViewPosition = screenPosition
                         self.viewModel.commentSelection = selection
                         self.viewModel.commentInputPosition = commentPosition
                         self.commentViewModel.selectedBounds = bound
@@ -485,7 +467,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         return false
     }
     
-    private func updateGestureRecognizer(mode: DrawingTool) {
+    private func updateGestureRecognizer(statusStack: Set<MainPDFViewStatus>) {
         // 기존 제스처 인식기만 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
@@ -495,19 +477,19 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             }
         }
         let pdfDrawingGestureRecognizer = DrawingGestureRecognizer()
-        switch mode {
-        case .lasso:
+        
+        if statusStack.isCaptureSelected {
             pdfDrawingGestureRecognizer.allowedTouchTypes = [
                 NSNumber(value: UITouch.TouchType.indirect.rawValue),
                 NSNumber(value: UITouch.TouchType.direct.rawValue),
                 NSNumber(value: UITouch.TouchType.pencil.rawValue)
             ]
-        case .pencil, .eraser:
+        } else if statusStack.isPencilSelected || statusStack.isEraserSelected {
             pdfDrawingGestureRecognizer.allowedTouchTypes = [
                 NSNumber(value: UITouch.TouchType.indirect.rawValue),
                 NSNumber(value: UITouch.TouchType.pencil.rawValue)
             ]
-        default:
+        } else {
             pdfDrawingGestureRecognizer.allowedTouchTypes = [
                 NSNumber(value: UITouch.TouchType.indirect.rawValue)
             ]
@@ -522,49 +504,41 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
 
 //canPerformAction()으로 menuAction 제한
 class CustomPDFView: PDFView {
-    var toolMode: ToolMode = .none
+    var performActionFlag: Bool = true
+    
     var scrollView: UIScrollView? {
         self.subviews.first as? UIScrollView
     }
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        
-        switch toolMode {
-        case .comment, .translate, .drawing:
-            return false
-            
-        default:
-            if action == #selector(copy(_:)) {
-                return true
-            }
+        if performActionFlag {
             return false
         }
+        
+        if action == #selector(copy(_:)) {
+            return true
+        }
+        
+        return false
     }
 }
 
 // MARK: - 애플 펜슬 더블 탭 처리
 extension OriginalViewController: UIPencilInteractionDelegate {
     func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {
-        switch self.viewModel.pdfDrawer.drawingTool {
-        case .pencil:
+        let statusStack = self.viewModel.statusStack
+        
+        if statusStack.isPencilSelected {
             switchToEraser(from: .pencil)
-            
-        case .highlights:
+        } else if statusStack.isHighlightSelected {
             switchToEraser(from: .highlights)
-            
-        case .eraser:
+        } else if statusStack.isEraserSelected {
             switchToPreviousTool()
-            
-        default:
-            break
         }
     }
     
     private func switchToEraser(from tool: DrawingTool) {
-        self.viewModel.pdfDrawer.drawingTool = .eraser
-        self.viewModel.isPencil = false
-        self.viewModel.isHighlight = false
-        self.viewModel.isEraser = true
+        self.viewModel.statusStack.onEraser()
         
         switch tool {
         case .pencil:
@@ -585,19 +559,15 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         
         switch previousTool {
         case .pencil:
-            self.viewModel.pdfDrawer.drawingTool = .pencil
-            self.viewModel.isPencil = true
+            self.viewModel.statusStack.onPencil()
             self.viewModel.selectedPenColor = self.viewModel.tempPenColor ?? .black
             
         case .highlights:
-            self.viewModel.pdfDrawer.drawingTool = .highlights
-            self.viewModel.isHighlight = true
+            self.viewModel.statusStack.onHighlight()
             self.viewModel.selectedHighlightColor = self.viewModel.tempHighlightColor ?? .yellow
             
         default:
             break
         }
-        
-        self.viewModel.isEraser = false
     }
 }

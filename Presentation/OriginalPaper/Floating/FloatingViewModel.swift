@@ -33,7 +33,16 @@ class FloatingViewModel: ObservableObject {
     @Published var splitMode: Bool = false
     @Published var isSaveImgAlert: Bool = false
     
+    @Published var isPaperViewFirst: Bool = true    // 스플릿 뷰 좌우 선택 플래그
+    
     var cancellables = Set<AnyCancellable>()
+    
+    public var isPaperViewLeft: Bool {
+        self.splitMode && self.isPaperViewFirst
+    }
+    public var isPaperViewRight: Bool {
+        self.splitMode && !self.isPaperViewFirst
+    }
     
     func toggleSelection(id: UUID, for documentID: String, document: PDFDocument, head: String) {
         if let index = droppedFigures.firstIndex(where: { $0.documentID == documentID }) {

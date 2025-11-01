@@ -63,7 +63,6 @@ struct CollectionView: View {
                             
                             Button(action: {
                                 // TODO: - 다중 선택 구현
-                                /// Ver.2.0.1 구현 예정
                             }) {
                                 Image(systemName: "checkmark.circle")
                                     .font(.system(size: 16))
@@ -129,14 +128,16 @@ struct CollectionView: View {
                         focusFigureViewModel.isCaptureMode.toggle()
                         if focusFigureViewModel.isCaptureMode {
                             mainPDFViewModel.pdfDrawer.selectedStorage = .collection
-                            mainPDFViewModel.pdfDrawer.drawingTool = .lasso
-                            mainPDFViewModel.toolMode = .lasso
                         } else {
-                            mainPDFViewModel.toolMode = .none
-                            mainPDFViewModel.pdfDrawer.drawingTool = .none
                             mainPDFViewModel.pdfDrawer.endCaptureMode()
                         }
-                        mainPDFViewModel.selectedButton = nil
+                        
+                        mainPDFViewModel.statusStack.captureToggle()
+                        mainPDFViewModel.statusStack.centerMenuOff()
+                        
+                        print(mainPDFViewModel.statusStack.isCollectionSelected,
+                              mainPDFViewModel.statusStack.isCaptureSelected,
+                              focusFigureViewModel.isCaptureMode)
                     }) {
                         ZStack(alignment: .top) {
                             RoundedRectangle(cornerRadius: 8)

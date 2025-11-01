@@ -11,7 +11,7 @@ import PDFKit
 import RegexBuilder
 
 
-protocol HomeViewUseCase {
+protocol BasicPaperCRUDUseCase {
     func loadPDFs() -> Result<[PaperInfo], any Error>
     
     @discardableResult
@@ -22,7 +22,13 @@ protocol HomeViewUseCase {
     
     @discardableResult
     func deletePDF(id: UUID) -> Result<VoidResponse, any Error>
-    
+}
+
+
+typealias HomeViewUseCase = BasicPaperCRUDUseCase & BasicHomeViewUseCase
+
+
+protocol BasicHomeViewUseCase {
     func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo?
     
     func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
@@ -42,6 +48,34 @@ protocol HomeViewUseCase {
     @discardableResult
     func deleteFolder(id: UUID) -> Result<VoidResponse, any Error>
 }
+
+
+class DefaultBasicPaperCRUDUseCase: BasicPaperCRUDUseCase {
+    private let paperDataRepository: PaperDataRepository
+    
+    init(paperDataRepository: PaperDataRepository) {
+        self.paperDataRepository = paperDataRepository
+    }
+
+    public func loadPDFs() -> Result<[PaperInfo], any Error> {
+        self.paperDataRepository.loadPDFInfo()
+    }
+    
+    public func savePDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.savePDFInfo(info)
+    }
+    
+    public func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.editPDFInfo(info)
+    }
+    
+    public func deletePDF(id: UUID) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.deletePDFInfo(id: id)
+    }
+}
+
+
+
 
 
 class DefaultHomeViewUseCase: HomeViewUseCase {

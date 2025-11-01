@@ -23,6 +23,8 @@ struct MainPDFView: View {
     @StateObject public var indexViewModel: IndexViewModel
     @StateObject public var backPageBtnViewModel: BackPageBtnViewModel
     
+    @State private var translationManager: TranslationManager = .init()
+    
     
     var body: some View {
         GeometryReader { geometry in
@@ -45,11 +47,10 @@ struct MainPDFView: View {
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                mainPDFViewModel.isListSelected.toggle()
-                                mainPDFViewModel.isSearchSelected = false
+                                mainPDFViewModel.statusStack.menuToggle()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle(mainPDFViewModel.isListSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.isMenuSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.index)
@@ -57,17 +58,16 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            .foregroundStyle(mainPDFViewModel.isListSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.isMenuSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                mainPDFViewModel.isSearchSelected.toggle()
-                                mainPDFViewModel.isListSelected = false
+                                mainPDFViewModel.statusStack.searchToggle()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle( mainPDFViewModel.isSearchSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.isSearchSelected ? .primary1 : .clear)
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.search)
@@ -75,16 +75,16 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 22)
-                                            .foregroundStyle(mainPDFViewModel.isSearchSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.isSearchSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 24)
                             
                             Button(action: {
-                                mainPDFViewModel.isReadMode.toggle()
+                                mainPDFViewModel.statusStack.concentrateToggle()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle( mainPDFViewModel.isReadMode ? .primary1 : .clear )
+                                    .foregroundStyle( mainPDFViewModel.statusStack.isConcentrateSelected ? .primary1 : .clear )
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.focus)
@@ -92,61 +92,50 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 18)
-                                            .foregroundStyle(mainPDFViewModel.isReadMode ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.isConcentrateSelected ? .gray100 : .gray800)
                                     )
                             }
                             
                             Spacer()
                             
                             Button(action: {
-                                mainPDFViewModel.isFigSelected.toggle()
-                                mainPDFViewModel.isMenuSelected = false
-                                mainPDFViewModel.isCollectionSelected = false
-                                
-                                mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                mainPDFViewModel.statusStack.figureToggle()
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                                 focusFigureViewModel.isCaptureMode = false
-                                
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(mainPDFViewModel.isFigSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.isFigureSelected ? .primary1 : .clear)
                                     .overlay (
                                         Text("Fig")
                                             .font(.system(size: 14))
-                                            .foregroundStyle(mainPDFViewModel.isFigSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.isFigureSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 25)
                             
                             Button(action: {
-                                mainPDFViewModel.isCollectionSelected.toggle()
-                                mainPDFViewModel.isFigSelected = false
-                                mainPDFViewModel.isMenuSelected = false
-                                
-                                mainPDFViewModel.pdfDrawer.drawingTool = .none
+                                mainPDFViewModel.statusStack.collectionToggle()
                                 mainPDFViewModel.pdfDrawer.endCaptureMode()
                                 focusFigureViewModel.isCaptureMode = false
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(mainPDFViewModel.isCollectionSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.isCollectionSelected ? .primary1 : .clear)
                                     .overlay(
                                         Image(.window)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 16, height: 16)
-                                            .foregroundStyle(mainPDFViewModel.isCollectionSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.isCollectionSelected ? .gray100 : .gray800)
                                     )
                             }
                             .padding(.trailing, 25)
                             
                             Button(action: {
                                 withAnimation {
-                                    mainPDFViewModel.isMenuSelected.toggle()
-                                    mainPDFViewModel.isFigSelected = false
-                                    mainPDFViewModel.isCollectionSelected = false
+                                    mainPDFViewModel.statusStack.detailToggle()
                                 }
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
@@ -160,38 +149,15 @@ struct MainPDFView: View {
                             }
                         }
                         
-                        if !mainPDFViewModel.isReadMode {
+                        if !mainPDFViewModel.statusStack.isConcentrateSelected {
                             HStack(spacing: 0) {
                                 Spacer()
                                 
                                 ForEach(Buttons.allCases, id: \.self) { btn in
-                                    ButtonsView(button: $mainPDFViewModel.selectedButton, selectedButton: btn) {
-                                        if mainPDFViewModel.selectedButton == btn {
-                                            mainPDFViewModel.selectedButton = nil
-                                            mainPDFViewModel.toolMode = .none
-                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                        } else {
-                                            mainPDFViewModel.selectedButton = btn
-                                            mainPDFViewModel.pdfDrawer.endCaptureMode()
-                                            focusFigureViewModel.isCaptureMode = false
-                                        }
-                                        
-                                        switch mainPDFViewModel.selectedButton {
-                                        case .drawing:
-                                            mainPDFViewModel.toolMode = .drawing
-                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                        case .comment:
-                                            mainPDFViewModel.toolMode = .comment
-                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                        case .translate:
-                                            NotificationCenter.default.post(name: .PDFViewSelectionChanged, object: nil)
-                                            mainPDFViewModel.toolMode = .translate
-                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                        default:
-                                            mainPDFViewModel.toolMode = .none
-                                            mainPDFViewModel.pdfDrawer.drawingTool = .none
-                                        }
+                                    ButtonsView(selectedButton: btn) {
+                                        mainPDFViewModel.statusStack.toggleCenterButton(button: btn)
                                     }
+                                    .environmentObject(mainPDFViewModel)
                                     .padding(.horizontal, 18)
                                 }
                                 
@@ -213,7 +179,7 @@ struct MainPDFView: View {
                     // MARK: - PDF뷰 영역
                     GeometryReader { geometry in
                         HStack(spacing: 0) {
-                            if mainPDFViewModel.isListSelected {
+                            if mainPDFViewModel.statusStack.isMenuSelected {
                                 MenuView()
                                     .environmentObject(mainPDFViewModel)
                                     .environmentObject(indexViewModel)
@@ -229,7 +195,7 @@ struct MainPDFView: View {
                                     .transition(.move(edge: .leading))
                             }
                             
-                            if mainPDFViewModel.isSearchSelected {
+                            if mainPDFViewModel.statusStack.isSearchSelected {
                                 SearchView()
                                     .environmentObject(searchViewModel)
                                     .overlay(
@@ -250,8 +216,9 @@ struct MainPDFView: View {
                                 .environmentObject(searchViewModel)
                                 .environmentObject(indexViewModel)
                                 .environmentObject(backPageBtnViewModel)
+                                .environment(translationManager)
                             
-                            if mainPDFViewModel.isFigSelected && !floatingViewModel.splitMode {
+                            if mainPDFViewModel.statusStack.isFigureSelected && !floatingViewModel.splitMode {
                                 FigureView(onSelect: { id, documentID, document, head in
                                     floatingViewModel.isFigure = true
                                     floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
@@ -270,8 +237,7 @@ struct MainPDFView: View {
                                 )
                             }
                             
-                            // TODO: - 모아보기 기능
-                            if mainPDFViewModel.isCollectionSelected && !floatingViewModel.splitMode {
+                            if mainPDFViewModel.statusStack.isCollectionSelected && !floatingViewModel.splitMode {
                                 CollectionView(onSelect: { id, documentID, document, head in
                                     floatingViewModel.isFigure = false
                                     floatingViewModel.toggleSelection(id: id, for: documentID, document: document, head: head)
@@ -295,14 +261,13 @@ struct MainPDFView: View {
                         .ignoresSafeArea()
                     }
                 }
-                .blur(radius: mainPDFViewModel.isEditingTitle || mainPDFViewModel.createMovingFolder ? 20 : 0)
+                .blur(radius: mainPDFViewModel.mainPDFViewAction.blurConstant)
                 
-                // MARK: - 드로잉 툴바
-                if mainPDFViewModel.toolMode == .drawing {
+                if mainPDFViewModel.statusStack.isToolSelected {
                     GeometryReader { gp in
                         ZStack {
                             HStack(spacing: 0) {
-                                DrawingView(selectedButton: $mainPDFViewModel.selectedButton)
+                                DrawingView()
                                     .environmentObject(mainPDFViewModel)
                                     .background {
                                         RoundedRectangle(cornerRadius: 12)
@@ -334,43 +299,49 @@ struct MainPDFView: View {
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 20)
-                        .padding(.leading, mainPDFViewModel.isListSelected || mainPDFViewModel.isSearchSelected ? 272 : 20)
+                        .padding(.leading, mainPDFViewModel.statusStack.isMenuSelected || mainPDFViewModel.statusStack.isSearchSelected ? 272 : 20)
                     }
                 }
                 
-                if mainPDFViewModel.toolMode == .drawing && mainPDFViewModel.pdfDrawer.drawingTool == .highlights {
+                if mainPDFViewModel.statusStack.isHighlightSelected {
                     TemporaryAlertView(mode: "drawing")
                 }
                 
-                if mainPDFViewModel.toolMode == .comment && mainPDFViewModel.selectedText.isEmpty {
+                if mainPDFViewModel.statusStack.isCommentSelected && mainPDFViewModel.selectedText.isEmpty {
                     TemporaryAlertView(mode: "comment")                             // 코멘트 모드에서 선택된 텍스트가 없을 때 표시
                 }
                 
-                if #unavailable(iOS 18.0) {
-                    if mainPDFViewModel.toolMode == .translate {
+                if mainPDFViewModel.statusStack.isTranslationSelected {
+                    if #unavailable(iOS 18.0) {
                         TranslateViewOlderVer()                                     // 번역 모드가 활성화되었을 때 표시
-                    }
-                } else {
-                    if mainPDFViewModel.toolMode == .translate {
-                        if mainPDFViewModel.selectedText.isEmpty {
+                    } else {
+                        if translationManager.selectedText.isEmpty {
                             TemporaryAlertView(mode: "translate")                   // 번역 모드에서 선택된 텍스트가 없을 때 표시
                         } else {
                             TranslateView()
                                 .environmentObject(mainPDFViewModel)
+                                .environment(translationManager)
                         }
                     }
                 }
-                                
-                if mainPDFViewModel.isFigSelected && mainPDFViewModel.pdfDrawer.drawingTool == .lasso && focusFigureViewModel.isCaptureMode {
+                    
+                if mainPDFViewModel.statusStack.isFigureSelected &&
+                    mainPDFViewModel.statusStack.isCaptureSelected &&
+                    focusFigureViewModel.isCaptureMode {
                     TemporaryAlertView(mode: "lasso")                               // Lasso 도구가 활성화되어 있고 캡처 모드일 때 표시
                 }
                 
-                // MARK: - Floating 뷰
+                if mainPDFViewModel.statusStack.isCollectionSelected &&
+                    mainPDFViewModel.statusStack.isCaptureSelected &&
+                    focusFigureViewModel.isCaptureMode {
+                    TemporaryAlertView(mode: "lasso")
+                }
+                
                 FloatingViewsContainer(geometry: geometry)
                     .environmentObject(floatingViewModel)
                     .environmentObject(focusFigureViewModel)
                 
-                if mainPDFViewModel.isMenuSelected {
+                if mainPDFViewModel.statusStack.isDetailSelected {
                     GeometryReader { gp in
                         ZStack {
                             PDFInfoMenu()
@@ -378,7 +349,6 @@ struct MainPDFView: View {
                             .environmentObject(mainPDFViewModel)
                             .environmentObject(pdfInfoMenuViewModel)
                             .transition(.opacity)
-                            .animation(.easeInOut, value: mainPDFViewModel.isMenuSelected)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .padding(.top, 50)
@@ -387,7 +357,7 @@ struct MainPDFView: View {
                 }
                 
                 Color.black
-                    .opacity(mainPDFViewModel.isEditingTitle /*|| homeViewModel.isMovingFolder*/ || mainPDFViewModel.createMovingFolder || focusFigureViewModel.isEditFigName ? 0.5 : 0)
+                    .opacity(mainPDFViewModel.mainPDFViewAction.opacityConstant)
                     .ignoresSafeArea(edges: .bottom)
                 
                 if focusFigureViewModel.isEditFigName, let id = focusFigureViewModel.selectedID {
@@ -398,36 +368,12 @@ struct MainPDFView: View {
                 }
                 
                 
-                // TODO: 추후 수정해야함
-//                if homeViewModel.isMovingFolder {
-//                    if let paperInfo = PDFSharedData.shared.paperInfo {
-//                        MoveFolderView(
-//                            createMovingFolder: $mainPDFViewModel.createMovingFolder,
-//                            items: [paperInfo],
-//                            selectedID: $mainPDFViewModel.moveToFolderID
-//                        )
-//                        .clipShape(RoundedRectangle(cornerRadius: 20))
-//                        .frame(width: 740, height: 550)
-//                        .blur(radius: mainPDFViewModel.createMovingFolder ? 20 : 0)
-//                    }
-//                }
-                
                 Color.black
                     .opacity(mainPDFViewModel.createMovingFolder ? 0.5 : 0)
                     .ignoresSafeArea(edges: .bottom)
-                
-                if mainPDFViewModel.createMovingFolder {
-                    let folder = homeViewModel.folders.first(where: { $0.id == mainPDFViewModel.moveToFolderID })
-                    FolderView(
-//                        createMovingFolder: $mainPDFViewModel.createMovingFolder,
-                        folder: folder
-                    )
-                }
             }
             .navigationBarHidden(true)
             .onAppear {
-                self.focusFigureViewModel.isFigureCaptured()
-                self.focusFigureViewModel.isCollectionCaptured()
                 self.floatingViewModel.subscribeToFocusFigureViewModel(focusFigureViewModel)
             }
             .onDisappear {
@@ -439,34 +385,104 @@ struct MainPDFView: View {
                 self.focusFigureViewModel.cancellables.removeAll()
             }
             .gesture(
-                mainPDFViewModel.isMenuSelected
+                mainPDFViewModel.statusStack.isDetailSelected
                 ? DragGesture(minimumDistance: 0)
                     .onChanged { _ in
                         print("터치 감지됨!")
-                        NotificationCenter.default.post(name: .isPDFInfoMenuHidden, object: self, userInfo: ["hitted": false])
+                        mainPDFViewModel.statusStack.detailOff()
                     }
                 : nil
             )
         }
-        .animation(.easeInOut, value: mainPDFViewModel.isDuplicatedTitleAlertPresented)
-//        .blur(radius: homeViewModel.viewStatus != .normal ? 5 : 0)
         .overlay {
+            switch mainPDFViewModel.mainPDFViewAction {
+                // 파일 이름 수정 뷰
+            case let .editingPaperTitle(paperInfo):
+                RenamePaperTitleView(
+                    paperInfo: paperInfo,
+                    cancelAction: {
+                        self.mainPDFViewModel.renameTitleCancelButtonTapped()
+                    },
+                    completeAction: { title in
+                        self.mainPDFViewModel.renameTitleOKButtonTapped(paperInfo: paperInfo, title: title)
+                    }
+                )
+                // 타이틀 중복 알럿
+            case .duplicatedTitleAlert:
+                CustomAlert(
+                    type: .confirm,
+                    mainText: "같은 제목의 논문이 이미 존재합니다",
+                    message: "다른 제목을 입력해주세요",
+                    width: 350,
+                    height: 176,
+                    cancelAction: {
+                        mainPDFViewModel.mainPDFViewAction = .none
+                    },
+                    confirmAction: {}
+                )
+                // 폴더 이동 뷰
+            case .movingFolder:
+                MoveFolderView(
+                    id: PDFSharedData.shared.paperInfo?.folderID,
+                    items: PDFSharedData.shared.paperInfo != nil ?
+                    [PDFSharedData.shared.paperInfo!] : [],
+                    cancelAction: {
+                        mainPDFViewModel.mainPDFViewAction = .none
+                    },
+                    createFolderAction: { folderId in
+                        if homeViewModel.depth(of: folderId) < 4 {
+                            mainPDFViewModel.mainPDFViewAction = .creatingMovingFolder(folderId)
+                        } else {
+                            mainPDFViewModel.mainPDFViewAction = .folderDepthAlert
+                        }
+                    },
+                    moveAction: { folderId in
+                        if let paperInfo = PDFSharedData.shared.paperInfo {
+                            homeViewModel.updatePaperLocation(at: paperInfo.id, folderID: folderId)
+                        }
+                        
+                        mainPDFViewModel.mainPDFViewAction = .none
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .frame(width: 740, height: 550)
+                
+            case let .creatingMovingFolder(id):
+                FolderView(
+                    folder: homeViewModel.folders.first { $0.id == id },
+                    cancelAction: {
+                        mainPDFViewModel.mainPDFViewAction = .movingFolder
+                    },
+                    completeAction: { color, title, folder in
+                        let text = title.isEmpty ? String(localized: "새 폴더") : title
+                        
+                        if let folder = folder {
+                            homeViewModel.createSubfolder(in: folder.id, title: text, color: color.rawValue)
+                        } else {
+                            homeViewModel.createSubfolder(in: nil, title: text, color: color.rawValue)
+                        }
+                        
+                        mainPDFViewModel.mainPDFViewAction = .movingFolder
+                    }
+                )
+            case .folderDepthAlert:
+                CustomAlert(
+                    type: .confirm,
+                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
+                    width: 340, height: 163,
+                    cancelAction: {
+                        mainPDFViewModel.mainPDFViewAction = .movingFolder
+                    }
+                )
+                
+            default: EmptyView()
+            }
+            
             if self.focusFigureViewModel.figureStatus == .loading {
                 FigureLoadingView(isOriginal: true)
             } else if self.focusFigureViewModel.focusStatus == .loading {
                 FigureLoadingView(isOriginal: false)
             }
-            
-//            if case let .search(paper) = homeViewModel.viewStatus {
-//                RenamePaperTitleView(paperInfo: paper) {
-//                    homeViewModel.viewStatus = .normal
-//                } completeAction: { text in
-//                    homeViewModel.updateTitle(at: paper.id, title: text) {
-//                        if !$0 { mainPDFViewModel.isDuplicatedTitleAlertPresented.toggle() }
-//                    }
-//                    homeViewModel.viewStatus = .normal
-//                }
-//            }
             
             if self.focusFigureViewModel.focusStatus == .networkDisconnection {
                 ZStack {
@@ -479,33 +495,38 @@ struct MainPDFView: View {
                     }
                 }
             }
-            
-            if mainPDFViewModel.isDuplicatedTitleAlertPresented {
-                ZStack {
-                    Color.black
-                        .opacity(0.5)
-                        .ignoresSafeArea()
-                    
-                    CustomAlert(
-                        type: .confirm,
-                        mainText: "같은 제목의 논문이 이미 존재합니다",
-                        message: "다른 제목을 입력해주세요",
-                        width: 350,
-                        height: 176,
-                        cancelAction: {
-                            mainPDFViewModel.isDuplicatedTitleAlertPresented.toggle()
-                        },
-                        confirmAction: {}
-                    )
-                }
-            }
         }
-        .alert("현재 집중모드가 공사중에 있습니다.", isPresented: $mainPDFViewModel.isReadMode) {
+        .alert(
+            "현재 집중모드가 공사중에 있습니다.",
+            isPresented: Binding(
+                    get: {
+                        mainPDFViewModel.statusStack.isConcentrateSelected
+                    },
+                    set: { _ in }
+                )
+        ) {
             Button("확인", role: .cancel) {
-                mainPDFViewModel.isReadMode = false
+                mainPDFViewModel.statusStack.concentrateToggle()
             }
         } message: {
             Text("곧 다가올 업데이트를 기대해주세요!")
+        }
+        .alert(
+            "정말 삭제하시겠습니까?",
+            isPresented: mainPDFViewModel.mainPDFViewAction.isDeletePapersAlertPresented,
+            presenting: PDFSharedData.shared.paperInfo
+        ) { item in
+            Button("취소", role: .cancel) {
+                // TODO: 취소 액션 연결 필요
+                mainPDFViewModel.mainPDFViewAction = .none
+            }
+            Button("삭제", role: .destructive) {
+                homeViewModel.deletePDF(at: item.id)
+                mainPDFViewModel.mainPDFViewAction = .none
+                navigationCoordinator.pop()
+            }
+        } message: { _ in
+            Text("삭제된 파일은 복구할 수 없습니다.")
         }
     }
 }
@@ -531,7 +552,7 @@ private struct MainOriginalView: View {
                 GeometryReader { geometry in
                     VStack(spacing:0) {
                         ZStack {
-                            if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
+                            if floatingViewModel.isPaperViewRight,
                                let splitDetails = floatingViewModel.getSplitDocumentDetails() {
                                 VStack(spacing: 0) {
                                     ZStack {
@@ -540,11 +561,9 @@ private struct MainOriginalView: View {
                                             documentID: splitDetails.documentID,
                                             document: splitDetails.document,
                                             head: splitDetails.head,
-                                            isFigSelected: mainPDFViewModel.isFigSelected,
-                                            isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                             onSelect: {
                                                 withAnimation {
-                                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                                                    floatingViewModel.isPaperViewFirst.toggle()
                                                 }
                                             },
                                             isVertical: true,
@@ -585,7 +604,7 @@ private struct MainOriginalView: View {
                         }
                         
                         ZStack {
-                            if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
+                            if floatingViewModel.isPaperViewLeft,
                                let splitDetails = floatingViewModel.getSplitDocumentDetails() {
                                 VStack(spacing: 0) {
                                     divider
@@ -596,11 +615,9 @@ private struct MainOriginalView: View {
                                             documentID: splitDetails.documentID,
                                             document: splitDetails.document,
                                             head: splitDetails.head,
-                                            isFigSelected: mainPDFViewModel.isFigSelected,
-                                            isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                             onSelect: {
                                                 withAnimation {
-                                                    mainPDFViewModel.isPaperViewFirst.toggle()
+                                                    floatingViewModel.isPaperViewFirst.toggle()
                                                 }
                                             },
                                             isVertical: true,
@@ -644,7 +661,7 @@ private struct MainOriginalView: View {
             case .horizontal:
                 GeometryReader { geometry in
                     HStack(spacing:0) {
-                        if floatingViewModel.splitMode && !mainPDFViewModel.isPaperViewFirst,
+                        if floatingViewModel.isPaperViewRight,
                            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
                             HStack(spacing: 0) {
                                 ZStack {
@@ -653,11 +670,9 @@ private struct MainOriginalView: View {
                                         documentID: splitDetails.documentID,
                                         document: splitDetails.document,
                                         head: splitDetails.head,
-                                        isFigSelected: mainPDFViewModel.isFigSelected,
-                                        isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                         onSelect: {
                                             withAnimation {
-                                                mainPDFViewModel.isPaperViewFirst.toggle()
+                                                floatingViewModel.isPaperViewFirst.toggle()
                                             }
                                         },
                                         isVertical: false,
@@ -693,7 +708,7 @@ private struct MainOriginalView: View {
                         
                         MainView()
                         
-                        if floatingViewModel.splitMode && mainPDFViewModel.isPaperViewFirst,
+                        if floatingViewModel.isPaperViewLeft,
                            let splitDetails = floatingViewModel.getSplitDocumentDetails() {
                             HStack(spacing: 0) {
                                 divider
@@ -704,11 +719,9 @@ private struct MainOriginalView: View {
                                         documentID: splitDetails.documentID,
                                         document: splitDetails.document,
                                         head: splitDetails.head,
-                                        isFigSelected: mainPDFViewModel.isFigSelected,
-                                        isCollectionSelected: mainPDFViewModel.isCollectionSelected,
                                         onSelect: {
                                             withAnimation {
-                                                mainPDFViewModel.isPaperViewFirst.toggle()
+                                                floatingViewModel.isPaperViewFirst.toggle()
                                             }
                                         },
                                         isVertical: false,
@@ -890,5 +903,13 @@ private struct NetworkDisconnectionAlert: View {
             RoundedRectangle(cornerRadius: 20)
                 .foregroundStyle(.gray200)
         )
+    }
+}
+
+
+
+extension View {
+    func unfocusKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

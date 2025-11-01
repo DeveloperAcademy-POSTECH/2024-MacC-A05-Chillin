@@ -36,19 +36,14 @@ struct PDFInfoMenu: View {
     @EnvironmentObject private var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
-    @State var title: String?
-    @State var isStarSelected: Bool = false
-    
-
     var body: some View {
         VStack(spacing: 12) {
-            
             Button(action: {
                 pdfInfoMenuViewModel.activityButtonTapped()
             }, label: {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(title ?? String(localized: "알 수 없음"))
+                        Text(pdfInfoMenuViewModel.paperTitle)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                             .reazyFont(.h3)
@@ -84,9 +79,8 @@ struct PDFInfoMenu: View {
             
             VStack(spacing: 10) {
                 Button(action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-//                    homeViewModel.viewStatus = .search(pdfSharedData.paperInfo!)
-                    homeViewModel.homeViewAction = .editingPaperTitle(pdfSharedData.paperInfo!)
+                    self.mainPDFViewModel.statusStack.detailOff()
+                    mainPDFViewModel.mainPDFViewAction = .editingPaperTitle(pdfSharedData.paperInfo!)
                 }, label: {
                     HStack{
                         Text("제목 수정")
@@ -109,15 +103,14 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    self.isStarSelected.toggle()
-                    PDFSharedData.shared.paperInfo?.isFavorite = isStarSelected
+                    self.pdfInfoMenuViewModel.favoriteButtonTapped()
                 }, label: {
                     HStack{
                         Text("즐겨찾기")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(isStarSelected ? .starfill : .star)
+                        Image(self.pdfInfoMenuViewModel.isFavorite ? .starfill : .star)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
@@ -132,9 +125,8 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-//                    homeViewModel.isMovingFolder = true
-                    homeViewModel.homeViewAction = .movingFolder
+                    self.mainPDFViewModel.statusStack.detailOff()
+                    self.mainPDFViewModel.mainPDFViewAction = .movingFolder
                 }, label: {
                     HStack{
                         Text("이동")
@@ -156,9 +148,7 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(role: .destructive, action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-                    navigationCoordinator.pop()
-                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
+                    self.mainPDFViewModel.mainPDFViewAction = .deletePaperAlert
                 }, label: {
                     HStack{
                         Text("삭제")
@@ -191,14 +181,11 @@ struct PDFInfoMenu: View {
                     y: 0)
         )
         .onAppear {
-            self.title = pdfSharedData.paperInfo?.title ?? "알 수 없음"
+            self.pdfInfoMenuViewModel.onAppear()
         }
     }
 }
 
 #Preview {
-    PDFInfoMenu(
-        title: "Reazy",
-        isStarSelected: false
-    )
+    PDFInfoMenu()
 }
