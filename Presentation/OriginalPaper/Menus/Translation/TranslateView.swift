@@ -7,7 +7,9 @@ import NaturalLanguage
 @available(iOS 18.0, *)
 struct TranslateView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
-    @Environment(TranslationManager.self) private var translationManager
+//    @Environment(TranslationManager.self) private var translationManager
+    
+    @Binding var translationManager: TranslationManager
     
 //    @State private var targetText = "" // 번역 결과 텍스트
     @State private var configuration: TranslationSession.Configuration?
@@ -26,10 +28,10 @@ struct TranslateView: View {
 //    @State private var isCopySuccess: Bool = false // 복사 성공 여부
     
     var body: some View {
-        @Bindable var translationManager = translationManager
+//        @Bindable var translationManager = translationManager
         GeometryReader { geometry in
-//            Color.clear
-            Color.black.opacity(0.3)
+            Color.clear
+//            Color.black.opacity(0.3)
 //                .foregroundStyle(.gray200)
 //                .translationTask(configuration) { session in
 //                    do {

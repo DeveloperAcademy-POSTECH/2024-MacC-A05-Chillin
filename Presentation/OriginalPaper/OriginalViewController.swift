@@ -344,6 +344,8 @@ extension OriginalViewController {
                 if let document = PDFSharedData.shared.document {
                     let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
                     
+                    if (num &+ 1) < 0 { return }
+                    
                     // 오버플로우 순환 연산
                     self?.pageLabelView.text = "\(num &+ 1) / \(document.pageCount)"
                     self?.pageListViewModel.changedPageNumber = num
@@ -436,6 +438,8 @@ extension OriginalViewController {
                     
                     // PDFView의 좌표를 Screen의 좌표로 변환
                     let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+                    
+//                    print(selectedText)
                     
                     DispatchQueue.main.async {
                         // ViewModel에 선택된 텍스트와 위치 업데이트

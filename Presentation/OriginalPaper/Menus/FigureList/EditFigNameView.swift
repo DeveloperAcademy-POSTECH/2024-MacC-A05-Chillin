@@ -19,6 +19,7 @@ struct EditFigNameView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
                 .foregroundStyle(.gray200)
+                .shadow(radius: 10)
             
             VStack {
                 HStack {

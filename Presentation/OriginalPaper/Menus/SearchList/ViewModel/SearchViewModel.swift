@@ -58,7 +58,7 @@ extension SearchViewModel {
     public func onAppear() {
         setBindings()
         
-        UITextField.appearance().clearButtonMode = .whileEditing
+//        UITextField.appearance().clearButtonMode = .whileEditing
         if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
             self.isPortrait = true
         }

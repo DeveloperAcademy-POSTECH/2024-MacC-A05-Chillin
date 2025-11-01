@@ -17,7 +17,8 @@ struct OriginalView: View {
     @EnvironmentObject private var focusFigureViewModel: FocusFigureViewModel
     @EnvironmentObject private var backPageBtnViewModel: BackPageBtnViewModel
     
-    @State private var translationManager: TranslationManager = .init()
+    
+//    @State private var translationManager: TranslationManager = .init()
     
     // 코멘트뷰 위치 관련
     @State private var keyboardOffset: CGFloat = 0
@@ -40,7 +41,7 @@ struct OriginalView: View {
             ZStack {
                 VStack(spacing: 0) {
                     OriginalViewControllerRepresent() // PDF 뷰를 표시
-                        .environment(translationManager)
+//                        .environment(translationManager)
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .gesture(

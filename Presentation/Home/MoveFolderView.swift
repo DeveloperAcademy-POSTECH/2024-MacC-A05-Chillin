@@ -52,7 +52,7 @@ struct MoveFolderView: View {
                         Image(systemName: "folder.badge.plus")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 18)
+                            .frame(width: 25)
                             .foregroundStyle(.primary1)
                     }
                     .padding(.trailing, 26)
