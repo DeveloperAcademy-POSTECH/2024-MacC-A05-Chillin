@@ -84,48 +84,6 @@ final class MainPDFViewModel: ObservableObject {
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false
     
-    public func highlightButtonTapped() {
-        self.statusStack.highlightToggle()
-        
-        if self.selectedHighlightColor == nil {
-            self.selectedHighlightColor = .yellow
-        } else {
-            self.selectedHighlightColor = nil
-        }
-        
-        self.selectedPenColor = nil
-    }
-    
-    public func highlightColorButtonTapped(_ color: HighlightColors) {
-        self.statusStack.onHighlight()
-        self.selectedHighlightColor = color
-        self.selectedPenColor = nil
-    }
-    
-    public func pencilButtonTapped() {
-        self.statusStack.togglePencil()
-        
-        if self.selectedPenColor == nil {
-            self.selectedPenColor = .black
-        } else {
-            self.selectedPenColor = nil
-        }
-        
-        selectedHighlightColor = nil
-    }
-    
-    public func pencilColorButtonTapped(_ color: PenColors) {
-        self.statusStack.onPencil()
-        self.selectedPenColor = color
-        self.selectedHighlightColor = nil
-    }
-    
-    public func eraserButtonTapped() {
-        self.statusStack.onEraser()
-        self.selectedHighlightColor = nil
-        self.selectedPenColor = nil
-    }
-    
     // MARK: - 코멘트 관련
     
     // Comment
@@ -294,6 +252,25 @@ extension MainPDFViewModel {
 
         pdfView.clearSelection()
     }
+    
+    public func renameTitleCancelButtonTapped() {
+        self.mainPDFViewAction = .none
+    }
+    
+    public func renameTitleOKButtonTapped(paperInfo: PaperInfo, title: String) {
+        var modifiedPaperInfo = paperInfo
+        modifiedPaperInfo.title = title
+        let result = self.useCase.editPDF(modifiedPaperInfo)
+        
+        switch result {
+        case .success:
+            PDFSharedData.shared.paperInfo?.title = title
+            self.mainPDFViewAction = .none
+        case .failure(let error):
+            self.mainPDFViewAction = .duplicatedTitleAlert
+            print(error)
+        }
+    }
 }
 
 
@@ -372,33 +349,97 @@ extension MainPDFViewModel {
     }
 }
 
-/**
- 펜슬 툴 바 redo, undo 관련
- */
+
+// MARK: - 펜슬 툴 바 관련
+
 extension MainPDFViewModel {
+    public func highlightButtonTapped() {
+        self.statusStack.highlightToggle()
+        
+        if self.selectedHighlightColor == nil {
+            // TODO: GA 하이라이트 사용
+            self.selectedHighlightColor = .yellow
+            
+            self.sendHighlightEventToGA(.yellow)
+        } else {
+            self.selectedHighlightColor = nil
+        }
+        
+        self.selectedPenColor = nil
+    }
+    
+    public func highlightColorButtonTapped(_ color: HighlightColors) {
+        // TODO: GA 하이라이트 사용
+        self.statusStack.onHighlight()
+        self.selectedHighlightColor = color
+        self.selectedPenColor = nil
+        
+        self.sendHighlightEventToGA(color)
+    }
+    
+    public func pencilButtonTapped() {
+        self.statusStack.togglePencil()
+        
+        if self.selectedPenColor == nil {
+            // TODO: GA 펜슬 사용
+            self.selectedPenColor = .black
+            
+            self.sendPencilEventToGA(.black)
+        } else {
+            self.selectedPenColor = nil
+        }
+        
+        selectedHighlightColor = nil
+    }
+    
+    public func pencilColorButtonTapped(_ color: PenColors) {
+        // TODO: GA 펜슬 사용
+        self.statusStack.onPencil()
+        self.selectedPenColor = color
+        self.selectedHighlightColor = nil
+        
+        self.sendPencilEventToGA(color)
+    }
+    
+    public func eraserButtonTapped() {
+        self.statusStack.onEraser()
+        self.selectedHighlightColor = nil
+        self.selectedPenColor = nil
+    }
+    
+    
     func updateUndoRedoState() {
         canUndo = !pdfDrawer.annotationHistory.isEmpty
         canRedo = !pdfDrawer.redoStack.isEmpty
     }
 }
 
+
+// MARK: - Internal method
 extension MainPDFViewModel {
-    public func renameTitleCancelButtonTapped() {
-        self.mainPDFViewAction = .none
+    private func sendHighlightEventToGA(_ color: HighlightColors) {
+        switch color {
+        case .yellow:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightYellow)
+        case .pink:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightPink)
+        case .green:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightGreen)
+        case .blue:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightBlue)
+        }
     }
     
-    public func renameTitleOKButtonTapped(paperInfo: PaperInfo, title: String) {
-        var modifiedPaperInfo = paperInfo
-        modifiedPaperInfo.title = title
-        let result = self.useCase.editPDF(modifiedPaperInfo)
-        
-        switch result {
-        case .success:
-            PDFSharedData.shared.paperInfo?.title = title
-            self.mainPDFViewAction = .none
-        case .failure(let error):
-            self.mainPDFViewAction = .duplicatedTitleAlert
-            print(error)
+    private func sendPencilEventToGA(_ color: PenColors) {
+        switch color {
+        case .black:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilBlack)
+        case .red:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilRed)
+        case .blue:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilBlue)
+        case .green:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilGreen)
         }
     }
 }

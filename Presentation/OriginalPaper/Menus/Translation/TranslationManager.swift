@@ -73,9 +73,7 @@ public final class TranslationManager {
                 let wordCount = countWords(in: cleanedText)
                 
                 // GA - 번역에 사용된 글자수 로그
-                Analytics.logEvent("translation_triggered", parameters: [
-                    "word_count": wordCount,
-                ])
+                AnalyticsManager.sendEvent(eventType: .translationTriggered, parameters: "\(wordCount)")
             }
         } catch {
             print("translation do-catch")

@@ -152,10 +152,13 @@ extension Set<MainPDFViewStatus> {
         if isToolSelected {
             toolOff()
         } else {
+            // TODO: GA 펜툴 모드 ON
             self.insert(.tool(.none))
             self.remove(.comment)
             self.remove(.translation)
             self.remove(.capture)
+            
+            AnalyticsManager.sendParameterlessEvent(eventType: .penToolOpen)
         }
     }
     

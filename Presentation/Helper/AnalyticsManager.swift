@@ -35,6 +35,13 @@ final class AnalyticsManager {
             parameters: params
         )
     }
+    
+    static func sendParameterlessEvent(eventType: AnalyticsEvent) {
+        Analytics.logEvent(
+            eventType.eventName,
+            parameters: nil
+        )
+    }
 }
 
 
@@ -74,11 +81,13 @@ extension AnalyticsManager {
 
 
 enum AnalyticsEvent {
+    /// Figure 추출
     case figureButtonClick
     case extractButtonClick
     case extractSuccess
     case extractFail
     
+    /// Figure 활용
     case floatingWindowOpen
     case splitViewOpen
     case floatingWindowClose
@@ -88,6 +97,20 @@ enum AnalyticsEvent {
     case figureBlockClick
     case splitViewFigureClick
     case floatingWindowPageMove
+    
+    /// 펜툴
+    case penToolOpen
+    case highlightYellow
+    case highlightPink
+    case highlightGreen
+    case highlightBlue
+    case pencilBlack
+    case pencilRed
+    case pencilBlue
+    case pencilGreen
+    
+    /// 번역
+    case translationTriggered
     
     public var eventName: String {
         switch self {
@@ -99,6 +122,7 @@ enum AnalyticsEvent {
             "extract_success"
         case .extractFail:
             "extract_fail"
+            
         case .floatingWindowOpen:
             "floating_window_open"
         case .splitViewOpen:
@@ -117,6 +141,28 @@ enum AnalyticsEvent {
             "split_view_figure_click"
         case .floatingWindowPageMove:
             "floating_window_page_move"
+            
+        case .penToolOpen:
+            "pen_tool_open"
+        case .highlightYellow:
+            "highlight_yellow"
+        case .highlightPink:
+            "highlight_pink"
+        case .highlightGreen:
+            "highlight_green"
+        case .highlightBlue:
+            "highlight_blue"
+        case .pencilBlack:
+            "pencil_black"
+        case .pencilRed:
+            "pencil_red"
+        case .pencilBlue:
+            "pencil_blue"
+        case .pencilGreen:
+            "pencil_green"
+            
+        case .translationTriggered:
+            "translation_triggered"
         }
     }
     
@@ -130,6 +176,7 @@ enum AnalyticsEvent {
             ["article_id", "figure_count"]
         case .extractFail:
             ["article_id", "error_code"]
+            
         case .floatingWindowOpen:
             ["article_id", "figure_id"]
         case .splitViewOpen:
@@ -148,6 +195,12 @@ enum AnalyticsEvent {
             ["article_id", "figure_id"]
         case .floatingWindowPageMove:
             ["article_id", "figure_id", "current_page"]
+            
+        case .translationTriggered:
+            ["word_count"]
+            
+        default:
+            []
         }
     }
 }
