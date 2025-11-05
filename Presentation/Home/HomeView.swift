@@ -80,7 +80,7 @@ struct HomeView: View {
                 .opacity(homeViewModel.homeViewAction.backgroundOpacity)
                 .ignoresSafeArea(edges: .bottom)
                 .onTapGesture {
-                    // MARK: 배결 터치시 이전 화면 돌아가기 필요 시 넣기
+                    homeViewModel.homeViewAction = .none
                 }
             
             if homeViewModel.isLoading {
@@ -244,6 +244,21 @@ struct HomeView: View {
                         homeViewModel.homeViewAction = .none
                     }
                 )
+            case let .deletingPaperAlert(id):
+                CustomAlert(
+                    type: .delete,
+                    mainText: "정말 삭제하시겠습니까?",
+                    message: "삭제된 파일은 복구할 수 없습니다.",
+                    width: 350,
+                    height: 176,
+                    cancelAction: {
+                        homeViewModel.homeViewAction = .none
+                    },
+                    confirmAction: {
+                        homeViewModel.deletePDF(at: id)
+                        homeViewModel.homeViewAction = .none
+                    }
+                )
             case .deletingFolderAlert:
                 CustomAlert(
                     mainText: "폴더를 삭제하시겠습니까?",
@@ -270,7 +285,7 @@ struct HomeView: View {
                         }
                     }
                 )
-            case .none, .deletingPaperAlert, .deletingMultiPapersAlert:
+            case .none, .deletingMultiPapersAlert:
                 EmptyView()
             }
         }

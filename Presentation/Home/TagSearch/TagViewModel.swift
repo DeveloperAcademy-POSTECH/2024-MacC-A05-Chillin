@@ -32,7 +32,6 @@ class TagViewModel: ObservableObject {
     @Published public var deleteAlertPresented: Bool = false
     @Published public var isPortrait: Bool = false
 
-    public var selectedPaper: PaperInfo?
     
     private var cancellables = Set<AnyCancellable>()
     

@@ -25,12 +25,11 @@ enum HomeViewAction: Hashable {
     
     case duplicatedTitleAlert
     case deletingTagAlert(String, UUID)
-    case deletingPaperAlert
+    case deletingPaperAlert(UUID)
     case deletingMultiPapersAlert
     case deletingFolderAlert
     case folderDepthAlert
     case none
-    
     
     
     public var backgroundOpacity: Double {
@@ -49,13 +48,6 @@ enum HomeViewAction: Hashable {
         default:
             5
         }
-    }
-    
-    public var isDeletePaperAlertPresented: Binding<Bool> {
-        Binding(
-            get: { self == .deletingPaperAlert },
-            set: { _ in }
-        )
     }
     
     public var isDeleteMultiPapersAlertPresented: Binding<Bool> {

@@ -309,8 +309,7 @@ private struct FilteredPaperListView: View {
                                 tagViewModel.copyButtonTapped(paperInfo: paperInfo)
                             },
                             deleteAction: {
-                                tagViewModel.selectedPaper = paperInfo
-                                tagViewModel.deleteAlertPresented.toggle()
+                                homeViewModel.homeViewAction = .deletingPaperAlert(paperInfo.id)
                             },
                             moveAction: {
                                 homeViewModel.selectedItems.insert(paperInfo.id)
@@ -327,15 +326,6 @@ private struct FilteredPaperListView: View {
         .scrollContentBackground(.hidden)
         .background(Color.clear)
         .padding(.leading, 24)
-        .alert("정말 삭제하시겠습니까?", isPresented: $tagViewModel.deleteAlertPresented) {
-            Button("삭제", role: .destructive) {
-                if let paperInfo = tagViewModel.selectedPaper {
-                    tagViewModel.deleteButtonTapped(paperInfo: paperInfo)
-                }
-            }
-            
-            Button("취소", role: .cancel, action: {})
-        }
     }
 }
 

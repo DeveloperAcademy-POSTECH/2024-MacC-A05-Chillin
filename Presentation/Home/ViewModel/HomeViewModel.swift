@@ -54,7 +54,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    public var selectedPaper: PaperInfo?    // HomeSearchView, PaperListView, TagView
     public var isAtRoot: Bool { // HomeView
         currentFolder == nil && homeViewStatus.currentFolderID == nil
     }

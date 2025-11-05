@@ -108,8 +108,7 @@ struct PaperListView: View {
                                                 },
                                                 copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
                                                 deleteAction: {
-                                                    homeViewModel.selectedPaper = paperInfo
-                                                    homeViewModel.homeViewAction = .deletingPaperAlert
+                                                    homeViewModel.homeViewAction = .deletingPaperAlert(paperInfo.id)
                                                 },
                                                 moveAction: {
                                                     homeViewModel.selectedItems.insert(paperInfo.id)
@@ -138,21 +137,6 @@ struct PaperListView: View {
                     }
                 }
                 .background(.gray300)
-            }
-            .alert(
-                "정말 삭제하시겠습니까?",
-                isPresented: homeViewModel.homeViewAction.isDeletePaperAlertPresented,
-                presenting: homeViewModel.selectedPaper
-            ) { paperInfo in
-                Button("취소", role: .cancel) {
-                    homeViewModel.homeViewAction = .none
-                }
-                Button("삭제", role: .destructive) {
-                    homeViewModel.deletePDF(at: paperInfo.id)
-                    homeViewModel.homeViewAction = .none
-                }
-            } message: { paperInfo in
-                Text("삭제된 파일은 복구할 수 없습니다.")
             }
             .background(.gray200)
             .ignoresSafeArea()
