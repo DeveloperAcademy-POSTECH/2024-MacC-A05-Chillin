@@ -122,13 +122,7 @@ class HomeViewModel: ObservableObject {
             return
         }
         
-        switch homeViewUseCase.loadFolders() {
-        case .success(let folders):
-            self.folders = folders
-        case .failure(let error):
-            print(error)
-            return
-        }
+        self.fetchFolders()
         
         updateFilteredList()
         setBinding()
@@ -278,6 +272,7 @@ extension HomeViewModel {
         let paperInfo = self.homeViewUseCase.uploadSamplePDFFile()
         
         fetchPaperList()
+        fetchFolders()
         
         return paperInfo[1]?.id
     }
@@ -295,9 +290,7 @@ extension HomeViewModel {
     }
     
     public func setSample() {
-        let isFirst = UserDefaults.standard.bool(forKey: "sample")
-        
-        if isFirst {
+        if UserDefaults.standard.bool(forKey: "sample") {
             return
         }
         
@@ -348,6 +341,15 @@ extension HomeViewModel {
 
 // MARK: - 폴더 관련 메소드
 extension HomeViewModel {
+    private func fetchFolders() {
+        switch self.homeViewUseCase.loadFolders() {
+        case let .success(folders):
+            self.folders = folders
+        case let .failure(error):
+            print(error)
+        }
+    }
+    
     public func depth(of folderID: UUID?) -> Int {
         guard let folderID = folderID,
               let folder = folders.first(where: { $0.id == folderID }) else {

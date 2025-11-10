@@ -175,11 +175,15 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let guideThumbnailData = guideImage.pngData()
             let sampleThumbnailData = sampleImage.pngData()
             
+            let sampleFolder = Folder(id: .init(), title: "Reazy", color: "folder1", parentFolderID: nil)
+            folderDataRepository.saveFolder(sampleFolder)
+            
             let guidePaperInfo = PaperInfo(
                 title: guideTitle,
                 thumbnail: guideThumbnailData!,
                 url: guideURLData.0,
-                isFigureSaved: true
+                isFigureSaved: true,
+                folderID: sampleFolder.id
             )
             
             let samplePaperInfo = PaperInfo(
@@ -187,15 +191,16 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 thumbnail: sampleThumbnailData!,
                 url: sampleURLData.0,
                 focusURL: sampleFocusURLData,
-                isFigureSaved: true
+                isFigureSaved: true,
+                folderID: sampleFolder.id
             )
 
             self.paperDataRepository.savePDFInfo(guidePaperInfo)
             self.paperDataRepository.savePDFInfo(samplePaperInfo)
             
-            self.paperDataRepository.addTag(to: guidePaperInfo.id, with: "Reazy")
-            self.paperDataRepository.addTag(to: samplePaperInfo.id, with: "Reazy")
-
+            self.paperDataRepository.addTag(to: guidePaperInfo.id, with: "Sample")
+            self.paperDataRepository.addTag(to: samplePaperInfo.id, with: "Sample")
+            
             return [guidePaperInfo, samplePaperInfo]
         } else {
             let guidePaperInfo = PaperInfo(
@@ -342,7 +347,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     url: data,
                     focusURL: paperInfo.focusURL,
                     lastModifiedDate: Date(),
-                    isFavorite: paperInfo.isFavorite,
+                    isFavorite: false,
                     isFigureSaved: paperInfo.isFigureSaved,
                     folderID: paperInfo.folderID)
                 

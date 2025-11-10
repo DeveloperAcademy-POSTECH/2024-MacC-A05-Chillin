@@ -269,6 +269,7 @@ struct HomeView: View {
                         if let id = homeViewModel.homeViewStatus.currentFolderID {
                             homeViewModel.deleteFolder(at: id)
                         }
+                        homeViewModel.homeViewAction = .none
                     }
                 )
             case .folderDepthAlert:

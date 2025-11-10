@@ -42,7 +42,10 @@ struct AppView: App {
             .environmentObject(homeViewModel)
             .task {
                 self.homeViewModel.setSample()
+                
+                #if !DEBUG
                 await self.checkAppVersion()
+                #endif
             }
             .onOpenURL(perform: openUrlScheme)
             .alert("Reazy의 새로운\n버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {
