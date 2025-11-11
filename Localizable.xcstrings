@@ -209,6 +209,23 @@
         }
       }
     },
+    "Google Scholar 검색" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Scholar Search"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Scholarで検索"
+          }
+        }
+      }
+    },
     "pdf 로드 실패 " : {
       "localizations" : {
         "en" : {
@@ -413,6 +430,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "すべてを見る"
+          }
+        }
+      }
+    },
+    "목차" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contents"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目次"
           }
         }
       }
@@ -1121,6 +1155,23 @@
         }
       }
     },
+    "주석" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annotation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "注釈"
+          }
+        }
+      }
+    },
     "즐겨찾기" : {
       "localizations" : {
         "en" : {
@@ -1242,6 +1293,22 @@
         }
       }
     },
+    "코멘트" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コメント"
+          }
+        }
+      }
+    },
     "코멘트 추가" : {
       "localizations" : {
         "en" : {
@@ -1354,6 +1421,23 @@
         }
       }
     },
+    "페이지" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページ"
+          }
+        }
+      }
+    },
     "폴더" : {
       "localizations" : {
         "en" : {
@@ -1414,6 +1498,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フィギュアの名前を入力してください。"
+          }
+        }
+      }
+    },
+    "하이라이트" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハイライト"
           }
         }
       }

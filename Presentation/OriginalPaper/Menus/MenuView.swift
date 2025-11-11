@@ -9,50 +9,72 @@ import SwiftUI
 
 struct MenuView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
-    @State private var selectedTab: String = "목차"
+    @State private var selectedTab: MenuTap = .contents
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                TabButton(title: "목차", selectedTab: $selectedTab)
-                TabButton(title: "페이지", selectedTab: $selectedTab)
-                TabButton(title: "주석", selectedTab: $selectedTab)
+                TabButton(currentTap: .contents, selectedTab: $selectedTab)
+                TabButton(currentTap: .pages, selectedTab: $selectedTab)
+                TabButton(currentTap: .annotation, selectedTab: $selectedTab)
             }
-
             switch selectedTab {
-            case "목차":
+            case .contents:
                 IndexView()
-            case "페이지":
+            case .pages:
                 PageListView()
-            case "주석":
+            case .annotation:
                 AnnotationCollectionView()
-            default:
-                EmptyView()
             }
         }
     }
 }
 
 struct TabButton: View {
-    let title: String
-    @Binding var selectedTab: String
+    private let currentTap: MenuTap
+    @Binding private var selectedTab: MenuTap
+    
+    fileprivate init(
+        currentTap: MenuTap,
+        selectedTab: Binding<MenuTap>
+    ) {
+        self.currentTap = currentTap
+        self._selectedTab = selectedTab
+    }
 
     var body: some View {
         Button(action: {
             withAnimation {
-                selectedTab = title
+                selectedTab = currentTap
             }
         }) {
             VStack(spacing: 0) {
-                Text(title)
-                    .reazyFont(selectedTab == title ? .body3 : .text5)
-                    .foregroundStyle(selectedTab == title ? .primary1 : .gray600)
+                Text(currentTap.title)
+                    .reazyFont(selectedTab == currentTap ? .body3 : .text5)
+                    .foregroundStyle(selectedTab == currentTap ? .primary1 : .gray600)
                     .frame(width: 84, height: 36)
 
                 Rectangle()
                     .frame(height: 2)
-                    .foregroundStyle(selectedTab == title ? .primary1 : .primary3)
+                    .foregroundStyle(selectedTab == currentTap ? .primary1 : .primary3)
             }
+        }
+    }
+}
+
+private enum MenuTap {
+    case contents
+    case pages
+    case annotation
+    
+    public var title: String {
+        switch self {
+        case .contents:
+            String(localized: "목차")
+        case .pages:
+            String(localized: "페이지")
+        case .annotation:
+            String(localized: "주석")
         }
     }
 }

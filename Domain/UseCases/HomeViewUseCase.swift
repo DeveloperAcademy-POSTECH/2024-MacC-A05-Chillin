@@ -150,7 +150,6 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     
     public func uploadSamplePDFFile() -> [PaperInfo?] {
         let guideURL = Locale.currentLangGuideURL()
-        
         let sampleURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
         
         let guideTempDoc = PDFDocument(url: guideURL)
