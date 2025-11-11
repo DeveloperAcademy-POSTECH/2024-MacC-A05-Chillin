@@ -380,6 +380,11 @@
 			path = Errors;
 			sourceTree = "<group>";
 		};
+		2CE061652EC1BB1200341B46 /* Extension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		2CEBB8C12D5A407E00EC04D2 /* HomeSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HomeSearch;
@@ -453,6 +458,7 @@
 		2C1473D82CE73C2900B35D92 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				2CE061652EC1BB1200341B46 /* Extension */,
 				2C1474292CE8FFDD00B35D92 /* Entities */,
 				2C1473E12CE7876900B35D92 /* UseCases */,
 				2C1473DB2CE73D3A00B35D92 /* Interfaces */,
@@ -949,6 +955,7 @@
 				2C3A2D092D4CF76800ED121D /* Collection */,
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
 				2CC7D9032D7D92B700D882D6 /* Errors */,
+				2CE061652EC1BB1200341B46 /* Extension */,
 				2CEBB8C12D5A407E00EC04D2 /* HomeSearch */,
 				6ED57AD02CF6F33C00358561 /* Figure */,
 				6ED57AD12CF6F34C00358561 /* Collection */,
