@@ -1242,6 +1242,23 @@
         }
       }
     },
+    "코멘트" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コメント"
+          }
+        }
+      }
+    },
     "코멘트 추가" : {
       "localizations" : {
         "en" : {
@@ -1414,6 +1431,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フィギュアの名前を入力してください。"
+          }
+        }
+      }
+    },
+    "하이라이트" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハイライト"
           }
         }
       }
