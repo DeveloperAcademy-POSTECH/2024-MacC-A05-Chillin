@@ -79,7 +79,7 @@ final class OriginalViewController: UIViewController {
         super.buildMenu(with: builder)
         
         /// web 검색 액션
-        let searchWebAction = UIAction(title: "Google Scholar 검색", image: nil, identifier: nil) { action in
+        let searchWebAction = UIAction(title: String(localized: "Google Scholar 검색"), image: nil, identifier: nil) { action in
             if let selectedTextRange = self.mainPDFView.currentSelection?.string {
                 let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                 if let url = URL(string: "https://scholar.google.co.kr/scholar?hl=ko&as_sdt=0%2C5&q=\(query)") {
@@ -88,11 +88,11 @@ final class OriginalViewController: UIViewController {
             }
         }
         
-        let highlightAction = UIAction(title: "하이라이트", image: nil, identifier: nil) { action in
+        let highlightAction = UIAction(title: String(localized: "하이라이트"), image: nil, identifier: nil) { action in
             self.viewModel.highlightUIMenu(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
         }
         
-        let commentAction = UIAction(title: "코멘트", image: nil, identifier: nil) { action in
+        let commentAction = UIAction(title: String(localized: "코멘트"), image: nil, identifier: nil) { action in
             // 코멘트 동작
             self.viewModel.isSelectedEditMenuComment = true
         }

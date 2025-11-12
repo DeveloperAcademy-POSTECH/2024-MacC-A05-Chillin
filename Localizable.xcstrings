@@ -209,6 +209,23 @@
         }
       }
     },
+    "Google Scholar 검색" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Scholar Search"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Scholarで検索"
+          }
+        }
+      }
+    },
     "pdf 로드 실패 " : {
       "localizations" : {
         "en" : {
@@ -413,6 +430,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "すべてを見る"
+          }
+        }
+      }
+    },
+    "목차" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contents"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目次"
           }
         }
       }
@@ -1121,6 +1155,23 @@
         }
       }
     },
+    "주석" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annotation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "注釈"
+          }
+        }
+      }
+    },
     "즐겨찾기" : {
       "localizations" : {
         "en" : {
@@ -1367,6 +1418,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "タグを作るか、追加するタグを検索してください"
+          }
+        }
+      }
+    },
+    "페이지" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページ"
           }
         }
       }

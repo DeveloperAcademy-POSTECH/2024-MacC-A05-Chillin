@@ -9,22 +9,22 @@ import SwiftUI
 
 struct MenuView: View {
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
-    @State private var selectedTab: String = "목차"
+    @State private var selectedTab: String = String(localized: "목차")
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                TabButton(title: "목차", selectedTab: $selectedTab)
-                TabButton(title: "페이지", selectedTab: $selectedTab)
-                TabButton(title: "주석", selectedTab: $selectedTab)
+                TabButton(title: String(localized: "목차"), selectedTab: $selectedTab)
+                TabButton(title: String(localized: "페이지"), selectedTab: $selectedTab)
+                TabButton(title: String(localized: "주석"), selectedTab: $selectedTab)
             }
 
             switch selectedTab {
-            case "목차":
+            case String(localized: "목차"):
                 IndexView()
-            case "페이지":
+            case String(localized: "페이지"):
                 PageListView()
-            case "주석":
+            case String(localized: "주석"):
                 AnnotationCollectionView()
             default:
                 EmptyView()
