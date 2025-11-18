@@ -244,7 +244,7 @@ struct HomeView: View {
                         homeViewModel.homeViewAction = .none
                     }
                 )
-            case let .deletingPaperAlert(id):
+            case let .deletingPaperAlert(ids):
                 CustomAlert(
                     type: .delete,
                     mainText: "정말 삭제하시겠습니까?",
@@ -255,7 +255,7 @@ struct HomeView: View {
                         homeViewModel.homeViewAction = .none
                     },
                     confirmAction: {
-                        homeViewModel.deletePDF(at: id)
+                        ids.forEach { homeViewModel.deletePDF(at: $0) }
                         homeViewModel.homeViewAction = .none
                     }
                 )
@@ -286,7 +286,7 @@ struct HomeView: View {
                         }
                     }
                 )
-            case .none, .deletingMultiPapersAlert:
+            case .none:
                 EmptyView()
             }
         }
@@ -456,7 +456,8 @@ private struct EditMenuView: View {
             .padding(.trailing, 28)
             
             Button(action: {
-                homeViewModel.homeViewAction = .deletingMultiPapersAlert
+                let ids = homeViewModel.selectedItems.map { $0 }
+                homeViewModel.homeViewAction = .deletingPaperAlert(ids)
             }, label: {
                 Image(.trash)
                     .renderingMode(.template)
@@ -477,23 +478,6 @@ private struct EditMenuView: View {
                     .foregroundStyle(.gray100)
             })
             .padding(.trailing, 28)
-        }
-        .alert(
-            "정말 삭제하시겠습니까?",
-            isPresented: homeViewModel.homeViewAction.isDeleteMultiPapersAlertPresented,
-            presenting: homeViewModel.selectedItems
-        ) { itemList in
-            Button("취소", role: .cancel) {}
-            Button("삭제", role: .destructive) {
-                let items: [PaperInfo] = itemList.compactMap { id in
-                    homeViewModel.filteredLists.first(where: { $0.id == id })
-                }
-                
-                homeViewModel.deleteFiles(items)
-                homeViewModel.selectedItems.removeAll()
-            }
-        } message: { itemList in
-            Text("삭제된 파일은 복구할 수 없습니다.")
         }
     }
 }

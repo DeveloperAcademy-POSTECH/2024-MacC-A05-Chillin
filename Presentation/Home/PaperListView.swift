@@ -108,7 +108,7 @@ struct PaperListView: View {
                                                 },
                                                 copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
                                                 deleteAction: {
-                                                    homeViewModel.homeViewAction = .deletingPaperAlert(paperInfo.id)
+                                                    homeViewModel.homeViewAction = .deletingPaperAlert([paperInfo.id])
                                                 },
                                                 moveAction: {
                                                     homeViewModel.selectedItems.insert(paperInfo.id)

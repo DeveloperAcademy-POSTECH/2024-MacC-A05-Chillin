@@ -309,7 +309,7 @@ private struct FilteredPaperListView: View {
                                 tagViewModel.copyButtonTapped(paperInfo: paperInfo)
                             },
                             deleteAction: {
-                                homeViewModel.homeViewAction = .deletingPaperAlert(paperInfo.id)
+                                homeViewModel.homeViewAction = .deletingPaperAlert([paperInfo.id])
                             },
                             moveAction: {
                                 homeViewModel.selectedItems.insert(paperInfo.id)

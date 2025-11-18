@@ -25,8 +25,7 @@ enum HomeViewAction: Hashable {
     
     case duplicatedTitleAlert
     case deletingTagAlert(String, UUID)
-    case deletingPaperAlert(UUID)
-    case deletingMultiPapersAlert
+    case deletingPaperAlert([UUID])
     case deletingFolderAlert
     case folderDepthAlert
     case none
@@ -48,12 +47,5 @@ enum HomeViewAction: Hashable {
         default:
             5
         }
-    }
-    
-    public var isDeleteMultiPapersAlertPresented: Binding<Bool> {
-        Binding(
-            get: { self == .deletingMultiPapersAlert },
-            set: { _ in }
-        )
     }
 }
