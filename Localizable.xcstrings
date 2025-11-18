@@ -66,6 +66,7 @@
       }
     },
     "© 2024 chillin'. All rights reserved." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -80,6 +81,9 @@
           }
         }
       }
+    },
+    "© 2025 chillin'. All rights reserved." : {
+
     },
     "+%lld" : {
       "localizations" : {

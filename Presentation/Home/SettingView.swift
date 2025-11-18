@@ -52,10 +52,27 @@ struct SettingView: View {
             
             VStack(spacing: 0) {
                 
-                Image("setting_thumbnail")
-                    .resizable()
-                    .frame(width: 480, height: 214)
-                    .padding(.bottom, 30)
+                
+                switch Locale.currentLang() {
+                case .ko:
+                    Image(.settingThumbnailKor)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 480)
+                        .padding(.bottom, 30)
+                case .en, .etc:
+                    Image(.settingThumbnailEng)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 480)
+                        .padding(.bottom, 30)
+                case .ja:
+                    Image(.settingThumbnailJpn)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 480)
+                        .padding(.bottom, 30)
+                }
                 
                 List {
                     HStack {
@@ -114,7 +131,7 @@ struct SettingView: View {
                 .padding(.bottom, 20)
                 .scrollDisabled(true)
                 
-                Text("© 2024 chillin'. All rights reserved.")
+                Text("© 2025 chillin'. All rights reserved.")
                     .reazyFont(.body1)
                     .foregroundStyle(.gray700)
             }

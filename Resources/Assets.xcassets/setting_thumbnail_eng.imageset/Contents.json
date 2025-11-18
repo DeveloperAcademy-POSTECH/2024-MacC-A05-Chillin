@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "setting_image.png",
+      "filename" : "eng.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "setting_imagex2.png",
+      "filename" : "Group 1000013255.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "setting_imagex3.png",
+      "filename" : "Group 1000013255-1.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
@@ -19,8 +19,5 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "preserves-vector-representation" : true
   }
 }
