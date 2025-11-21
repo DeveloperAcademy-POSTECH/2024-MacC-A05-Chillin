@@ -50,7 +50,8 @@ struct CustomAlert: View {
                     Text(message)
                         .reazyFont(.body1)
                         .foregroundStyle(.gray900)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
                 }
             }
             .padding(.horizontal, 30)

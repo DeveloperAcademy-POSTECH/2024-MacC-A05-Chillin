@@ -419,8 +419,8 @@ struct MainPDFView: View {
             case .duplicatedTitleAlert:
                 CustomAlert(
                     type: .confirm,
-                    mainText: "같은 제목의 논문이 이미 존재합니다",
-                    message: "다른 제목을 입력해주세요",
+                    mainText: String(localized: "같은 제목의 논문이 이미 존재합니다"),
+                    message: String(localized: "다른 제목을 입력해주세요"),
                     width: 350,
                     height: 176,
                     cancelAction: {
@@ -476,7 +476,7 @@ struct MainPDFView: View {
             case .folderDepthAlert:
                 CustomAlert(
                     type: .confirm,
-                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
+                    mainText: String(localized: "Reazy는 하위 폴더를\n4개까지 제공합니다."),
                     width: 340, height: 163,
                     cancelAction: {
                         mainPDFViewModel.mainPDFViewAction = .movingFolder

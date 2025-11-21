@@ -67,6 +67,7 @@ private struct PopoverActionView: View {
                 Text(popoverAction.label)
                     .reazyFont(.h3)
                     .foregroundStyle( popoverAction == .delete ? .pen1 : .gray800 )
+                    .multilineTextAlignment(.leading)
                 Spacer()
                 popoverAction.image
             }
@@ -86,13 +87,13 @@ private struct PopoverActionView: View {
         var label: String {
             switch self {
             case .changeName:
-                "이름 및 색상 변경"
+                String(localized: "이름 및 색상 변경")
             case .addParentFolder:
-                "상위 폴더 추가"
+                String(localized: "상위 폴더 추가")
             case .addSubFolder:
-                "하위 폴더 추가"
+                String(localized: "하위 폴더 추가")
             case .delete:
-                "삭제"
+                String(localized: "삭제")
             }
         }
         

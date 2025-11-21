@@ -223,8 +223,8 @@ struct HomeView: View {
             case .duplicatedTitleAlert:
                 CustomAlert(
                     type: .confirm,
-                    mainText: "같은 제목의 논문이 이미 존재합니다",
-                    message: "다른 제목을 입력해주세요",
+                    mainText: String(localized: "같은 제목의 논문이 이미 존재합니다."),
+                    message: String(localized: "다른 제목을 입력해주세요."),
                     width: 350,
                     height: 176,
                     cancelAction: {
@@ -234,8 +234,10 @@ struct HomeView: View {
                 )
             case let .deletingTagAlert(name, id):
                 CustomAlert(
-                    mainText: "\"\(name)\"\n태그를 삭제하시겠습니까?",
-                    message: "해당 태그가 달린 모든 논문에서도 삭제됩니다.", width: 350, height: 173,
+                    mainText: String(localized: "\"\(name)\"태그를 삭제하시겠습니까?"),
+                    message: String(localized: "해당 태그가 달린 모든 논문에서도 삭제됩니다."),
+                    width: 350,
+                    height: 173,
                     cancelAction: {
                         homeViewModel.homeViewAction = .none
                     },
@@ -247,8 +249,8 @@ struct HomeView: View {
             case let .deletingPaperAlert(ids):
                 CustomAlert(
                     type: .delete,
-                    mainText: "정말 삭제하시겠습니까?",
-                    message: "삭제된 파일은 복구할 수 없습니다.",
+                    mainText: String(localized: "정말 삭제하시겠습니까?"),
+                    message: String(localized: "삭제된 파일은 복구할 수 없습니다."),
                     width: 350,
                     height: 176,
                     cancelAction: {
@@ -261,8 +263,8 @@ struct HomeView: View {
                 )
             case .deletingFolderAlert:
                 CustomAlert(
-                    mainText: "폴더를 삭제하시겠습니까?",
-                    message: "폴더 안에 포함된 논문도 함께 삭제됩니다.",
+                    mainText: String(localized: "폴더를 삭제하시겠습니까?"),
+                    message: String(localized: "폴더 안에 포함된 논문도 함께 삭제됩니다."),
                     width: 364, height: 163,
                     cancelAction: { homeViewModel.homeViewAction = .none },
                     confirmAction: {
@@ -275,7 +277,7 @@ struct HomeView: View {
             case .folderDepthAlert:
                 CustomAlert(
                     type: .confirm,
-                    mainText: "Reazy는 하위 폴더를\n4개까지 제공합니다.",
+                    mainText: String(localized: "Reazy는 하위 폴더를\n4개까지 제공합니다."),
                     width: 340, height: 163,
                     cancelAction: {
                         if let action = homeViewModel.previousAction,
