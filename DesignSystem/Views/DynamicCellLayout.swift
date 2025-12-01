@@ -18,7 +18,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
     let isEditMode: Bool            // x 마크
     
     let selectAction: (String) -> Void
-    let deleteAction: (UUID) -> Void
+    let deleteAction: (any DynamicCell) -> Void
     
     var body: some View {
         generateLayout(items: data)
@@ -57,7 +57,7 @@ struct DynamicCellLayout<Data: RandomAccessCollection>: View where Data.Element:
                                    isEditMode: isEditMode,
                                    tag: tag,
                                    selectAction: { selectAction(tag.name) },
-                                   deleteAction: { deleteAction(tag.id) }
+                                   deleteAction: { deleteAction(tag) }
                         )
                     }
                 }

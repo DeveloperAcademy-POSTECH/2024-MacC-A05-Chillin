@@ -7,44 +7,84 @@
 
 import PDFKit
 import SwiftUI
-import Network
+import Combine
 
 
+enum MainPDFViewStatus: Hashable {
+    case main
+    
+    /// 좌측 버튼 기능
+    case search
+    case menu(MenuItem)
+    case concentrate
+    
+    /// 센터 버튼 기능
+    case tool(ToolItem)
+    case translation
+    case comment
+    case capture
+    
+    /// 우측 버튼 기능
+    case figure
+    case collection
+    case detail
+    
+    
+    enum MenuItem: Hashable {
+        case index
+        case page
+        case annotation
+    }
+    
+    enum ToolItem: Hashable {
+        case none
+        case highlight
+        case pencil
+        case eraser
+    }
+}
 /**
  PDFView 전체 관할 View model
  */
 final class MainPDFViewModel: ObservableObject {
+    let useCase: BasicPaperCRUDUseCase
+    
+    
+    @Published public var mainPDFViewAction: MainPDFViewAction = .none
+    
+    @Published public var statusStack: Set<MainPDFViewStatus> = []
+    
+    private let figureCapturePublisher = NotificationCenter.default.publisher(for: .isFigureCaptured)
+    private let collectionCapturePublisher = NotificationCenter.default.publisher(for: .isCollectionCaptured)
+    
+    // MARK: - 일반 뷰 변수
+    
+    @Published public var dragAmount: CGPoint?
+    @Published public var dragOffset: CGSize = .zero
+
     @Published var selectedText: String = "" {
         didSet {
             /// 선택된 텍스트가 변경될 때 추가 작업
-            updateTranslationView(selectedText: selectedText, bubblePosition: translateViewPosition)
-            
             if isCommentVisible {
                 updateCommentPosition(at: commentInputPosition)
             }
         }
     }
+    // MARK: - 드로잉 관련
     
-    @Published var toolMode: ToolMode = .none {
-        didSet {
-            if isCommentVisible {
-                updateCommentPosition(at: commentInputPosition)
-            }
-        }
-    }
+    public lazy var pdfDrawer: PDFDrawer = .init(mainPDFViewModel: self)
     
-    @Published var isSelectedEditMenuComment: Bool = false {
-        didSet {
-            if isCommentVisible {
-                updateCommentPosition(at: commentInputPosition)
-            }
-        }
-    }
+    @Published var previousTool: DrawingTool?
+    @Published var selectedPenColor: PenColors?
+    @Published var selectedHighlightColor: HighlightColors?
+    @Published var tempPenColor: PenColors?
+    @Published var tempHighlightColor: HighlightColors?
     
-    @Published var isPaperViewFirst: Bool = true
+    // 현재 undo와 redo 가능 여부
+    @Published var canUndo: Bool = false
+    @Published var canRedo: Bool = false
     
-    // BubbleView의 상태와 위치
-    @Published var translateViewPosition: CGRect = .zero
+    // MARK: - 코멘트 관련
     
     // Comment
     @Published var isCommentTapped: Bool = false
@@ -54,72 +94,34 @@ final class MainPDFViewModel: ObservableObject {
     @Published var commentInputPosition: CGPoint = .zero
     @Published var isCommentSaved: Bool = false
     
-    // Drawing tool
-    public var pdfDrawer: PDFDrawer = .init()
-    @Published var isHighlight: Bool = false
-    @Published var isPencil: Bool = false
-    @Published var isEraser: Bool = false
-    
-    @Published var previousTool: DrawingTool?
-    @Published var selectedPenColor: PenColors?
-    @Published var selectedHighlightColor: HighlightColors?
-    @Published var tempPenColor: PenColors?
-    @Published var tempHighlightColor: HighlightColors?
-    
-    
-    func toggleHighlight() {
-        isHighlight.toggle()
-        pdfDrawer.drawingTool = isHighlight ? .highlights : .none
+    @Published var isSelectedEditMenuComment: Bool = false {
+        didSet {
+            if isCommentVisible {
+                updateCommentPosition(at: commentInputPosition)
+            }
+        }
     }
     
-    func togglePencil() {
-        isPencil.toggle()
-        pdfDrawer.drawingTool = isPencil ? .pencil : .none
-    }
+    // MARK: - 폴더 관련
     
-    func toggleEraser() {
-        isEraser.toggle()
-        pdfDrawer.drawingTool = isEraser ? .eraser : .none
-    }
+    @Published public var createMovingFolder: Bool = false
+    @Published public var moveToFolderID: UUID?
     
-    // 현재 undo와 redo 가능 여부
-    @Published var canUndo: Bool = false
-    @Published var canRedo: Bool = false
+    // MARK: - 나머지
     
     public var pdfSharedData: PDFSharedData = .shared
+    private var cancellables = Set<AnyCancellable>()
     
-    @Published var isMenuSelected: Bool = false
-    
-    @Published public var pageNumber: Int = 0
-    
-    @Published public var paperInfo: PaperInfo = PDFSharedData.shared.paperInfo!
-    
-    @Published public var selectedButton: Buttons?
-    
-    init() {
+    init(basicPaperCRUDUseCase: BasicPaperCRUDUseCase) {
+        self.useCase = basicPaperCRUDUseCase
         pdfDrawer.onHistoryChange = { [weak self] in
             self?.updateUndoRedoState()
         }
-        
-        //        self.paperInfo = paperInfo
-        //        
-        //        var isStale = false
-        //        
-        //        // TODO: 경로 바뀔 시 모델에 Update 필요
-        //        if let url = try? URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale),
-        //        url.startAccessingSecurityScopedResource() {
-        //            self.document = PDFDocument(url: url)
-        //            url.stopAccessingSecurityScopedResource()
-        //        } else {
-        //            if let id = UserDefaults.standard.value(forKey: "sampleId") as? String,
-        //               id == paperInfo.id.uuidString {
-        //                self.document = PDFDocument(url: Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!)
-        //            }
-        //        }
+        self.setBindings()
     }
     
     deinit {
-        print(#function)
+        self.cancellables.forEach { $0.cancel() }
     }
 }
 
@@ -129,6 +131,7 @@ extension MainPDFViewModel {
     public func savePDF(pdfView: PDFView) throws {
         var a = false
         guard let document = pdfView.document else { return }
+        // TODO: 이름 변경시에 URL도 바뀌어야 하는게 아닌가?
         guard let pdfURL = PDFSharedData.shared.paperInfo?.url, let url = try? URL(resolvingBookmarkData: pdfURL, bookmarkDataIsStale: &a) else {
             print("PDF URL을 찾을 수 없습니다.")
             throw HomeViewError.cannotCreateBookmark
@@ -149,72 +152,63 @@ extension MainPDFViewModel {
         do {
             let pdfData = document.dataRepresentation()
             try pdfData?.write(to: url)
+            
             print("PDF 저장이 완료되었습니다.")
         } catch {
             print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
         }
     }
     
-    // 텍스트 PDF 붙이는 함수
-    //    public func setFocusDocument() {
-    //        
-    //        let document = PDFDocument()
-    //        
-    //        var pageIndex = 0
-    //
-    //        self.focusAnnotations.forEach { annotation in
-    //            guard let page = self.document?.page(at: annotation.page - 1)?.copy() as? PDFPage else {
-    //                return
-    //            }
-    //            
-    //            let original = page.bounds(for: .mediaBox)
-    //            let croppedRect = original.intersection(annotation.position)
-    //            
-    //            page.setBounds(croppedRect, for: .mediaBox)
-    //            document.insert(page, at: pageIndex)
-    //            pageIndex += 1
-    //        }
-    //        
-    //        self.focusDocument = document
-    //    }
-}
-
-/// Sample 메소드
-extension MainPDFViewModel {
-    
-    //    public func fetchSampleFocusAnnotations() {
-    //        guard let page = self.document?.page(at: 0) else {
-    //            return
-    //        }
-    //        let input = try! NetworkManager.getSamplePDFData()
-    //        
-    //        self.figureAnnotations = NetworkManager.filterFigure(input: input)
-    //    }
+    public func setBindings() {
+        self.$statusStack
+            .sink { [weak self] statusStack in
+                if !statusStack.isToolSelected {
+                    self?.selectedPenColor = nil
+                    self?.selectedHighlightColor = nil
+                }
+            }
+            .store(in: &cancellables)
+        
+        // 하이라이트 기능 실행
+        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
+            .debounce(for: .milliseconds(700), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    if self.pdfDrawer.pdfView == nil { return }
+                    self.highlightText(in: self.pdfDrawer.pdfView, with: self.selectedHighlightColor ?? .yellow)
+                }
+            }
+            .store(in: &cancellables)
+        
+        self.figureCapturePublisher
+            .sink { [weak self] _ in
+                self?.statusStack.captureOff()
+            }
+            .store(in: &self.cancellables)
+        
+        self.collectionCapturePublisher
+            .sink { [weak self] _ in
+                self?.statusStack.captureOff()
+            }
+            .store(in: &self.cancellables)
+        
+    }
 }
 
 // MARK: - 뷰 상호작용 메소드
 
 extension MainPDFViewModel {
-    public func updateTranslationView(selectedText: String, bubblePosition: CGRect) {
-        // 선택된 텍스트가 있을 경우 TranslationView를 보이게 하고 위치를 업데이트
-        if !selectedText.isEmpty {
-            self.translateViewPosition = bubblePosition
-        } 
-    }
-}
-
-extension MainPDFViewModel {
 
     // toolMode에서 하이라이트 기능
     func highlightText(in pdfView: PDFView, with color: HighlightColors) {
-        guard pdfDrawer.drawingTool == .highlights else { return }
+        guard self.statusStack.isHighlightSelected else { return }
         highlightUIMenu(in: pdfView, with: color)
     }
     
     // UIMenu에서 하이라이트 기능
     func highlightUIMenu(in pdfView: PDFView, with color: HighlightColors) {
-        
-        
         guard let currentSelection = pdfView.currentSelection else { return }                   // PDFView 안에서 스크롤 영역 파악
         let selections = currentSelection.selectionsByLine()                                    // 선택된 텍스트 줄 단위로 나누기
         guard let page = selections.first?.pages.first else { return }
@@ -258,6 +252,25 @@ extension MainPDFViewModel {
 
         pdfView.clearSelection()
     }
+    
+    public func renameTitleCancelButtonTapped() {
+        self.mainPDFViewAction = .none
+    }
+    
+    public func renameTitleOKButtonTapped(paperInfo: PaperInfo, title: String) {
+        var modifiedPaperInfo = paperInfo
+        modifiedPaperInfo.title = title
+        let result = self.useCase.editPDF(modifiedPaperInfo)
+        
+        switch result {
+        case .success:
+            PDFSharedData.shared.paperInfo?.title = title
+            self.mainPDFViewAction = .none
+        case .failure(let error):
+            self.mainPDFViewAction = .duplicatedTitleAlert
+            print(error)
+        }
+    }
 }
 
 
@@ -268,7 +281,7 @@ extension MainPDFViewModel {
 extension MainPDFViewModel {
     
     public var isCommentVisible: Bool {
-        return (self.toolMode == .comment && !self.selectedText.isEmpty) || (self.isSelectedEditMenuComment && !self.selectedText.isEmpty) || self.isCommentTapped
+        return (self.statusStack.isCommentSelected && !self.selectedText.isEmpty) || (self.isSelectedEditMenuComment && !self.selectedText.isEmpty) || self.isCommentTapped
     }
     
     public func updateCommentPosition(at position: CGPoint) {
@@ -336,14 +349,98 @@ extension MainPDFViewModel {
     }
 }
 
-/**
- 펜슬 툴 바 redo, undo 관련
- */
+
+// MARK: - 펜슬 툴 바 관련
 
 extension MainPDFViewModel {
+    public func highlightButtonTapped() {
+        self.statusStack.highlightToggle()
+        
+        if self.selectedHighlightColor == nil {
+            // TODO: GA 하이라이트 사용
+            self.selectedHighlightColor = .yellow
+            
+            self.sendHighlightEventToGA(.yellow)
+        } else {
+            self.selectedHighlightColor = nil
+        }
+        
+        self.selectedPenColor = nil
+    }
+    
+    public func highlightColorButtonTapped(_ color: HighlightColors) {
+        // TODO: GA 하이라이트 사용
+        self.statusStack.onHighlight()
+        self.selectedHighlightColor = color
+        self.selectedPenColor = nil
+        
+        self.sendHighlightEventToGA(color)
+    }
+    
+    public func pencilButtonTapped() {
+        self.statusStack.togglePencil()
+        
+        if self.selectedPenColor == nil {
+            // TODO: GA 펜슬 사용
+            self.selectedPenColor = .black
+            
+            self.sendPencilEventToGA(.black)
+        } else {
+            self.selectedPenColor = nil
+        }
+        
+        selectedHighlightColor = nil
+    }
+    
+    public func pencilColorButtonTapped(_ color: PenColors) {
+        // TODO: GA 펜슬 사용
+        self.statusStack.onPencil()
+        self.selectedPenColor = color
+        self.selectedHighlightColor = nil
+        
+        self.sendPencilEventToGA(color)
+    }
+    
+    public func eraserButtonTapped() {
+        self.statusStack.onEraser()
+        self.selectedHighlightColor = nil
+        self.selectedPenColor = nil
+    }
+    
+    
     func updateUndoRedoState() {
         canUndo = !pdfDrawer.annotationHistory.isEmpty
         canRedo = !pdfDrawer.redoStack.isEmpty
+    }
+}
+
+
+// MARK: - Internal method
+extension MainPDFViewModel {
+    private func sendHighlightEventToGA(_ color: HighlightColors) {
+        switch color {
+        case .yellow:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightYellow)
+        case .pink:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightPink)
+        case .green:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightGreen)
+        case .blue:
+            AnalyticsManager.sendParameterlessEvent(eventType: .highlightBlue)
+        }
+    }
+    
+    private func sendPencilEventToGA(_ color: PenColors) {
+        switch color {
+        case .black:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilBlack)
+        case .red:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilRed)
+        case .blue:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilBlue)
+        case .green:
+            AnalyticsManager.sendParameterlessEvent(eventType: .pencilGreen)
+        }
     }
 }
 

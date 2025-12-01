@@ -86,6 +86,11 @@ struct FigureCell: View {
                             .simultaneousGesture(
                                 TapGesture().onEnded {
                                     if floatingViewModel.selectedFigureCellID != id {
+                                        // TODO: QA 플로팅 창 오픈
+                                        AnalyticsManager.sendEvent(
+                                            eventType: .floatingWindowOpen,
+                                            parameters: PDFSharedData.shared.articleId(), id.uuidString
+                                        )
                                         onSelect(id, documentID, document, head)
                                     }
                                 }

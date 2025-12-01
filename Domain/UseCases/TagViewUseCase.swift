@@ -32,6 +32,7 @@ final class DefaultTagViewUseCase: TagViewUseCase {
     func deleteTag(id: UUID) -> Bool {
         switch tagDataRepository.deleteTag(tagID: id) {
         case .success(_):
+            try? tagDataRepository.saveContext()
             return true
         case .failure(_):
             return false
@@ -112,7 +113,7 @@ extension DefaultTagViewUseCase: HomeSearchUseCase {
                     url: data,
                     focusURL: info.focusURL,
                     lastModifiedDate: Date(),
-                    isFavorite: info.isFavorite,
+                    isFavorite: false,
                     isFigureSaved: info.isFigureSaved,
                     folderID: info.folderID)
                 

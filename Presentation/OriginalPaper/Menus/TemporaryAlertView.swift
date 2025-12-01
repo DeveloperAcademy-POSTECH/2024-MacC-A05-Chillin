@@ -12,12 +12,27 @@ struct TemporaryAlertView: View {
     @State var mode: String
     
     private var alertWidth: CGFloat {
+        let currentLang = Locale.currentLang()
+        
         switch mode {
         case "drawing":
+            if currentLang == .ja {
+                return 425
+            }
             return 295
         case "comment":
+            if currentLang == .en {
+                return 285
+            } else if currentLang == .ja {
+                return 325
+            }
             return 255
         case "translate":
+            if currentLang == .en {
+                return 255
+            } else if currentLang == .ja {
+                return 295
+            }
             return 235
         case "lasso":
             return 250
@@ -29,13 +44,13 @@ struct TemporaryAlertView: View {
     private var alertMessage: String {
         switch mode {
         case "drawing":
-            return "하이라이트 사용 시 텍스트를 꾹 눌러 선택하세요"
+            return String(localized: "하이라이트 사용 시 텍스트를 꾹 눌러 선택하세요")
         case "comment":
-            return "코멘트를 남길 부분을 꾹 눌러 선택하세요"
+            return String(localized: "코멘트를 남길 부분을 꾹 눌러 선택하세요")
         case "translate":
-            return "번역할 텍스트를 꾹 눌러 선택하세요"
+            return String(localized: "번역할 텍스트를 꾹 눌러 선택하세요")
         case "lasso":
-            return "추가할 figure 영역을 드래그하세요"
+            return String(localized: "추가할 figure 영역을 드래그하세요")
         default:
             return ""
         }

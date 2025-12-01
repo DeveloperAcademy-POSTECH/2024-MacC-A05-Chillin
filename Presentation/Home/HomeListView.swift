@@ -10,15 +10,13 @@ import SwiftUI
 struct HomeListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State private var selectedCategory: CategorySelection = .main
-    
   
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                categoryButton(image: "emptydoc", selectedImage: "document", title: String(localized: "전체"), category: .main)
-                categoryButton(image: "star", selectedImage: "starfill", title: String(localized: "즐겨찾기"), category: .favorite)
-                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: String(localized: "태그"), category: .tag)
+                categoryButton(image: "emptydoc", selectedImage: "document", title: String(localized: "전체"), status: .main)
+                categoryButton(image: "star", selectedImage: "starfill", title: String(localized: "즐겨찾기"), status: .favorite)
+                categoryButton(icon: "tag", selectedIcon: "tag.fill", title: String(localized: "태그"), status: .tag)
             }
             .padding(.leading, 10)
             .padding(.trailing, 12)
@@ -41,9 +39,9 @@ struct HomeListView: View {
                     Button(action: {
                         if homeViewModel.depth(of: homeViewModel.currentFolder?.id) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
-                            homeViewModel.createFolder = true
+                            homeViewModel.homeViewAction = .creatingFolder
                         } else {
-                            homeViewModel.showFolderDepthAlert = true
+                            homeViewModel.homeViewAction = .folderDepthAlert
                         }
                     }) {
                         Image("newfolder")
@@ -60,25 +58,25 @@ struct HomeListView: View {
                 
                 ScrollView {
                     VStack(spacing: 0) {
-                        ForEach(rootFolders, id: \.id) { folder in
+                        ForEach(homeViewModel.rootFolders, id: \.id) { folder in
                             FolderListCell(
                                 folder: folder,
                                 level: 0,
-                                expandedFolders: $homeViewModel.expandedFolders,
-                                childFolders: childFolders(of:),
-                                toggleExpansion: toggleExpansion,
-                                hasChildren: hasChildren(folder:),
-                                selectedFolderID: $homeViewModel.selectedFolderID,
+                                childFolders: homeViewModel.childFolders(of:),
+                                toggleExpansion: homeViewModel.toggleExpansionFolder(folder:),
+                                hasChildren: homeViewModel.hasChildren(folder:),
                                 didSelectFolder: { folderID in
-                                    selectedCategory = .folder(folderID)
-                                    homeViewModel.selectCategory(.folder(folderID))
+                                    homeViewModel.categoryButtonTapped(.folder(folderID))
                                 },
-                                handleDrop: handleDrop(to:droppedItem:),
+                                handleDrop: homeViewModel.handleDrop(to:droppedItem:),
                                 onLongPressGesture: { folder, drag in
                                     if let drag = drag {
-                                        homeViewModel.selectedFolderID = folder.id
-                                        homeViewModel.viewStatus = .folderPopover(
-                                            .init(x: 40 + 100, y: drag.location.y + 85)
+                                        homeViewModel.homeViewStatus = .folder(folder.id)
+                                        homeViewModel.homeViewAction = .folderPopover(
+                                            position: .init(
+                                                x: 140,
+                                                y: drag.location.y + 85
+                                            )
                                         )
                                     }
                                 }
@@ -106,82 +104,52 @@ struct HomeListView: View {
         image: String? = nil,
         selectedImage: String? = nil,
         title: String,
-        category: CategorySelection
+        status: HomeViewStatus
     ) -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .foregroundStyle(selectedCategory == category ? .gray300 : .primary2)
+            .foregroundStyle(homeViewModel.homeViewStatus == status ? .gray300 : .primary2)
             .frame(height: 43)
             .overlay {
                 HStack(spacing: 0) {
                     if let icon = icon, let selectedIcon = selectedIcon {
-                        Image(systemName: selectedCategory == category ? selectedIcon : icon)
+                        Image(systemName: homeViewModel.homeViewStatus == status ? selectedIcon : icon)
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                            .foregroundStyle(homeViewModel.homeViewStatus == status ? .primary1 : .gray700)
                             .padding(.trailing, 11)
                     } else if let image = image, let selectedImage = selectedImage {
-                        Image(selectedCategory == category ? selectedImage : image)
+                        Image(homeViewModel.homeViewStatus == status ? selectedImage : image)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 18, height: 18)
-                            .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                            .foregroundStyle(homeViewModel.homeViewStatus == status ? .primary1 : .gray700)
                             .padding(.trailing, 11)
                     }
                     
                     Text(title)
-                        .reazyFont(selectedCategory == category ? .button1 : .text1)
-                        .foregroundStyle(selectedCategory == category ? .primary1 : .gray700)
+                        .reazyFont(homeViewModel.homeViewStatus == status ? .button1 : .text1)
+                        .foregroundStyle(homeViewModel.homeViewStatus == status ? .primary1 : .gray700)
                     
                     Spacer()
                 }
                 .padding(.leading, 20)
             }
             .onTapGesture {
-                selectedCategory = category
-                homeViewModel.selectCategory(category)
+                homeViewModel.categoryButtonTapped(status)
             }
             .padding(.bottom, 3)
-    }
-    
-    private var rootFolders: [Folder] {
-        homeViewModel.folders.filter { $0.parentFolderID == nil }
-    }
-    
-    private func childFolders(of folderID: UUID?) -> [Folder] {
-        homeViewModel.folders.filter { $0.parentFolderID == folderID }
-    }
-    
-    private func hasChildren(folder: Folder) -> Bool {
-        !childFolders(of: folder.id).isEmpty
-    }
-    
-    private func toggleExpansion(_ folder: Folder) {
-        withAnimation {
-            if homeViewModel.expandedFolders.contains(folder.id) {
-                homeViewModel.expandedFolders.remove(folder.id)
-            } else {
-                homeViewModel.expandedFolders.insert(folder.id)
-            }
-        }
-    }
-    
-    private func handleDrop(to folderId: UUID, droppedItem: PaperInfo) {
-        DispatchQueue.main.async {
-            homeViewModel.updatePaperLocation(at: droppedItem.id, folderID: folderId)
-        }
     }
 }
 
 
 private struct FolderListCell: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     
     let folder: Folder
     let level: Int
-    @Binding var expandedFolders: Set<UUID>
     let childFolders: (UUID) -> [Folder]
     let toggleExpansion: (Folder) -> Void
     let hasChildren: (Folder) -> Bool
-    @Binding var selectedFolderID: UUID?
     var didSelectFolder: (UUID) -> Void
     var handleDrop: (UUID, PaperInfo) -> Void
     
@@ -218,7 +186,7 @@ private struct FolderListCell: View {
                             Button(action: {
                                 toggleExpansion(folder)
                             }) {
-                                Image(systemName: expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
+                                Image(systemName: homeViewModel.expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundStyle(.gray600)
                                     .padding(.trailing, 4)
@@ -231,7 +199,7 @@ private struct FolderListCell: View {
                 }
             }
             .padding(.leading, CGFloat((level * 18)))
-            .background(selectedFolderID == folder.id ? .gray300 : .clear)
+            .background(homeViewModel.homeViewStatus.currentFolderID == folder.id ? .gray300 : .clear)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .contentShape(Rectangle())
             .onTapGesture {
@@ -265,16 +233,14 @@ private struct FolderListCell: View {
                 return false
             }
             
-            if expandedFolders.contains(folder.id) {
+            if homeViewModel.expandedFolders.contains(folder.id) {
                 ForEach(childFolders(folder.id), id: \.id) { subFolder in
                     FolderListCell(
                         folder: subFolder,
                         level: level + 1,
-                        expandedFolders: $expandedFolders,
                         childFolders: childFolders,
                         toggleExpansion: toggleExpansion,
                         hasChildren: hasChildren,
-                        selectedFolderID: $selectedFolderID,
                         didSelectFolder: didSelectFolder,
                         handleDrop: handleDrop,
                         onLongPressGesture: onLongPressGesture

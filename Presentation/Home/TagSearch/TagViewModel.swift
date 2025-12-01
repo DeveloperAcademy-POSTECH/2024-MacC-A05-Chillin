@@ -25,22 +25,22 @@ class TagViewModel: ObservableObject {
     @Published public var isBtnTapped: Bool = false
     @Published public var isEditMode: Bool = false
     @Published public var popover: Bool = false
-    @Published public var createTag: Bool = false
     @Published public var isTagDuplicate: Bool = false
-    @Published public var showDeleteAlert: Bool = false
     @Published public var listWidth: CGFloat = 0
     
-    @Published private var targetTagID: UUID
-    
     @Published public var tagFilteredPapers: [PaperInfo] = []
+    @Published public var deleteAlertPresented: Bool = false
+    @Published public var isPortrait: Bool = false
+
     
     private var cancellables = Set<AnyCancellable>()
+    
+    private let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     init(
         tagViewUseCase: TagViewWithIOUseCase
     ) {
         self.tagViewUseCase = tagViewUseCase
-        self.targetTagID = UUID()
         setBindings()
     }
     
@@ -56,6 +56,21 @@ class TagViewModel: ObservableObject {
             }
             .assign(to: \.tagFilteredPapers, on: self)
             .store(in: &cancellables)
+        
+        self.publisher
+            .sink { noti in
+                let currentOrientation = UIDevice.current.orientation
+                
+                switch currentOrientation {
+                case .portrait, .portraitUpsideDown:
+                    self.isPortrait = true
+                case .landscapeLeft, .landscapeRight:
+                    self.isPortrait = false
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
     }
     
     deinit {
@@ -67,6 +82,10 @@ class TagViewModel: ObservableObject {
         
         self.tags = tags
         self.isTagExist = !tags.isEmpty
+        
+        if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
+            self.isPortrait = true
+        }
     }
     
     func tagTapped(for tagName: String){
@@ -80,27 +99,9 @@ class TagViewModel: ObservableObject {
         }
     }
     
-    func showDeleteAlert(id: UUID) {
-        self.targetTagID = id
-        withAnimation {
-            self.showDeleteAlert = true
-        }
-    }
-    
-    func getTagName() -> String {
-        guard let tag = tags.first(where: { $0.id == targetTagID }) else {return ""}
-        return tag.name
-    }
-    
-    func deleteTag() {
-        if (tagViewUseCase.deleteTag(id: targetTagID)) {
-            tags.removeAll{ $0.id == targetTagID }
-            selectedTags.removeAll(){ $0.id == targetTagID }
-        } else {
-            // Error 처리
-        }
-        withAnimation {
-            self.showDeleteAlert = false
+    public func deleteTagButtonTapped(id: UUID) {
+        if tagViewUseCase.deleteTag(id: id) {
+            onAppear()
         }
     }
 

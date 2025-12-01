@@ -83,7 +83,7 @@ final class DefaultHomeSearchUseCase: HomeSearchUseCase {
                     url: data,
                     focusURL: info.focusURL,
                     lastModifiedDate: Date(),
-                    isFavorite: info.isFavorite,
+                    isFavorite: false,
                     isFigureSaved: info.isFigureSaved,
                     folderID: info.folderID)
                 

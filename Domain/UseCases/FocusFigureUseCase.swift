@@ -101,8 +101,18 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
             await self.focusFigureRepository.fetchFigures(url: url) { result in
                 switch result {
                 case .success(let layout):
+                    // TODO: QA 피규어 추출 성공
+                    AnalyticsManager.sendEvent(
+                        eventType: .extractSuccess,
+                        parameters: PDFSharedData.shared.articleId(), "\(layout.fig.count)"
+                    )
                     completion(.success(layout))
                 case .failure(let error):
+                    // TODO: QA 피규어 추출 실패
+                    AnalyticsManager.sendEvent(
+                        eventType: .extractFail,
+                        parameters: PDFSharedData.shared.articleId(), error.localizedDescription
+                    )
                     completion(.failure(error))
                 }
             }

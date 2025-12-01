@@ -17,6 +17,22 @@
         }
       }
     },
+    "\"%@\"태그를 삭제하시겠습니까?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete the\n“%@” tag?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”\nタグを削除しますか？"
+          }
+        }
+      }
+    },
     "%@" : {
       "localizations" : {
         "en" : {
@@ -65,21 +81,8 @@
         }
       }
     },
-    "© 2024 chillin'. All rights reserved." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "© 2024 chillin'. All rights reserved."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "© 2024 chillin'. All rights reserved."
-          }
-        }
-      }
+    "© 2025 chillin'. All rights reserved." : {
+
     },
     "+%lld" : {
       "localizations" : {
@@ -209,6 +212,23 @@
         }
       }
     },
+    "Google Scholar 검색" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Scholar Search"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Scholarで検索"
+          }
+        }
+      }
+    },
     "pdf 로드 실패 " : {
       "localizations" : {
         "en" : {
@@ -241,6 +261,26 @@
         }
       }
     },
+    "Reazy는 하위 폴더를\n4개까지 제공합니다." : {
+
+    },
+    "Reazy는 하위 폴더를 4개까지 제공합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can create up to 4 subfolders."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サブフォルダは最大4つまで作成できます。"
+          }
+        }
+      }
+    },
     "Reazy의 새로운\n버전을 확인해보세요!" : {
       "localizations" : {
         "en" : {
@@ -269,6 +309,33 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "インポート"
+          }
+        }
+      }
+    },
+    "같은 제목의 논문이 이미 존재합니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A paper with this title already exists"
+          }
+        }
+      }
+    },
+    "같은 제목의 논문이 이미 존재합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A paper with this title already exists."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同じタイトルの論文が既に存在します。"
           }
         }
       }
@@ -333,6 +400,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "論文のレイアウトにより、Table抽出の精度が異なる場合があります"
+          }
+        }
+      }
+    },
+    "다른 제목을 입력해주세요" : {
+
+    },
+    "다른 제목을 입력해주세요." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter a different title."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "別のタイトルを入力してください。"
           }
         }
       }
@@ -417,6 +504,23 @@
         }
       }
     },
+    "목차" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contents"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目次"
+          }
+        }
+      }
+    },
     "목차가 있으면,\n여기에 표시됩니다" : {
       "localizations" : {
         "en" : {
@@ -477,6 +581,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "翻訳内容がコピーされました"
+          }
+        }
+      }
+    },
+    "번역할 텍스트를 꾹 눌러 선택하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold the text for translation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "翻訳するテキストを長押して選択してください"
           }
         }
       }
@@ -589,6 +710,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "削除した項目は復元できません。"
+          }
+        }
+      }
+    },
+    "상위 폴더 추가" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add parent folder"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上位フォルダーを追加"
           }
         }
       }
@@ -961,6 +1099,23 @@
         }
       }
     },
+    "이름 및 색상 변경" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change name and color"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前と色の変更"
+          }
+        }
+      }
+    },
     "이름 수정" : {
       "localizations" : {
         "en" : {
@@ -1121,6 +1276,23 @@
         }
       }
     },
+    "주석" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annotation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "注釈"
+          }
+        }
+      }
+    },
     "즐겨찾기" : {
       "localizations" : {
         "en" : {
@@ -1210,6 +1382,23 @@
         }
       }
     },
+    "추가할 figure 영역을 드래그하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag and select the area of the figure"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "追加するfigureをドラッグしてください"
+          }
+        }
+      }
+    },
     "추출 시작" : {
       "localizations" : {
         "en" : {
@@ -1242,6 +1431,22 @@
         }
       }
     },
+    "코멘트" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コメント"
+          }
+        }
+      }
+    },
     "코멘트 추가" : {
       "localizations" : {
         "en" : {
@@ -1254,6 +1459,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "コメントを追加"
+          }
+        }
+      }
+    },
+    "코멘트를 남길 부분을 꾹 눌러 선택하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold the text to add a comment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コメントを残す部分を長押しして選択してください"
           }
         }
       }
@@ -1354,6 +1576,23 @@
         }
       }
     },
+    "페이지" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページ"
+          }
+        }
+      }
+    },
     "폴더" : {
       "localizations" : {
         "en" : {
@@ -1366,6 +1605,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フォルダ"
+          }
+        }
+      }
+    },
+    "폴더 안에 포함된 논문도 함께 삭제됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All papers in this folder will also be deleted."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフォルダ内の論文もすべて削除されます。"
           }
         }
       }
@@ -1402,6 +1658,23 @@
         }
       }
     },
+    "폴더를 삭제하시겠습니까?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this folder?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフォルダを削除しますか？"
+          }
+        }
+      }
+    },
     "피규어 이름을 입력해주세요." : {
       "localizations" : {
         "en" : {
@@ -1418,6 +1691,57 @@
         }
       }
     },
+    "하위 폴더 추가" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add subfolder"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サブフォルダーを追加"
+          }
+        }
+      }
+    },
+    "하이라이트" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハイライト"
+          }
+        }
+      }
+    },
+    "하이라이트 사용 시 텍스트를 꾹 눌러 선택하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold the text to highlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハイライトを使う場合は、テキストを長押しして選択してください"
+          }
+        }
+      }
+    },
     "해당 번역 기능은 iPadOS 18.0 이상에서만 사용 가능합니다.\niPadOS 18.0 미만 버전에서는 소프트웨어 업데이트가 필요합니다." : {
       "localizations" : {
         "en" : {
@@ -1430,6 +1754,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "この翻訳機能はiPadOS 18.0以上でのみ使用可能です。iPadOS 18.0未満のバージョンでは、ソフトウェアのアップデートが必要です。"
+          }
+        }
+      }
+    },
+    "해당 태그가 달린 모든 논문에서도 삭제됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This tag will also be removed from all other papers."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このタグは、他のすべての論文からも削除されます。"
           }
         }
       }

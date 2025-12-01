@@ -14,7 +14,7 @@ struct AppView: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     // Navigation 컨트롤
-    @StateObject private var navigationCoordinator: NavigationCoordinator = .init()
+    @StateObject private var navigationCoordinator: NavigationCoordinator = .shared
     @StateObject private var homeViewModel: HomeViewModel = .init(
         homeViewUseCase: DefaultHomeViewUseCase(
             paperDataRepository: PaperDataRepositoryImpl(),
@@ -42,7 +42,10 @@ struct AppView: App {
             .environmentObject(homeViewModel)
             .task {
                 self.homeViewModel.setSample()
+                
+                #if !DEBUG
                 await self.checkAppVersion()
+                #endif
             }
             .onOpenURL(perform: openUrlScheme)
             .alert("Reazy의 새로운\n버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {

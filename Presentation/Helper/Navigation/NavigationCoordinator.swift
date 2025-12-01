@@ -12,6 +12,11 @@ import SwiftUI
  Navigation 관리하는 클래스
  */
 final class NavigationCoordinator: CoordinatorProtocol {
+    static let shared = NavigationCoordinator()
+    
+    private init() {}
+    
+    
     @Published public var path: NavigationPath = .init()
     @Published var sheet: Sheet?
     @Published var fullScreenCover: FullScreenCover?
@@ -55,14 +60,19 @@ final class NavigationCoordinator: CoordinatorProtocol {
         case .mainPDF(let paperInfo):
             if path.count != 0 {
                 let _ = PDFSharedData.shared.makeDocument(from: paperInfo)
+                let paperDataRepository = PaperDataRepositoryImpl()
                 
                 MainPDFView(
                     pdfInfoMenuViewModel: .init(
                         pdfInfoMenuUsecase: DefaultPDFInfoMenuUseCase(
-                            paperDataRepository: PaperDataRepositoryImpl()
+                            paperDataRepository: paperDataRepository
                         )
                     ),
-                    mainPDFViewModel: .init(),
+                    mainPDFViewModel: .init(
+                        basicPaperCRUDUseCase: DefaultBasicPaperCRUDUseCase(
+                            paperDataRepository: paperDataRepository
+                        )
+                    ),
                     commentViewModel: .init(
                         commentService: CommentDataRepositoryImpl(),
                         buttonGroupService: ButtonGroupDataRepositoryImpl()

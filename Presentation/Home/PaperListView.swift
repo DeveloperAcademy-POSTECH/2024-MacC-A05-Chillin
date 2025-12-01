@@ -12,20 +12,6 @@ struct PaperListView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var homeViewModel: HomeViewModel
     
-    @State private var isNavigationPushed: Bool = false
-    
-    @State private var selectedPaper: PaperInfo?
-    @State private var deleteAlertPresented: Bool = false
-    
-    @State var isFavorite: Bool = false
-    
-    @State private var keyboardHeight: CGFloat = 0
-    
-    @State private var isIPadMini: Bool = false
-    @State private var isVertical = false
-    @State private var isPortrait: Bool = false
-    
-    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         GeometryReader { geometry in
@@ -99,22 +85,16 @@ struct PaperListView: View {
                                                 paperInfo: paperInfo,
                                                 isSelected: Binding(
                                                     get: { homeViewModel.selectedItems.contains(paperInfo.id) },
-                                                    set: { newValue in
-                                                        if newValue {
-                                                            homeViewModel.selectedItems.insert(paperInfo.id)
-                                                        } else {
-                                                            homeViewModel.selectedItems.remove(paperInfo.id)
-                                                        }
-                                                    }
+                                                    set: { _ in }
                                                 ),
-                                                cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                                                screenWidth: isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.7,
+                                                cellStatus: homeViewModel.homeViewStatus == .edit ? .selection : .normal,
+                                                screenWidth: homeViewModel.isPortrait ? geo.size.width * 0.6 :  geo.size.width * 0.7,
                                                 onTapGesture: {
-                                                    navigateToPaper(paperInfo.id)
+                                                    homeViewModel.navigateToPaper(paperInfo.id)
                                                     homeViewModel.updateLastModifiedDate(at: paperInfo.id, lastModifiedDate: Date())
                                                 },
                                                 checkAction: {
-                                                    homeViewModel.selectedItems.insert(paperInfo.id)
+                                                    homeViewModel.checkPaperButtonTapped(paperInfo: paperInfo)
                                                 },
                                                 starAction: {
                                                     homeViewModel.updatePaperFavorite(at: paperInfo.id, isFavorite: !paperInfo.isFavorite)
@@ -124,19 +104,18 @@ struct PaperListView: View {
                                                     homeViewModel.editButtonTapped(paperInfo)
                                                 },
                                                 setTagAction: {
-                                                    homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                                    homeViewModel.homeViewAction = .addTagToPaper(paperInfo)
                                                 },
                                                 copyAction: { homeViewModel.duplicatePDF(at: paperInfo.id )},
                                                 deleteAction: {
-                                                    selectedPaper = paperInfo
-                                                    deleteAlertPresented.toggle()
+                                                    homeViewModel.homeViewAction = .deletingPaperAlert([paperInfo.id])
                                                 },
                                                 moveAction: {
                                                     homeViewModel.selectedItems.insert(paperInfo.id)
-                                                    homeViewModel.isMovingFolder.toggle()
+                                                    homeViewModel.homeViewAction = .movingFolder
                                                 },
                                                 addTagAction: {
-                                                    homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                                    homeViewModel.homeViewAction = .addTagToPaper(paperInfo)
                                                 }
                                             )
                                             .draggable(paperInfo) {
@@ -152,52 +131,12 @@ struct PaperListView: View {
                                     .scrollContentBackground(.hidden)
                                     .background(Color.clear)
                                 }
-                                .onAppear {
-                                    if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
-                                        self.isPortrait = true
-                                    }
-                                }
-                                .onReceive(publisher) { noti in
-                                    let currentOrientation = UIDevice.current.orientation
-                                    
-                                    switch currentOrientation {
-                                    case .portrait, .portraitUpsideDown:
-                                        self.isPortrait = true
-                                    case .landscapeLeft, .landscapeRight:
-                                        self.isPortrait = false
-                                    default:
-                                        break
-                                    }
-                                }
+                                .onAppear(perform: homeViewModel.updatePortrait)
                             }
                         }
                     }
                 }
                 .background(.gray300)
-            }
-            
-            .onAppear {
-                detectIPadMini()
-                updateOrientation(with: geometry)
-            }
-            .onDisappear {
-                self.isNavigationPushed = false
-            }
-            .onChange(of: geometry.size) {
-                detectIPadMini()
-                updateOrientation(with: geometry)
-            }
-            .alert(
-                "정말 삭제하시겠습니까?",
-                isPresented: $deleteAlertPresented,
-                presenting: selectedPaper
-            ) { paperInfo in
-                Button("취소", role: .cancel) {}
-                Button("삭제", role: .destructive) {
-                    homeViewModel.deletePDF(at: paperInfo.id)
-                }
-            } message: { paperInfo in
-                Text("삭제된 파일은 복구할 수 없습니다.")
             }
             .background(.gray200)
             .ignoresSafeArea()
@@ -205,56 +144,11 @@ struct PaperListView: View {
     }
     
     private func emptyStateMessage() -> String {
-        if homeViewModel.isFavoriteSelected {
-            return String(localized: "즐겨찾기 한 논문이 없어요")
-        } else {
-            return String(localized: "새로운 논문을 가져와 주세요")
+        switch homeViewModel.homeViewStatus {
+        case .favorite:
+            String(localized: "즐겨찾기 한 논문이 없어요")
+        default:
+            String(localized: "새로운 논문을 가져와 주세요")
         }
-    }
-}
-
-extension PaperListView {
-    
-    // TODO: URL 분리 필요
-    private func navigateToPaper(_ id: UUID) {
-        guard let selectedPaper = homeViewModel.paperInfos.first(where: { $0.id == id }) else {
-            return
-        }
-        
-        var isStale = false
-        let data = selectedPaper.url
-        
-        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            print("bookmarkdata to url failed")
-            return
-        }
-        
-        if isStale {
-            print("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
-                print("Unable to create bookmark")
-                return
-            }
-            
-            let idx = homeViewModel.paperInfos.firstIndex { $0.id == id }!
-            homeViewModel.paperInfos[idx].url = newURL
-        }
-        
-        navigationCoordinator.push(.mainPDF(paperInfo: selectedPaper))
-    }
-}
-
-extension PaperListView {
-    private func detectIPadMini() {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let screenSize = UIScreen.main.nativeBounds.size
-            let isMiniSize = (screenSize.width == 1536 && screenSize.height == 2048) ||
-            (screenSize.width == 1488 && screenSize.height == 2266)
-            self.isIPadMini = isMiniSize
-        }
-    }
-    
-    private func updateOrientation(with geometry: GeometryProxy) {
-        isVertical = geometry.size.height > geometry.size.width
     }
 }

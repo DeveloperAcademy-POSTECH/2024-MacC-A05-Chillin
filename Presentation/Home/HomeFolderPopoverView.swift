@@ -18,34 +18,29 @@ struct HomeFolderPopoverView: View {
             .overlay {
                 VStack(spacing: 0) {
                     PopoverActionView(popoverAction: .changeName) {
-                        homeViewModel.viewStatus = .normal
-                        homeViewModel.isEditingFolder = true
+                        homeViewModel.homeViewAction = .editingFolder
                     }
                     divider
                     PopoverActionView(popoverAction: .addParentFolder) {
-                        homeViewModel.viewStatus = .normal
-                        
-                        if homeViewModel.totalDepthInBranch(for: homeViewModel.selectedFolderID) < 4 {
+                        if homeViewModel.totalDepthInBranch(for: homeViewModel.homeViewStatus.currentFolderID) < 4 {
                             homeViewModel.folderCreationPosition = .aboveCurrent
-                            homeViewModel.createFolder = true
+                            homeViewModel.homeViewAction = .creatingFolder
                         } else {
-                            homeViewModel.showFolderDepthAlert = true
+                            homeViewModel.homeViewAction = .folderDepthAlert
                         }
                     }
                     divider
                     PopoverActionView(popoverAction: .addSubFolder) {
-                        homeViewModel.viewStatus = .normal
-                        if homeViewModel.depth(of: homeViewModel.selectedFolderID) < 4 {
+                        if homeViewModel.totalDepthInBranch(for: homeViewModel.homeViewStatus.currentFolderID) < 4 {
                             homeViewModel.folderCreationPosition = .intoCurrent
-                            homeViewModel.createFolder = true
+                            homeViewModel.homeViewAction = .creatingFolder
                         } else {
-                            homeViewModel.showFolderDepthAlert = true
+                            homeViewModel.homeViewAction = .folderDepthAlert
                         }
                     }
                     divider
                     PopoverActionView(popoverAction: .delete) {
-                        homeViewModel.viewStatus = .normal
-                        homeViewModel.showDeleteAlert = true
+                        homeViewModel.homeViewAction = .deletingFolderAlert
                     }
                 }
             }
@@ -72,6 +67,7 @@ private struct PopoverActionView: View {
                 Text(popoverAction.label)
                     .reazyFont(.h3)
                     .foregroundStyle( popoverAction == .delete ? .pen1 : .gray800 )
+                    .multilineTextAlignment(.leading)
                 Spacer()
                 popoverAction.image
             }
@@ -91,13 +87,13 @@ private struct PopoverActionView: View {
         var label: String {
             switch self {
             case .changeName:
-                "이름 및 색상 변경"
+                String(localized: "이름 및 색상 변경")
             case .addParentFolder:
-                "상위 폴더 추가"
+                String(localized: "상위 폴더 추가")
             case .addSubFolder:
-                "하위 폴더 추가"
+                String(localized: "하위 폴더 추가")
             case .delete:
-                "삭제"
+                String(localized: "삭제")
             }
         }
         

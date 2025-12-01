@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PDFKit
 import UIKit
 
 //MARK: - ActivityView
@@ -32,33 +31,19 @@ public struct ActivityViewController: UIViewControllerRepresentable {
 //MARK: - PDFInfoMenu
 struct PDFInfoMenu: View {
     private let pdfSharedData: PDFSharedData = .shared
-    @State private var isActivityViewPresented = false
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
     @EnvironmentObject private var pdfInfoMenuViewModel: PDFInfoMenuViewModel
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
-    @Binding var isEditingTitle: Bool
-    @Binding var createMovingFolder: Bool
-    
-    @State var title: String?
-    @State var isStarSelected: Bool = false
-    
-    private let fileURL: URL = {
-        let fileName = PDFSharedData.shared.paperInfo?.title ?? "Untitled"
-        return FileManager.default.temporaryDirectory.appending(path: "\(fileName).pdf")
-    }()
-
     var body: some View {
         VStack(spacing: 12) {
-            
             Button(action: {
-                setTemporaryPDF()
-                isActivityViewPresented = true
+                pdfInfoMenuViewModel.activityButtonTapped()
             }, label: {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(title ?? String(localized: "알 수 없음"))
+                        Text(pdfInfoMenuViewModel.paperTitle)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                             .reazyFont(.h3)
@@ -88,14 +73,14 @@ struct PDFInfoMenu: View {
                         .foregroundStyle(.gray100)
                 )
             })
-            .popover(isPresented: $isActivityViewPresented) {
-                ActivityViewController(activityItems: [self.fileURL])
+            .popover(isPresented: $pdfInfoMenuViewModel.isActivityViewPresented) {
+                ActivityViewController(activityItems: [pdfInfoMenuViewModel.fileURL])
             }
             
             VStack(spacing: 10) {
                 Button(action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-                    homeViewModel.viewStatus = .search(pdfSharedData.paperInfo!)
+                    self.mainPDFViewModel.statusStack.detailOff()
+                    mainPDFViewModel.mainPDFViewAction = .editingPaperTitle(pdfSharedData.paperInfo!)
                 }, label: {
                     HStack{
                         Text("제목 수정")
@@ -118,15 +103,14 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    self.isStarSelected.toggle()
-                    PDFSharedData.shared.paperInfo?.isFavorite = isStarSelected
+                    self.pdfInfoMenuViewModel.favoriteButtonTapped()
                 }, label: {
                     HStack{
                         Text("즐겨찾기")
                             .reazyFont(.body1)
                             .padding(.leading, 12)
                         Spacer()
-                        Image(isStarSelected ? .starfill : .star)
+                        Image(self.pdfInfoMenuViewModel.isFavorite ? .starfill : .star)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
@@ -141,8 +125,8 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-                    homeViewModel.isMovingFolder = true
+                    self.mainPDFViewModel.statusStack.detailOff()
+                    self.mainPDFViewModel.mainPDFViewAction = .movingFolder
                 }, label: {
                     HStack{
                         Text("이동")
@@ -164,9 +148,7 @@ struct PDFInfoMenu: View {
                     .frame(height: 1)
                 
                 Button(role: .destructive, action: {
-                    self.mainPDFViewModel.isMenuSelected = false
-                    navigationCoordinator.pop()
-                    self.homeViewModel.deletePDF(at: pdfSharedData.paperInfo?.id ?? UUID())
+                    self.mainPDFViewModel.mainPDFViewAction = .deletePaperAlert
                 }, label: {
                     HStack{
                         Text("삭제")
@@ -199,48 +181,11 @@ struct PDFInfoMenu: View {
                     y: 0)
         )
         .onAppear {
-            self.title = pdfSharedData.paperInfo?.title ?? "알 수 없음"
-        }
-        .onDisappear {
-            homeViewModel.changedTitle = nil
-        }
-    }
-    
-    
-    private func setTemporaryPDF() {
-        guard let document = pdfSharedData.document?.copy() as? PDFDocument else { return }
-        
-        for pageIndex in 0 ..< document.pageCount {
-            guard let page = document.page(at: pageIndex) else { continue }
-            
-            // 각 페이지의 모든 주석을 반복하며 밑줄과 코멘트 아이콘 지우기
-            for annotation in page.annotations {
-                guard let contents = annotation.contents else { continue }
-                
-                // 하이라이트의 contents가 "UH|"로 시작하면 지우지 않기
-                if !contents.hasPrefix("UH|") {
-                    page.removeAnnotation(annotation)
-                }
-            }
-        }
-        
-        // PDF 파일을 지정한 URL에 덮어쓰기 저장
-        do {
-            let pdfData = document.dataRepresentation()
-            try pdfData?.write(to: self.fileURL)
-            
-            print("PDF 저장이 완료되었습니다.")
-        } catch {
-            print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
+            self.pdfInfoMenuViewModel.onAppear()
         }
     }
 }
 
 #Preview {
-    PDFInfoMenu(
-        isEditingTitle: .constant(false),
-        createMovingFolder: .constant(false),
-        title: "Reazy",
-        isStarSelected: false
-    )
+    PDFInfoMenu()
 }

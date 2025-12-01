@@ -11,7 +11,7 @@ import PDFKit
 import RegexBuilder
 
 
-protocol HomeViewUseCase {
+protocol BasicPaperCRUDUseCase {
     func loadPDFs() -> Result<[PaperInfo], any Error>
     
     @discardableResult
@@ -22,7 +22,13 @@ protocol HomeViewUseCase {
     
     @discardableResult
     func deletePDF(id: UUID) -> Result<VoidResponse, any Error>
-    
+}
+
+
+typealias HomeViewUseCase = BasicPaperCRUDUseCase & BasicHomeViewUseCase
+
+
+protocol BasicHomeViewUseCase {
     func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo?
     
     func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo?
@@ -42,6 +48,34 @@ protocol HomeViewUseCase {
     @discardableResult
     func deleteFolder(id: UUID) -> Result<VoidResponse, any Error>
 }
+
+
+class DefaultBasicPaperCRUDUseCase: BasicPaperCRUDUseCase {
+    private let paperDataRepository: PaperDataRepository
+    
+    init(paperDataRepository: PaperDataRepository) {
+        self.paperDataRepository = paperDataRepository
+    }
+
+    public func loadPDFs() -> Result<[PaperInfo], any Error> {
+        self.paperDataRepository.loadPDFInfo()
+    }
+    
+    public func savePDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.savePDFInfo(info)
+    }
+    
+    public func editPDF(_ info: PaperInfo) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.editPDFInfo(info)
+    }
+    
+    public func deletePDF(id: UUID) -> Result<VoidResponse, any Error> {
+        self.paperDataRepository.deletePDFInfo(id: id)
+    }
+}
+
+
+
 
 
 class DefaultHomeViewUseCase: HomeViewUseCase {
@@ -115,7 +149,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     }
     
     public func uploadSamplePDFFile() -> [PaperInfo?] {
-        let guideURL = Bundle.main.url(forResource: "Reazy 사용 가이드", withExtension: "pdf")!
+        let guideURL = Locale.currentLangGuideURL()
         let sampleURL = Bundle.main.url(forResource: "Reazy Sample Paper", withExtension: "pdf")!
         
         let guideTempDoc = PDFDocument(url: guideURL)
@@ -141,11 +175,15 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             let guideThumbnailData = guideImage.pngData()
             let sampleThumbnailData = sampleImage.pngData()
             
+            let sampleFolder = Folder(id: .init(), title: "Reazy", color: "folder1", parentFolderID: nil)
+            folderDataRepository.saveFolder(sampleFolder)
+            
             let guidePaperInfo = PaperInfo(
                 title: guideTitle,
                 thumbnail: guideThumbnailData!,
                 url: guideURLData.0,
-                isFigureSaved: true
+                isFigureSaved: true,
+                folderID: sampleFolder.id
             )
             
             let samplePaperInfo = PaperInfo(
@@ -153,15 +191,16 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 thumbnail: sampleThumbnailData!,
                 url: sampleURLData.0,
                 focusURL: sampleFocusURLData,
-                isFigureSaved: true
+                isFigureSaved: true,
+                folderID: sampleFolder.id
             )
 
             self.paperDataRepository.savePDFInfo(guidePaperInfo)
             self.paperDataRepository.savePDFInfo(samplePaperInfo)
             
-            self.paperDataRepository.addTag(to: guidePaperInfo.id, with: "Reazy")
-            self.paperDataRepository.addTag(to: samplePaperInfo.id, with: "Reazy")
-
+            self.paperDataRepository.addTag(to: guidePaperInfo.id, with: "Sample")
+            self.paperDataRepository.addTag(to: samplePaperInfo.id, with: "Sample")
+            
             return [guidePaperInfo, samplePaperInfo]
         } else {
             let guidePaperInfo = PaperInfo(
@@ -308,7 +347,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     url: data,
                     focusURL: paperInfo.focusURL,
                     lastModifiedDate: Date(),
-                    isFavorite: paperInfo.isFavorite,
+                    isFavorite: false,
                     isFigureSaved: paperInfo.isFigureSaved,
                     folderID: paperInfo.folderID)
                 

@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// MainPDFView navigation bar 버튼
-enum Buttons: String, CaseIterable {
+public enum Buttons: String, CaseIterable {
     case drawing
     case comment
     case translate
@@ -26,7 +26,7 @@ enum Buttons: String, CaseIterable {
 }
 
 struct ButtonsView: View {
-    @Binding var button: Buttons?
+    @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
 
     let selectedButton: Buttons
     let action: () -> Void
@@ -36,7 +36,7 @@ struct ButtonsView: View {
             action()
         }) {
             RoundedRectangle(cornerRadius: 6)
-                .foregroundStyle(button == selectedButton ? .primary1 : .clear)
+                .foregroundStyle(mainPDFViewModel.statusStack.centerMenuBackgroundColor(button: selectedButton))
                 .frame(width: 26, height: 26)
                 .overlay(
                     selectedButton.icon
@@ -44,7 +44,7 @@ struct ButtonsView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(height: 18)
-                        .foregroundStyle(button == selectedButton ? .gray100 : .gray800)
+                        .foregroundStyle(mainPDFViewModel.statusStack.centerMenuForegroundColor(button: selectedButton))
 
                 )
         }

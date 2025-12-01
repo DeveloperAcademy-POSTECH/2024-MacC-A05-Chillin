@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: - [쿠로] 태그 뷰!
+
 struct TagView: View {
     @EnvironmentObject private var tagViewModel: TagViewModel
     @Namespace private var nsPopover
@@ -164,6 +164,7 @@ struct SelectedTagView: View {
 
 // MARK: - 태그 전체 리스트 뷰
 struct TagListView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var tagViewModel: TagViewModel
     
     var body: some View {
@@ -177,8 +178,8 @@ struct TagListView: View {
                     selectAction: { tagName in
                         tagViewModel.tagTapped(for: tagName)
                     },
-                    deleteAction: { id in
-                        tagViewModel.showDeleteAlert(id: id)
+                    deleteAction: { tag in
+                        homeViewModel.homeViewAction = .deletingTagAlert(tag.name, tag.id)
                     }
                 )
             }
@@ -191,6 +192,7 @@ struct TagListView: View {
 
 // MARK: - 편집메뉴
 private struct EllipsisButtonView: View {
+    @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var tagViewModel: TagViewModel
     let namespace: Namespace.ID
     
@@ -222,7 +224,8 @@ private struct EllipsisButtonView: View {
             
             Button {
                 withAnimation {
-                    tagViewModel.createTag = true
+//                    tagViewModel.createTag = true
+                    homeViewModel.homeViewAction = .creatingTag
                     tagViewModel.popover = false
                 }
             } label: {
@@ -247,11 +250,13 @@ private struct EllipsisButtonView: View {
                         radius: 12, x: 0, y: 0)
         )
         .padding(.trailing, 70)
-        .matchedGeometryEffect(id: "popover",
-                               in: namespace,
-                               properties: .position,
-                               anchor: .topTrailing,
-                               isSource: false)
+        .matchedGeometryEffect(
+            id: "popover",
+            in: namespace,
+            properties: .position,
+            anchor: .topTrailing,
+            isSource: false
+        )
     }
 }
 
@@ -273,11 +278,6 @@ private struct FilteredPaperListView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
-    @State private var deleteAlertPresented: Bool = false
-    @State private var selectedPaper: PaperInfo?
-    @State private var isPortrait: Bool = false
-    
-    let publisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
     var body: some View {
         ScrollView {
@@ -287,8 +287,8 @@ private struct FilteredPaperListView: View {
                         HomePDFCell(
                             paperInfo: paperInfo,
                             isSelected: .constant(false),
-                            cellStatus: homeViewModel.selectedMenu == .edit ? .selection : .normal,
-                            screenWidth: isPortrait ? geometry.size.width * 0.6 :  geometry.size.width * 0.73,
+                            cellStatus: homeViewModel.homeViewStatus == .edit ? .selection : .normal,
+                            screenWidth: tagViewModel.isPortrait ? geometry.size.width * 0.6 :  geometry.size.width * 0.73,
                             onTapGesture: {
                                 navigationCoordinator.push(.mainPDF(paperInfo: paperInfo))
                             },
@@ -300,25 +300,23 @@ private struct FilteredPaperListView: View {
                             },
                             tagAction: { _ in },
                             editAction: {
-                                homeViewModel.viewStatus = .search(paperInfo)
+                                homeViewModel.homeViewAction = .editingPaperTitle(paperInfo)
                             },
                             setTagAction: {
-                                // TODO: 뭐 들어가야 함?
-                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                homeViewModel.homeViewAction = .addTagToPaper(paperInfo)
                             },
                             copyAction: {
                                 tagViewModel.copyButtonTapped(paperInfo: paperInfo)
                             },
                             deleteAction: {
-                                selectedPaper = paperInfo
-                                deleteAlertPresented.toggle()
+                                homeViewModel.homeViewAction = .deletingPaperAlert([paperInfo.id])
                             },
                             moveAction: {
                                 homeViewModel.selectedItems.insert(paperInfo.id)
-                                homeViewModel.isMovingFolder.toggle()
+                                homeViewModel.homeViewAction = .movingFolder
                             },
                             addTagAction: {
-                                homeViewModel.viewStatus = .addTagToPaperInfo(paperInfo)
+                                homeViewModel.homeViewAction = .addTagToPaper(paperInfo)
                             }
                         )
                     }
@@ -328,32 +326,6 @@ private struct FilteredPaperListView: View {
         .scrollContentBackground(.hidden)
         .background(Color.clear)
         .padding(.leading, 24)
-        .alert("정말 삭제하시겠습니까?", isPresented: $deleteAlertPresented) {
-            Button("삭제", role: .destructive) {
-                if let paperInfo = selectedPaper {
-                    tagViewModel.deleteButtonTapped(paperInfo: paperInfo)
-                }
-            }
-            
-            Button("취소", role: .cancel, action: {})
-        }
-        .onAppear {
-            if UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown {
-                self.isPortrait = true
-            }
-        }
-        .onReceive(publisher) { noti in
-            let currentOrientation = UIDevice.current.orientation
-            
-            switch currentOrientation {
-            case .portrait, .portraitUpsideDown:
-                self.isPortrait = true
-            case .landscapeLeft, .landscapeRight:
-                self.isPortrait = false
-            default:
-                break
-            }
-        }
     }
 }
 

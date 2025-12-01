@@ -40,4 +40,8 @@ class PDFSharedData {
     public func updatePaperInfo() {
         NotificationCenter.default.post(name: .changeHomePaperInfo, object: self.paperInfo!)
     }
+    
+    public func articleId() -> String {
+        self.paperInfo?.id.uuidString ?? "알 수 없음"
+    }
 }

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2A2F23FF2DA56BF100414718 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2A2F23FE2DA56BF100414718 /* Localizable.xcstrings */; };
 		2C0AC4912D79DAB200F57C71 /* TagControlUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0AC4902D79DAB200F57C71 /* TagControlUseCase.swift */; };
-		2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */; };
 		2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 2C14693F2CE25B7600B35D92 /* Settings.bundle */; };
 		2C14737F2CE73B6F00B35D92 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1472FA2CE73B6F00B35D92 /* AppView.swift */; };
 		2C14738E2CE73B6F00B35D92 /* PersistantContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14730D2CE73B6F00B35D92 /* PersistantContainer.swift */; };
@@ -82,6 +81,12 @@
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
 		2CD48F562CFC3F8D004A5949 /* OrientationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */; };
+		2CDB3D332E32052300609333 /* HomeViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D322E32052300609333 /* HomeViewAction.swift */; };
+		2CDB3D352E32052D00609333 /* HomeViewStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D342E32052D00609333 /* HomeViewStatus.swift */; };
+		2CDB3D372E335D3400609333 /* Set + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB3D362E335D3400609333 /* Set + Extension.swift */; };
+		2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */; };
+		2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1F2EB6262100341B46 /* TranslationManager.swift */; };
+		2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C212EB6290200341B46 /* AnalyticsManager.swift */; };
 		2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE743912D65BBE6006A81BE /* DynamicCell.swift */; };
 		2CE9E4E42D9BD22400DA3A81 /* PaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */; };
 		2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */; };
@@ -148,7 +153,6 @@
 /* Begin PBXFileReference section */
 		2A2F23FE2DA56BF100414718 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		2C0AC4902D79DAB200F57C71 /* TagControlUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagControlUseCase.swift; sourceTree = "<group>"; };
-		2C14588E2CD769FB00B35D92 /* Server.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Server.xcconfig; sourceTree = "<group>"; };
 		2C1458942CD7D09800B35D92 /* NetworkUnitTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkUnitTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C14693F2CE25B7600B35D92 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		2C1472FA2CE73B6F00B35D92 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
@@ -224,6 +228,12 @@
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationManager.swift; sourceTree = "<group>"; };
+		2CDB3D322E32052300609333 /* HomeViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewAction.swift; sourceTree = "<group>"; };
+		2CDB3D342E32052D00609333 /* HomeViewStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewStatus.swift; sourceTree = "<group>"; };
+		2CDB3D362E335D3400609333 /* Set + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set + Extension.swift"; sourceTree = "<group>"; };
+		2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPDFViewAction.swift; sourceTree = "<group>"; };
+		2CE05C1F2EB6262100341B46 /* TranslationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationManager.swift; sourceTree = "<group>"; };
+		2CE05C212EB6290200341B46 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
@@ -370,6 +380,11 @@
 			path = Errors;
 			sourceTree = "<group>";
 		};
+		2CE061652EC1BB1200341B46 /* Extension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		2CEBB8C12D5A407E00EC04D2 /* HomeSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HomeSearch;
@@ -443,6 +458,7 @@
 		2C1473D82CE73C2900B35D92 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				2CE061652EC1BB1200341B46 /* Extension */,
 				2C1474292CE8FFDD00B35D92 /* Entities */,
 				2C1473E12CE7876900B35D92 /* UseCases */,
 				2C1473DB2CE73D3A00B35D92 /* Interfaces */,
@@ -648,6 +664,9 @@
 				2CD48F552CFC3F8D004A5949 /* OrientationManager.swift */,
 				2C1474142CE8F2D500B35D92 /* Navigation */,
 				2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */,
+				2CDB3D362E335D3400609333 /* Set + Extension.swift */,
+				2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */,
+				2CE05C212EB6290200341B46 /* AnalyticsManager.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -667,6 +686,7 @@
 			children = (
 				2C1473642CE73B6F00B35D92 /* TranslateView.swift */,
 				2C1473652CE73B6F00B35D92 /* TranslateViewOlderVer.swift */,
+				2CE05C1F2EB6262100341B46 /* TranslationManager.swift */,
 			);
 			path = Translation;
 			sourceTree = "<group>";
@@ -800,7 +820,6 @@
 			children = (
 				2A2F23FE2DA56BF100414718 /* Localizable.xcstrings */,
 				2C2C37882CEC6EC700552185 /* Reazy.entitlements */,
-				2C14588E2CD769FB00B35D92 /* Server.xcconfig */,
 				2C1473D92CE73C3E00B35D92 /* Data */,
 				2C1473D82CE73C2900B35D92 /* Domain */,
 				2C1473D72CE73C2100B35D92 /* Presentation */,
@@ -834,6 +853,8 @@
 				2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */,
 				2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */,
 				6ED2F1FB2CF237FF00C5DE95 /* UserDefault+Keys.swift */,
+				2CDB3D322E32052300609333 /* HomeViewAction.swift */,
+				2CDB3D342E32052D00609333 /* HomeViewStatus.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -934,6 +955,7 @@
 				2C3A2D092D4CF76800ED121D /* Collection */,
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
 				2CC7D9032D7D92B700D882D6 /* Errors */,
+				2CE061652EC1BB1200341B46 /* Extension */,
 				2CEBB8C12D5A407E00EC04D2 /* HomeSearch */,
 				6ED57AD02CF6F33C00358561 /* Figure */,
 				6ED57AD12CF6F34C00358561 /* Collection */,
@@ -1028,7 +1050,6 @@
 				2C1469402CE25B7600B35D92 /* Settings.bundle in Resources */,
 				6EF40DB22CFC724200BAD3D3 /* GoogleService-Info.plist in Resources */,
 				2A2F23FF2DA56BF100414718 /* Localizable.xcstrings in Resources */,
-				2C14588F2CD769FB00B35D92 /* Server.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1064,6 +1085,7 @@
 				2C5C24172CE9DB9E00C37A1B /* PDFUploadError.swift in Sources */,
 				2C1474422CE900A700B35D92 /* UIBezierPath+.swift in Sources */,
 				2C1473F42CE8828800B35D92 /* PageListUseCase.swift in Sources */,
+				2CDB3D372E335D3400609333 /* Set + Extension.swift in Sources */,
 				2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */,
 				2C14741A2CE8F52200B35D92 /* TranslationUseCase.swift in Sources */,
 				2C2C358A2CEB24D800552185 /* MenuView.swift in Sources */,
@@ -1098,6 +1120,7 @@
 				6EAC57FE2CEC7D07003D96AF /* FolderDataRepository.swift in Sources */,
 				6ED2F1FC2CF237FF00C5DE95 /* UserDefault+Keys.swift in Sources */,
 				2C1473A62CE73B6F00B35D92 /* TableItem.swift in Sources */,
+				2CDB3D332E32052300609333 /* HomeViewAction.swift in Sources */,
 				2C1473A72CE73B6F00B35D92 /* NetworkManager + Error.swift in Sources */,
 				2C1473A82CE73B6F00B35D92 /* NetworkManager + Grobid.swift in Sources */,
 				2C1473A92CE73B6F00B35D92 /* NetworkManager + Server.swift in Sources */,
@@ -1125,13 +1148,17 @@
 				2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */,
 				2CD48F562CFC3F8D004A5949 /* OrientationManager.swift in Sources */,
 				2C1474402CE900A700B35D92 /* DrawingGestureRecognizer.swift in Sources */,
+				2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */,
 				2C1473C32CE73B6F00B35D92 /* IndexCell.swift in Sources */,
+				2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */,
 				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,
 				2C1473C62CE73B6F00B35D92 /* OriginalViewController.swift in Sources */,
 				2C1473C82CE73B6F00B35D92 /* OriginalViewRepresentable.swift in Sources */,
+				2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */,
 				B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */,
 				2C1473C92CE73B6F00B35D92 /* CommentViewModel.swift in Sources */,
 				2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */,
+				2CDB3D352E32052D00609333 /* HomeViewStatus.swift in Sources */,
 				2C1473CB2CE73B6F00B35D92 /* IndexViewModel.swift in Sources */,
 				2C1473CD2CE73B6F00B35D92 /* OriginalView.swift in Sources */,
 				B349C0D42D6362DD00682F5D /* TagViewUseCase.swift in Sources */,
@@ -1446,18 +1473,18 @@
 		};
 		2C7AE8992CBCF291004098AF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202505291747;
+				CURRENT_PROJECT_VERSION = 2025112101;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Reazy-Info.plist";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Figure를 이미지로 저장하기 위해 사진 앱에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1470,7 +1497,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1484,18 +1511,18 @@
 		};
 		2C7AE89A2CBCF291004098AF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C14588E2CD769FB00B35D92 /* Server.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202505291747;
+				CURRENT_PROJECT_VERSION = 2025112101;
 				DEVELOPMENT_ASSET_PATHS = "\"Presentation/Preview Content\"";
 				DEVELOPMENT_TEAM = MT99YM3KLX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Reazy-Info.plist";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Figure를 이미지로 저장하기 위해 사진 앱에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1508,7 +1535,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

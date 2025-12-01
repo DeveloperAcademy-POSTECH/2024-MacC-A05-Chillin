@@ -50,7 +50,8 @@ struct CustomAlert: View {
                     Text(message)
                         .reazyFont(.body1)
                         .foregroundStyle(.gray900)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
                 }
             }
             .padding(.horizontal, 30)
@@ -60,7 +61,7 @@ struct CustomAlert: View {
                 .frame(height: 1)
                 .foregroundStyle(.gray400)
             
-            HStack(spacing: 70) {
+            HStack(spacing: 0) {
                 buttonGroup(for: type)
             }
             .frame(height: 52)
@@ -80,22 +81,25 @@ struct CustomAlert: View {
             Button(action: cancelAction) {
                 Text("확인")
                     .reazyFont(.text1)
+                    .frame(width: self.width, height: 50)
             }
 
         case .delete:
             Button(action: cancelAction) {
                 Text("취소")
                     .reazyFont(.text1)
+                    .frame(width: self.width/2, height: 50)
             }
 
             Rectangle()
                 .frame(width: 1)
                 .foregroundStyle(.gray400)
-
+            
             Button(action: confirmAction) {
                 Text("삭제")
                     .reazyFont(.text1)
                     .foregroundStyle(.pen1)
+                    .frame(width: self.width/2, height: 50)
             }
         }
     }
