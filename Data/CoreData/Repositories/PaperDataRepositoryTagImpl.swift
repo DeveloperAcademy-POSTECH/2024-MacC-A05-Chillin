@@ -204,7 +204,7 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
                 return .failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Data not found"]))
             }
         } catch {
-            print(error)
+            log(error)
             return .failure(error)
         }
     }

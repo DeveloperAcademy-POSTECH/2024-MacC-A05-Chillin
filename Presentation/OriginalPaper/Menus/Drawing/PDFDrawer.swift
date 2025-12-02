@@ -264,7 +264,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                 let rectanglePath = UIBezierPath(rect: CGRect(x: topLeft.x, y: topLeft.y, width: width, height: height))
 
                 if let newFigure = captureToPDF(path: rectanglePath) {
-                    print("PDF is captured: \(newFigure)")
+                    log("PDF is captured: \(newFigure)")
                     endCaptureMode()
                 }
                 

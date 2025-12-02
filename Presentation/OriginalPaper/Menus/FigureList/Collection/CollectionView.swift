@@ -115,7 +115,6 @@ struct CollectionView: View {
                                     withAnimation {
                                         // 자동 스크롤
                                         proxy.scrollTo(id, anchor: .top)
-                                        print(id)
                                     }
                                 }
                             }
@@ -134,10 +133,6 @@ struct CollectionView: View {
                         
                         mainPDFViewModel.statusStack.captureToggle()
                         mainPDFViewModel.statusStack.centerMenuOff()
-                        
-                        print(mainPDFViewModel.statusStack.isCollectionSelected,
-                              mainPDFViewModel.statusStack.isCaptureSelected,
-                              focusFigureViewModel.isCaptureMode)
                     }) {
                         ZStack(alignment: .top) {
                             RoundedRectangle(cornerRadius: 8)

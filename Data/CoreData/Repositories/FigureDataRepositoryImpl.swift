@@ -60,7 +60,7 @@ final class FigureDataRepositoryImpl: FigureDataRepository {
                         try context.save()
                         result = .success(.init())
                     } catch {
-                        print(String(describing: error))
+                        log(String(describing: error))
                         result = .failure(error)
                     }
                 } else {

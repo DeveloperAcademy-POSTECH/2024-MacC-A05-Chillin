@@ -42,7 +42,7 @@ final class PersistantContainer {
                     try coordinator.destroyPersistentStore(at: storeURL, ofType: store.type, options: nil)
                 }
             } catch {
-                print("Failed to reset Core Data: \(error.localizedDescription)")
+                log("Failed to reset Core Data: \(error.localizedDescription)")
             }
         }
         

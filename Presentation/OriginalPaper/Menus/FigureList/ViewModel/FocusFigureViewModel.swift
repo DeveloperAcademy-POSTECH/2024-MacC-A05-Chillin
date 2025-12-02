@@ -119,7 +119,7 @@ extension FocusFigureViewModel {
             }
             
         case .failure(let failure):
-            print(failure)
+            log(failure)
         }
     }
     
@@ -194,7 +194,7 @@ extension FocusFigureViewModel {
             self.focusFigureUseCase.editPaperInfo(info: paperInfo)
             DispatchQueue.main.async {
                 self.focusStatus = .empty
-                print(error)
+                log(error)
             }
         }
     }
@@ -250,7 +250,7 @@ extension FocusFigureViewModel {
                     
                     DispatchQueue.main.async {
                         self.figureStatus = .empty
-                        print(error)
+                        log(error)
                     }
                 }
             }
@@ -293,7 +293,7 @@ extension FocusFigureViewModel {
     
     public func setFigureDocument(for index: Int) -> PDFDocument? {
         guard index >= 0 && index < self.figures.count else {
-            print("Invalid index")
+            log("Invalid index")
             return nil
         }
         
@@ -302,7 +302,7 @@ extension FocusFigureViewModel {
         
         guard let page = self.focusFigureUseCase.pdfSharedData.document?.page(at: annotation.page - 1)?.copy()
                 as? PDFPage else {
-            print("Failed to get page")
+            log("Failed to get page")
             return nil
         }
         
@@ -320,7 +320,7 @@ extension FocusFigureViewModel {
     
     public func setCollectionDocument(for index: Int) -> PDFDocument? {
         guard index >= 0 && index < self.collections.count else {
-            print("Invalid index")
+            log("Invalid index")
             return nil
         }
         
@@ -329,7 +329,7 @@ extension FocusFigureViewModel {
         
         guard let page = self.focusFigureUseCase.pdfSharedData.document?.page(at: annotation.page - 1)?.copy()
                 as? PDFPage else {
-            print("Failed to get page")
+            log("Failed to get page")
             return nil
         }
         

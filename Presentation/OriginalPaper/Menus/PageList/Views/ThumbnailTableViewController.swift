@@ -88,7 +88,7 @@ extension ThumbnailTableViewController {
                                 animated: true
                             )
                         } else {
-                            print("Invalid row: \(targetRow). Total rows: \(totalRows)")
+                            log("Invalid row: \(targetRow). Total rows: \(totalRows)")
                         }
                     }
                 }

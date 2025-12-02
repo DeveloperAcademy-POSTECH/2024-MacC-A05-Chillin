@@ -87,7 +87,7 @@ struct IndexCell: View {
         if let destination = item.table.destination {
             self.indexViewModel.selectedDestination = destination
         } else {
-            print("No destination")
+            log("No destination")
         }
     }
 }

@@ -398,10 +398,10 @@ private struct MainMenuView: View {
             if let newPaperID = homeViewModel.uploadPDF(url: url) {
                 homeViewModel.selectedItemID = newPaperID
             } else {
-                print("Duplicated File Name")
+                log("Duplicated File Name")
             }
         case .failure(let error):
-            print(String(describing: error))
+            log(String(describing: error))
         }
     }
 }

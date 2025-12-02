@@ -403,7 +403,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             
             return (urlData, fileURL)
         } catch {
-            print("error copying file: \(error)")
+            log("error copying file: \(error)")
         }
         
         return nil
@@ -470,7 +470,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 }
             }
         } catch {
-            print("error copying file: \(error)")
+            log("error copying file: \(error)")
         }
         
         return nil

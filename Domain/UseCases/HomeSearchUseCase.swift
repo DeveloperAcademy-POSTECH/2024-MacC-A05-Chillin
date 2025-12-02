@@ -179,7 +179,7 @@ extension DefaultHomeSearchUseCase {
                 }
             }
         } catch {
-            print("error copying file: \(error)")
+            log("error copying file: \(error)")
         }
         
         return nil

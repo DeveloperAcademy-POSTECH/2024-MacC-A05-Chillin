@@ -170,7 +170,7 @@ private struct SupportEmail {
         guard let url = URL(string: urlString) else { return }
         openURL(url) { accepted in
             if !accepted {
-                print("ERROR: 현재 기기는 이메일을 지원하지 않습니다.")
+                log("ERROR: 현재 기기는 이메일을 지원하지 않습니다.")
             }
         }
     }

@@ -266,7 +266,6 @@ extension OriginalViewController {
         
         self.viewModel.$statusStack
             .sink { [weak self] statusStack in
-                print("First: ", statusStack)
                 self?.mainPDFView.performActionFlag = statusStack.isCenterMenuSelected
                 self?.updateGestureRecognizer(statusStack: statusStack)
             }
@@ -322,7 +321,7 @@ extension OriginalViewController {
                     self?.backpageBtnViewModel.handleBtnVisible()
                     
                 } else {
-                    print("Document or page is nil")
+                    log("Document or page is nil")
                 }
             }
             .store(in: &self.cancellable)
