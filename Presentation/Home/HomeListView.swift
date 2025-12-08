@@ -202,9 +202,6 @@ private struct FolderListCell: View {
             .background(homeViewModel.homeViewStatus.currentFolderID == folder.id ? .gray300 : .clear)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .contentShape(Rectangle())
-            .onTapGesture {
-                didSelectFolder(folder.id)
-            }
             .gesture(
                 LongPressGesture(minimumDuration: 0.5)
                     .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
@@ -224,9 +221,20 @@ private struct FolderListCell: View {
                         }
                     }
             )
+            .onMouse(
+                onTap: {
+                    didSelectFolder(folder.id)
+                },
+                onRightClick: { globalPoint in
+                    homeViewModel.homeViewStatus = .folder(folder.id)
+                    homeViewModel.homeViewAction = .folderPopover(
+                        position: .init(x: 140, y: globalPoint.y + 85)
+                    )
+                }
+            )
             .scaleEffect((animationFolder == folder && highlight) ? 1.2 : 1)
             .dropDestination(for: PaperInfo.self) { droppedItems, location in
-                if let droppedItem = droppedItems.first {
+                        if let droppedItem = droppedItems.first {
                     handleDrop(folder.id, droppedItem)
                     return true
                 }
