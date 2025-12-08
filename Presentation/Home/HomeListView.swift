@@ -155,7 +155,7 @@ private struct FolderListCell: View {
     
     @State private var animationFolder: Folder?
     var onLongPressGesture: (Folder, DragGesture.Value?) -> Void
-    @GestureState private var highlight = false
+    @State private var highlight = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -171,27 +171,37 @@ private struct FolderListCell: View {
                     )
                     .padding(.leading, 20)
                     .padding(.trailing, 10)
+                    .allowsHitTesting(false)
                 
                 VStack(spacing: 0) {
                     Spacer()
                     
                     HStack(spacing: 0) {
-                        Text(folder.title)
-                            .reazyFont(.text1)
-                            .foregroundStyle(.gray700)
-                        
-                        Spacer()
+                        HStack(spacing: 0) {
+                            Text(folder.title)
+                                .reazyFont(.text1)
+                                .foregroundStyle(.gray700)
+                            
+                            Spacer()
+                        }
+                        .allowsHitTesting(false)
                         
                         if hasChildren(folder) {
-                            Button(action: {
-                                toggleExpansion(folder)
-                            }) {
-                                Image(systemName: homeViewModel.expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(.gray600)
-                                    .padding(.trailing, 4)
-                            }
-                            .padding(.trailing, 10)
+                            Image(systemName: homeViewModel.expandedFolders.contains(folder.id) ? "chevron.down" : "chevron.right")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(.gray600)
+                                .padding(.trailing, 14)
+                                .overlay(
+                                    Color.clear
+                                        .frame(width: 44, height: 44)
+                                        .contentShape(Rectangle())
+                                        .highPriorityGesture(
+                                            TapGesture()
+                                                .onEnded {
+                                                    toggleExpansion(folder)
+                                                }
+                                        )
+                                )
                         }
                     }
                     
@@ -199,52 +209,32 @@ private struct FolderListCell: View {
                 }
             }
             .padding(.leading, CGFloat((level * 18)))
-            .background(homeViewModel.homeViewStatus.currentFolderID == folder.id ? .gray300 : .clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .contentShape(Rectangle())
-            .gesture(
-                LongPressGesture(minimumDuration: 0.5)
-                    .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                    .updating($highlight) { currentState, gestureState, transaction in
-                        if case .second(true, _) = currentState {
-                            self.animationFolder = folder
-                            transaction.animation = .easeIn(duration: 1)
-                            gestureState = true
-                        }
-                    }
-                    .onEnded { value in
-                        switch value {
-                        case .second(true, let drag):
-                            onLongPressGesture(folder, drag)
-                        default:
-                            break
-                        }
-                    }
+            .background(
+                (homeViewModel.homeViewStatus.currentFolderID == folder.id ? Color.gray300 : .clear)
+                    .allowsHitTesting(false)
             )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .onMouse(
                 onTap: {
                     didSelectFolder(folder.id)
                 },
                 onRightClick: { globalFrame in
-                    homeViewModel.homeViewStatus = .folder(folder.id)
-                    
-                    let screenHeight = UIScreen.main.bounds.height
-                    let popoverHeight: CGFloat = 170
-                    let spaceBelow = screenHeight - globalFrame.maxY
-                    var finalY: CGFloat = 0
-                    
-                    if spaceBelow < popoverHeight {
-                        finalY = globalFrame.maxY - popoverHeight + 30
-                    } else {
-                        finalY = globalFrame.maxY + 10
+                    showPopover(frame: globalFrame)
+                },
+                onLongPress: { globalFrame in
+                    self.animationFolder = folder
+                    showPopover(frame: globalFrame)
+                },
+                onPressing: { isPressing in
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        if isPressing {
+                            self.animationFolder = folder
+                        }
+                        self.highlight = isPressing
                     }
-                    
-                    homeViewModel.homeViewAction = .folderPopover(
-                        position: .init(x: 140, y: finalY)
-                    )
                 }
             )
-            .scaleEffect((animationFolder == folder && highlight) ? 1.2 : 1)
+            .scaleEffect((animationFolder == folder && highlight) ? 1.1 : 1)
             .dropDestination(for: PaperInfo.self) { droppedItems, location in
                         if let droppedItem = droppedItems.first {
                     handleDrop(folder.id, droppedItem)
@@ -272,6 +262,25 @@ private struct FolderListCell: View {
                 EmptyView()
             }
         }
+    }
+    
+    private func showPopover(frame globalFrame: CGRect) {
+        homeViewModel.homeViewStatus = .folder(folder.id)
+        
+        let screenHeight = UIScreen.main.bounds.height
+        let popoverHeight: CGFloat = 170
+        let spaceBelow = screenHeight - globalFrame.maxY
+        var finalY: CGFloat = 0
+        
+        if spaceBelow < popoverHeight {
+            finalY = globalFrame.maxY - popoverHeight + 30
+        } else {
+            finalY = globalFrame.maxY + 10
+        }
+        
+        homeViewModel.homeViewAction = .folderPopover(
+            position: .init(x: 140, y: finalY)
+        )
     }
 }
 
