@@ -59,8 +59,11 @@ struct MouseClickView: UIViewRepresentable {
         }
         
         @objc func handleRightClick(_ gesture: UITapGestureRecognizer) {
-            let location = gesture.location(in: nil)
-            onRightClick(location)
+            guard let view = gesture.view else { return }
+            let localPoint = CGPoint(x: view.bounds.midX, y: view.bounds.maxY)
+            let globalFixedPoint = view.convert(localPoint, to: nil)
+            
+            onRightClick(globalFixedPoint)
         }
         
         @objc func handleLeftClick(_ gesture: UITapGestureRecognizer) {

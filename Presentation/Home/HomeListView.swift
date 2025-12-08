@@ -228,7 +228,7 @@ private struct FolderListCell: View {
                 onRightClick: { globalPoint in
                     homeViewModel.homeViewStatus = .folder(folder.id)
                     homeViewModel.homeViewAction = .folderPopover(
-                        position: .init(x: 140, y: globalPoint.y + 85)
+                        position: .init(x: 140, y: globalPoint.y)
                     )
                 }
             )
