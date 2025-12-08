@@ -225,10 +225,22 @@ private struct FolderListCell: View {
                 onTap: {
                     didSelectFolder(folder.id)
                 },
-                onRightClick: { globalPoint in
+                onRightClick: { globalFrame in
                     homeViewModel.homeViewStatus = .folder(folder.id)
+                    
+                    let screenHeight = UIScreen.main.bounds.height
+                    let popoverHeight: CGFloat = 170
+                    let spaceBelow = screenHeight - globalFrame.maxY
+                    var finalY: CGFloat = 0
+                    
+                    if spaceBelow < popoverHeight {
+                        finalY = globalFrame.maxY - popoverHeight + 30
+                    } else {
+                        finalY = globalFrame.maxY + 10
+                    }
+                    
                     homeViewModel.homeViewAction = .folderPopover(
-                        position: .init(x: 140, y: globalPoint.y)
+                        position: .init(x: 140, y: finalY)
                     )
                 }
             )

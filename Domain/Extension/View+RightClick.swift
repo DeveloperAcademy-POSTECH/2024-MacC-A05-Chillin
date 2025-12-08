@@ -11,7 +11,7 @@ import UIKit
 extension View {
     func onMouse(
         onTap: @escaping () -> Void,
-        onRightClick: @escaping (CGPoint) -> Void
+        onRightClick: @escaping (CGRect) -> Void
     ) -> some View {
         self.overlay(
             MouseClickView(onTap: onTap, onRightClick: onRightClick)
@@ -23,7 +23,7 @@ struct MouseClickView: UIViewRepresentable {
     typealias UIViewType = UIView
     
     var onTap: () -> Void
-    var onRightClick: (CGPoint) -> Void
+    var onRightClick: (CGRect) -> Void
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
@@ -51,19 +51,18 @@ struct MouseClickView: UIViewRepresentable {
     
     class Coordinator: NSObject, UIGestureRecognizerDelegate {
         var onTap: () -> Void
-        var onRightClick: (CGPoint) -> Void
+        var onRightClick: (CGRect) -> Void
         
-        init(onTap: @escaping () -> Void, onRightClick: @escaping (CGPoint) -> Void) {
+        init(onTap: @escaping () -> Void, onRightClick: @escaping (CGRect) -> Void) {
             self.onTap = onTap
             self.onRightClick = onRightClick
         }
         
         @objc func handleRightClick(_ gesture: UITapGestureRecognizer) {
             guard let view = gesture.view else { return }
-            let localPoint = CGPoint(x: view.bounds.midX, y: view.bounds.maxY)
-            let globalFixedPoint = view.convert(localPoint, to: nil)
+            let globalFrame = view.convert(view.bounds, to: nil)
             
-            onRightClick(globalFixedPoint)
+            onRightClick(globalFrame)
         }
         
         @objc func handleLeftClick(_ gesture: UITapGestureRecognizer) {
