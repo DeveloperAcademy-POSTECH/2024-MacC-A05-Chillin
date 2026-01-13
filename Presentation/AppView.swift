@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import UIKit
 
 @main
 struct AppView: App {
@@ -70,6 +71,38 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UIView.appearance().tintColor = UIColor.primary1
 
         return true
+    }
+    
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let sceneConfiguration = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        sceneConfiguration.delegateClass = SceneDelegate.self
+        return sceneConfiguration
+    }
+}
+
+class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        
+        // Mac 환경 감지 (Mac Catalyst 또는 Mac에서 실행되는 iPad 앱)
+        let isMac: Bool = {
+            #if targetEnvironment(macCatalyst)
+            return true
+            #else
+            if #available(iOS 14.0, *) {
+                return ProcessInfo.processInfo.isiOSAppOnMac
+            }
+            return false
+            #endif
+        }()
+        
+        if isMac {
+            // Mac 환경: 최소 크기 700x500
+            windowScene.sizeRestrictions?.minimumSize = CGSize(width: 800, height: 500)
+        } else if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad 환경: 최소 크기 600x300
+            windowScene.sizeRestrictions?.minimumSize = CGSize(width: 700, height: 400)
+        }
     }
 }
 
