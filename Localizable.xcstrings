@@ -357,6 +357,7 @@
       }
     },
     "곧 다가올 업데이트를 기대해주세요!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1793,6 +1794,7 @@
       }
     },
     "현재 집중모드가 공사중에 있습니다." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

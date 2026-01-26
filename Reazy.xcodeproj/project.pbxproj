@@ -87,6 +87,7 @@
 		2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */; };
 		2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1F2EB6262100341B46 /* TranslationManager.swift */; };
 		2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C212EB6290200341B46 /* AnalyticsManager.swift */; };
+		2CE296B82F278D1300373481 /* FocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE296B72F278D1200373481 /* FocusView.swift */; };
 		2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE743912D65BBE6006A81BE /* DynamicCell.swift */; };
 		2CE9E4E42D9BD22400DA3A81 /* PaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */; };
 		2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */; };
@@ -234,6 +235,7 @@
 		2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPDFViewAction.swift; sourceTree = "<group>"; };
 		2CE05C1F2EB6262100341B46 /* TranslationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationManager.swift; sourceTree = "<group>"; };
 		2CE05C212EB6290200341B46 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
+		2CE296B72F278D1200373481 /* FocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusView.swift; sourceTree = "<group>"; };
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
@@ -450,7 +452,7 @@
 				2C14741D2CE8FF7A00B35D92 /* MainPDF */,
 				2C1474132CE8F2CC00B35D92 /* Helper */,
 				2C1473E42CE7894200B35D92 /* OriginalPaper */,
-				2C5C24182CE9DBCE00C37A1B /* ConcentratePaper */,
+				2C5C24182CE9DBCE00C37A1B /* FocusPaper */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -797,14 +799,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		2C5C24182CE9DBCE00C37A1B /* ConcentratePaper */ = {
+		2C5C24182CE9DBCE00C37A1B /* FocusPaper */ = {
 			isa = PBXGroup;
 			children = (
 				2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */,
 				2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */,
 				2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */,
+				2CE296B72F278D1200373481 /* FocusView.swift */,
 			);
-			path = ConcentratePaper;
+			path = FocusPaper;
 			sourceTree = "<group>";
 		};
 		2C6A13DB2CEE2D6600518986 /* Extension */ = {
@@ -1143,6 +1146,7 @@
 				2C5C240D2CE9D1EF00C37A1B /* ConcentrateViewController.swift in Sources */,
 				2C2C35882CEB1DCB00552185 /* DrawingView.swift in Sources */,
 				2C5C240E2CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift in Sources */,
+				2CE296B82F278D1300373481 /* FocusView.swift in Sources */,
 				2C5C240F2CE9D1EF00C37A1B /* ConcentrateView.swift in Sources */,
 				2C14743F2CE900A700B35D92 /* DrawingAnnotation.swift in Sources */,
 				2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */,
