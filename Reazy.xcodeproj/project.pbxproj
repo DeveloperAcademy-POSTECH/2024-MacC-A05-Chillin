@@ -387,6 +387,11 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		2CE296B92F27957900373481 /* Components */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Components;
+			sourceTree = "<group>";
+		};
 		2CEBB8C12D5A407E00EC04D2 /* HomeSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HomeSearch;
@@ -802,6 +807,7 @@
 		2C5C24182CE9DBCE00C37A1B /* FocusPaper */ = {
 			isa = PBXGroup;
 			children = (
+				2CE296B92F27957900373481 /* Components */,
 				2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */,
 				2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */,
 				2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */,
@@ -959,6 +965,7 @@
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
 				2CC7D9032D7D92B700D882D6 /* Errors */,
 				2CE061652EC1BB1200341B46 /* Extension */,
+				2CE296B92F27957900373481 /* Components */,
 				2CEBB8C12D5A407E00EC04D2 /* HomeSearch */,
 				6ED57AD02CF6F33C00358561 /* Figure */,
 				6ED57AD12CF6F34C00358561 /* Collection */,
