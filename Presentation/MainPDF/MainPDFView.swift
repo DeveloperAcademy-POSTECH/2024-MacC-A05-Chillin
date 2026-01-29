@@ -22,6 +22,7 @@ struct MainPDFView: View {
     @StateObject public var searchViewModel: SearchViewModel
     @StateObject public var indexViewModel: IndexViewModel
     @StateObject public var backPageBtnViewModel: BackPageBtnViewModel
+    @State public var focusViewModel: FocusViewModel
     
     @State private var translationManager: TranslationManager = .init()
     
@@ -220,6 +221,7 @@ struct MainPDFView: View {
                                 .environmentObject(indexViewModel)
                                 .environmentObject(backPageBtnViewModel)
                                 .environment(translationManager)
+                                .environment(focusViewModel)
                             
                             if mainPDFViewModel.statusStack.isFigureSelected && !floatingViewModel.splitMode {
                                 FigureView(onSelect: { id, documentID, document, head in
@@ -483,6 +485,10 @@ struct MainPDFView: View {
                     }
                 )
                 
+            case .focusModeGuideAlert:
+                FocusModeGuideView {
+                    self.mainPDFViewModel.mainPDFViewAction = .none
+                }
             default: EmptyView()
             }
             
