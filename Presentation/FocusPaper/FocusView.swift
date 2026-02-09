@@ -56,6 +56,18 @@ class FocusPDFViewController: UIViewController {
         DispatchQueue.main.async { [weak self] in
             self?.mainPDFViewModel.mainPDFViewAction = .focusModeGuideAlert
         }
+        
+        if mainPDFViewModel.statusStack.isSearchSelected {
+            DispatchQueue.main.async { [weak self] in
+                self?.mainPDFViewModel.statusStack.searchToggle()
+            }
+        }
+        if mainPDFViewModel.statusStack.isCollectionSelected {
+            DispatchQueue.main.async { [weak self] in
+                self?.mainPDFViewModel.statusStack.collectionToggle()
+            }
+        }
+        
         super.viewWillAppear(animated)
     }
     

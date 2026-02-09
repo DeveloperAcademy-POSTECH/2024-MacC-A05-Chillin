@@ -68,7 +68,7 @@ struct MainPDFView: View {
                                 mainPDFViewModel.statusStack.searchToggle()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle(mainPDFViewModel.statusStack.isSearchSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.searchButtonBackgroundColor)
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.search)
@@ -76,10 +76,11 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 22)
-                                            .foregroundStyle(mainPDFViewModel.statusStack.isSearchSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.searchButtonColor)
                                     )
                             }
                             .padding(.trailing, 24)
+                            .disabled(mainPDFViewModel.statusStack.focusModeButtonDisable)
                             
                             Button(action: {
                                 mainPDFViewModel.statusStack.concentrateToggle()
@@ -125,17 +126,18 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(mainPDFViewModel.statusStack.isCollectionSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.collectionButtonBackgroundColor)
                                     .overlay(
                                         Image(.window)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 16, height: 16)
-                                            .foregroundStyle(mainPDFViewModel.statusStack.isCollectionSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.collectionButtonColor)
                                     )
                             }
                             .padding(.trailing, 25)
+                            .disabled(mainPDFViewModel.statusStack.focusModeButtonDisable)
                             
                             Button(action: {
                                 withAnimation {
