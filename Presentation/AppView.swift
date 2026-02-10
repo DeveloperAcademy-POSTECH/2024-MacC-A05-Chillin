@@ -97,11 +97,14 @@ class SceneDelegate: NSObject, UIWindowSceneDelegate {
         }()
         
         if isMac {
-            // Mac 환경: 최소 크기 700x500
-            windowScene.sizeRestrictions?.minimumSize = CGSize(width: 800, height: 500)
+            // Mac 환경: 최소 크기 696x464
+            windowScene.sizeRestrictions?.minimumSize = CGSize(width: 696, height: 464)
         } else if UIDevice.current.userInterfaceIdiom == .pad {
-            // iPad 환경: 최소 크기 600x300
-            windowScene.sizeRestrictions?.minimumSize = CGSize(width: 700, height: 400)
+            // iPad 환경: 화면 크기 기반 (가로 1/2) x (세로 2/3)
+            let screenSize = windowScene.screen.bounds.size
+            let minWidth = screenSize.width / 2
+            let minHeight = screenSize.height * (2.0 / 3.0)
+            windowScene.sizeRestrictions?.minimumSize = CGSize(width: minWidth, height: minHeight)
         }
     }
 }
