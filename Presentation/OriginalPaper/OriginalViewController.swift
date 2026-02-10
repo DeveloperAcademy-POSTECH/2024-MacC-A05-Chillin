@@ -75,6 +75,16 @@ final class OriginalViewController: UIViewController {
         self.focusFigureViewModel.fetchAnnotations()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        if let scaleFactor = self.viewModel.pdfOriginalViewScaleFactor {
+            DispatchQueue.main.async {
+                self.mainPDFView.scaleFactor = scaleFactor
+            }
+        }
+        
+        super.viewWillAppear(animated)
+    }
+    
     // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
@@ -212,6 +222,24 @@ extension OriginalViewController {
     
     /// 데이터 Binding
     private func setBinding() {
+        /// OriginalView -> FocusView Scale Factor 연동
+        NotificationCenter.default.publisher(for: .PDFViewScaleChanged, object: self.mainPDFView)
+            .compactMap { $0.object as? PDFView }
+            .map { $0.scaleFactor }
+            .sink { [weak self] scale in
+                self?.viewModel.pdfFocusViewScaleFactor = scale
+            }
+            .store(in: &self.cancellable)
+
+        /// FocusView -> OriginalView Scale Factor 연동
+        self.viewModel.$pdfOriginalViewScaleFactor
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self] scale in
+                self?.mainPDFView.scaleFactor = scale
+            }
+            .store(in: &self.cancellable)
+        
         self.pageListViewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in

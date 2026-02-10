@@ -51,8 +51,10 @@ final class MainPDFViewModel: ObservableObject {
     
     
     @Published public var mainPDFViewAction: MainPDFViewAction = .none
-    
     @Published public var statusStack: Set<MainPDFViewStatus> = []
+    
+    @Published public var pdfOriginalViewScaleFactor: CGFloat?
+    @Published public var pdfFocusViewScaleFactor: CGFloat?
     
     private let figureCapturePublisher = NotificationCenter.default.publisher(for: .isFigureCaptured)
     private let collectionCapturePublisher = NotificationCenter.default.publisher(for: .isCollectionCaptured)

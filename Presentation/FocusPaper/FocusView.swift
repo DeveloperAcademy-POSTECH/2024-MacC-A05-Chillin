@@ -68,11 +68,20 @@ class FocusPDFViewController: UIViewController {
             }
         }
         
+        self.updateScaleFactor()
+        
         super.viewWillAppear(animated)
     }
     
     
     deinit {
+        /// Scale Factor 연동
+        let viewModel = self.mainPDFViewModel
+        let scaleFactor = self.pdfView.scaleFactor
+        DispatchQueue.main.async {
+            viewModel.pdfOriginalViewScaleFactor = scaleFactor
+        }
+        
         if let scrollView = pdfView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
             scrollView.removeObserver(self, forKeyPath: "contentOffset")
         }
@@ -144,6 +153,7 @@ extension FocusPDFViewController {
                     self?.pdfView.minScaleFactor = 0.5
                     
                     self?.updateMinimap()
+                    self?.updateScaleFactor()
                 }
             } else {
                 DispatchQueue.main.async {
@@ -242,5 +252,13 @@ extension FocusPDFViewController {
         let rect = CGRect(x: normalizedX, y: normalizedY, width: normalizedW, height: normalizedH)
         
         minimapView.update(page: originalPage, visibleRect: rect)
+    }
+    
+    private func updateScaleFactor() {
+        if let scaleFactor = mainPDFViewModel.pdfFocusViewScaleFactor {
+            DispatchQueue.main.async {
+                self.pdfView.scaleFactor = scaleFactor
+            }
+        }
     }
 }
