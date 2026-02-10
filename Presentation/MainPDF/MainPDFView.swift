@@ -505,21 +505,6 @@ struct MainPDFView: View {
             }
         }
         .alert(
-            "현재 집중모드가 공사중에 있습니다.",
-            isPresented: Binding(
-                    get: {
-                        mainPDFViewModel.statusStack.isConcentrateSelected
-                    },
-                    set: { _ in }
-                )
-        ) {
-            Button("확인", role: .cancel) {
-                mainPDFViewModel.statusStack.concentrateToggle()
-            }
-        } message: {
-            Text("곧 다가올 업데이트를 기대해주세요!")
-        }
-        .alert(
             "정말 삭제하시겠습니까?",
             isPresented: mainPDFViewModel.mainPDFViewAction.isDeletePapersAlertPresented,
             presenting: PDFSharedData.shared.paperInfo
@@ -822,13 +807,10 @@ private struct MainView: View {
     var body: some View {
         ZStack {
             OriginalView()
-            
-            // MARK: 집중모드 임시 차단
-            /*
-            if isReadMode {
+
+            if mainPDFViewModel.statusStack.isConcentrateSelected {
                 ConcentrateView()
             }
-             */
         }
     }
 }
