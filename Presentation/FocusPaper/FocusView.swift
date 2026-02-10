@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PDFKit
+import Combine
 
 
 struct FocusView: UIViewControllerRepresentable {
@@ -31,6 +32,7 @@ class FocusPDFViewController: UIViewController {
     private let focusViewModel: FocusViewModel
     private let indicator = UIActivityIndicatorView(style: .large)
     private var minimapHeightConstraint: NSLayoutConstraint?
+    private var cancellables: Set<AnyCancellable> = []
     
     init(
         mainPDFViewModel: MainPDFViewModel,
@@ -69,19 +71,13 @@ class FocusPDFViewController: UIViewController {
         }
         
         self.updateScaleFactor()
+        self.updatePageIndex()
         
         super.viewWillAppear(animated)
     }
     
     
     deinit {
-        /// Scale Factor 연동
-        let viewModel = self.mainPDFViewModel
-        let scaleFactor = self.pdfView.scaleFactor
-        DispatchQueue.main.async {
-            viewModel.pdfOriginalViewScaleFactor = scaleFactor
-        }
-        
         if let scrollView = pdfView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
             scrollView.removeObserver(self, forKeyPath: "contentOffset")
         }
@@ -154,6 +150,7 @@ extension FocusPDFViewController {
                     
                     self?.updateMinimap()
                     self?.updateScaleFactor()
+                    self?.updatePageIndex()
                 }
             } else {
                 DispatchQueue.main.async {
@@ -169,6 +166,22 @@ extension FocusPDFViewController {
         if let scrollView = pdfView.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {
             scrollView.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
         }
+        
+        NotificationCenter.default.publisher(for: .PDFViewScaleChanged, object: self.pdfView)
+            .sink { [weak self] _ in
+                self?.mainPDFViewModel.pdfOriginalViewScaleFactor = self?.pdfView.scaleFactor
+            }
+            .store(in: &self.cancellables)
+        
+        
+        NotificationCenter.default.publisher(for: .PDFViewPageChanged, object: self.pdfView)
+            .sink { [weak self] _ in
+                let page = self?.pdfView.currentPage
+                let pageIndex = self?.focusViewModel.getPageIndex(page: page)
+                
+                self?.mainPDFViewModel.pdfOriginalViewPageIndex = pageIndex
+            }
+            .store(in: &self.cancellables)
     }
     
     @objc private func handlePageChange() {
@@ -258,6 +271,16 @@ extension FocusPDFViewController {
         if let scaleFactor = mainPDFViewModel.pdfFocusViewScaleFactor {
             DispatchQueue.main.async {
                 self.pdfView.scaleFactor = scaleFactor
+            }
+        }
+    }
+    
+    private func updatePageIndex() {
+        if let pageIndex = mainPDFViewModel.pdfFocusViewPageIndex {
+            DispatchQueue.main.async {
+                if let page = self.focusViewModel.slicedDocument?.page(at: pageIndex) {
+                    self.pdfView.go(to: page)
+                }
             }
         }
     }

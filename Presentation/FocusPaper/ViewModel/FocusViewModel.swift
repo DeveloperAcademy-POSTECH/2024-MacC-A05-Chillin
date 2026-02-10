@@ -65,4 +65,9 @@ extension FocusViewModel {
         
         self.slicedDocument = .init(url: outputURL)
     }
+    
+    public func getPageIndex(page: PDFPage?) -> Int? {
+        guard let page = page else { return nil }
+        return self.slicedDocument?.index(for: page)
+    }
 }
