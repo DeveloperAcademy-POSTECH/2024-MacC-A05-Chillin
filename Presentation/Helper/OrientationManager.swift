@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import SwiftUICore
+import SwiftUI
 import Combine
 
 

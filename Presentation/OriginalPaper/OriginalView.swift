@@ -92,6 +92,13 @@ struct OriginalView: View {
                     ? CGPoint(x: geometry.size.width / 2, y: geometry.size.height * 0.92)
                     : CGPoint(x: geometry.size.width / 2, y: geometry.size.height + 30)
                 )
+                
+                //textEditMenu
+                if viewModel.canEditText {
+                    ZStack {
+
+                    }
+                }
 
             }
             .onChange(of: geometry.size) {

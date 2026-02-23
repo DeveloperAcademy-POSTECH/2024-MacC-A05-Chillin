@@ -106,6 +106,7 @@
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
 		B349C0D42D6362DD00682F5D /* TagViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B349C0D32D6362DD00682F5D /* TagViewUseCase.swift */; };
+		B3EB8F5A2F3AFCF000160E8D /* textEditMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EB8F592F3AFCF000160E8D /* textEditMenu.swift */; };
 		B3EE45672D43EFA8007804B9 /* BackPageBtnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE45662D43EFA8007804B9 /* BackPageBtnView.swift */; };
 		B3F823412D4CE85300B9FBE9 /* BackPageBtnUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F823402D4CE84500B9FBE9 /* BackPageBtnUseCase.swift */; };
 		B56A56A02CF4680D000BE384 /* EditFigNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56A569F2CF4680D000BE384 /* EditFigNameView.swift */; };
@@ -254,6 +255,7 @@
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		B349C0D32D6362DD00682F5D /* TagViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewUseCase.swift; sourceTree = "<group>"; };
+		B3EB8F592F3AFCF000160E8D /* textEditMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textEditMenu.swift; sourceTree = "<group>"; };
 		B3EE45662D43EFA8007804B9 /* BackPageBtnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackPageBtnView.swift; sourceTree = "<group>"; };
 		B3F823402D4CE84500B9FBE9 /* BackPageBtnUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackPageBtnUseCase.swift; sourceTree = "<group>"; };
 		B56A569F2CF4680D000BE384 /* EditFigNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFigNameView.swift; sourceTree = "<group>"; };
@@ -576,6 +578,7 @@
 				2C1473F62CE8902900B35D92 /* FigureList */,
 				2C1473EF2CE8816500B35D92 /* PageList */,
 				2C2C35892CEB24D800552185 /* MenuView.swift */,
+				B3EB8F592F3AFCF000160E8D /* textEditMenu.swift */,
 				67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */,
 			);
 			path = Menus;
@@ -1149,6 +1152,7 @@
 				2CD48F562CFC3F8D004A5949 /* OrientationManager.swift in Sources */,
 				2C1474402CE900A700B35D92 /* DrawingGestureRecognizer.swift in Sources */,
 				2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */,
+				B3EB8F5A2F3AFCF000160E8D /* textEditMenu.swift in Sources */,
 				2C1473C32CE73B6F00B35D92 /* IndexCell.swift in Sources */,
 				2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */,
 				2C1473C42CE73B6F00B35D92 /* IndexView.swift in Sources */,

@@ -107,6 +107,12 @@ final class MainPDFViewModel: ObservableObject {
     @Published public var createMovingFolder: Bool = false
     @Published public var moveToFolderID: UUID?
     
+    // MARK: - 텍스트 편집 메뉴(Mac)
+    
+    public var canEditText: Bool {
+        !statusStack.isCenterMenuSelected && !selectedText.isEmpty
+    }
+    
     // MARK: - 나머지
     
     public var pdfSharedData: PDFSharedData = .shared
