@@ -133,7 +133,7 @@ extension MainPDFViewModel {
         guard let document = pdfView.document else { return }
         // TODO: 이름 변경시에 URL도 바뀌어야 하는게 아닌가?
         guard let pdfURL = PDFSharedData.shared.paperInfo?.url, let url = try? URL(resolvingBookmarkData: pdfURL, bookmarkDataIsStale: &a) else {
-            print("PDF URL을 찾을 수 없습니다.")
+            log("PDF URL을 찾을 수 없습니다.")
             throw HomeViewError.cannotCreateBookmark
         }
         
@@ -153,9 +153,9 @@ extension MainPDFViewModel {
             let pdfData = document.dataRepresentation()
             try pdfData?.write(to: url)
             
-            print("PDF 저장이 완료되었습니다.")
+            log("PDF 저장이 완료되었습니다.")
         } catch {
-            print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
+            log("PDF 저장 중 오류 발생: \(error.localizedDescription)")
         }
     }
     
@@ -268,7 +268,7 @@ extension MainPDFViewModel {
             self.mainPDFViewAction = .none
         case .failure(let error):
             self.mainPDFViewAction = .duplicatedTitleAlert
-            print(error)
+            log(error)
         }
     }
 }

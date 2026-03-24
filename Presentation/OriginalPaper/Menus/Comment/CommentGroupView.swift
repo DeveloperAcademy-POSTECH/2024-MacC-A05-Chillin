@@ -30,9 +30,6 @@ struct CommentGroupView: View {
             .cornerRadius(16)
             .shadow(color: Color(hex: "#6E6E6E").opacity(0.25), radius: 10, x: 0, y: 2)
         }
-        .onChange(of: viewModel.isEditMode) {
-            print("editmode")
-        }
     }
 }
 

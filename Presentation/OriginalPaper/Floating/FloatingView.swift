@@ -90,7 +90,7 @@ struct FloatingView: View {
                         self.floatingViewModel.saveFigAlert()
                         self.isSavedLocation = true
                         
-                        print("Download Image")
+                        log("Download Image")
                         
                     }, label: {
                         Text("사진 앱에 저장")

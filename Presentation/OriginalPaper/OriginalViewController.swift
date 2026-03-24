@@ -208,6 +208,13 @@ extension OriginalViewController {
         pencilInteraction.isEnabled = true
         pencilInteraction.delegate = self
         self.view.addInteraction(pencilInteraction)
+        
+        // Mac에서 실행 시 PDFAnnotation 탭 제스쳐 추가
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            let gesture = UITapGestureRecognizer()
+            gesture.delegate = self
+            self.mainPDFView.addGestureRecognizer(gesture)
+        }
     }
     
     /// 데이터 Binding
@@ -266,7 +273,6 @@ extension OriginalViewController {
         
         self.viewModel.$statusStack
             .sink { [weak self] statusStack in
-                print("First: ", statusStack)
                 self?.mainPDFView.performActionFlag = statusStack.isCenterMenuSelected
                 self?.updateGestureRecognizer(statusStack: statusStack)
             }
@@ -274,6 +280,7 @@ extension OriginalViewController {
         
         NotificationCenter.default.publisher(for: .PDFViewAnnotationHit)
             .sink { [weak self] notification in
+                if ProcessInfo.processInfo.isiOSAppOnMac { return }
                 guard let self = self else { return }
                 
                 if let annotation = notification.userInfo?["PDFAnnotationHit"] as? PDFAnnotation {
@@ -322,7 +329,7 @@ extension OriginalViewController {
                     self?.backpageBtnViewModel.handleBtnVisible()
                     
                 } else {
-                    print("Document or page is nil")
+                    log("Document or page is nil")
                 }
             }
             .store(in: &self.cancellable)
@@ -456,15 +463,39 @@ extension OriginalViewController {
 
 // MARK: - 탭 제스처 관련
 extension OriginalViewController: UIGestureRecognizerDelegate {
-    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         let location = touch.location(in: mainPDFView)
         
-        // 버튼 annotation이 있는 위치인지 확인
+        // annotation이 있는 위치인지 확인
+        // Mac에서 실행할 시 제스쳐
         if let page = mainPDFView.page(for: location, nearest: true),
            let annotation = page.annotation(at: mainPDFView.convert(location, to: page)),
-           annotation.widgetFieldType == .button {
-            return true
+           let type = annotation.type {
+            
+            if type == "Link", let action = annotation.action {
+                backpageBtnViewModel.backScaleFactor = mainPDFView.scaleFactor
+                backpageBtnViewModel.setDestination(pdfView: self.mainPDFView)
+                backpageBtnViewModel.delayBtnVisible(after: 0.8)
+                
+                self.mainPDFView.perform(action)
+                return true
+            } else if type == "Stamp" {
+                self.viewModel.isCommentTapped.toggle()
+                self.commentViewModel.isMenuTapped = false
+                
+                if self.viewModel.isCommentTapped, let buttonID = annotation.contents {
+                    let splittedContents = buttonID.split(separator: "|")
+                    let selectedComments = self.commentViewModel.comments.filter {
+                        $0.buttonId.uuidString == (splittedContents.count > 1 ? splittedContents.last! : splittedContents[0])
+                    }
+                    
+                    self.viewModel.selectedComments = selectedComments
+                    self.commentViewModel.setCommentPosition(selectedComments: self.viewModel.selectedComments, pdfView: self.mainPDFView)
+                }
+                self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
+                return true
+            }
+            
         }
         return false
     }

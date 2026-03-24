@@ -396,7 +396,7 @@ struct MainPDFView: View {
                 mainPDFViewModel.statusStack.isDetailSelected
                 ? DragGesture(minimumDistance: 0)
                     .onChanged { _ in
-                        print("터치 감지됨!")
+                        log("터치 감지됨!")
                         mainPDFViewModel.statusStack.detailOff()
                     }
                 : nil

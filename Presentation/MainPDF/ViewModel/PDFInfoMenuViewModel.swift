@@ -89,9 +89,9 @@ class PDFInfoMenuViewModel: ObservableObject {
             let pdfData = document.dataRepresentation()
             try pdfData?.write(to: self.fileURL)
             
-            print("PDF 저장이 완료되었습니다.")
+            log("PDF 저장이 완료되었습니다.")
         } catch {
-            print("PDF 저장 중 오류 발생: \(error.localizedDescription)")
+            log("PDF 저장 중 오류 발생: \(error.localizedDescription)")
         }
     }
 }

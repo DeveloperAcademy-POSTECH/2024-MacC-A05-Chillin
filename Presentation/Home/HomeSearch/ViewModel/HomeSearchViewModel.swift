@@ -103,7 +103,7 @@ extension HomeSearchViewModel {
         if case .success = response {
             loadSearchedList()
         } else {
-            print(#function)
+            log(#function)
         }
     }
 }
@@ -117,7 +117,7 @@ extension HomeSearchViewModel {
         case .success(let papers):
            self.fetchSearchList(papers: papers)
         case .failure:
-            print(#function)
+            log(#function)
         }
         self.toggleIsLoading(false)
     }

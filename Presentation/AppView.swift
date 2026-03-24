@@ -107,7 +107,7 @@ extension AppView {
             
             if let appStoreVersion = results[0]["version"] as? String {
                 if currentVersion != appStoreVersion {
-                    print("🔔Current Version: \(currentVersion), App Store Version: \(appStoreVersion)")
+                    log("🔔Current Version: \(currentVersion), App Store Version: \(appStoreVersion)")
                     self.isUpdateAlertPresented.toggle()
                 }
             }

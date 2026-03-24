@@ -122,7 +122,7 @@ private struct FigureCompleteView: View {
                     Button(action: {
                         if let figure = focusFigureViewModel.figures.first {
                             guard let document = focusFigureViewModel.setFigureDocument(for: 0) else {
-                                print("Failed to set figure document.")
+                                log("Failed to set figure document.")
                                 return
                             }
                             let head = figure.head
@@ -241,7 +241,6 @@ private struct FigureCompleteView: View {
                             withAnimation {
                                 // 자동 스크롤
                                 proxy.scrollTo(id, anchor: .top)
-                                print(id)
                             }
                         }
                     }

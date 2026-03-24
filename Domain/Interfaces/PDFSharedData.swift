@@ -33,7 +33,7 @@ class PDFSharedData {
             self.paperInfo = paperInfo
             
         } catch {
-            print("Failed to make Document \(#function)")
+            log("Failed to make Document \(#function)")
         }
     }
     

@@ -154,7 +154,7 @@ extension TagViewModel {
         if case .success = response {
             fetchFilteredPaperList()
         } else {
-            print(#function)
+            log(#function)
         }
     }
     
