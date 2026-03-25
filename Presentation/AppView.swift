@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import UIKit
 
 @main
 struct AppView: App {
@@ -70,6 +71,41 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UIView.appearance().tintColor = UIColor.primary1
 
         return true
+    }
+    
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let sceneConfiguration = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        sceneConfiguration.delegateClass = SceneDelegate.self
+        return sceneConfiguration
+    }
+}
+
+class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        
+        // Mac 환경 감지 (Mac Catalyst 또는 Mac에서 실행되는 iPad 앱)
+        let isMac: Bool = {
+            #if targetEnvironment(macCatalyst)
+            return true
+            #else
+            if #available(iOS 14.0, *) {
+                return ProcessInfo.processInfo.isiOSAppOnMac
+            }
+            return false
+            #endif
+        }()
+        
+        if isMac {
+            // Mac 환경: 최소 크기 696x464
+            windowScene.sizeRestrictions?.minimumSize = CGSize(width: 696, height: 464)
+        } else if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad 환경: 화면 크기 기반 (가로 1/2) x (세로 2/3)
+            let screenSize = windowScene.screen.bounds.size
+            let minWidth = screenSize.width / 2
+            let minHeight = screenSize.height * (2.0 / 3.0)
+            windowScene.sizeRestrictions?.minimumSize = CGSize(width: minWidth, height: minHeight)
+        }
     }
 }
 
