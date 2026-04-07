@@ -16,24 +16,36 @@ struct TextEditMenu: View {
     let onShare: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             MenuCell(icon: "copyLight", title: "복사하기", action: onCopy)
-//            {
-//                UIPasteboard.general.string = viewModel.selectedText
-//            }
+                .padding(.horizontal, 17)
+                .padding(.vertical, 13)
             
-            Divider()
+            Rectangle()
+                .fill(Color.primary2)
+                .frame(height: 1)
             
-            MenuCell(icon: nil, title: "Google Scholar 검색", action: onSearchScholar)
-            MenuCell(icon: nil, title: "하이라이트", action: onHighlight)
-            MenuCell(icon: nil, title: "코멘트", action: onComment)
+            VStack(alignment: .leading, spacing: 13) {
+                MenuCell(icon: nil, title: "Google Scholar 검색", action: onSearchScholar)
+                MenuCell(icon: nil, title: "하이라이트", action: onHighlight)
+                MenuCell(icon: nil, title: "코멘트", action: onComment)
+            }
+            .padding(.horizontal, 17)
+            .padding(.vertical, 13)
             
-            Divider()
+            Rectangle()
+                .fill(Color.primary2)
+                .frame(height: 1)
             
             MenuCell(icon: "share", title: "공유", action: onShare)
+                .padding(.horizontal, 17)
+                .padding(.vertical, 13)
         }
-        .padding()
-        .foregroundStyle(.gray200)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray200)
+        )
+        .fixedSize()
     }
 }
 
@@ -47,16 +59,22 @@ private struct MenuCell: View {
         Button {
             action()
         } label: {
-            HStack(spacing: 8) {
-                Image(icon ?? "")
-                    .renderingMode(.template)
-                    .scaledToFit()
-                    .frame(width: 17)
-                    .foregroundStyle(.gray800)
+            HStack(spacing: 0) {
+                if let icon {
+                    Image(icon)
+                        .renderingMode(.template)
+                        .scaledToFit()
+                        .frame(width: 17)
+                        .foregroundStyle(.gray800)
+                        .padding(.trailing, 8)
+                }
                 Text(title)
                     .reazyFont(.body1)
                     .foregroundStyle(.gray800)
+                
+                Spacer()
             }
+            .padding(0)
         }
     }
 }

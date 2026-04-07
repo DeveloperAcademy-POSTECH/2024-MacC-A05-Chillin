@@ -25,6 +25,7 @@ final class OriginalViewController: UIViewController {
     let translationManager: TranslationManager
     
     var cancellable: Set<AnyCancellable> = []
+    private var mouseUpMonitor: Any?
     
     let mainPDFView: CustomPDFView = {
         let view = CustomPDFView()
@@ -326,6 +327,73 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
+        
+        
+        
+        
+        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
+            .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                
+                guard let selection = self.mainPDFView.currentSelection,
+                      let selectedString = selection.string,
+                      !selectedString.isEmpty,
+                      let page = selection.pages.first
+                else {
+                    DispatchQueue.main.async {
+                        self.viewModel.selectedText = ""
+                        self.viewModel.isTextSelectionActive = false
+                    }
+                    return
+                }
+                
+                // 선택 영역 bounds
+                let bound = selection.bounds(for: page)
+                let convertedBounds = self.mainPDFView.convert(bound, from: page)
+                
+                // 기준: 오른쪽 아래
+                var rawX:CGFloat = 0.0
+                let rawY = convertedBounds.maxY
+                
+                let lineSelections = selection.selectionsByLine()
+                if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
+                    let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
+                    rawX = lastLineBounds.maxX
+                }
+
+                let offset: CGFloat = 100
+                
+                var menuX = rawX + offset
+                var menuY = rawY + offset
+                
+                let menuWidth: CGFloat = 85
+                let menuHeight: CGFloat = 102
+                
+                let viewWidth = self.mainPDFView.bounds.maxX - 10
+                let viewHeight = self.mainPDFView.bounds.maxY - 10
+                
+                // 오른쪽 초과 방지
+                if menuX + menuWidth > viewWidth {
+                    menuX = viewWidth - menuWidth - 12
+                }
+                
+                // 아래 초과 방지
+                if menuY + menuHeight > viewHeight {
+                    menuY = viewHeight - menuHeight - 10
+                }
+                
+                let finalPosition = CGPoint(x: menuX, y: menuY)
+                
+                DispatchQueue.main.async {
+                    self.viewModel.selectedText = selectedString
+                    self.viewModel.textEditMenuPosition = finalPosition
+                    self.viewModel.isTextSelectionActive = true
+                }
+            }
+            .store(in: &self.cancellable)
+        
+
         
         // 번역 및 코멘트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)

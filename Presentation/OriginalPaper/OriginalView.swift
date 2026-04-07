@@ -25,8 +25,11 @@ struct OriginalView: View {
     @State private var orientation: LayoutOrientation = .horizontal
     
     private let screenHeight = UIScreen.main.bounds.height
-    
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
+    
+//    private func closeTextEditMenu() {
+//        viewModel.isTextSelectionActive = false
+//    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -84,8 +87,8 @@ struct OriginalView: View {
                         backPageBtnViewModel.handleBtnVisible()
                         backPageBtnViewModel.updateBackDestination()
                     })
-                        .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
-                        .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
+                    .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
+                    .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
                 }
                 .position(
                     backPageBtnViewModel.isLinkTapped
@@ -95,11 +98,46 @@ struct OriginalView: View {
                 
                 //textEditMenu
                 if viewModel.canEditText {
-                    ZStack {
-
-                    }
+                    TextEditMenu(
+                        onCopy: {
+                            UIPasteboard.general.string = viewModel.selectedText
+                        },
+                        
+                        onSearchScholar: {
+                            let query = viewModel.selectedText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                            if let url = URL(string: "https://scholar.google.com/scholar?q=\(query)") {
+                                UIApplication.shared.open(url)
+                            }
+                        },
+                        
+                        onHighlight: {
+                            //                                viewModel.highlightUIMenu(in: main, with: <#T##HighlightColors#>)
+                        },
+                        
+                        onComment: {
+                            viewModel.isSelectedEditMenuComment = true
+                        },
+                        
+                        onShare: {
+                            let activityVC = UIActivityViewController(
+                                activityItems: [viewModel.selectedText],
+                                applicationActivities: nil
+                            )
+                            
+                            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let root = scene.windows.first?.rootViewController {
+                                root.present(activityVC, animated: true)
+                            }
+                        }
+                    )
+                    .position(viewModel.textEditMenuPosition)
+                    .shadow(color: .gray900.opacity(0.2),
+                            radius: 16,
+                            x: 0,
+                            y: 0)
+                    .zIndex(1000)
                 }
-
+                
             }
             .onChange(of: geometry.size) {
                 commentViewModel.isMenuTapped = false
