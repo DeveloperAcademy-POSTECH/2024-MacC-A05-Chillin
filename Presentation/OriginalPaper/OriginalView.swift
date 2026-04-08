@@ -24,7 +24,8 @@ struct OriginalView: View {
     
     @State private var orientation: LayoutOrientation = .horizontal
     
-    private let screenHeight = UIScreen.main.bounds.height
+//    private let screenHeight = UIScreen.main.bounds.height
+    
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
     
 //    private func closeTextEditMenu() {

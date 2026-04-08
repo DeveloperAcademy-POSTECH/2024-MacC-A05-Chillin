@@ -118,7 +118,7 @@ class HomeViewModel: ObservableObject {
         case .success(let paperInfos):
             self.paperInfos = paperInfos
         case .failure(let error):
-            print(error)
+            log(error)
             return
         }
         
@@ -171,7 +171,7 @@ extension HomeViewModel {
             }
             return paperInfo?.id
         } catch {
-            print(error)
+            log(error)
             return nil
         }
     }
@@ -198,7 +198,7 @@ extension HomeViewModel {
                 self.paperInfos.append(result)
             }
         } catch {
-            print(error)
+            log(error)
         }
     }
     
@@ -254,7 +254,7 @@ extension HomeViewModel {
                 
                 completion(true)
             case .failure(let error):
-                print(error)
+                log(error)
                 completion(false)
             }
         }
@@ -346,7 +346,7 @@ extension HomeViewModel {
         case let .success(folders):
             self.folders = folders
         case let .failure(error):
-            print(error)
+            log(error)
         }
     }
     
@@ -582,14 +582,14 @@ extension HomeViewModel {
         let data = selectedPaper.url
         
         guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            print("bookmarkdata to url failed")
+            log("bookmarkdata to url failed")
             return
         }
         
         if isStale {
-            print("Bookmark(\(url.lastPathComponent)) is stale")
+            log("Bookmark(\(url.lastPathComponent)) is stale")
             guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
-                print("Unable to create bookmark")
+                log("Unable to create bookmark")
                 return
             }
             

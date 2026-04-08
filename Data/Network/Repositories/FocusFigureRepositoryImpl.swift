@@ -57,13 +57,13 @@ class FocusFigureRepositoryImpl: FocusFigureRepository {
             if let response = response as? HTTPURLResponse {
                 // 500 error, PDF OCR 적용이 안되어있음
                 if (500 ..< 600 ~= response.statusCode) {
-                    print("PDF extract error!, statusCode: \(response.statusCode)")
+                    log("PDF extract error!, statusCode: \(response.statusCode)")
                     return .failure(.corruptedPDF)
                 }
                 
                 // 기타 요청 에러
                 else if !(200 ..< 300 ~= response.statusCode) {
-                    print("request error!, statusCode: \(response.statusCode)")
+                    log("request error!, statusCode: \(response.statusCode)")
                     return .failure(.badRequest)
                 }
             }

@@ -1,5 +1,5 @@
 //
-//  Locale + Extension.swift
+//  Locale+Extension.swift
 //  Reazy
 //
 //  Created by 문인범 on 11/10/25.

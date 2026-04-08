@@ -33,9 +33,6 @@ struct FigureMenu: View {
                         focusFigureViewModel.isEditFigName = true
                         self.focusFigureViewModel.selectedID = id
                         self.focusFigureViewModel.isFigure = true
-                        
-                        print("Edit FigName")
-                        
                     }, label: {
                         HStack {
                             Text("이름 수정")
@@ -59,9 +56,6 @@ struct FigureMenu: View {
                         floatingViewModel.saveFigAlert()
                         self.focusFigureViewModel.selectedID = id
                         self.isSavedLocation = true
-                        
-                        print("Save Fig")
-                        
                     }, label: {
                         HStack {
                             Text("사진 앱에 저장")

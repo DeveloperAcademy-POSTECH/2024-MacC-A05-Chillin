@@ -39,7 +39,6 @@ public final class TranslationManager {
     var selectedText: String = "" {
         didSet {
             updateTranslationView(bubblePosition: translateViewPosition)
-            print(selectedText)
         }
     }
     
@@ -76,8 +75,7 @@ public final class TranslationManager {
                 AnalyticsManager.sendEvent(eventType: .translationTriggered, parameters: "\(wordCount)")
             }
         } catch {
-            print("translation do-catch")
-            print(error.localizedDescription)
+            log(error.localizedDescription)
         }
     }
     

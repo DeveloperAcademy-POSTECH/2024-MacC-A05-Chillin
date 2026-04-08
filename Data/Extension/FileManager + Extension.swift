@@ -20,7 +20,7 @@ extension FileManager {
         do {
             try moveItem(at: fileURL, to: newUrl)
         } catch {
-            print(error)
+            log(error)
             return false
         }
         

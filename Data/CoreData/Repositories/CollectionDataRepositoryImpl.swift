@@ -59,7 +59,7 @@ final class CollectionDataRepositoryImpl: CollectionDataRepository {
                         try context.save()
                         result = .success(.init())
                     } catch {
-                        print(String(describing: error))
+                        log(String(describing: error))
                         result = .failure(error)
                     }
                 } else {
