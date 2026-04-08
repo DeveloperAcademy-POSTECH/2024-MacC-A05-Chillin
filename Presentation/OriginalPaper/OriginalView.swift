@@ -45,10 +45,16 @@ struct OriginalView: View {
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .gesture(
-                    viewModel.isCommentTapped
+                    viewModel.isCommentTapped || (viewModel.canEditText && ProcessInfo.processInfo.isiOSAppOnMac)
                     ? DragGesture(minimumDistance: 0)
                         .onChanged { _ in
-                            NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                            if viewModel.isCommentTapped {
+                                NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                            }
+                            if viewModel.canEditText && ProcessInfo.processInfo.isiOSAppOnMac {
+                                // macOS에서 TextEditMenu가 열려있을 때 다른 곳을 터치하면 메뉴 닫기
+                                viewModel.isTextSelectionActive = false
+                            }
                         }
                     : nil
                 )
@@ -97,8 +103,8 @@ struct OriginalView: View {
                     : CGPoint(x: geometry.size.width / 2, y: geometry.size.height + 30)
                 )
                 
-                //textEditMenu
-                if viewModel.canEditText {
+                //textEditMenu (macOS에서만 표시)
+                if viewModel.canEditText && ProcessInfo.processInfo.isiOSAppOnMac {
                     TextEditMenu(
                         onCopy: {
                             UIPasteboard.general.string = viewModel.selectedText
@@ -112,7 +118,9 @@ struct OriginalView: View {
                         },
                         
                         onHighlight: {
-                            //                                viewModel.highlightUIMenu(in: main, with: <#T##HighlightColors#>)
+                            guard let pdfView = viewModel.pdfDrawer.pdfView else { return }
+                            viewModel.highlightUIMenu(in: pdfView, with: viewModel.selectedHighlightColor ?? .yellow)
+                            viewModel.isTextSelectionActive = false // 하이라이트 후 메뉴 닫기
                         },
                         
                         onComment: {
@@ -132,6 +140,7 @@ struct OriginalView: View {
                                let root = scene.windows.first?.rootViewController {
                                 root.present(activityVC, animated: true)
                             }
+                            viewModel.isTextSelectionActive = false // 공유 후 메뉴 닫기
                         }
                     )
                     .position(viewModel.textEditMenuPosition)

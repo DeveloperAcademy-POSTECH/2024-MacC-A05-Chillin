@@ -214,16 +214,17 @@ extension OriginalViewController {
             let gesture = UITapGestureRecognizer()
             gesture.delegate = self
             self.mainPDFView.addGestureRecognizer(gesture)
-        // 텍스트 선택 끝(드래그/마우스 업) 감지
-        let selectionEndGesture = UILongPressGestureRecognizer(
-            target: self,
-            action: #selector(handleSelectionEndGesture(_:))
-        )
-        selectionEndGesture.minimumPressDuration = 0
-        selectionEndGesture.delegate = self
-        selectionEndGesture.cancelsTouchesInView = false
+            // 텍스트 선택 끝(드래그/마우스 업) 감지
+            let selectionEndGesture = UILongPressGestureRecognizer(
+                target: self,
+                action: #selector(handleSelectionEndGesture(_:))
+            )
+            self.mainPDFView.addGestureRecognizer(selectionEndGesture)
+            selectionEndGesture.minimumPressDuration = 0
+            selectionEndGesture.delegate = self
+            selectionEndGesture.cancelsTouchesInView = false
+        }
     }
-        self.mainPDFView.addGestureRecognizer(selectionEndGesture)
     
     @objc private func handleSelectionEndGesture(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .ended || gesture.state == .cancelled else { return }
