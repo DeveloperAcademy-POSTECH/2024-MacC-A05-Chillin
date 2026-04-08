@@ -49,7 +49,6 @@ enum MainPDFViewStatus: Hashable {
 final class MainPDFViewModel: ObservableObject {
     let useCase: BasicPaperCRUDUseCase
     
-    @Published var pdfView: CustomPDFView?
     @Published public var mainPDFViewAction: MainPDFViewAction = .none
     
     @Published public var statusStack: Set<MainPDFViewStatus> = []
