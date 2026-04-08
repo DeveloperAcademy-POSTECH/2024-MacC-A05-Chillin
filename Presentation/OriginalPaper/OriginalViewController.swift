@@ -25,7 +25,6 @@ final class OriginalViewController: UIViewController {
     let translationManager: TranslationManager
     
     var cancellable: Set<AnyCancellable> = []
-    private var mouseUpMonitor: Any?
     
     let mainPDFView: CustomPDFView = {
         let view = CustomPDFView()
@@ -88,7 +87,7 @@ final class OriginalViewController: UIViewController {
                     UIApplication.shared.open(url)
                 }
             }
-        } 
+        }
         
         let highlightAction = UIAction(title: String(localized: "하이라이트"), image: nil, identifier: nil) { action in
             self.viewModel.highlightUIMenu(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
@@ -209,6 +208,23 @@ extension OriginalViewController {
         pencilInteraction.isEnabled = true
         pencilInteraction.delegate = self
         self.view.addInteraction(pencilInteraction)
+        
+        // 텍스트 선택 끝(드래그/마우스 업) 감지
+        let selectionEndGesture = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(handleSelectionEndGesture(_:))
+        )
+        selectionEndGesture.minimumPressDuration = 0
+        selectionEndGesture.delegate = self
+        selectionEndGesture.cancelsTouchesInView = false
+        self.mainPDFView.addGestureRecognizer(selectionEndGesture)
+    }
+    
+    @objc private func handleSelectionEndGesture(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .ended || gesture.state == .cancelled else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            self?.commitTextSelection()
+        }
     }
     
     /// 데이터 Binding
@@ -301,8 +317,8 @@ extension OriginalViewController {
                     }
                 }
             }
-        .store(in: &self.cancellable)
-
+            .store(in: &self.cancellable)
+        
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
@@ -329,72 +345,17 @@ extension OriginalViewController {
             .store(in: &self.cancellable)
         
         
-        
-        
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                
-                guard let selection = self.mainPDFView.currentSelection,
-                      let selectedString = selection.string,
-                      !selectedString.isEmpty,
-                      let page = selection.pages.first
-                else {
-                    DispatchQueue.main.async {
-                        self.viewModel.selectedText = ""
-                        self.viewModel.isTextSelectionActive = false
-                    }
-                    return
-                }
-                
-                // 선택 영역 bounds
-                let bound = selection.bounds(for: page)
-                let convertedBounds = self.mainPDFView.convert(bound, from: page)
-                
-                // 기준: 오른쪽 아래
-                var rawX:CGFloat = 0.0
-                let rawY = convertedBounds.maxY
-                
-                let lineSelections = selection.selectionsByLine()
-                if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
-                    let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
-                    rawX = lastLineBounds.maxX
-                }
-
-                let offset: CGFloat = 100
-                
-                var menuX = rawX + offset
-                var menuY = rawY + offset
-                
-                let menuWidth: CGFloat = 85
-                let menuHeight: CGFloat = 102
-                
-                let viewWidth = self.mainPDFView.bounds.maxX - 10
-                let viewHeight = self.mainPDFView.bounds.maxY - 10
-                
-                // 오른쪽 초과 방지
-                if menuX + menuWidth > viewWidth {
-                    menuX = viewWidth - menuWidth - 12
-                }
-                
-                // 아래 초과 방지
-                if menuY + menuHeight > viewHeight {
-                    menuY = viewHeight - menuHeight - 10
-                }
-                
-                let finalPosition = CGPoint(x: menuX, y: menuY)
-                
-                DispatchQueue.main.async {
-                    self.viewModel.selectedText = selectedString
-                    self.viewModel.textEditMenuPosition = finalPosition
-                    self.viewModel.isTextSelectionActive = true
+                if self.mainPDFView.currentSelection?.string?.isEmpty ?? true {
+                    self.viewModel.selectedText = ""
+                    self.viewModel.isTextSelectionActive = false
                 }
             }
             .store(in: &self.cancellable)
-        
 
-        
         // 번역 및 코멘트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .sink { [weak self] _ in
@@ -405,11 +366,17 @@ extension OriginalViewController {
                     DispatchQueue.main.async {
                         self.viewModel.selectedText = ""
                         self.viewModel.isSelectedEditMenuComment = false
+                        self.viewModel.isTextSelectionActive = false
                     }
                     return
                 }
                 
                 guard let _ = selection.string else { return }
+                
+                DispatchQueue.main.async {
+                    self.viewModel.isTextSelectionActive = false
+                }
+                
                 let lineSelections = selection.selectionsByLine()
                 
                 if let page = selection.pages.first {
@@ -526,6 +493,11 @@ extension OriginalViewController {
 extension OriginalViewController: UIGestureRecognizerDelegate {
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        
+        if gestureRecognizer is UILongPressGestureRecognizer {
+            return true
+        }
+        
         let location = touch.location(in: mainPDFView)
         
         // 버튼 annotation이 있는 위치인지 확인
@@ -535,6 +507,13 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             return true
         }
         return false
+    }
+    
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        return true
     }
     
     private func updateGestureRecognizer(statusStack: Set<MainPDFViewStatus>) {
@@ -639,5 +618,60 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         default:
             break
         }
+    }
+}
+
+// macOS-textEditMenu
+extension OriginalViewController {
+    fileprivate func commitTextSelection() {
+        guard let selection = self.mainPDFView.currentSelection,
+              let selectedString = selection.string,
+              !selectedString.isEmpty,
+              let page = selection.pages.first
+        else {
+            self.viewModel.selectedText = ""
+            self.viewModel.isTextSelectionActive = false
+            return
+        }
+        
+        let bound = selection.bounds(for: page)
+        let convertedBounds = self.mainPDFView.convert(bound, from: page)
+        
+        var rawX: CGFloat = 0.0
+        let rawY = convertedBounds.maxY
+        
+        let lineSelections = selection.selectionsByLine()
+        if let lastLine = lineSelections.last, let lastPage = lastLine.pages.first {
+            let lastLineBounds = self.mainPDFView.convert(lastLine.bounds(for: lastPage), from: lastPage)
+            rawX = lastLineBounds.maxX
+        }
+        
+        let offset: CGFloat = 100
+        var menuX = rawX + offset
+        var menuY = rawY + offset
+        
+        let menuWidth: CGFloat = 85
+        let menuHeight: CGFloat = 102
+        let viewWidth = self.mainPDFView.bounds.maxX - 10
+        let viewHeight = self.mainPDFView.bounds.maxY - 10
+        
+        // 오른쪽 초과 방지
+        if menuX + menuWidth > viewWidth {
+            menuX = viewWidth - menuWidth - 12
+        }
+        
+        // 아래로 초과 방지
+        if menuY + menuHeight > viewHeight {
+            menuX = convertedBounds.maxX + offset
+            menuY = viewHeight - menuHeight - 10
+            
+            if menuX + menuWidth > viewWidth {
+                menuX = viewWidth - menuWidth - 12
+            }
+        }
+        
+        self.viewModel.selectedText = selectedString
+        self.viewModel.textEditMenuPosition = CGPoint(x: menuX, y: menuY)
+        self.viewModel.isTextSelectionActive = true
     }
 }

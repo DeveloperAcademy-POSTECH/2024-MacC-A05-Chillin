@@ -115,7 +115,10 @@ struct OriginalView: View {
                         },
                         
                         onComment: {
-                            viewModel.isSelectedEditMenuComment = true
+                            withAnimation {
+                                viewModel.isSelectedEditMenuComment = true
+                                viewModel.isTextSelectionActive = false
+                            }
                         },
                         
                         onShare: {
