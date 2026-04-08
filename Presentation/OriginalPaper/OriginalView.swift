@@ -28,10 +28,6 @@ struct OriginalView: View {
     
     private let publisher = NotificationCenter.default.publisher(for: .isCommentTapped)
     
-//    private func closeTextEditMenu() {
-//        viewModel.isTextSelectionActive = false
-//    }
-    
     var body: some View {
         GeometryReader { geometry in
             Color.clear
@@ -120,7 +116,7 @@ struct OriginalView: View {
                         onHighlight: {
                             guard let pdfView = viewModel.pdfDrawer.pdfView else { return }
                             viewModel.highlightUIMenu(in: pdfView, with: viewModel.selectedHighlightColor ?? .yellow)
-                            viewModel.isTextSelectionActive = false // 하이라이트 후 메뉴 닫기
+                            viewModel.isTextSelectionActive = false
                         },
                         
                         onComment: {
@@ -136,11 +132,22 @@ struct OriginalView: View {
                                 applicationActivities: nil
                             )
                             
-                            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                               let root = scene.windows.first?.rootViewController {
-                                root.present(activityVC, animated: true)
+                            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                  let root = scene.windows.first?.rootViewController else { return }
+                            
+                            if let popover = activityVC.popoverPresentationController {
+                                popover.sourceView = root.view
+                                popover.sourceRect = CGRect(
+                                    x: viewModel.textEditMenuPosition.x,
+                                    y: viewModel.textEditMenuPosition.y,
+                                    width: 1,
+                                    height: 1
+                                )
+                                popover.permittedArrowDirections = [.up, .left]
                             }
-                            viewModel.isTextSelectionActive = false // 공유 후 메뉴 닫기
+                            
+                            root.present(activityVC, animated: true)
+                            viewModel.isTextSelectionActive = false
                         }
                     )
                     .position(viewModel.textEditMenuPosition)
