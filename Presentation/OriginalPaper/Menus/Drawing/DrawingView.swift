@@ -58,29 +58,36 @@ struct DrawingView: View {
         
         divider()
         
-        Button(action: {
-            mainPDFViewModel.pencilButtonTapped()
-        }) {
-            RoundedRectangle(cornerRadius: 6)
-                .foregroundStyle(mainPDFViewModel.statusStack.isPencilSelected ? .primary3 : .clear)
-                .frame(width: 26, height: 26)
-                .overlay(
-                    Image(.pencil)
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 18)
-                        .foregroundStyle(.gray800)
-                )
-        }
-        
-        ForEach(PenColors.allCases, id: \.self) { color in
-            PenColorButton(button: $mainPDFViewModel.selectedPenColor, selectedButton: color) {
-                mainPDFViewModel.pencilColorButtonTapped(color)
+        if UIDevice.current.userInterfaceIdiom == .pad &&
+            !ProcessInfo.processInfo.isMacCatalystApp {
+            
+            Button(action: {
+                mainPDFViewModel.pencilButtonTapped()
+            }) {
+                RoundedRectangle(cornerRadius: 6)
+                    .foregroundStyle(mainPDFViewModel.statusStack.isPencilSelected ? .primary3 : .clear)
+                    .frame(width: 26, height: 26)
+                    .overlay(
+                        Image(.pencil)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 18)
+                            .foregroundStyle(.gray800)
+                    )
             }
+            
+            ForEach(PenColors.allCases, id: \.self) { color in
+                PenColorButton(
+                    button: $mainPDFViewModel.selectedPenColor,
+                    selectedButton: color
+                ) {
+                    mainPDFViewModel.pencilColorButtonTapped(color)
+                }
+            }
+            
+            divider()
         }
-        
-        divider()
         
         Button(action: {
             mainPDFViewModel.eraserButtonTapped()
