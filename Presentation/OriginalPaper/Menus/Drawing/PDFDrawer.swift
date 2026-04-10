@@ -34,8 +34,8 @@ enum DrawingTool: Int {
 }
 
 enum PDFAction {
-    case add(PDFAnnotation)
-    case remove(PDFAnnotation)
+    case add
+    case remove
 }
 
 enum Storage {
@@ -64,11 +64,11 @@ class PDFDrawer {
     
     private var lassoRectangleLayer: CAShapeLayer? // 점선 사각형을 그리기 위한 레이어
     
-    var annotationHistory: [(action: PDFAction, annotation: PDFAnnotation, page: PDFPage)] = [] {
+    var annotationHistory: [(action: PDFAction, annotations: [PDFAnnotation], page: PDFPage)] = [] {
         didSet { onHistoryChange?() }
     }
     
-    var redoStack: [(action: PDFAction, annotation: PDFAnnotation, page: PDFPage)] = [] {
+    var redoStack: [(action: PDFAction, annotations: [PDFAnnotation], page: PDFPage)] = [] {
         didSet { onHistoryChange?() }
     }
     
@@ -92,8 +92,9 @@ class PDFDrawer {
     private var cancellables: Set<AnyCancellable> = []
     
     // 새로운 주석 히스토리에 저장
-    private func addToHistory(action: PDFAction, annotation: PDFAnnotation, on page: PDFPage) {
-        annotationHistory.append((action: action, annotation: annotation, page: page))
+    private func addToHistory(action: PDFAction, annotations: [PDFAnnotation], on page: PDFPage) {
+        guard !annotations.isEmpty else { return }
+        annotationHistory.append((action: action, annotations: annotations, page: page))
         
         // 최신 10개만 남기기
         if annotationHistory.count > 10 {
@@ -109,11 +110,15 @@ class PDFDrawer {
         let lastAction = annotationHistory.removeLast()
         
         switch lastAction.action {
-        case .add(let annotation):
-            lastAction.page.removeAnnotation(annotation)
+        case .add:
+            for annotation in lastAction.annotations {
+                lastAction.page.removeAnnotation(annotation)
+            }
             
-        case .remove(let annotation):
-            lastAction.page.addAnnotation(annotation)
+        case .remove:
+            for annotation in lastAction.annotations {
+                lastAction.page.addAnnotation(annotation)
+            }
         }
         redoStack.append(lastAction)
     }
@@ -124,10 +129,14 @@ class PDFDrawer {
         let lastAction = redoStack.removeLast()
         
         switch lastAction.action {
-        case .add(let annotation):
-            lastAction.page.addAnnotation(annotation)
-        case .remove(let annotation):
-            lastAction.page.removeAnnotation(annotation)
+        case .add:
+            for annotation in lastAction.annotations {
+                lastAction.page.addAnnotation(annotation)
+            }
+        case .remove:
+            for annotation in lastAction.annotations {
+                lastAction.page.removeAnnotation(annotation)
+            }
         }
         annotationHistory.append(lastAction)
     }
@@ -135,13 +144,23 @@ class PDFDrawer {
     // 주석 추가
     func addAnnotation(_ annotation: PDFAnnotation, page: PDFPage) {
         page.addAnnotation(annotation)
-        annotationHistory.append((action: .add(annotation), annotation: annotation, page: page))
+        addToHistory(action: .add, annotations: [annotation], on: page)
     }
     
     // 주석 삭제
     func removeAnnotation(_ annotation: PDFAnnotation, page: PDFPage) {
         page.removeAnnotation(annotation)
-        redoStack.append((action: .remove(annotation), annotation: annotation, page: page))
+        addToHistory(action: .remove, annotations: [annotation], on: page)
+    }
+    
+    // 하이라이트 주석 추가
+    func recordAddedAnnotations(_ annotations: [PDFAnnotation], on page: PDFPage) {
+        addToHistory(action: .add, annotations: annotations, on: page)
+    }
+    
+    // 하이라이트 주석 삭제
+    func recordRemovedAnnotations(_ annotations: [PDFAnnotation], on page: PDFPage) {
+        addToHistory(action: .remove, annotations: annotations, on: page)
     }
 }
 
@@ -402,7 +421,7 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         annotation.add(signingPathCentered)
         page.addAnnotation(annotation)
         
-        addToHistory(action: PDFAction.add(annotation), annotation: annotation, on: page)
+        addToHistory(action: .add, annotations: [annotation], on: page)
         
         return annotation
     }
@@ -419,16 +438,18 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
         }
         
         if (pdfView.document?.index(for: page)) != nil {
+            var removedAnnotations: [PDFAnnotation] = []
             for annotation in annotations {
                 // 드로잉 또는 하이라이트 지우기
                 if annotation.type == "Ink" ||
                     (annotation.type == "Highlight" &&
                      // 기존 하이라이트 (highlight.contents의 값이 없는 경우) || 새로운 하이라이트 (highlight.contents의 값이 있는 경우) 지우기
                      (annotation.value(forAnnotationKey: .contents) == nil || annotation.contents?.hasPrefix("UH|") == true)) {
-                    annotationHistory.append((action: .remove(annotation), annotation: annotation, page: page))
+                    removedAnnotations.append(annotation)
                     page.removeAnnotation(annotation)
                 }
             }
+            recordRemovedAnnotations(removedAnnotations, on: page)
         }
     }
     

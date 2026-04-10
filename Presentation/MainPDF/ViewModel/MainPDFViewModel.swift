@@ -215,6 +215,7 @@ extension MainPDFViewModel {
         
         let highlightColor = color.uiColor
         let id = UUID()
+        var createdHighlights: [PDFAnnotation] = []
 
         selections.forEach { selection in
             var bounds = selection.bounds(for: page)
@@ -247,8 +248,10 @@ extension MainPDFViewModel {
             highlight.contents = "UH|\(selection.string ?? "nil")|\(color.rawValue)|\(id)"
             
             page.addAnnotation(highlight)
-            pdfDrawer.annotationHistory.append((action: .add(highlight), annotation: highlight, page: page))
+            createdHighlights.append(highlight)
         }
+        
+        pdfDrawer.recordAddedAnnotations(createdHighlights, on: page)
 
         pdfView.clearSelection()
     }
