@@ -229,9 +229,6 @@
         }
       }
     },
-    "Hello, World!" : {
-
-    },
     "pdf 로드 실패 " : {
       "localizations" : {
         "en" : {
