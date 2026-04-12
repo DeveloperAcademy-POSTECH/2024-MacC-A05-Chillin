@@ -105,10 +105,20 @@ struct TranslateView: View {
             configuration?.invalidate()
             return
         }
-        
-        // 현재 언어는 영어 -> 한국어로 고정
-        configuration = .init(source: Locale.Language(identifier: "en"),
-                              target: Locale.Language(identifier: "ko"))
+
+        // 사용자의 현재 언어에 따라 번역 타겟 언어 결정
+        let targetLanguage: String
+        switch Locale.currentLang() {
+        case .ko:
+            targetLanguage = "ko" // 한국어 사용자 -> 한국어로 번역
+        case .ja:
+            targetLanguage = "ja" // 일본어 사용자 -> 일본어로 번역
+        case .en, .etc:
+            targetLanguage = "en" // 영어 및 기타 언어 사용자 -> 영어로 번역
+        }
+
+        configuration = .init(source: nil, // 자동 언어 감지
+                              target: Locale.Language(identifier: targetLanguage))
     }
     
     // 번역 복사 버튼
