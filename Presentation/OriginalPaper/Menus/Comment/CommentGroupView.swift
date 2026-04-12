@@ -93,8 +93,10 @@ private struct CommentInputView: View {
                     pdfViewModel.setHighlight(selectedComments: pdfViewModel.selectedComments, isTapped: pdfViewModel.isCommentTapped)
                     
                     if !text.isEmpty {
+                        // MARK: 코멘트 수정
                         if viewModel.isEditMode {
                             guard let commentId = viewModel.comment?.id else {return}
+                            AnalyticsManager.sendParameterlessEvent(eventType: .commentEdit)
                             let comments = viewModel.comments
                             guard let idx = viewModel.comments.firstIndex(where: { $0.id == commentId }) else { return }
                             

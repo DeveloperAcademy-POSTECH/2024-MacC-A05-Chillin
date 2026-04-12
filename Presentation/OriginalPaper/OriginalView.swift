@@ -107,6 +107,7 @@ struct OriginalView: View {
                         },
                         
                         onSearchScholar: {
+                            AnalyticsManager.sendParameterlessEvent(eventType: .popupGoogleScholar) // GA 액션
                             let query = viewModel.selectedText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                             if let url = URL(string: "https://scholar.google.com/scholar?q=\(query)") {
                                 UIApplication.shared.open(url)
@@ -114,12 +115,14 @@ struct OriginalView: View {
                         },
                         
                         onHighlight: {
+                            AnalyticsManager.sendParameterlessEvent(eventType: .popupHighlight) // GA 액션
                             guard let pdfView = viewModel.pdfDrawer.pdfView else { return }
                             viewModel.highlightUIMenu(in: pdfView, with: viewModel.selectedHighlightColor ?? .yellow)
                             viewModel.isTextSelectionActive = false
                         },
                         
                         onComment: {
+                            AnalyticsManager.sendParameterlessEvent(eventType: .popupCommentClick) // GA 액션
                             withAnimation {
                                 viewModel.isSelectedEditMenuComment = true
                                 viewModel.isTextSelectionActive = false

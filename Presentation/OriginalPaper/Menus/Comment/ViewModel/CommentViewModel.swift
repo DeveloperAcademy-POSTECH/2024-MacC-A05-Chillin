@@ -106,6 +106,7 @@ class CommentViewModel: ObservableObject {
             self.selectedText = text
         }
         
+        AnalyticsManager.sendParameterlessEvent(eventType: .commentCreate)
         isNewButton = true
         
         for group in buttonGroup {
@@ -187,6 +188,7 @@ class CommentViewModel: ObservableObject {
             deleteCommentCount(comment: comment, button: button)        /// 주석 지우기
             drawCommentCount(newComment: comment, button: button)       /// 주석 추가
         }
+        AnalyticsManager.sendParameterlessEvent(eventType: .commentDelete)
     }
 }
 
