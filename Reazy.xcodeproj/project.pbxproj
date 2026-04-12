@@ -73,9 +73,6 @@
 		2C2C38702CECE55200552185 /* share-extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2C2C38662CECE55200552185 /* share-extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2C3A30282D4E09C300ED121D /* AnnotationCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3A30272D4E09C300ED121D /* AnnotationCollection.swift */; };
 		2C5148402D5DD8060082F12B /* HomeSearchUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C51483F2D5DD8060082F12B /* HomeSearchUseCase.swift */; };
-		2C5C240D2CE9D1EF00C37A1B /* ConcentrateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */; };
-		2C5C240E2CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */; };
-		2C5C240F2CE9D1EF00C37A1B /* ConcentrateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */; };
 		2C5C24172CE9DB9E00C37A1B /* PDFUploadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */; };
 		2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */; };
 		2C6A13DD2CEE2D7300518986 /* FileManager + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6A13DC2CEE2D7300518986 /* FileManager + Extension.swift */; };
@@ -89,6 +86,7 @@
 		2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */; };
 		2CE05C202EB6262100341B46 /* TranslationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C1F2EB6262100341B46 /* TranslationManager.swift */; };
 		2CE05C222EB6290200341B46 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE05C212EB6290200341B46 /* AnalyticsManager.swift */; };
+		2CE296B82F278D1300373481 /* FocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE296B72F278D1200373481 /* FocusView.swift */; };
 		2CE743922D65BBF2006A81BE /* DynamicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE743912D65BBE6006A81BE /* DynamicCell.swift */; };
 		2CE9E4E42D9BD22400DA3A81 /* PaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */; };
 		2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */; };
@@ -221,9 +219,6 @@
 		2C2C38662CECE55200552185 /* share-extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "share-extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C3A30272D4E09C300ED121D /* AnnotationCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCollection.swift; sourceTree = "<group>"; };
 		2C51483F2D5DD8060082F12B /* HomeSearchUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSearchUseCase.swift; sourceTree = "<group>"; };
-		2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateViewController.swift; sourceTree = "<group>"; };
-		2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateViewControllerRepresent.swift; sourceTree = "<group>"; };
-		2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrateView.swift; sourceTree = "<group>"; };
 		2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFUploadError.swift; sourceTree = "<group>"; };
 		2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSharedData.swift; sourceTree = "<group>"; };
 		2C6A13DC2CEE2D7300518986 /* FileManager + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager + Extension.swift"; sourceTree = "<group>"; };
@@ -237,6 +232,7 @@
 		2CE05C1D2EB61C3D00341B46 /* MainPDFViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPDFViewAction.swift; sourceTree = "<group>"; };
 		2CE05C1F2EB6262100341B46 /* TranslationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationManager.swift; sourceTree = "<group>"; };
 		2CE05C212EB6290200341B46 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
+		2CE296B72F278D1200373481 /* FocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusView.swift; sourceTree = "<group>"; };
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
@@ -388,6 +384,16 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		2CE296B92F27957900373481 /* Components */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Components;
+			sourceTree = "<group>";
+		};
+		2CE296C02F28D67200373481 /* ViewModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		2CEBB8C12D5A407E00EC04D2 /* HomeSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HomeSearch;
@@ -454,7 +460,7 @@
 				2C14741D2CE8FF7A00B35D92 /* MainPDF */,
 				2C1474132CE8F2CC00B35D92 /* Helper */,
 				2C1473E42CE7894200B35D92 /* OriginalPaper */,
-				2C5C24182CE9DBCE00C37A1B /* ConcentratePaper */,
+				2C5C24182CE9DBCE00C37A1B /* FocusPaper */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -802,14 +808,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		2C5C24182CE9DBCE00C37A1B /* ConcentratePaper */ = {
+		2C5C24182CE9DBCE00C37A1B /* FocusPaper */ = {
 			isa = PBXGroup;
 			children = (
-				2C5C24072CE9D1EF00C37A1B /* ConcentrateView.swift */,
-				2C5C24032CE9D1EF00C37A1B /* ConcentrateViewController.swift */,
-				2C5C24052CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift */,
+				2CE296C02F28D67200373481 /* ViewModel */,
+				2CE296B92F27957900373481 /* Components */,
+				2CE296B72F278D1200373481 /* FocusView.swift */,
 			);
-			path = ConcentratePaper;
+			path = FocusPaper;
 			sourceTree = "<group>";
 		};
 		2C6A13DB2CEE2D6600518986 /* Extension */ = {
@@ -962,6 +968,8 @@
 				2C5C24142CE9DB6A00C37A1B /* Preview Content */,
 				2CC7D9032D7D92B700D882D6 /* Errors */,
 				2CE061652EC1BB1200341B46 /* Extension */,
+				2CE296B92F27957900373481 /* Components */,
+				2CE296C02F28D67200373481 /* ViewModel */,
 				2CEBB8C12D5A407E00EC04D2 /* HomeSearch */,
 				6ED57AD02CF6F33C00358561 /* Figure */,
 				6ED57AD12CF6F34C00358561 /* Collection */,
@@ -1173,10 +1181,8 @@
 				2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */,
 				2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */,
 				2C1473BF2CE73B6F00B35D92 /* ThumbnailView.swift in Sources */,
-				2C5C240D2CE9D1EF00C37A1B /* ConcentrateViewController.swift in Sources */,
 				2C2C35882CEB1DCB00552185 /* DrawingView.swift in Sources */,
-				2C5C240E2CE9D1EF00C37A1B /* ConcentrateViewControllerRepresent.swift in Sources */,
-				2C5C240F2CE9D1EF00C37A1B /* ConcentrateView.swift in Sources */,
+				2CE296B82F278D1300373481 /* FocusView.swift in Sources */,
 				2C14743F2CE900A700B35D92 /* DrawingAnnotation.swift in Sources */,
 				2C1473C22CE73B6F00B35D92 /* PageListView.swift in Sources */,
 				2CD48F562CFC3F8D004A5949 /* OrientationManager.swift in Sources */,

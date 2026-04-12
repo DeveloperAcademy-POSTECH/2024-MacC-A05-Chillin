@@ -75,6 +75,13 @@ final class OriginalViewController: UIViewController {
         self.focusFigureViewModel.fetchAnnotations()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        let initialScaleFactor = self.mainPDFView.scaleFactor
+        self.viewModel.pdfFocusViewScaleFactor = initialScaleFactor
+        
+        super.viewWillAppear(animated)
+    }
+    
     // Editmenu 관련
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
@@ -259,6 +266,32 @@ extension OriginalViewController {
     
     /// 데이터 Binding
     private func setBinding() {
+        /// OriginalView -> FocusView Scale Factor 연동
+        NotificationCenter.default.publisher(for: .PDFViewScaleChanged, object: self.mainPDFView)
+            .compactMap { $0.object as? PDFView }
+            .map { $0.scaleFactor }
+            .sink { [weak self] scale in
+                self?.viewModel.pdfFocusViewScaleFactor = scale
+            }
+            .store(in: &self.cancellable)
+
+        /// FocusView -> OriginalView Scale Factor 연동
+        self.viewModel.$pdfOriginalViewScaleFactor
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self] scale in
+                self?.mainPDFView.scaleFactor = scale
+            }
+            .store(in: &self.cancellable)
+        
+        self.viewModel.$pdfOriginalViewPageIndex
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] pageIndex in
+                guard let pageIndex = pageIndex else { return }
+                self?.goTo(index: pageIndex)
+            }
+            .store(in: &self.cancellable)
+        
         self.pageListViewModel.$selectedDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
@@ -318,7 +351,7 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        NotificationCenter.default.publisher(for: .PDFViewAnnotationHit)
+        NotificationCenter.default.publisher(for: .PDFViewAnnotationHit, object: self.mainPDFView)
             .sink { [weak self] notification in
                 if ProcessInfo.processInfo.isiOSAppOnMac { return }
                 guard let self = self else { return }
@@ -350,15 +383,13 @@ extension OriginalViewController {
             .store(in: &self.cancellable)
         
         
-        NotificationCenter.default.publisher(for: .PDFViewPageChanged)
+        NotificationCenter.default.publisher(for: .PDFViewPageChanged, object: self.mainPDFView)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] noti in
-                if let tempPDFView = noti.object as? PDFView, tempPDFView != self?.mainPDFView {
-                    return
-                }
                 guard let page = self?.mainPDFView.currentPage else { return }
                 if let document = PDFSharedData.shared.document {
                     let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
+                    self?.viewModel.pdfFocusViewPageIndex = num
                     
                     if (num &+ 1) < 0 { return }
                     
@@ -387,7 +418,7 @@ extension OriginalViewController {
             .store(in: &self.cancellable)
         
         // 번역 및 코멘트 기능 실행
-        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
+        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged, object: self.mainPDFView)
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 
@@ -515,6 +546,12 @@ extension OriginalViewController {
                 self?.mainPDFView.go(to: page)
             }
             .store(in: &self.cancellable)
+    }
+    
+    private func goTo(index: Int) {
+        if let page = PDFSharedData.shared.document?.page(at: index) {
+            self.mainPDFView.go(to: page)
+        }
     }
 }
 

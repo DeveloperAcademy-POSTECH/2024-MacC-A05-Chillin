@@ -357,6 +357,7 @@
       }
     },
     "곧 다가올 업데이트를 기대해주세요!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -387,6 +388,9 @@
           }
         }
       }
+    },
+    "논문 형식을 선택해주세요" : {
+
     },
     "논문의 레이아웃에 따라\nFigure 추출의 정확도가\n상이할 수 있어요" : {
       "localizations" : {
@@ -424,6 +428,9 @@
         }
       }
     },
+    "다시 보지 않기" : {
+
+    },
     "다시 시도" : {
       "localizations" : {
         "en" : {
@@ -455,6 +462,12 @@
           }
         }
       }
+    },
+    "두 단" : {
+
+    },
+    "두 단 논문에 최적화된 읽기 모드입니다" : {
+
     },
     "마지막 수정 : %@" : {
       "localizations" : {
@@ -858,6 +871,9 @@
           }
         }
       }
+    },
+    "세 단" : {
+
     },
     "수정" : {
       "localizations" : {
@@ -1326,6 +1342,7 @@
       }
     },
     "집중 모드는 읽기 전용으로 제공됩니다" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1793,6 +1810,7 @@
       }
     },
     "현재 집중모드가 공사중에 있습니다." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

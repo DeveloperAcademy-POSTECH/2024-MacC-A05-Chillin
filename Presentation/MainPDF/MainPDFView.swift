@@ -22,6 +22,7 @@ struct MainPDFView: View {
     @StateObject public var searchViewModel: SearchViewModel
     @StateObject public var indexViewModel: IndexViewModel
     @StateObject public var backPageBtnViewModel: BackPageBtnViewModel
+    @State public var focusViewModel: FocusViewModel
     
     @State private var translationManager: TranslationManager = .init()
     
@@ -67,7 +68,7 @@ struct MainPDFView: View {
                                 mainPDFViewModel.statusStack.searchToggle()
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .foregroundStyle(mainPDFViewModel.statusStack.isSearchSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.searchButtonBackgroundColor)
                                     .frame(width: 26, height: 26)
                                     .overlay (
                                         Image(.search)
@@ -75,10 +76,11 @@ struct MainPDFView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 22)
-                                            .foregroundStyle(mainPDFViewModel.statusStack.isSearchSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.searchButtonColor)
                                     )
                             }
                             .padding(.trailing, 24)
+                            .disabled(mainPDFViewModel.statusStack.focusModeButtonDisable)
                             
                             Button(action: {
                                 mainPDFViewModel.statusStack.concentrateToggle()
@@ -124,17 +126,18 @@ struct MainPDFView: View {
                             }) {
                                 RoundedRectangle(cornerRadius: 6)
                                     .frame(width: 26, height: 26)
-                                    .foregroundStyle(mainPDFViewModel.statusStack.isCollectionSelected ? .primary1 : .clear)
+                                    .foregroundStyle(mainPDFViewModel.statusStack.collectionButtonBackgroundColor)
                                     .overlay(
                                         Image(.window)
                                             .renderingMode(.template)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 16, height: 16)
-                                            .foregroundStyle(mainPDFViewModel.statusStack.isCollectionSelected ? .gray100 : .gray800)
+                                            .foregroundStyle(mainPDFViewModel.statusStack.collectionButtonColor)
                                     )
                             }
                             .padding(.trailing, 25)
+                            .disabled(mainPDFViewModel.statusStack.focusModeButtonDisable)
                             
                             Button(action: {
                                 withAnimation {
@@ -210,6 +213,7 @@ struct MainPDFView: View {
                                     .transition(.move(edge: .leading))
                             }
                             
+                            // MARK: 메인View 엔트리 포인트
                             MainOriginalView()
                                 .environmentObject(mainPDFViewModel)
                                 .environmentObject(floatingViewModel)
@@ -220,6 +224,7 @@ struct MainPDFView: View {
                                 .environmentObject(indexViewModel)
                                 .environmentObject(backPageBtnViewModel)
                                 .environment(translationManager)
+                                .environment(focusViewModel)
                             
                             if mainPDFViewModel.statusStack.isFigureSelected && !floatingViewModel.splitMode {
                                 FigureView(onSelect: { id, documentID, document, head in
@@ -483,6 +488,13 @@ struct MainPDFView: View {
                     }
                 )
                 
+            case .focusModeGuideAlert:
+                FocusModeGuideView { doNotShowAgain in
+                    self.mainPDFViewModel.mainPDFViewAction = .none
+                    if doNotShowAgain {
+                        UserDefaults.standard.focusGuideViewDoNotShowAgain = true
+                    }
+                }
             default: EmptyView()
             }
             
@@ -503,21 +515,6 @@ struct MainPDFView: View {
                     }
                 }
             }
-        }
-        .alert(
-            "현재 집중모드가 공사중에 있습니다.",
-            isPresented: Binding(
-                    get: {
-                        mainPDFViewModel.statusStack.isConcentrateSelected
-                    },
-                    set: { _ in }
-                )
-        ) {
-            Button("확인", role: .cancel) {
-                mainPDFViewModel.statusStack.concentrateToggle()
-            }
-        } message: {
-            Text("곧 다가올 업데이트를 기대해주세요!")
         }
         .alert(
             "정말 삭제하시겠습니까?",
@@ -823,12 +820,9 @@ private struct MainView: View {
         ZStack {
             OriginalView()
             
-            // MARK: 집중모드 임시 차단
-            /*
-            if isReadMode {
-                ConcentrateView()
+            if mainPDFViewModel.statusStack.isConcentrateSelected {
+                FocusView()
             }
-             */
         }
     }
 }

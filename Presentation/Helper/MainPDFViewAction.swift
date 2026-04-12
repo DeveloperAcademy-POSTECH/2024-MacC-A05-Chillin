@@ -21,6 +21,8 @@ enum MainPDFViewAction: Hashable {
     case duplicatedTitleAlert
     case deletePaperAlert
     
+    case focusModeGuideAlert
+    
     public var blurConstant: CGFloat {
         switch self {
         case .none: 0

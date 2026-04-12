@@ -51,6 +51,22 @@ extension Set<MainPDFViewStatus> {
             self.menuOff()
         }
     }
+    
+    public var searchButtonColor: Color {
+        if self.focusModeButtonDisable {
+            return .gray800.opacity(0.2)
+        } else {
+            return self.isSearchSelected ? .gray100 : .gray800
+        }
+    }
+    
+    public var searchButtonBackgroundColor: Color {
+        if self.focusModeButtonDisable {
+            return .clear
+        } else {
+            return self.isSearchSelected ? .primary1 : .clear
+        }
+    }
 }
 
 extension Set<MainPDFViewStatus> {
@@ -314,6 +330,22 @@ extension Set<MainPDFViewStatus> {
             self.remove(.detail)
         }
     }
+    
+    public var collectionButtonColor: Color {
+        if self.focusModeButtonDisable {
+            return .gray800.opacity(0.2)
+        } else {
+            return self.isCollectionSelected ? .gray100 : .gray800
+        }
+    }
+    
+    public var collectionButtonBackgroundColor: Color {
+        if self.focusModeButtonDisable {
+            return .clear
+        } else {
+            return self.isCollectionSelected ? .primary1 : .clear
+        }
+    }
 }
 
 
@@ -335,5 +367,12 @@ extension Set<MainPDFViewStatus> {
     
     mutating public func detailOff() {
         self.remove(.detail)
+    }
+}
+
+
+extension Set<MainPDFViewStatus> {
+    public var focusModeButtonDisable: Bool {
+        self.isConcentrateSelected
     }
 }
