@@ -86,8 +86,19 @@ final class OriginalViewController: UIViewController {
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
         
+        if ProcessInfo.processInfo.isiOSAppOnMac, builder.system == .context {
+            // AppleSilicon일 경우 커스텀 메뉴를 위한 기존 build menu 제거
+            // 기본적으로 들어가는 메뉴 그룹들을 모두 제거
+            builder.remove(menu: .standardEdit) // 오려두기, 복사, 붙여넣기 등
+            builder.remove(menu: .text)         // 텍스트 포맷
+            builder.remove(menu: .lookup)       // 찾아보기, 번역 등
+            builder.remove(menu: .share)        // 공유
+            return
+        }
+        
         /// web 검색 액션
         let searchWebAction = UIAction(title: String(localized: "Google Scholar 검색"), image: nil, identifier: nil) { action in
+            AnalyticsManager.sendParameterlessEvent(eventType: .popupGoogleScholar) // GA 액션
             if let selectedTextRange = self.mainPDFView.currentSelection?.string {
                 let query = selectedTextRange.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                 if let url = URL(string: "https://scholar.google.co.kr/scholar?hl=ko&as_sdt=0%2C5&q=\(query)") {
@@ -97,10 +108,12 @@ final class OriginalViewController: UIViewController {
         }
         
         let highlightAction = UIAction(title: String(localized: "하이라이트"), image: nil, identifier: nil) { action in
+            AnalyticsManager.sendParameterlessEvent(eventType: .popupHighlight) // GA 액션
             self.viewModel.highlightUIMenu(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
         }
         
         let commentAction = UIAction(title: String(localized: "코멘트"), image: nil, identifier: nil) { action in
+            AnalyticsManager.sendParameterlessEvent(eventType: .popupCommentClick) // GA 액션
             // 코멘트 동작
             self.viewModel.isSelectedEditMenuComment = true
         }

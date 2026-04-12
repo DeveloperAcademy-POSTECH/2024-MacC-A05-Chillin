@@ -48,6 +48,7 @@ final class FolderDataRepositoryImpl: FolderDataRepository {
             folderData.parentFolderID = folder.parentFolderID
             
             try dataContext.save()
+            AnalyticsManager.sendParameterlessEvent(eventType: .folderCreate)
             return .success(VoidResponse())
         } catch {
             return .failure(error)

@@ -84,6 +84,7 @@ final class TagDataRepositoryImpl: TagDataRepository {
             newTag.id = UUID()
             newTag.name = name
             
+            AnalyticsManager.sendParameterlessEvent(eventType: .tagCreate)
             return .success(Tag(id: newTag.id, name: newTag.name))
         } catch {
             return .failure(error)

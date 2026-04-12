@@ -112,6 +112,22 @@ enum AnalyticsEvent {
     /// 번역
     case translationTriggered
     
+    /// 태그
+    case tagCreate
+    
+    /// 폴더
+    case folderCreate
+    
+    /// 텍스트 선택 팝업
+    case popupGoogleScholar
+    case popupHighlight
+    case popupCommentClick
+    
+    /// 코멘트
+    case commentCreate
+    case commentEdit
+    case commentDelete
+    
     public var eventName: String {
         switch self {
         case .figureButtonClick:
@@ -163,6 +179,26 @@ enum AnalyticsEvent {
             
         case .translationTriggered:
             "translation_triggered"
+            
+        case .tagCreate:
+            "tag_create"
+            
+        case .folderCreate:
+            "folder_create"
+            
+        case .popupGoogleScholar:
+            "popup_google_scholar"
+        case .popupHighlight:
+            "popup_highlight"
+        case .popupCommentClick:
+            "popup_comment_click"
+            
+        case .commentCreate:
+            "comment_create"
+        case .commentEdit:
+            "comment_edit"
+        case .commentDelete:
+            "comment_delete"
         }
     }
     
