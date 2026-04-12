@@ -49,7 +49,6 @@ enum MainPDFViewStatus: Hashable {
 final class MainPDFViewModel: ObservableObject {
     let useCase: BasicPaperCRUDUseCase
     
-    
     @Published public var mainPDFViewAction: MainPDFViewAction = .none
     
     @Published public var statusStack: Set<MainPDFViewStatus> = []
@@ -86,7 +85,6 @@ final class MainPDFViewModel: ObservableObject {
     
     // MARK: - 코멘트 관련
     
-    // Comment
     @Published var isCommentTapped: Bool = false
     @Published var selectedComments: [Comment] = []
     
@@ -106,6 +104,14 @@ final class MainPDFViewModel: ObservableObject {
     
     @Published public var createMovingFolder: Bool = false
     @Published public var moveToFolderID: UUID?
+    
+    // MARK: - 텍스트 편집 메뉴(Mac)
+    @Published var isTextSelectionActive: Bool = false
+    @Published var textEditMenuPosition: CGPoint = .zero
+    public var canEditText: Bool {
+        isTextSelectionActive &&
+        !statusStack.isCenterMenuSelected
+    }
     
     // MARK: - 나머지
     

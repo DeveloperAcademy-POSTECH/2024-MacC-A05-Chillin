@@ -87,7 +87,7 @@ final class OriginalViewController: UIViewController {
                     UIApplication.shared.open(url)
                 }
             }
-        } 
+        }
         
         let highlightAction = UIAction(title: String(localized: "하이라이트"), image: nil, identifier: nil) { action in
             self.viewModel.highlightUIMenu(in: self.mainPDFView, with: self.viewModel.selectedHighlightColor ?? .yellow)
@@ -209,12 +209,52 @@ extension OriginalViewController {
         pencilInteraction.delegate = self
         self.view.addInteraction(pencilInteraction)
         
-        // Mac에서 실행 시 PDFAnnotation 탭 제스쳐 추가
         if ProcessInfo.processInfo.isiOSAppOnMac {
+            // Mac에서 실행 시 PDFAnnotation 탭 제스쳐 추가
             let gesture = UITapGestureRecognizer()
             gesture.delegate = self
             self.mainPDFView.addGestureRecognizer(gesture)
+            
+            // textEditMenu 우클릭 제스처 추가
+            self.mainPDFView.onRightClick = { [weak self] location in
+                self?.handleRightClickAt(location)
+            }
         }
+    }
+    
+    private func handleRightClickAt(_ location: CGPoint) {
+        guard let selection = mainPDFView.currentSelection,
+              let selectedString = selection.string,
+              !selectedString.isEmpty else {
+            viewModel.isTextSelectionActive = false
+            return
+        }
+        showTextEditMenu(at: location, selectedString: selectedString)
+    }
+    
+    private func showTextEditMenu(at location: CGPoint, selectedString: String) {
+        let menuWidth: CGFloat  = 85
+        let menuHeight: CGFloat = 102
+        let padding: CGFloat    = 12
+        let offset: CGFloat     = 150
+        let maxX = mainPDFView.bounds.maxX - 10
+        let maxY = mainPDFView.bounds.maxY - 10
+        
+        var menuX = location.x
+        var menuY = location.y + offset  // 클릭 지점 아래로
+        
+        // 화면 오른쪽 초과 방지
+        if menuX + menuWidth > maxX {
+            menuX = maxX - menuWidth - padding
+        }
+        // 화면 아래쪽 초과 방지
+        if menuY + menuHeight > maxY {
+            menuY = maxY - menuHeight - padding
+        }
+        
+        viewModel.selectedText         = selectedString
+        viewModel.textEditMenuPosition = CGPoint(x: menuX, y: menuY)
+        viewModel.isTextSelectionActive = true
     }
     
     /// 데이터 Binding
@@ -307,8 +347,8 @@ extension OriginalViewController {
                     }
                 }
             }
-        .store(in: &self.cancellable)
-
+            .store(in: &self.cancellable)
+        
         
         NotificationCenter.default.publisher(for: .PDFViewPageChanged)
             .receive(on: DispatchQueue.main)
@@ -334,6 +374,18 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
+        
+        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
+            .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if self.mainPDFView.currentSelection?.string?.isEmpty ?? true {
+                    self.viewModel.selectedText = ""
+                    self.viewModel.isTextSelectionActive = false
+                }
+            }
+            .store(in: &self.cancellable)
+        
         // 번역 및 코멘트 기능 실행
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .sink { [weak self] _ in
@@ -344,11 +396,17 @@ extension OriginalViewController {
                     DispatchQueue.main.async {
                         self.viewModel.selectedText = ""
                         self.viewModel.isSelectedEditMenuComment = false
+                        self.viewModel.isTextSelectionActive = false
                     }
                     return
                 }
                 
                 guard let _ = selection.string else { return }
+                
+                DispatchQueue.main.async {
+                    self.viewModel.isTextSelectionActive = false
+                }
+                
                 let lineSelections = selection.selectionsByLine()
                 
                 if let page = selection.pages.first {
@@ -464,6 +522,11 @@ extension OriginalViewController {
 // MARK: - 탭 제스처 관련
 extension OriginalViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        
+        if gestureRecognizer is UILongPressGestureRecognizer {
+            return true
+        }
+        
         let location = touch.location(in: mainPDFView)
         
         // annotation이 있는 위치인지 확인
@@ -498,6 +561,13 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             
         }
         return false
+    }
+    
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        return true
     }
     
     private func updateGestureRecognizer(statusStack: Set<MainPDFViewStatus>) {
@@ -539,8 +609,23 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
 class CustomPDFView: PDFView {
     var performActionFlag: Bool = true
     
+    private let rightClickInterceptView = RightClickDetectorView()
+    
+    var onRightClick: ((CGPoint) -> Void)? {
+        didSet { rightClickInterceptView.onRightClick = onRightClick }
+    }
+    
     var scrollView: UIScrollView? {
         self.subviews.first as? UIScrollView
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if rightClickInterceptView.superview == nil {
+            addSubview(rightClickInterceptView)
+        }
+        bringSubviewToFront(rightClickInterceptView)
+        rightClickInterceptView.frame = bounds
     }
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
@@ -555,7 +640,6 @@ class CustomPDFView: PDFView {
         return false
     }
 }
-
 // MARK: - 애플 펜슬 더블 탭 처리
 extension OriginalViewController: UIPencilInteractionDelegate {
     func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {
@@ -602,5 +686,33 @@ extension OriginalViewController: UIPencilInteractionDelegate {
         default:
             break
         }
+    }
+}
+
+// 우클릭 감지용 뷰
+final class RightClickDetectorView: UIView {
+    var onRightClick: ((CGPoint) -> Void)?
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        let interaction = UIContextMenuInteraction(delegate: self)
+        addInteraction(interaction)
+    }
+    
+    required init?(coder: NSCoder) { fatalError() }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard event?.buttonMask == .secondary else { return nil }
+        return self
+    }
+}
+
+extension RightClickDetectorView: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        onRightClick?(location)  // 위치 반환
+        return nil               // 기본 시스템 메뉴 표시 X
     }
 }

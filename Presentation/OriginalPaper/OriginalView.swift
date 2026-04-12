@@ -41,10 +41,16 @@ struct OriginalView: View {
                 }
                 .offset(y: keyboardOffset == 0 ? 0 : -pdfViewOffset)
                 .gesture(
-                    viewModel.isCommentTapped
+                    viewModel.isCommentTapped || (viewModel.canEditText && ProcessInfo.processInfo.isiOSAppOnMac)
                     ? DragGesture(minimumDistance: 0)
                         .onChanged { _ in
-                            NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                            if viewModel.isCommentTapped {
+                                NotificationCenter.default.post(name: .isCommentTapped, object: self, userInfo: ["hitted": false])
+                            }
+                            if viewModel.canEditText && ProcessInfo.processInfo.isiOSAppOnMac {
+                                // macOS에서 TextEditMenu가 열려있을 때 다른 곳을 터치하면 메뉴 닫기
+                                viewModel.isTextSelectionActive = false
+                            }
                         }
                     : nil
                 )
@@ -84,15 +90,74 @@ struct OriginalView: View {
                         backPageBtnViewModel.handleBtnVisible()
                         backPageBtnViewModel.updateBackDestination()
                     })
-                        .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
-                        .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
+                    .opacity(backPageBtnViewModel.isLinkTapped ? 1.0 : 0.0)
+                    .animation(.smooth(duration: 0.6), value: backPageBtnViewModel.isLinkTapped)
                 }
                 .position(
                     backPageBtnViewModel.isLinkTapped
                     ? CGPoint(x: geometry.size.width / 2, y: geometry.size.height * 0.92)
                     : CGPoint(x: geometry.size.width / 2, y: geometry.size.height + 30)
                 )
-
+                
+                //textEditMenu (macOS에서만 표시)
+                if viewModel.canEditText && ProcessInfo.processInfo.isiOSAppOnMac {
+                    TextEditMenu(
+                        onCopy: {
+                            UIPasteboard.general.string = viewModel.selectedText
+                        },
+                        
+                        onSearchScholar: {
+                            let query = viewModel.selectedText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                            if let url = URL(string: "https://scholar.google.com/scholar?q=\(query)") {
+                                UIApplication.shared.open(url)
+                            }
+                        },
+                        
+                        onHighlight: {
+                            guard let pdfView = viewModel.pdfDrawer.pdfView else { return }
+                            viewModel.highlightUIMenu(in: pdfView, with: viewModel.selectedHighlightColor ?? .yellow)
+                            viewModel.isTextSelectionActive = false
+                        },
+                        
+                        onComment: {
+                            withAnimation {
+                                viewModel.isSelectedEditMenuComment = true
+                                viewModel.isTextSelectionActive = false
+                            }
+                        },
+                        
+                        onShare: {
+                            let activityVC = UIActivityViewController(
+                                activityItems: [viewModel.selectedText],
+                                applicationActivities: nil
+                            )
+                            
+                            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                  let root = scene.windows.first?.rootViewController else { return }
+                            
+                            if let popover = activityVC.popoverPresentationController {
+                                popover.sourceView = root.view
+                                popover.sourceRect = CGRect(
+                                    x: viewModel.textEditMenuPosition.x,
+                                    y: viewModel.textEditMenuPosition.y,
+                                    width: 1,
+                                    height: 1
+                                )
+                                popover.permittedArrowDirections = [.up, .left]
+                            }
+                            
+                            root.present(activityVC, animated: true)
+                            viewModel.isTextSelectionActive = false
+                        }
+                    )
+                    .position(viewModel.textEditMenuPosition)
+                    .shadow(color: .gray900.opacity(0.2),
+                            radius: 16,
+                            x: 0,
+                            y: 0)
+                    .zIndex(1000)
+                }
+                
             }
             .onChange(of: geometry.size) {
                 commentViewModel.isMenuTapped = false
