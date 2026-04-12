@@ -213,6 +213,7 @@ struct MainPDFView: View {
                                     .transition(.move(edge: .leading))
                             }
                             
+                            // MARK: 메인View 엔트리 포인트
                             MainOriginalView()
                                 .environmentObject(mainPDFViewModel)
                                 .environmentObject(floatingViewModel)
@@ -488,8 +489,11 @@ struct MainPDFView: View {
                 )
                 
             case .focusModeGuideAlert:
-                FocusModeGuideView {
+                FocusModeGuideView { doNotShowAgain in
                     self.mainPDFViewModel.mainPDFViewAction = .none
+                    if doNotShowAgain {
+                        UserDefaults.standard.focusGuideViewDoNotShowAgain = true
+                    }
                 }
             default: EmptyView()
             }

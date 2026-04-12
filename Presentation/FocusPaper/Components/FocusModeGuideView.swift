@@ -9,7 +9,8 @@ import SwiftUI
 
 
 struct FocusModeGuideView: View {
-    let completeAction: () -> Void
+    @State private var doNotShowAgain: Bool = false
+    let completeAction: (Bool) -> Void
     
     var body: some View {
         ZStack {
@@ -24,12 +25,13 @@ struct FocusModeGuideView: View {
                 GuideAnimationView()
                     .padding(.top, 18)
                 
-                Spacer()
+                DoNotShowAgainView(isOn: $doNotShowAgain)
+                    .padding(.vertical, 10)
                 
                 seperator
                 
                 Button {
-                    completeAction()
+                    completeAction(self.doNotShowAgain)
                 } label: {
                     Text("확인")
                         .reazyFont(.text1)
@@ -50,11 +52,37 @@ struct FocusModeGuideView: View {
     }
 }
 
+private struct DoNotShowAgainView: View {
+    @Binding var isOn: Bool
+    
+    var body: some View {
+        HStack {
+            ZStack {
+                Circle()
+                    .foregroundStyle(.gray500)
+                    .frame(width: 25, height: 25)
+                
+                Circle()
+                    .foregroundStyle(.primary1)
+                    .frame(width: 15, height: 15)
+                    .opacity(self.isOn ? 1 : 0)
+            }
+            
+            Text("다시 보지 않기")
+                .reazyFont(.button2)
+        }
+        .onTapGesture {
+            self.isOn.toggle()
+        }
+    }
+}
+
 
 private struct GuideAnimationView: View {
     private let animationPhase: [CGPoint] = [
         .init(x: 50, y: 60),
         .init(x: 50, y: 160),
+        .init(x: 50, y: 161),
         .init(x: 125, y: 60),
         .init(x: 125, y: 160),
         .init(x: 125, y: 161),
@@ -93,8 +121,8 @@ private struct GuideAnimationView: View {
                     .position(position)
             } animation: { phase in
                 switch phase {
-                case .init(x: 50, y: 60): return nil
-                case .init(x: 125, y: 60): return .easeInOut(duration: 1)
+                case .init(x: 50, y: 60), .init(x: 125, y: 60): return nil
+                case .init(x: 50, y: 161): return .easeInOut(duration: 1)
                 default: return .easeInOut(duration: 2)
                 }
             }
@@ -104,5 +132,5 @@ private struct GuideAnimationView: View {
 
 
 #Preview {
-    FocusModeGuideView(completeAction: {})
+    FocusModeGuideView(completeAction: {_ in })
 }

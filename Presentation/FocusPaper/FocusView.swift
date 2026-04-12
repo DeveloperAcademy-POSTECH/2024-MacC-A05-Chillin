@@ -34,6 +34,27 @@ class FocusPDFViewController: UIViewController {
     private var minimapHeightConstraint: NSLayoutConstraint?
     private var cancellables: Set<AnyCancellable> = []
     
+    private let labelBackgroundView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .gray300
+        view.layer.cornerRadius = 12
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.primary3.cgColor
+        view.alpha = 0
+        return view
+    }()
+    private let pageLabelView: UILabel = {
+        let view = UILabel()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.text = "1 / \(PDFSharedData.shared.document!.pageCount)"
+        view.font = UIFont(name: ReazyFontType.pretendardMediumFont, size: 16)
+        view.textColor = .gray700
+        view.alpha = 0
+        return view
+    }()
+    private var pageLabelTimer: Timer?
+    
     init(
         mainPDFViewModel: MainPDFViewModel,
         focusViewModel: FocusViewModel
@@ -55,8 +76,12 @@ class FocusPDFViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            self?.mainPDFViewModel.mainPDFViewAction = .focusModeGuideAlert
+        let isFocusGuideViewDoNotShowAgain = UserDefaults.standard.focusGuideViewDoNotShowAgain
+        
+        if !isFocusGuideViewDoNotShowAgain {
+            DispatchQueue.main.async { [weak self] in
+                self?.mainPDFViewModel.mainPDFViewAction = .focusModeGuideAlert
+            }
         }
         
         if mainPDFViewModel.statusStack.isSearchSelected {
@@ -134,6 +159,20 @@ extension FocusPDFViewController {
             indicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             indicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
         ])
+        
+        self.pdfView.addSubview(self.labelBackgroundView)
+        NSLayoutConstraint.activate([
+            self.labelBackgroundView.topAnchor.constraint(equalTo: self.pdfView.topAnchor, constant: 28),
+            self.labelBackgroundView.trailingAnchor.constraint(equalTo: self.pdfView.trailingAnchor, constant: -28),
+            self.labelBackgroundView.widthAnchor.constraint(equalToConstant: 72),
+            self.labelBackgroundView.heightAnchor.constraint(equalToConstant: 32),
+        ])
+        
+        self.labelBackgroundView.addSubview(self.pageLabelView)
+        NSLayoutConstraint.activate([
+            self.pageLabelView.centerXAnchor.constraint(equalTo: self.labelBackgroundView.centerXAnchor),
+            self.pageLabelView.centerYAnchor.constraint(equalTo: self.labelBackgroundView.centerYAnchor)
+        ])
     }
     
     private func setupPDF() {
@@ -180,8 +219,41 @@ extension FocusPDFViewController {
                 let pageIndex = self?.focusViewModel.getPageIndex(page: page)
                 
                 self?.mainPDFViewModel.pdfOriginalViewPageIndex = pageIndex
+                
+                if let page = page, let document = self?.focusViewModel.slicedDocument {
+                    let num = document.index(for: page)
+                    
+                    if (num &+ 1) < 0 { return }
+                    
+                    // 오버플로우 순환 연산
+                    self?.pageLabelView.text = "\(num + 1) / \(document.pageCount)"
+                }
             }
             .store(in: &self.cancellables)
+        
+        if let scrollView = self.pdfView.subviews.first as? UIScrollView {
+            scrollView.publisher(for: \.contentOffset)
+                .sink { [weak self] offset in
+                    if offset.x == 0 , offset.y == 0 {
+                        return
+                    }
+                    
+                    if self?.pageLabelTimer != nil {
+                        self?.pageLabelTimer?.invalidate()
+                    }
+                    
+                    self?.pageLabelView.alpha = 1
+                    self?.labelBackgroundView.alpha = 1
+                    
+                    self?.pageLabelTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
+                        UIView.animate(withDuration: 0.5) {
+                            self?.pageLabelView.alpha = 0
+                            self?.labelBackgroundView.alpha = 0
+                        }
+                    }
+                }
+                .store(in: &self.cancellables)
+        }
     }
     
     @objc private func handlePageChange() {

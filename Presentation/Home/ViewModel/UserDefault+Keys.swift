@@ -10,6 +10,7 @@ import Foundation
 struct UserDefaultsKeys {
     static let recentSearches = "RecentSearches"
     static let lastSearchTags = "LastSearchTags"
+    static let focusGuideViewDoNotShowAgain = "FocusGuideViewDoNotShowAgain"
 }
 
 extension UserDefaults {
@@ -30,6 +31,15 @@ extension UserDefaults {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.lastSearchTags)
+        }
+    }
+    
+    public var focusGuideViewDoNotShowAgain: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: UserDefaultsKeys.focusGuideViewDoNotShowAgain)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.focusGuideViewDoNotShowAgain)
         }
     }
 }
