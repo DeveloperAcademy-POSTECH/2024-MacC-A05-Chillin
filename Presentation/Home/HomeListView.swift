@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct HomeListView: View {
-    @EnvironmentObject private var homeViewModel: HomeViewModel
     
+    @EnvironmentObject private var homeViewModel: HomeViewModel
   
     var body: some View {
         VStack(spacing: 0) {
