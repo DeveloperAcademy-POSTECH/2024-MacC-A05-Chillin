@@ -241,11 +241,33 @@ extension OriginalViewController {
             let gesture = UITapGestureRecognizer()
             gesture.delegate = self
             self.mainPDFView.addGestureRecognizer(gesture)
-            
+
             // textEditMenu 우클릭 제스처 추가
             self.mainPDFView.onRightClick = { [weak self] location in
                 self?.handleRightClickAt(location)
             }
+
+            // 드래그 종료(손 뗐을 때) 감지 - 번역 트리거용
+            let translationDragEndRecognizer = TranslationDragEndRecognizer()
+            translationDragEndRecognizer.onDragEnd = { [weak self] in
+                self?.updateTranslationFromCurrentSelection()
+            }
+            self.mainPDFView.addGestureRecognizer(translationDragEndRecognizer)
+        }
+    }
+
+    private func updateTranslationFromCurrentSelection() {
+        guard let selection = mainPDFView.currentSelection,
+              let selectedText = selection.string, !selectedText.isEmpty,
+              let page = selection.pages.first else { return }
+
+        let bound = selection.bounds(for: page)
+        let pagePosition = mainPDFView.convert(bound, from: page)
+        let screenPosition = mainPDFView.convert(pagePosition, to: nil)
+
+        DispatchQueue.main.async {
+            self.translationManager.translateViewPosition = screenPosition
+            self.translationManager.selectedText = selectedText
         }
     }
     
@@ -518,27 +540,13 @@ extension OriginalViewController {
                         self.viewModel.commentSelection = selection
                         self.viewModel.commentInputPosition = commentPosition
                         self.commentViewModel.selectedBounds = bound
+
+                        // Mac에서는 드래그가 끝난 시점(TranslationDragEndRecognizer)에 번역을 트리거
+                        if !ProcessInfo.processInfo.isiOSAppOnMac {
+                            self.translationManager.translateViewPosition = screenPosition
+                            self.translationManager.selectedText = selectedText
+                        }
                     }
-                }
-            }
-            .store(in: &self.cancellable)
-
-        // 드래그 종료 후에만 번역 실행 (Mac 드래그 중 연속 트리거 방지)
-        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged, object: self.mainPDFView)
-            .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
-            .sink { [weak self] _ in
-                guard let self = self,
-                      let selection = self.mainPDFView.currentSelection,
-                      let selectedText = selection.string, !selectedText.isEmpty,
-                      let page = selection.pages.first else { return }
-
-                let bound = selection.bounds(for: page)
-                let pagePosition = self.mainPDFView.convert(bound, from: page)
-                let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
-
-                DispatchQueue.main.async {
-                    self.translationManager.translateViewPosition = screenPosition
-                    self.translationManager.selectedText = selectedText
                 }
             }
             .store(in: &self.cancellable)
@@ -772,6 +780,51 @@ class CustomPDFView: PDFView {
         }
         
         return false
+    }
+}
+
+// 드래그/클릭 종료(손 뗐을 때) 감지용 제스처
+// PDFView의 기본 선택 동작을 방해하지 않고 touchesEnded 만 캐치하기 위한 용도
+final class TranslationDragEndRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
+    var onDragEnd: (() -> Void)?
+
+    override init(target: Any?, action: Selector?) {
+        super.init(target: target, action: action)
+        self.delegate = self
+        self.cancelsTouchesInView = false
+    }
+
+    convenience init() {
+        self.init(target: nil, action: nil)
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        return true
+    }
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        return true
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        state = .began
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        state = .changed
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        state = .ended
+        onDragEnd?()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        state = .cancelled
+        onDragEnd?()
     }
 }
 
