@@ -45,6 +45,7 @@ enum Storage {
 
 class PDFDrawer {
     weak var mainPDFViewModel: MainPDFViewModel?
+    weak var drawingGestureRecognizer: DrawingGestureRecognizer?
     
     @Published var selectedStorage: Storage = .figure
     
