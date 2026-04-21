@@ -249,48 +249,50 @@ private struct FigureCompleteView: View {
             .background(.list)
         }
         
-        VStack(spacing: 0){
-            Button(action: {
-                focusFigureViewModel.isCaptureMode.toggle()
-                if focusFigureViewModel.isCaptureMode {
-                    mainPDFViewModel.pdfDrawer.selectedStorage = .figure
-                } else {
-                    mainPDFViewModel.pdfDrawer.endCaptureMode()
-                }
-                
-                mainPDFViewModel.statusStack.captureToggle()
-                mainPDFViewModel.statusStack.centerMenuOff()
-            }) {
-                ZStack(alignment: .top) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(!focusFigureViewModel.isCaptureMode ? .gray300 : .point4)
-                        .frame(width: 212, height: 40)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 12)
-                    
-                    if !focusFigureViewModel.isCaptureMode {
-                        Image(systemName: "plus")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 14)
-                            .foregroundStyle(.primary1)
-                            .padding(.top, 13)
+        if !mainPDFViewModel.statusStack.isConcentrateSelected {
+            VStack(spacing: 0){
+                Button(action: {
+                    focusFigureViewModel.isCaptureMode.toggle()
+                    if focusFigureViewModel.isCaptureMode {
+                        mainPDFViewModel.pdfDrawer.selectedStorage = .figure
                     } else {
-                        Text("취소")
-                            .reazyFont(.text1)
-                            .foregroundStyle(.gray100)
-                            .padding(.top, 11)
+                        mainPDFViewModel.pdfDrawer.endCaptureMode()
                     }
+                    
+                    mainPDFViewModel.statusStack.captureToggle()
+                    mainPDFViewModel.statusStack.centerMenuOff()
+                }) {
+                    ZStack(alignment: .top) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(!focusFigureViewModel.isCaptureMode ? .gray300 : .point4)
+                            .frame(width: 212, height: 40)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 12)
+                        
+                        if !focusFigureViewModel.isCaptureMode {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14)
+                                .foregroundStyle(.primary1)
+                                .padding(.top, 13)
+                        } else {
+                            Text("취소")
+                                .reazyFont(.text1)
+                                .foregroundStyle(.gray100)
+                                .padding(.top, 11)
+                        }
+                    }
+                    .frame(height: 80)
                 }
-                .frame(height: 80)
+                .frame(maxWidth: .infinity, maxHeight: 80)
             }
             .frame(maxWidth: .infinity, maxHeight: 80)
-        }
-        .frame(maxWidth: .infinity, maxHeight: 80)
-        .background(.gray100)
-        // 원문보기 페이지 변경시 자동 스크롤
-        .onReceive(focusFigureViewModel.$changedPageNumber) { num in
-            updateScrollIndex(for: num)
+            .background(.gray100)
+            // 원문보기 페이지 변경시 자동 스크롤
+            .onReceive(focusFigureViewModel.$changedPageNumber) { num in
+                updateScrollIndex(for: num)
+            }
         }
     }
     

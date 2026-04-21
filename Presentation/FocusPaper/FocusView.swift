@@ -241,6 +241,16 @@ extension FocusPDFViewController {
             }
             .store(in: &self.cancellables)
         
+        NotificationCenter.default.publisher(for: .didSelectAnnotationCollection)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] noti in
+                guard let index = noti.userInfo?["index"] as? Int,
+                      let slicedPage = self?.focusViewModel.slicedDocument?.page(at: index) else { return }
+                
+                self?.pdfView.go(to: slicedPage)
+            }
+            .store(in: &self.cancellables)
+        
         if let scrollView = self.pdfView.subviews.first as? UIScrollView {
             scrollView.publisher(for: \.contentOffset)
                 .sink { [weak self] offset in
