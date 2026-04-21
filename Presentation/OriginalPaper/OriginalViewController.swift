@@ -572,6 +572,9 @@ extension OriginalViewController {
 // MARK: - 탭 제스처 관련
 extension OriginalViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if gestureRecognizer is DrawingGestureRecognizer || gestureRecognizer is EraserPanGestureRecognizer {
+            return true
+        }
         
         if gestureRecognizer is UILongPressGestureRecognizer {
             return true
@@ -624,7 +627,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         // 기존 제스처 인식기만 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
-                if recognizer is DrawingGestureRecognizer {
+                if recognizer is DrawingGestureRecognizer || recognizer is EraserPanGestureRecognizer {
                     self.mainPDFView.removeGestureRecognizer(recognizer)
                 }
             }
@@ -649,11 +652,44 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         }
         
         self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
+        pdfDrawingGestureRecognizer.delegate = self
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
+        
+        // Mac Catalyst에서 지우개 드래그 입력을 안정적으로 받기 위한 fallback
+        if ProcessInfo.processInfo.isMacCatalystApp && statusStack.isEraserSelected {
+            let eraserPanGestureRecognizer = EraserPanGestureRecognizer(
+                target: self,
+                action: #selector(handleEraserPanGesture(_:))
+            )
+            eraserPanGestureRecognizer.minimumNumberOfTouches = 1
+            eraserPanGestureRecognizer.maximumNumberOfTouches = 1
+            eraserPanGestureRecognizer.cancelsTouchesInView = false
+            eraserPanGestureRecognizer.delegate = self
+            self.mainPDFView.addGestureRecognizer(eraserPanGestureRecognizer)
+        }
     }
     
+    @objc private func handleEraserPanGesture(_ gestureRecognizer: EraserPanGestureRecognizer) {
+        guard ProcessInfo.processInfo.isMacCatalystApp else { return }
+        guard viewModel.statusStack.isEraserSelected else { return }
+        
+        let location = gestureRecognizer.location(in: self.mainPDFView)
+        
+        switch gestureRecognizer.state {
+        case .began:
+            viewModel.pdfDrawer.gestureRecognizerBegan(location)
+        case .changed:
+            viewModel.pdfDrawer.gestureRecognizerMoved(location)
+        case .ended, .cancelled, .failed:
+            viewModel.pdfDrawer.gestureRecognizerEnded(location)
+        default:
+            break
+        }
+    }
 }
+
+final class EraserPanGestureRecognizer: UIPanGestureRecognizer {}
 
 //canPerformAction()으로 menuAction 제한
 class CustomPDFView: PDFView {
@@ -690,6 +726,7 @@ class CustomPDFView: PDFView {
         return false
     }
 }
+
 // MARK: - 애플 펜슬 더블 탭 처리
 extension OriginalViewController: UIPencilInteractionDelegate {
     func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {
