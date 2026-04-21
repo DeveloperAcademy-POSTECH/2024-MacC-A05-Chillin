@@ -25,6 +25,7 @@ final class OriginalViewController: UIViewController {
     let translationManager: TranslationManager
     
     var cancellable: Set<AnyCancellable> = []
+    private var isUpdatingScaleFromViewModel = false
     
     let mainPDFView: CustomPDFView = {
         let view = CustomPDFView()
@@ -77,7 +78,9 @@ final class OriginalViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         let initialScaleFactor = self.mainPDFView.scaleFactor
-        self.viewModel.pdfFocusViewScaleFactor = initialScaleFactor
+        DispatchQueue.main.async {
+            self.viewModel.pdfFocusViewScaleFactor = initialScaleFactor
+        }
         
         super.viewWillAppear(animated)
     }
@@ -281,6 +284,7 @@ extension OriginalViewController {
     private func setBinding() {
         /// OriginalView -> FocusView Scale Factor 연동
         NotificationCenter.default.publisher(for: .PDFViewScaleChanged, object: self.mainPDFView)
+            .filter { [weak self] _ in self?.isUpdatingScaleFromViewModel == false }
             .compactMap { $0.object as? PDFView }
             .map { $0.scaleFactor }
             .sink { [weak self] scale in
@@ -293,7 +297,12 @@ extension OriginalViewController {
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
             .sink { [weak self] scale in
-                self?.mainPDFView.scaleFactor = scale
+                guard let self = self else { return }
+                if self.mainPDFView.scaleFactor != scale {
+                    self.isUpdatingScaleFromViewModel = true
+                    self.mainPDFView.scaleFactor = scale
+                    self.isUpdatingScaleFromViewModel = false
+                }
             }
             .store(in: &self.cancellable)
         
