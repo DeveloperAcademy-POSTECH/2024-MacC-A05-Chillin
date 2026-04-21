@@ -104,6 +104,7 @@ struct OriginalView: View {
                     TextEditMenu(
                         onCopy: {
                             UIPasteboard.general.string = viewModel.selectedText
+                            viewModel.isTextSelectionActive = false
                         },
                         
                         onSearchScholar: {
