@@ -728,6 +728,7 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         default:
             break
         }
+    }
           
     // Mac 캡쳐 오버레이 표시 - 모아보기, figure 추가용
     private func showCaptureOverlay() {
