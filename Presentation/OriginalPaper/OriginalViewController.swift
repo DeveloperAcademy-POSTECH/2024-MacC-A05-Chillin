@@ -748,6 +748,20 @@ extension OriginalViewController: UIPencilInteractionDelegate {
     }
 }
 
+// MARK: - Hotkeys
+extension OriginalViewController {
+    override var keyCommands: [UIKeyCommand]? {
+        [
+            UIKeyCommand(action: #selector(undoHotKey), input: "z", modifierFlags: .command)
+        ]
+    }
+    
+    @objc private func undoHotKey() {
+        self.viewModel.pdfDrawer.undo()
+    }
+}
+
+
 // 우클릭 감지용 뷰
 final class RightClickDetectorView: UIView {
     var onRightClick: ((CGPoint) -> Void)?
