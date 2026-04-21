@@ -127,8 +127,10 @@ struct CollectionView: View {
                         focusFigureViewModel.isCaptureMode.toggle()
                         if focusFigureViewModel.isCaptureMode {
                             mainPDFViewModel.pdfDrawer.selectedStorage = .collection
+                            mainPDFViewModel.pdfDrawer.drawingGestureRecognizer?.isCaptureMode = true
                         } else {
                             mainPDFViewModel.pdfDrawer.endCaptureMode()
+                            mainPDFViewModel.pdfDrawer.drawingGestureRecognizer?.isCaptureMode = false
                         }
                         
                         mainPDFViewModel.statusStack.captureToggle()

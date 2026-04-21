@@ -66,6 +66,9 @@ final class OriginalViewController: UIViewController {
     // for drawing
     var shouldUpdatePDFScrollPosition = true
     
+    // Mac 캡쳐 오버레이(올가미)
+    private var captureOverlayView: UIView?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -218,6 +221,7 @@ extension OriginalViewController {
             self.commentViewModel.loadComments()
         }
     }
+    
     /// 텍스트 선택 해제
     private func cleanTextSelection() {
         self.mainPDFView.currentSelection = nil
@@ -275,8 +279,8 @@ extension OriginalViewController {
             menuY = maxY - menuHeight - padding
         }
         
-        viewModel.selectedText         = selectedString
-        viewModel.textEditMenuPosition = CGPoint(x: menuX, y: menuY)
+        viewModel.selectedText          = selectedString
+        viewModel.textEditMenuPosition  = CGPoint(x: menuX, y: menuY)
         viewModel.isTextSelectionActive = true
     }
     
@@ -335,7 +339,6 @@ extension OriginalViewController {
         self.backpageBtnViewModel.$backPageDestination
             .receive(on: DispatchQueue.main)
             .sink { [weak self] destination in
-                
                 guard let destination = destination,
                       let scale = self?.backpageBtnViewModel.backScaleFactor else { return }
                 
@@ -345,7 +348,6 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
-        
         
         self.searchViewModel.$searchDestination
             .receive(on: DispatchQueue.main)
@@ -404,13 +406,12 @@ extension OriginalViewController {
             }
             .store(in: &self.cancellable)
         
-        
         NotificationCenter.default.publisher(for: .PDFViewPageChanged, object: self.mainPDFView)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] noti in
                 guard let page = self?.mainPDFView.currentPage else { return }
                 if let document = PDFSharedData.shared.document {
-                    let num =  PDFSharedData.shared.document?.index(for: page) ?? -1
+                    let num = PDFSharedData.shared.document?.index(for: page) ?? -1
                     self?.viewModel.pdfFocusViewPageIndex = num
                     
                     if (num &+ 1) < 0 { return }
@@ -426,7 +427,6 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
-        
         
         NotificationCenter.default.publisher(for: .PDFViewSelectionChanged)
             .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
@@ -467,7 +467,7 @@ extension OriginalViewController {
                     let bound = selection.bounds(for: page)
                     let convertedBounds = self.mainPDFView.convert(bound, from: page)
                     
-                    //comment position 설정
+                    // comment position 설정
                     var commentX: CGFloat
                     var commentY: CGFloat = 0.0
                     
@@ -520,12 +520,10 @@ extension OriginalViewController {
                         self.viewModel.commentSelection = selection
                         self.viewModel.commentInputPosition = commentPosition
                         self.commentViewModel.selectedBounds = bound
-                        
                     }
                 }
             }
             .store(in: &self.cancellable)
-        
         
         // 저장하면 currentSelection 해제
         self.viewModel.$isCommentSaved
@@ -539,7 +537,7 @@ extension OriginalViewController {
         if let scrollView = self.mainPDFView.scrollView {
             scrollView.publisher(for: \.contentOffset)
                 .sink { [weak self] offset in
-                    if offset.x == 0 , offset.y == 0 {
+                    if offset.x == 0, offset.y == 0 {
                         return
                     }
                     
@@ -617,7 +615,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
                 self.viewModel.setHighlight(selectedComments: self.viewModel.selectedComments, isTapped: self.viewModel.isCommentTapped)
                 return true
             }
-            
         }
         return false
     }
@@ -630,6 +627,16 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     }
     
     private func updateGestureRecognizer(statusStack: Set<MainPDFViewStatus>) {
+        // Mac일 때는 올가미 오버레이 방식으로 처리
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            if statusStack.isCaptureSelected {
+                showCaptureOverlay()
+            } else {
+                hideCaptureOverlay()
+            }
+            return
+        }
+        
         // 기존 제스처 인식기만 제거
         if let gestureRecognizers = self.mainPDFView.gestureRecognizers {
             for recognizer in gestureRecognizers {
@@ -662,6 +669,56 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         viewModel.pdfDrawer.pdfView = self.mainPDFView
     }
     
+    // Mac 캡쳐 오버레이 표시 - 모아보기, figure 추가용
+    private func showCaptureOverlay() {
+        guard captureOverlayView == nil else { return }
+        guard let window = self.view.window else { return }
+        
+        let overlay = UIView()
+        overlay.frame = window.bounds
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.backgroundColor = .clear
+        overlay.isUserInteractionEnabled = true
+        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handleMacCapturePan(_:)))
+        overlay.addGestureRecognizer(pan)
+        
+        // 탭 제스처 추가 - 체크버튼 탭 감지용
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleMacCaptureTap(_:)))
+        overlay.addGestureRecognizer(tap)
+        
+        window.insertSubview(overlay, at: window.subviews.count)
+        self.captureOverlayView = overlay
+    }
+
+    // 탭 핸들러 추가
+    @objc private func handleMacCaptureTap(_ gesture: UITapGestureRecognizer) {
+        let location = gesture.location(in: mainPDFView)
+        
+        // 체크버튼 위치면 gestureRecognizerEnded로 넘겨서 캡쳐 실행
+        if viewModel.pdfDrawer.checkButton.frame.contains(location) {
+            viewModel.pdfDrawer.gestureRecognizerEnded(location)
+        }
+    }
+    // Mac 캡쳐 오버레이 제거
+    private func hideCaptureOverlay() {
+        captureOverlayView?.removeFromSuperview()
+        captureOverlayView = nil
+    }
+    
+    // Mac 캡쳐 드래그 핸들러
+    @objc private func handleMacCapturePan(_ gesture: UIPanGestureRecognizer) {
+        // window 기준 위치를 mainPDFView 기준으로 변환
+        let location = gesture.location(in: mainPDFView)
+        print("overlay pan: \(gesture.state.rawValue), \(location)")
+        
+        switch gesture.state {
+        case .began:   viewModel.pdfDrawer.gestureRecognizerBegan(location)
+        case .changed: viewModel.pdfDrawer.gestureRecognizerMoved(location)
+        case .ended:   viewModel.pdfDrawer.gestureRecognizerEnded(location)
+        default: break
+        }
+    }
 }
 
 //canPerformAction()으로 menuAction 제한
@@ -699,6 +756,7 @@ class CustomPDFView: PDFView {
         return false
     }
 }
+
 // MARK: - 애플 펜슬 더블 탭 처리
 extension OriginalViewController: UIPencilInteractionDelegate {
     func pencilInteractionDidTap(_ interaction: UIPencilInteraction) {

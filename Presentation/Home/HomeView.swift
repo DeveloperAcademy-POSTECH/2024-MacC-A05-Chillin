@@ -298,7 +298,7 @@ struct HomeView: View {
     private func SidePanelView(geometry: GeometryProxy) -> some View {
         if homeViewModel.homeViewStatus != .edit {
             HomeListView()
-                .frame(width: geometry.size.width / 4)
+                .frame(width: max(geometry.size.width / 4, 216))
         }
     }
     
