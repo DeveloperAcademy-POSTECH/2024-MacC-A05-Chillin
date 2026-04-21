@@ -515,8 +515,6 @@ extension OriginalViewController {
                     DispatchQueue.main.async {
                         // ViewModel에 선택된 텍스트와 위치 업데이트
                         self.viewModel.selectedText = selectedText
-                        self.translationManager.selectedText = selectedText
-                        self.translationManager.translateViewPosition = screenPosition
                         self.viewModel.commentSelection = selection
                         self.viewModel.commentInputPosition = commentPosition
                         self.commentViewModel.selectedBounds = bound
@@ -524,7 +522,27 @@ extension OriginalViewController {
                 }
             }
             .store(in: &self.cancellable)
-        
+
+        // 드래그 종료 후에만 번역 실행 (Mac 드래그 중 연속 트리거 방지)
+        NotificationCenter.default.publisher(for: .PDFViewSelectionChanged, object: self.mainPDFView)
+            .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self = self,
+                      let selection = self.mainPDFView.currentSelection,
+                      let selectedText = selection.string, !selectedText.isEmpty,
+                      let page = selection.pages.first else { return }
+
+                let bound = selection.bounds(for: page)
+                let pagePosition = self.mainPDFView.convert(bound, from: page)
+                let screenPosition = self.mainPDFView.convert(pagePosition, to: nil)
+
+                DispatchQueue.main.async {
+                    self.translationManager.translateViewPosition = screenPosition
+                    self.translationManager.selectedText = selectedText
+                }
+            }
+            .store(in: &self.cancellable)
+
         // 저장하면 currentSelection 해제
         self.viewModel.$isCommentSaved
             .sink { [weak self] isCommentSaved in
