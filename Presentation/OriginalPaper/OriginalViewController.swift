@@ -663,7 +663,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
             } else {
                 hideCaptureOverlay()
             }
-            return
         }
         
         // 기존 제스처 인식기만 제거
