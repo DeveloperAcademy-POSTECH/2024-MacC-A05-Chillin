@@ -46,7 +46,7 @@ struct TemporaryAlertView: View {
         case "drawing":
             return String(localized: "하이라이트 사용 시 텍스트를 꾹 눌러 선택하세요")
         case "comment":
-            return String(localized: "코멘트를 남길 부분을 꾹 눌러 선택하세요")
+            return String(localized: ProcessInfo.processInfo.isiOSAppOnMac ? "코멘트를 남길 부분을 드래그하여 선택하세요" : "코멘트를 남길 부분을 꾹 눌러 선택하세요")
         case "translate":
             return String(localized: "번역할 텍스트를 꾹 눌러 선택하세요")
         case "lasso":
