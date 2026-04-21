@@ -13,11 +13,15 @@ import Combine
 struct FocusView: UIViewControllerRepresentable {
     @Environment(FocusViewModel.self) private var focusViewModel
     @EnvironmentObject private var mainPDFViewModel: MainPDFViewModel
+    @EnvironmentObject private var pageListViewModel: PageListViewModel
+    @EnvironmentObject private var indexViewModel: IndexViewModel
     
     func makeUIViewController(context: Context) -> FocusPDFViewController {
         .init(
             mainPDFViewModel: mainPDFViewModel,
-            focusViewModel: focusViewModel
+            focusViewModel: focusViewModel,
+            pageListViewModel: pageListViewModel,
+            indexViewModel: indexViewModel
         )
     }
     
@@ -30,6 +34,8 @@ class FocusPDFViewController: UIViewController {
     private let minimapView = FocusMinimapView()
     private let mainPDFViewModel: MainPDFViewModel
     private let focusViewModel: FocusViewModel
+    private let pageListViewModel: PageListViewModel
+    private let indexViewModel: IndexViewModel
     private let indicator = UIActivityIndicatorView(style: .large)
     private var minimapHeightConstraint: NSLayoutConstraint?
     private var cancellables: Set<AnyCancellable> = []
@@ -57,10 +63,14 @@ class FocusPDFViewController: UIViewController {
     
     init(
         mainPDFViewModel: MainPDFViewModel,
-        focusViewModel: FocusViewModel
+        focusViewModel: FocusViewModel,
+        pageListViewModel: PageListViewModel,
+        indexViewModel: IndexViewModel
     ) {
         self.mainPDFViewModel = mainPDFViewModel
         self.focusViewModel = focusViewModel
+        self.pageListViewModel = pageListViewModel
+        self.indexViewModel = indexViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -254,6 +264,36 @@ extension FocusPDFViewController {
                 }
                 .store(in: &self.cancellables)
         }
+        
+        self.pageListViewModel.$selectedDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                guard let destination = destination,
+                      let originalPage = destination.page else { return }
+                
+                let pageIndex = PDFSharedData.shared.document?.index(for: originalPage) ?? -1
+                if pageIndex < 0 { return }
+                
+                if let slicedPage = self?.focusViewModel.slicedDocument?.page(at: pageIndex) {
+                    self?.pdfView.go(to: slicedPage)
+                }
+            }
+            .store(in: &self.cancellables)
+            
+        self.indexViewModel.$selectedDestination
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] destination in
+                guard let destination = destination,
+                      let originalPage = destination.page else { return }
+                
+                let pageIndex = PDFSharedData.shared.document?.index(for: originalPage) ?? -1
+                if pageIndex < 0 { return }
+                
+                if let slicedPage = self?.focusViewModel.slicedDocument?.page(at: pageIndex) {
+                    self?.pdfView.go(to: slicedPage)
+                }
+            }
+            .store(in: &self.cancellables)
     }
     
     @objc private func handlePageChange() {
