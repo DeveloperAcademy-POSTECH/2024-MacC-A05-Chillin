@@ -693,7 +693,6 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
         }
         
         self.mainPDFView.addGestureRecognizer(pdfDrawingGestureRecognizer)
-        pdfDrawingGestureRecognizer.delegate = self
         pdfDrawingGestureRecognizer.drawingDelegate = viewModel.pdfDrawer
         viewModel.pdfDrawer.pdfView = self.mainPDFView
         
