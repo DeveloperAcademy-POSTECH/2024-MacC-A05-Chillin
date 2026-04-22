@@ -733,22 +733,26 @@ extension OriginalViewController: UIGestureRecognizerDelegate {
     // Mac 캡쳐 오버레이 표시 - 모아보기, figure 추가용
     private func showCaptureOverlay() {
         guard captureOverlayView == nil else { return }
-        guard let window = self.view.window else { return }
-        
+
         let overlay = UIView()
-        overlay.frame = window.bounds
-        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.translatesAutoresizingMaskIntoConstraints = false
         overlay.backgroundColor = .clear
         overlay.isUserInteractionEnabled = true
-        
+
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handleMacCapturePan(_:)))
         overlay.addGestureRecognizer(pan)
-        
+
         // 탭 제스처 추가 - 체크버튼 탭 감지용
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleMacCaptureTap(_:)))
         overlay.addGestureRecognizer(tap)
-        
-        window.insertSubview(overlay, at: window.subviews.count)
+
+        mainPDFView.addSubview(overlay)
+        NSLayoutConstraint.activate([
+            overlay.topAnchor.constraint(equalTo: mainPDFView.topAnchor),
+            overlay.bottomAnchor.constraint(equalTo: mainPDFView.bottomAnchor),
+            overlay.leadingAnchor.constraint(equalTo: mainPDFView.leadingAnchor),
+            overlay.trailingAnchor.constraint(equalTo: mainPDFView.trailingAnchor),
+        ])
         self.captureOverlayView = overlay
     }
 
