@@ -331,6 +331,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
             checkButton.tintColor = .gray100
             checkButton.backgroundColor = .point4
             checkButton.layer.cornerRadius = 10
+            checkButton.isUserInteractionEnabled = false
+            
             pdfView.addSubview(checkButton)
 
             return
