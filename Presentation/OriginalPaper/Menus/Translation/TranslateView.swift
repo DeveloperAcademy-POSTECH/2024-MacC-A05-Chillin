@@ -117,8 +117,13 @@ struct TranslateView: View {
             targetLanguage = "en" // 영어 및 기타 언어 사용자 -> 영어로 번역
         }
 
-        configuration = .init(source: nil, // 자동 언어 감지
-                              target: Locale.Language(identifier: targetLanguage))
+//        configuration = .init(source: nil, // 자동 언어 감지
+//                              target: Locale.Language(identifier: targetLanguage))
+        // 영어로 인식하도록 고정
+        configuration = .init(
+            source: Locale.Language(identifier: "en"),
+            target: Locale.Language(identifier: targetLanguage)
+        )
     }
     
     // 번역 복사 버튼
