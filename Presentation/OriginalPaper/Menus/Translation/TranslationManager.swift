@@ -53,7 +53,21 @@ public final class TranslationManager {
     // TranslateView 위치 조정하는 함수
     public func bubblePositionForScreen(in screenSize: CGSize) {
         DispatchQueue.main.async {
-            self.updatedBubblePosition = CGPoint(x: self.translateViewPosition.midX, y: self.translateViewPosition.minY)
+            let margin: CGFloat = 16
+
+            let bubbleHeight = min(self.textHeight + 40, self.maxBubbleHeight)
+
+            var x = self.translateViewPosition.midX
+            x = max(self.maxBubbleWidth / 2 + margin, x)
+            x = min(screenSize.width - self.maxBubbleWidth / 2 - margin, x)
+
+            var y = self.translateViewPosition.minY
+
+            // 화면 위/아래 보정
+            y = max(bubbleHeight / 2 + margin, y)
+            y = min(screenSize.height - bubbleHeight / 2 - margin, y)
+
+            self.updatedBubblePosition = CGPoint(x: x, y: y)
         }
     }
     
