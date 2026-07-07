@@ -181,6 +181,7 @@ class CommentViewModel: ObservableObject {
         
         // annotation 삭제
         deleteCommentAnnotation(comment: comment, currentButtonId: currentButtonId, buttonList: buttonList)
+        NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
         
         // 코멘트 개수 주석 관련
         if let button = buttonGroup.filter({$0.id == comment.buttonId}).first {
@@ -590,6 +591,7 @@ extension CommentViewModel {
                 let text = "UC|\(newComment.selectedText)|\(newComment.text)|\(newComment.id.uuidString)"
                 underline.contents = text
                 page.addAnnotation(underline)
+                NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
             }
         }
     }
