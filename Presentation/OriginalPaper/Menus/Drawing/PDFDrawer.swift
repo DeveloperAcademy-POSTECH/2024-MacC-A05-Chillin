@@ -114,11 +114,13 @@ class PDFDrawer {
         case .add:
             for annotation in lastAction.annotations {
                 lastAction.page.removeAnnotation(annotation)
+                NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
             }
             
         case .remove:
             for annotation in lastAction.annotations {
                 lastAction.page.addAnnotation(annotation)
+                NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
             }
         }
         redoStack.append(lastAction)
@@ -133,10 +135,12 @@ class PDFDrawer {
         case .add:
             for annotation in lastAction.annotations {
                 lastAction.page.addAnnotation(annotation)
+                NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
             }
         case .remove:
             for annotation in lastAction.annotations {
                 lastAction.page.removeAnnotation(annotation)
+                NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
             }
         }
         annotationHistory.append(lastAction)
@@ -450,6 +454,8 @@ extension PDFDrawer: DrawingGestureRecognizerDelegate {
                      (annotation.value(forAnnotationKey: .contents) == nil || annotation.contents?.hasPrefix("UH|") == true)) {
                     removedAnnotations.append(annotation)
                     page.removeAnnotation(annotation)
+                    
+                    NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
                 }
             }
             recordRemovedAnnotations(removedAnnotations, on: page)

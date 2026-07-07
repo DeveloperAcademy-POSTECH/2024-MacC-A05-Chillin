@@ -19,4 +19,5 @@ extension Notification.Name {
     static let isCollectionCaptured = Notification.Name("isCollectionCaptured")
     static let changeHomePaperInfo = Notification.Name("changeHomePaperInfo")
     static let didSelectAnnotationCollection = Notification.Name("didSelectAnnotationCollection")
+    static let didUpdatePDFAnnotation = Notification.Name("didUpdatePDFAnnotation")
 }

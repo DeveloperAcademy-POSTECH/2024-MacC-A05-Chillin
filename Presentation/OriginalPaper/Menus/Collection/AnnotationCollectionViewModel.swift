@@ -12,9 +12,26 @@ import UIKit
 final class AnnotationCollectionViewModel: ObservableObject {
     @Published public var annotations: [AnnotationCollection] = []
     
+    init() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAnnotationChanged),
+            name: .didUpdatePDFAnnotation,
+            object: nil
+        )
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func handleAnnotationChanged() {
+        fetchData()
+    }
     
     public func fetchData() {
         guard let document = PDFSharedData.shared.document else { return }
+        self.annotations = []
         let pageCount = document.pageCount
         
         var resultText = ""

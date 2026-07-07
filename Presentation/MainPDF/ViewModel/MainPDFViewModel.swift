@@ -259,6 +259,7 @@ extension MainPDFViewModel {
             highlight.contents = "UH|\(selection.string ?? "nil")|\(color.rawValue)|\(id)"
             
             page.addAnnotation(highlight)
+            NotificationCenter.default.post(name: .didUpdatePDFAnnotation, object: nil)
             createdHighlights.append(highlight)
         }
         
