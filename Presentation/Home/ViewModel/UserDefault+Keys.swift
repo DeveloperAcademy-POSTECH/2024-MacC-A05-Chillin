@@ -12,6 +12,7 @@ struct UserDefaultsKeys {
     static let lastSearchTags = "LastSearchTags"
     static let focusGuideViewDoNotShowAgain = "FocusGuideViewDoNotShowAgain"
     static let isICloudEnabled = "IsICloudEnabled"
+    static let icloudMigrationLedger = "ICloudMigrationLedger"
 }
 
 extension UserDefaults {
@@ -51,6 +52,20 @@ extension UserDefaults {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.isICloudEnabled)
+        }
+    }
+
+    // 진행 중인(또는 중단된) iCloud 파일 이동 원장 — JSON 인코딩된 ICloudMigrationLedger
+    var icloudMigrationLedgerData: Data? {
+        get {
+            UserDefaults.standard.data(forKey: UserDefaultsKeys.icloudMigrationLedger)
+        }
+        set {
+            if let newValue {
+                UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.icloudMigrationLedger)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.icloudMigrationLedger)
+            }
         }
     }
 }

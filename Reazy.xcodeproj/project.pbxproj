@@ -21,11 +21,13 @@
 		2C14739C2CE73B6F00B35D92 /* CommentDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */; };
 		2C14739D2CE73B6F00B35D92 /* FigureDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */; };
 		2C14739E2CE73B6F00B35D92 /* PaperDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */; };
+		E3733A4CD195CE240D93E4D8 /* ICloudMigrationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D5BEF181FD050825CBE4D0 /* ICloudMigrationRepository.swift */; };
 		2C14739F2CE73B6F00B35D92 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473252CE73B6F00B35D92 /* Comment.swift */; };
 		2C1473A02CE73B6F00B35D92 /* DrawingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473262CE73B6F00B35D92 /* DrawingData.swift */; };
 		2C1473A12CE73B6F00B35D92 /* FigureAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */; };
 		2C1473A22CE73B6F00B35D92 /* FocusAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */; };
 		2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473292CE73B6F00B35D92 /* PaperInfo.swift */; };
+		4A85EC437C33E27C1ACCEFCF /* PaperFileLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E22832FE9164546A64BFC15 /* PaperFileLocation.swift */; };
 		2C1473A42CE73B6F00B35D92 /* PDFInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */; };
 		2C1473A62CE73B6F00B35D92 /* TableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14732C2CE73B6F00B35D92 /* TableItem.swift */; };
 		2C1473A72CE73B6F00B35D92 /* NetworkManager + Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14732E2CE73B6F00B35D92 /* NetworkManager + Error.swift */; };
@@ -54,6 +56,7 @@
 		2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */; };
 		2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */; };
 		2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */; };
+		4595C92BAC202D80D1183A4C /* ICloudMigrationUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8AD0BB77BEC1373D70E5A1 /* ICloudMigrationUseCase.swift */; };
 		2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */; };
 		2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */; };
 		2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473F12CE8818200B35D92 /* PageListViewModel.swift */; };
@@ -165,11 +168,13 @@
 		2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDataRepository.swift; sourceTree = "<group>"; };
 		2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureDataRepository.swift; sourceTree = "<group>"; };
 		2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperDataRepository.swift; sourceTree = "<group>"; };
+		F8D5BEF181FD050825CBE4D0 /* ICloudMigrationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudMigrationRepository.swift; sourceTree = "<group>"; };
 		2C1473252CE73B6F00B35D92 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		2C1473262CE73B6F00B35D92 /* DrawingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingData.swift; sourceTree = "<group>"; };
 		2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureAnnotation.swift; sourceTree = "<group>"; };
 		2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAnnotation.swift; sourceTree = "<group>"; };
 		2C1473292CE73B6F00B35D92 /* PaperInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperInfo.swift; sourceTree = "<group>"; };
+		0E22832FE9164546A64BFC15 /* PaperFileLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperFileLocation.swift; sourceTree = "<group>"; };
 		2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfo.swift; sourceTree = "<group>"; };
 		2C14732C2CE73B6F00B35D92 /* TableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableItem.swift; sourceTree = "<group>"; };
 		2C14732E2CE73B6F00B35D92 /* NetworkManager + Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkManager + Error.swift"; sourceTree = "<group>"; };
@@ -199,6 +204,7 @@
 		2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepository.swift; sourceTree = "<group>"; };
 		2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepositoryImpl.swift; sourceTree = "<group>"; };
 		2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureUseCase.swift; sourceTree = "<group>"; };
+		CF8AD0BB77BEC1373D70E5A1 /* ICloudMigrationUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudMigrationUseCase.swift; sourceTree = "<group>"; };
 		2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureViewModel.swift; sourceTree = "<group>"; };
 		2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutResponseDTO.swift; sourceTree = "<group>"; };
 		2C1473F12CE8818200B35D92 /* PageListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListViewModel.swift; sourceTree = "<group>"; };
@@ -236,6 +242,7 @@
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
+		436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.1.xcdatamodel; sourceTree = "<group>"; };
 		67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemporaryAlertView.swift; sourceTree = "<group>"; };
 		6E130D542D5860C40089A493 /* TagDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagDataRepository.swift; sourceTree = "<group>"; };
 		6E130D562D5861E10089A493 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
@@ -243,7 +250,6 @@
 		6E74E5082D47A7C6004248EE /* HomeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeListView.swift; sourceTree = "<group>"; };
 		6E8311262CC4DCAC00D4F1E6 /* Reazy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Reazy-Info.plist"; sourceTree = "<group>"; };
 		6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.0.xcdatamodel; sourceTree = "<group>"; };
-		436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.1.xcdatamodel; sourceTree = "<group>"; };
 		6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderDataRepository.swift; sourceTree = "<group>"; };
 		6EBB167A2CEB6005001F9EA0 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		6EBB16802CEB81D9001F9EA0 /* FileSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemItem.swift; sourceTree = "<group>"; };
@@ -267,6 +273,7 @@
 				CollectionDataRepositoryImpl.swift,
 				CommentDataRepositoryImpl.swift,
 				FigureDataRepositoryImpl.swift,
+				ICloudMigrationRepositoryImpl.swift,
 				FolderDataRepositoryImpl.swift,
 				PaperDataRepositoryImpl.swift,
 				PaperDataRepositoryTagImpl.swift,
@@ -513,6 +520,7 @@
 				2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */,
 				2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */,
 				2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */,
+				F8D5BEF181FD050825CBE4D0 /* ICloudMigrationRepository.swift */,
 				6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */,
 				6ED57B5F2CF747F500358561 /* CollectionDataRepository.swift */,
 				6E130D542D5860C40089A493 /* TagDataRepository.swift */,
@@ -524,6 +532,7 @@
 			isa = PBXGroup;
 			children = (
 				2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */,
+				CF8AD0BB77BEC1373D70E5A1 /* ICloudMigrationUseCase.swift */,
 				B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */,
 				2C1473F32CE8828800B35D92 /* PageListUseCase.swift */,
 				2C1474112CE8EC6E00B35D92 /* IndexUseCase.swift */,
@@ -757,6 +766,7 @@
 				2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */,
 				2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */,
 				2C1473292CE73B6F00B35D92 /* PaperInfo.swift */,
+				0E22832FE9164546A64BFC15 /* PaperFileLocation.swift */,
 				2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */,
 				2C14732C2CE73B6F00B35D92 /* TableItem.swift */,
 				6EBB167A2CEB6005001F9EA0 /* Folder.swift */,
@@ -1146,6 +1156,7 @@
 				2C14739C2CE73B6F00B35D92 /* CommentDataRepository.swift in Sources */,
 				2C14739D2CE73B6F00B35D92 /* FigureDataRepository.swift in Sources */,
 				2C14739E2CE73B6F00B35D92 /* PaperDataRepository.swift in Sources */,
+				E3733A4CD195CE240D93E4D8 /* ICloudMigrationRepository.swift in Sources */,
 				2C14739F2CE73B6F00B35D92 /* Comment.swift in Sources */,
 				67E8AB792CF0C33000FACBAB /* TemporaryAlertView.swift in Sources */,
 				2C1473A02CE73B6F00B35D92 /* DrawingData.swift in Sources */,
@@ -1154,6 +1165,7 @@
 				6E74E5092D47A7C6004248EE /* HomeListView.swift in Sources */,
 				2C1473A22CE73B6F00B35D92 /* FocusAnnotation.swift in Sources */,
 				2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */,
+				4A85EC437C33E27C1ACCEFCF /* PaperFileLocation.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
 				6E130D552D5860C40089A493 /* TagDataRepository.swift in Sources */,
 				2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */,
@@ -1178,6 +1190,7 @@
 				2C1473BC2CE73B6F00B35D92 /* SearchViewModel.swift in Sources */,
 				B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */,
 				2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */,
+				4595C92BAC202D80D1183A4C /* ICloudMigrationUseCase.swift in Sources */,
 				6ED57B602CF747F500358561 /* CollectionDataRepository.swift in Sources */,
 				2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */,
 				2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */,
