@@ -121,7 +121,7 @@ extension DefaultHomeSearchUseCase {
     internal func copyItem(url: URL) -> (Data, URL)? {
         do {
             let manager = FileManager.default
-            let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let documentURL = manager.pdfStorageDirectory
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             var error: NSError?

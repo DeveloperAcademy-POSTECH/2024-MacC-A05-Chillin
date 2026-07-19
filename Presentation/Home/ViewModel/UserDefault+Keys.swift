@@ -11,6 +11,7 @@ struct UserDefaultsKeys {
     static let recentSearches = "RecentSearches"
     static let lastSearchTags = "LastSearchTags"
     static let focusGuideViewDoNotShowAgain = "FocusGuideViewDoNotShowAgain"
+    static let isICloudEnabled = "IsICloudEnabled"
 }
 
 extension UserDefaults {
@@ -40,6 +41,16 @@ extension UserDefaults {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.focusGuideViewDoNotShowAgain)
+        }
+    }
+
+    // iCloud Drive에 PDF 파일 저장 여부 (기본값: false → 기존 동작 유지)
+    public var isICloudEnabled: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: UserDefaultsKeys.isICloudEnabled)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.isICloudEnabled)
         }
     }
 }

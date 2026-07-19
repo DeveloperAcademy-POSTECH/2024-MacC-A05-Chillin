@@ -226,7 +226,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     }
     
     private func makeSampleFocus(tempDoc: PDFDocument?) -> Data {
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let path = FileManager.default.pdfStorageDirectory
             .appending(path: "ReazySamplePaper_combine.pdf")
 
         let layout = try! JSONDecoder()
@@ -380,7 +380,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     internal func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)? {
         do {
             let manager = FileManager.default
-            let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let documentURL = manager.pdfStorageDirectory
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             if let _ = try? Data(contentsOf: fileURL) {
@@ -412,7 +412,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     internal func copyItem(url: URL) -> (Data, URL)? {
         do {
             let manager = FileManager.default
-            let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let documentURL = manager.pdfStorageDirectory
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             var error: NSError?
