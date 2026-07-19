@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import Network
 
 
 class HomeViewModel: ObservableObject {
@@ -103,6 +104,8 @@ class HomeViewModel: ObservableObject {
     // MARK: - iCloud 동기화 관련 변수
     @Published public var isICloudMigrating: Bool = false
     @Published public var iCloudMigrationProgress: (completed: Int, total: Int) = (0, 0)
+    private var networkMonitor: NWPathMonitor?
+    private var wasNetworkSatisfied: Bool = true
 
     // MARK: - 나머지
     private let homeViewUseCase: HomeViewUseCase
@@ -638,12 +641,17 @@ extension HomeViewModel {
         homeViewAction = .none
 
         Task { @MainActor in
-            await self.runICloudMigration(toICloud: useICloud)
+            await self.syncICloudStorage(toICloud: useICloud)
         }
     }
+}
 
+// MARK: - iCloud 동기화 실행 및 재시도
+extension HomeViewModel {
+    /// 로컬 ↔ iCloud 간 파일 마이그레이션을 실행한다. 온보딩 확인, 설정 화면 토글, 앱 실행 시/네트워크 재연결 시
+    /// 자동 재시도 등 iCloud 동기화가 필요한 모든 지점에서 이 메소드 하나로 공유한다.
     @MainActor
-    private func runICloudMigration(toICloud: Bool) async {
+    public func syncICloudStorage(toICloud: Bool) async {
         self.isICloudMigrating = true
         self.iCloudMigrationProgress = (0, 0)
 
@@ -653,11 +661,35 @@ extension HomeViewModel {
                     self?.iCloudMigrationProgress = (completed, total)
                 }
             }
+            UserDefaults.standard.lastICloudSyncDate = .now
         } catch {
             log(error)
         }
 
         self.isICloudMigrating = false
+    }
+
+    /// 네트워크가 끊겼다가 다시 연결되는 시점을 감지해서, iCloud 사용이 켜져 있으면 자동으로 재시도한다.
+    /// 앱 프로세스 생명주기 동안 한 번만 시작하면 되므로 AppView의 시작 지점에서 1회 호출한다.
+    public func startICloudRetryMonitoring() {
+        guard networkMonitor == nil else { return }
+
+        let monitor = NWPathMonitor()
+        self.networkMonitor = monitor
+
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let self else { return }
+            let isSatisfied = path.status == .satisfied
+
+            Task { @MainActor in
+                if isSatisfied, !self.wasNetworkSatisfied, UserDefaults.standard.isICloudEnabled {
+                    await self.syncICloudStorage(toICloud: true)
+                }
+                self.wasNetworkSatisfied = isSatisfied
+            }
+        }
+
+        monitor.start(queue: .main)
     }
 }
 

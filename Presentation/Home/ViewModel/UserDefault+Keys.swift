@@ -14,6 +14,7 @@ struct UserDefaultsKeys {
     static let isICloudEnabled = "IsICloudEnabled"
     static let icloudMigrationLedger = "ICloudMigrationLedger"
     static let iCloudOnboardingShown = "ICloudOnboardingShown"
+    static let lastICloudSyncDate = "LastICloudSyncDate"
 }
 
 extension UserDefaults {
@@ -77,6 +78,20 @@ extension UserDefaults {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.iCloudOnboardingShown)
+        }
+    }
+
+    // 마지막으로 iCloud 동기화(마이그레이션)가 성공한 시각
+    public var lastICloudSyncDate: Date? {
+        get {
+            UserDefaults.standard.object(forKey: UserDefaultsKeys.lastICloudSyncDate) as? Date
+        }
+        set {
+            if let newValue {
+                UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.lastICloudSyncDate)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.lastICloudSyncDate)
+            }
         }
     }
 }

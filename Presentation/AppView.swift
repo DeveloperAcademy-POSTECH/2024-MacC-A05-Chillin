@@ -50,6 +50,15 @@ struct AppView: App {
                 #if !DEBUG
                 await self.checkAppVersion()
                 #endif
+
+                // iCloud 사용이 켜져 있는 경우에만 앱 실행 시 자동 재시도 — 온보딩 alert는 플래그가 아직
+                // false일 때만 뜨므로(iCloudOnboardingShown 미확인 상태), 여기와 동시에 뜨는 경우는 없다.
+                if UserDefaults.standard.isICloudEnabled {
+                    Task {
+                        await self.homeViewModel.syncICloudStorage(toICloud: true)
+                    }
+                }
+                self.homeViewModel.startICloudRetryMonitoring()
             }
             .onOpenURL(perform: openUrlScheme)
             .alert("Reazy의 새로운\n버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {

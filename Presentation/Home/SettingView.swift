@@ -81,7 +81,20 @@ struct SettingView: View {
                         Text(appVersion)
                     }
                     .foregroundStyle(.gray800)
-                    
+
+                    Button(action: {
+                        homeViewModel.homeViewAction = .iCloudSettings
+                    }, label: {
+                        HStack {
+                            Text("iCloud 설정")
+                                .foregroundStyle(.gray800)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12))
+                                .foregroundStyle(.gray600)
+                        }
+                    })
+
                     Button(action: {
                         guard let writeReviewURL = URL(string: url) else {
                             fatalError("Expected a valid URL")
@@ -127,7 +140,7 @@ struct SettingView: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .frame(maxHeight: 207)
+                .frame(maxHeight: 259)
                 .padding(.bottom, 20)
                 .scrollDisabled(true)
                 

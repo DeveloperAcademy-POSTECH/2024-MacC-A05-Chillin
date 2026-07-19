@@ -109,6 +109,7 @@
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
 		C28394B26C333C3806B10575 /* ICloudOnboardingAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E96FAC147518379A91D10C1 /* ICloudOnboardingAlertView.swift */; };
+		022F688FAF6A1C82C36F7179 /* ICloudSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F8C8AD92D9FFAAB7DE2D80 /* ICloudSettingView.swift */; };
 		B349C0D42D6362DD00682F5D /* TagViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B349C0D32D6362DD00682F5D /* TagViewUseCase.swift */; };
 		B3EE45672D43EFA8007804B9 /* BackPageBtnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE45662D43EFA8007804B9 /* BackPageBtnView.swift */; };
 		B3F823412D4CE85300B9FBE9 /* BackPageBtnUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F823402D4CE84500B9FBE9 /* BackPageBtnUseCase.swift */; };
@@ -261,6 +262,7 @@
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		2E96FAC147518379A91D10C1 /* ICloudOnboardingAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudOnboardingAlertView.swift; sourceTree = "<group>"; };
+		46F8C8AD92D9FFAAB7DE2D80 /* ICloudSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudSettingView.swift; sourceTree = "<group>"; };
 		B349C0D32D6362DD00682F5D /* TagViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewUseCase.swift; sourceTree = "<group>"; };
 		B3EE45662D43EFA8007804B9 /* BackPageBtnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackPageBtnView.swift; sourceTree = "<group>"; };
 		B3F823402D4CE84500B9FBE9 /* BackPageBtnUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackPageBtnUseCase.swift; sourceTree = "<group>"; };
@@ -752,6 +754,7 @@
 				2C1473392CE73B6F00B35D92 /* HomeView.swift */,
 				B32E3D292CF23C0800171F23 /* SettingView.swift */,
 				2E96FAC147518379A91D10C1 /* ICloudOnboardingAlertView.swift */,
+				46F8C8AD92D9FFAAB7DE2D80 /* ICloudSettingView.swift */,
 				6E241BDD2CEDF47600AE3EB4 /* MoveFolderView.swift */,
 				2C2A56BD2D941BE100BEC95D /* HomeFolderPopoverView.swift */,
 				2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */,
@@ -1213,6 +1216,7 @@
 				2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */,
 				B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */,
 				C28394B26C333C3806B10575 /* ICloudOnboardingAlertView.swift in Sources */,
+				022F688FAF6A1C82C36F7179 /* ICloudSettingView.swift in Sources */,
 				2C1473C92CE73B6F00B35D92 /* CommentViewModel.swift in Sources */,
 				2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */,
 				2CDB3D352E32052D00609333 /* HomeViewStatus.swift in Sources */,

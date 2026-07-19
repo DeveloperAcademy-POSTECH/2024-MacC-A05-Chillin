@@ -105,6 +105,8 @@ struct HomeView: View {
             switch homeViewModel.homeViewAction {
             case .setting:
                 SettingView()
+            case .iCloudSettings:
+                ICloudSettingView()
             case .creatingFolder, .editingFolder:
                 FolderView(
                     folder: homeViewModel.folders.first { $0.id == homeViewModel.homeViewStatus.currentFolderID },
