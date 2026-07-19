@@ -28,6 +28,7 @@ enum HomeViewAction: Hashable {
     case deletingPaperAlert([UUID])
     case deletingFolderAlert
     case folderDepthAlert
+    case iCloudOnboardingAlert
     case none
     
     

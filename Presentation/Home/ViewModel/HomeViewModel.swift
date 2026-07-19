@@ -100,20 +100,26 @@ class HomeViewModel: ObservableObject {
     // HomeViewModel, TagViewModel
     private let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
+    // MARK: - iCloud 동기화 관련 변수
+    @Published public var isICloudMigrating: Bool = false
+    @Published public var iCloudMigrationProgress: (completed: Int, total: Int) = (0, 0)
+
     // MARK: - 나머지
     private let homeViewUseCase: HomeViewUseCase
-    
+    private let migrationUseCase: ICloudMigrationUseCase
+
     private var cancellables: Set<AnyCancellable> = []
-    
+
     private var paperInfos: [PaperInfo] = [] {
         didSet {
             updateFilteredList()
         }
     }
-    
-    init(homeViewUseCase: HomeViewUseCase) {
+
+    init(homeViewUseCase: HomeViewUseCase, migrationUseCase: ICloudMigrationUseCase) {
         self.homeViewUseCase = homeViewUseCase
-        
+        self.migrationUseCase = migrationUseCase
+
         switch homeViewUseCase.loadPDFs() {
         case .success(let paperInfos):
             self.paperInfos = paperInfos
@@ -615,6 +621,43 @@ extension HomeViewModel {
                 return true
             }
         }.sorted { $0.lastModifiedDate > $1.lastModifiedDate }
+    }
+}
+
+// MARK: - iCloud 동기화 온보딩
+extension HomeViewModel {
+    /// 신규 설치 또는 이 기능이 포함된 버전으로 업데이트 후 최초 1회만 iCloud 동기화 여부를 묻는다
+    public func checkICloudOnboardingPrompt() {
+        guard !UserDefaults.standard.iCloudOnboardingShown else { return }
+        homeViewAction = .iCloudOnboardingAlert
+    }
+
+    /// 온보딩 alert의 확인 버튼 액션 — 다시는 뜨지 않도록 기록하고, 선택한 토글 상태로 마이그레이션을 실행한다
+    public func confirmICloudOnboarding(useICloud: Bool) {
+        UserDefaults.standard.iCloudOnboardingShown = true
+        homeViewAction = .none
+
+        Task { @MainActor in
+            await self.runICloudMigration(toICloud: useICloud)
+        }
+    }
+
+    @MainActor
+    private func runICloudMigration(toICloud: Bool) async {
+        self.isICloudMigrating = true
+        self.iCloudMigrationProgress = (0, 0)
+
+        do {
+            try await migrationUseCase.migrate(toICloud: toICloud) { [weak self] completed, total in
+                Task { @MainActor in
+                    self?.iCloudMigrationProgress = (completed, total)
+                }
+            }
+        } catch {
+            log(error)
+        }
+
+        self.isICloudMigrating = false
     }
 }
 

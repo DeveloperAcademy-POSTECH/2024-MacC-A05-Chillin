@@ -20,6 +20,9 @@ struct AppView: App {
         homeViewUseCase: DefaultHomeViewUseCase(
             paperDataRepository: PaperDataRepositoryImpl(),
             folderDataRepository: FolderDataRepositoryImpl()
+        ),
+        migrationUseCase: DefaultICloudMigrationUseCase(
+            migrationRepository: ICloudMigrationRepositoryImpl()
         )
     )
     

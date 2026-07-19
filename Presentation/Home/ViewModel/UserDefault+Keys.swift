@@ -13,6 +13,7 @@ struct UserDefaultsKeys {
     static let focusGuideViewDoNotShowAgain = "FocusGuideViewDoNotShowAgain"
     static let isICloudEnabled = "IsICloudEnabled"
     static let icloudMigrationLedger = "ICloudMigrationLedger"
+    static let iCloudOnboardingShown = "ICloudOnboardingShown"
 }
 
 extension UserDefaults {
@@ -66,6 +67,16 @@ extension UserDefaults {
             } else {
                 UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.icloudMigrationLedger)
             }
+        }
+    }
+
+    // iCloud 동기화 여부를 묻는 온보딩 alert 노출 여부 (기본값: false → 신규 설치/업데이트 후 최초 1회 노출)
+    public var iCloudOnboardingShown: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: UserDefaultsKeys.iCloudOnboardingShown)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.iCloudOnboardingShown)
         }
     }
 }
