@@ -21,10 +21,19 @@ struct ICloudOnboardingAlertView: View {
                     .reazyFont(.button1)
                     .padding(.top, 30)
 
-                Toggle("iCloud 사용", isOn: $useICloud)
-                    .padding(.horizontal, 30)
-                    .padding(.top, 24)
-                    .padding(.bottom, 20)
+                List {
+                    Toggle("iCloud 사용", isOn: $useICloud)
+                        .foregroundStyle(.gray800)
+                }
+                .environment(\.defaultMinListRowHeight, 52)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .frame(height: 52)
+                .scrollDisabled(true)
+                .padding(.horizontal, 30)
+                .padding(.top, 24)
+                .padding(.bottom, 20)
 
                 seperator
 

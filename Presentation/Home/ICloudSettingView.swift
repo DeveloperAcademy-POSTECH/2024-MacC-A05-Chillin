@@ -51,16 +51,17 @@ struct ICloudSettingView: View {
                 .padding(0)
 
             VStack(alignment: .leading, spacing: 0) {
-                Toggle("iCloud 사용", isOn: iCloudToggleBinding)
-                    .reazyFont(.text1)
-                    .foregroundStyle(.gray800)
-                    .disabled(homeViewModel.isICloudMigrating)
-                    .padding(.horizontal, 16)
-                    .frame(height: 52)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .foregroundStyle(.gray100)
-                    )
+                List {
+                    Toggle("iCloud 사용", isOn: iCloudToggleBinding)
+                        .foregroundStyle(.gray800)
+                        .disabled(homeViewModel.isICloudMigrating)
+                }
+                .environment(\.defaultMinListRowHeight, 52)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .frame(height: 52)
+                .scrollDisabled(true)
 
                 if let statusText {
                     Text(statusText)
