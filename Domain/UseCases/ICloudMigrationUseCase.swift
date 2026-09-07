@@ -74,6 +74,11 @@ struct ICloudMigrationLedger: Codable {
         /// 이 경우 정리/롤백 대상에서 반드시 제외해야 새로 저장된(=구 파일과 동일한) 파일이 삭제되지 않는다.
         let oldURLPath: String?
         let oldFocusURLPath: String?
+
+        /// 이번 마이그레이션이 실제로 만든 목적지 경로. 재개할 때 이 값이 있으면
+        /// 파일 크기 비교로 "이미 복사됨"을 넘겨짚지 않고 기록된 경로를 그대로 쓴다
+        var newURLPath: String? = nil
+        var newFocusURLPath: String? = nil
     }
 
     let targetEnabled: Bool
@@ -161,9 +166,11 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
     private func migrateOnePaper(id: UUID, toICloud: Bool) async throws -> ICloudMigrationLedger.MigratedRecord {
         let location = try fetchLocation(for: id)
 
-        var isStale = false
-        guard let oldURL = try? URL(resolvingBookmarkData: location.url, bookmarkDataIsStale: &isStale),
-              fileManager.fileExists(atPath: oldURL.path) else {
+        guard let oldURL = PaperFileLocator.resolve(
+            relativePath: location.relativePath,
+            bookmark: location.url,
+            title: location.title
+        )?.url else {
             throw ICloudMigrationOperationError.sourceFileMissing
         }
 
@@ -181,24 +188,45 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
             let oldURLPath: String? = urlDidMove ? oldURL.path : nil
 
             var newFocusBookmark: Data? = nil
+            var newFocusURL: URL? = nil
             var oldFocusPath: String? = nil
 
-            if let focusURLData = location.focusURL,
-               let oldFocusURL = try? URL(resolvingBookmarkData: focusURLData, bookmarkDataIsStale: &isStale),
-               fileManager.fileExists(atPath: oldFocusURL.path) {
-                let (newFocusURL, bookmark) = try copyAndBookmark(source: oldFocusURL, toDirectory: destinationDir)
-                let focusDidMove = oldFocusURL.path != newFocusURL.path
-                if focusDidMove { createdDestinationURLs.append(newFocusURL) }
+            if let oldFocusURL = PaperFileLocator.resolve(
+                relativePath: location.focusRelativePath,
+                bookmark: location.focusURL,
+                title: nil
+            )?.url {
+                let (focusDestination, bookmark) = try copyAndBookmark(source: oldFocusURL, toDirectory: destinationDir)
+                let focusDidMove = oldFocusURL.path != focusDestination.path
+                if focusDidMove { createdDestinationURLs.append(focusDestination) }
                 newFocusBookmark = bookmark
+                newFocusURL = focusDestination
                 oldFocusPath = focusDidMove ? oldFocusURL.path : nil
             }
 
-            let result = migrationRepository.updateFileLocation(id: id, url: newURLBookmark, focusURL: newFocusBookmark)
+            // 목적지 디렉터리 기준 상대 경로. 플래그는 아직 안 바뀌었으므로 destinationDir을 직접 기준으로 삼는다
+            let newRelativePath = PaperFileLocator.storageRelativePath(of: newURL, in: destinationDir)
+            let newFocusRelativePath = newFocusURL.flatMap {
+                PaperFileLocator.storageRelativePath(of: $0, in: destinationDir)
+            }
+
+            let result = migrationRepository.updateFileLocation(
+                id: id,
+                url: newURLBookmark,
+                relativePath: newRelativePath,
+                focusURL: newFocusBookmark,
+                focusRelativePath: newFocusRelativePath
+            )
             if case .failure(let error) = result {
                 throw error
             }
 
-            return .init(oldURLPath: oldURLPath, oldFocusURLPath: oldFocusPath)
+            return .init(
+                oldURLPath: oldURLPath,
+                oldFocusURLPath: oldFocusPath,
+                newURLPath: newURL.path,
+                newFocusURLPath: newFocusURL?.path
+            )
         } catch {
             // 방금 만든 목적지 복사본만 정리 — 구 파일/북마크는 그대로 안전하게 남아있음
             for url in createdDestinationURLs {
@@ -209,7 +237,6 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
     }
 
     private func revertOnePaper(id: UUID, record: ICloudMigrationLedger.MigratedRecord) async throws {
-        var isStale = false
         let currentLocation = try fetchLocation(for: id)
 
         // oldURLPath가 nil이면 해당 필드는 애초에 이동하지 않았다는 뜻 — 현재 값 그대로 유지
@@ -221,10 +248,9 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
             let oldURL = URL(fileURLWithPath: oldURLPath)
             restoredURLBookmark = try oldURL.bookmarkData(options: .suitableForBookmarkFile)
 
-            // 마이그레이션 중 만든 새 위치 복사본을 정리
-            if let currentURL = try? URL(resolvingBookmarkData: currentLocation.url, bookmarkDataIsStale: &isStale),
-               currentURL.path != oldURL.path {
-                try? fileManager.removeItem(at: currentURL)
+            // 마이그레이션 중 만든 새 위치 복사본을 정리 — 원장에 기록해 둔 경로를 그대로 쓴다
+            if let newURLPath = record.newURLPath, newURLPath != oldURL.path {
+                try? fileManager.removeItem(atPath: newURLPath)
             }
         } else {
             restoredURLBookmark = currentLocation.url
@@ -237,16 +263,30 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
             }
             restoredFocusBookmark = try URL(fileURLWithPath: oldFocusPath).bookmarkData(options: .suitableForBookmarkFile)
 
-            if let focusData = currentLocation.focusURL,
-               let currentFocusURL = try? URL(resolvingBookmarkData: focusData, bookmarkDataIsStale: &isStale),
-               currentFocusURL.path != oldFocusPath {
-                try? fileManager.removeItem(at: currentFocusURL)
+            if let newFocusURLPath = record.newFocusURLPath, newFocusURLPath != oldFocusPath {
+                try? fileManager.removeItem(atPath: newFocusURLPath)
             }
         } else {
             restoredFocusBookmark = currentLocation.focusURL
         }
 
-        let result = migrationRepository.updateFileLocation(id: id, url: restoredURLBookmark, focusURL: restoredFocusBookmark)
+        // 롤백 시점에는 플래그가 아직 안 바뀌었으므로, 현재 저장소 기준으로 상대 경로를 다시 계산한다.
+        // 저장소 밖의 파일이면 nil이 되고, 그 경우 북마크 폴백이 그대로 동작한다
+        let restoredRelativePath = record.oldURLPath.flatMap {
+            PaperFileLocator.storageRelativePath(of: URL(fileURLWithPath: $0))
+        } ?? currentLocation.relativePath
+
+        let restoredFocusRelativePath = record.oldFocusURLPath.flatMap {
+            PaperFileLocator.storageRelativePath(of: URL(fileURLWithPath: $0))
+        } ?? currentLocation.focusRelativePath
+
+        let result = migrationRepository.updateFileLocation(
+            id: id,
+            url: restoredURLBookmark,
+            relativePath: restoredRelativePath,
+            focusURL: restoredFocusBookmark,
+            focusRelativePath: restoredFocusRelativePath
+        )
         if case .failure(let error) = result {
             throw error
         }
@@ -258,10 +298,7 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
         var destination = directory.appendingPathComponent(source.lastPathComponent)
 
         if fileManager.fileExists(atPath: destination.path) {
-            let sourceSize = try? fileManager.attributesOfItem(atPath: source.path)[.size] as? Int
-            let destSize = try? fileManager.attributesOfItem(atPath: destination.path)[.size] as? Int
-
-            if let sourceSize, sourceSize == destSize {
+            if isSameFile(source, destination) {
                 // 이미 복사되어 있음 (재개 상황) — 재복사 불필요
                 let bookmark = try destination.bookmarkData(options: .suitableForBookmarkFile)
                 return (destination, bookmark)
@@ -281,6 +318,36 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
 
         let bookmark = try destination.bookmarkData(options: .suitableForBookmarkFile)
         return (destination, bookmark)
+    }
+
+    /// 목적지에 이미 있는 파일이 정말 이 논문의 파일인지 판별한다.
+    /// 크기만 비교하면, 다른 기기가 올려둔 같은 이름의 파일이 우연히 크기까지 같을 때
+    /// 남의 파일을 내 논문으로 연결해 버린다 — 앞부분 내용까지 함께 확인한다
+    private func isSameFile(_ lhs: URL, _ rhs: URL) -> Bool {
+        guard let lhsSize = fileSize(of: lhs),
+              let rhsSize = fileSize(of: rhs),
+              lhsSize == rhsSize else {
+            return false
+        }
+
+        guard let lhsHead = headChunk(of: lhs), let rhsHead = headChunk(of: rhs) else {
+            // 읽을 수 없으면(예: 아직 내려받지 않은 iCloud 파일) 같다고 단정하지 않는다.
+            // 새 이름으로 복사되어 사본이 하나 생길 뿐, 기존 파일을 덮어쓰지는 않는다
+            return false
+        }
+
+        return lhsHead == rhsHead
+    }
+
+    private func fileSize(of url: URL) -> Int? {
+        (try? fileManager.attributesOfItem(atPath: url.path))?[.size] as? Int
+    }
+
+    /// 파일 앞부분만 읽어 비교한다. 전체를 읽으면 iCloud 파일을 통째로 내려받게 된다
+    private func headChunk(of url: URL, limit: Int = 64 * 1024) -> Data? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        return try? handle.read(upToCount: limit)
     }
 
     private func uniqueDestination(for source: URL, in directory: URL) throws -> URL {

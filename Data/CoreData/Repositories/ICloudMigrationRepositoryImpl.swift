@@ -33,7 +33,7 @@ final class ICloudMigrationRepositoryImpl: ICloudMigrationRepository {
             do {
                 let fetchedDataList = try context.fetch(fetchRequest)
                 let locations = fetchedDataList.map { paperData in
-                    PaperFileLocation(id: paperData.id, url: paperData.url, focusURL: paperData.focusURL)
+                    Self.makeLocation(from: paperData)
                 }
                 result = .success(locations)
             } catch {
@@ -56,7 +56,7 @@ final class ICloudMigrationRepositoryImpl: ICloudMigrationRepository {
                     result = .failure(Self.notFoundError)
                     return
                 }
-                result = .success(PaperFileLocation(id: paperData.id, url: paperData.url, focusURL: paperData.focusURL))
+                result = .success(Self.makeLocation(from: paperData))
             } catch {
                 result = .failure(error)
             }
@@ -65,7 +65,13 @@ final class ICloudMigrationRepositoryImpl: ICloudMigrationRepository {
         return result
     }
 
-    func updateFileLocation(id: UUID, url: Data, focusURL: Data?) -> Result<VoidResponse, Error> {
+    func updateFileLocation(
+        id: UUID,
+        url: Data,
+        relativePath: String?,
+        focusURL: Data?,
+        focusRelativePath: String?
+    ) -> Result<VoidResponse, Error> {
         var result: Result<VoidResponse, Error> = .failure(Self.notFoundError)
 
         context.performAndWait {
@@ -79,7 +85,9 @@ final class ICloudMigrationRepositoryImpl: ICloudMigrationRepository {
                 }
 
                 dataToEdit.url = url
+                dataToEdit.relativePath = relativePath
                 dataToEdit.focusURL = focusURL
+                dataToEdit.focusRelativePath = focusRelativePath
 
                 try context.save()
                 result = .success(VoidResponse())
@@ -90,6 +98,45 @@ final class ICloudMigrationRepositoryImpl: ICloudMigrationRepository {
         }
 
         return result
+    }
+
+    /// 상대 경로만 갱신한다. 북마크는 손대지 않으므로 기존 경로 해석에 영향이 없다
+    func updateRelativePaths(id: UUID, relativePath: String?, focusRelativePath: String?) -> Result<VoidResponse, Error> {
+        var result: Result<VoidResponse, Error> = .failure(Self.notFoundError)
+
+        context.performAndWait {
+            let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+
+            do {
+                guard let dataToEdit = try context.fetch(fetchRequest).first else {
+                    result = .failure(Self.notFoundError)
+                    return
+                }
+
+                dataToEdit.relativePath = relativePath
+                dataToEdit.focusRelativePath = focusRelativePath
+
+                try context.save()
+                result = .success(VoidResponse())
+            } catch {
+                context.rollback()
+                result = .failure(error)
+            }
+        }
+
+        return result
+    }
+
+    private static func makeLocation(from paperData: PaperData) -> PaperFileLocation {
+        PaperFileLocation(
+            id: paperData.id,
+            title: paperData.title,
+            url: paperData.url,
+            relativePath: paperData.relativePath,
+            focusURL: paperData.focusURL,
+            focusRelativePath: paperData.focusRelativePath
+        )
     }
 
     private static let notFoundError = NSError(

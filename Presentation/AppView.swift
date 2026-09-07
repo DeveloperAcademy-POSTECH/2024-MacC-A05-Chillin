@@ -26,6 +26,10 @@ struct AppView: App {
         )
     )
     
+    private let pathBackfillUseCase: PaperPathBackfillUseCase = DefaultPaperPathBackfillUseCase(
+        migrationRepository: ICloudMigrationRepositoryImpl()
+    )
+    
     @State private var isUpdateAlertPresented: Bool = false
     
     var body: some Scene {
@@ -46,6 +50,11 @@ struct AppView: App {
             .environmentObject(homeViewModel)
             .task {
                 self.homeViewModel.setSample()
+                
+                // 예전 버전에서 만들어져 상대 경로가 비어 있는 논문을 채운다.
+                // 파일을 옮기지 않고 CoreData의 상대 경로만 기록하므로, 실패해도 북마크 폴백으로 계속 동작한다
+                await self.pathBackfillUseCase.backfill()
+                self.homeViewModel.fetchPaperList()
                 
                 #if !DEBUG
                 await self.checkAppVersion()

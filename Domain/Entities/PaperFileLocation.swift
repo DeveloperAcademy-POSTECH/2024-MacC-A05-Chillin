@@ -9,6 +9,9 @@ import Foundation
 
 struct PaperFileLocation {
     let id: UUID
+    let title: String
     let url: Data
+    let relativePath: String?
     let focusURL: Data?
+    let focusRelativePath: String?
 }

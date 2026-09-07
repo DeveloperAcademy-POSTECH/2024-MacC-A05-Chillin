@@ -14,7 +14,18 @@ protocol ICloudMigrationRepository: Sendable {
     /// 특정 논문 하나의 파일 위치(북마크)를 다시 불러옵니다 (재개 시 최신 상태 확인용)
     func fetchPaperLocation(id: UUID) -> Result<PaperFileLocation, Error>
 
-    /// 논문의 파일 위치(북마크)를 새 위치로 갱신합니다
+    /// 논문의 파일 위치(북마크 + 저장소 기준 상대 경로)를 새 위치로 갱신합니다
     @discardableResult
-    func updateFileLocation(id: UUID, url: Data, focusURL: Data?) -> Result<VoidResponse, Error>
+    func updateFileLocation(
+        id: UUID,
+        url: Data,
+        relativePath: String?,
+        focusURL: Data?,
+        focusRelativePath: String?
+    ) -> Result<VoidResponse, Error>
+
+    /// 상대 경로만 채워 넣습니다. 북마크(url/focusURL)는 절대 건드리지 않으므로
+    /// 백필이 잘못되더라도 기존 경로로 논문을 여는 데는 아무 영향이 없습니다
+    @discardableResult
+    func updateRelativePaths(id: UUID, relativePath: String?, focusRelativePath: String?) -> Result<VoidResponse, Error>
 }
