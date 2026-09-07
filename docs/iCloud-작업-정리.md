@@ -486,6 +486,37 @@ do {
 - [ ] **백그라운드 동기화** — 두 기기를 켜둔 채 한쪽에서 추가 시 재시작 없이 반영되는지 (9번)
 - [ ] **iCloud 끄기** — 설정에서 토글 OFF. 이때 `-com.apple.CoreData.ConcurrencyDebug 1`을 켜두면 3-4의 스레드 위반이 재발했는지 함께 잡힙니다
 - [ ] **필기 보존** — 필기 후 닫았다 다시 열기 (3-7)
+- [ ] **현지화** — `Localizable.xcstrings`의 iCloud 문자열 en/ja 번역 (아래 참고)
+
+### 🟡 현지화(영어·일본어) 추가 필요 — 다른 개발자 담당
+
+이 앱은 **한국어(원본) + 영어 + 일본어**를 지원합니다. iCloud UI를 만들 때 Swift 코드만 들어가고
+`Localizable.xcstrings` 갱신이 빠져 있었는데, 이번에 빌드하면서 문자열이 자동 추출되어 카탈로그에 등록됐습니다.
+
+**항목만 등록됐고 en/ja 번역은 비어 있습니다.** 지금 상태로는 영어·일본어 사용자에게 한국어가 그대로 노출됩니다.
+
+이번 iCloud 작업으로 번역이 필요해진 문자열 **5개**:
+
+| 문자열 | 위치 |
+|---|---|
+| `iCloud와 동기화하시겠습니까?` | `ICloudOnboardingAlertView.swift` |
+| `iCloud 사용` | `ICloudOnboardingAlertView.swift`, `ICloudSettingView.swift` |
+| `iCloud 설정` | `SettingView.swift`, `ICloudSettingView.swift` |
+| `iCloud를 끄면 이 기기에서만 데이터가 저장됩니다` | `ICloudSettingView.swift` |
+| `끄기` | `ICloudSettingView.swift` |
+
+> ⚠️ **6장의 디자인 작업이 끝나면 문자열이 더 늘어납니다.**
+> 실패 안내 문구(미로그인 / 용량 부족 / 네트워크 없음), 다운로드 상태, 진행률 표시 등이
+> 아직 정해지지 않았습니다. **디자인 확정 후 한 번에 번역하는 편이 효율적입니다.**
+
+참고로 카탈로그에는 번역이 비어 있는 항목이 총 17개인데, 나머지 12개
+(`두 단`, `집중모드를 활성화 중입니다`, `다시 보지 않기` 등)는 이번 작업과 무관하게 원래부터 비어 있던 것들입니다.
+
+### 참고: `Localizable.xcstrings`는 빌드할 때 자동으로 바뀝니다
+
+Xcode가 빌드하면서 Swift 코드의 문자열을 추출해 이 파일에 추가합니다.
+그래서 코드에 새 문자열을 넣고 빌드하면 **의도하지 않아도 이 파일이 변경 상태로 뜹니다.**
+`git status`에 자꾸 올라온다면 대부분 이 경우이니, 확인 후 함께 커밋하면 됩니다.
 
 ### 참고: `NSUbiquitousContainers`의 함정
 
