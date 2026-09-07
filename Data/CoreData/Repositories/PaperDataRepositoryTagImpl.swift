@@ -27,8 +27,11 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let pdfDataList = fetchedDataList.map { paperData -> PaperInfo in
                 
-                let tags = Array(paperData.paperTags ?? []).map { paperTag in
-                    Tag(id: paperTag.tagData.id, name: paperTag.tagData.name)
+                // 아직 CloudKit 동기화가 끝나지 않아 tagData가 비어 있는 관계는 건너뛴다.
+                // 동기화가 완료되면 automaticallyMergesChangesFromParent로 다시 반영된다
+                let tags = Array(paperData.paperTags ?? []).compactMap { paperTag -> Tag? in
+                    guard let tagData = paperTag.tagData else { return nil }
+                    return Tag(id: tagData.id, name: tagData.name)
                 }
                 
                 return PaperInfo(

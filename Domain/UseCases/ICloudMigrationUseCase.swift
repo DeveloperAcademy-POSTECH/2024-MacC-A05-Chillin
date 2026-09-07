@@ -26,11 +26,16 @@ private final class BackgroundTaskGuard: @unchecked Sendable {
         return _expired
     }
 
-    func begin(name: String) {
-        lock.lock()
-        identifier = UIApplication.shared.beginBackgroundTask(withName: name) { [weak self] in
-            self?.handleExpiration()
+    /// UIApplication은 메인 액터 전용이므로, 백그라운드에서 도는 마이그레이션 루프에서 직접 만지지 않는다
+    func begin(name: String) async {
+        let newIdentifier = await MainActor.run {
+            UIApplication.shared.beginBackgroundTask(withName: name) { [weak self] in
+                self?.handleExpiration()
+            }
         }
+
+        lock.lock()
+        identifier = newIdentifier
         lock.unlock()
     }
 
@@ -42,7 +47,9 @@ private final class BackgroundTaskGuard: @unchecked Sendable {
         lock.unlock()
 
         guard current != .invalid else { return }
-        UIApplication.shared.endBackgroundTask(current)
+        DispatchQueue.main.async {
+            UIApplication.shared.endBackgroundTask(current)
+        }
     }
 
     /// iOS가 백그라운드 유예 시간을 다 써서 만료 핸들러가 호출된 경우에만 expired를 true로 표시
@@ -54,7 +61,9 @@ private final class BackgroundTaskGuard: @unchecked Sendable {
         lock.unlock()
 
         guard current != .invalid else { return }
-        UIApplication.shared.endBackgroundTask(current)
+        DispatchQueue.main.async {
+            UIApplication.shared.endBackgroundTask(current)
+        }
     }
 }
 
@@ -102,7 +111,7 @@ final class DefaultICloudMigrationUseCase: ICloudMigrationUseCase {
         var ledger = try loadOrCreateLedger(toICloud: toICloud)
 
         let bgTaskGuard = BackgroundTaskGuard()
-        bgTaskGuard.begin(name: "ICloudMigration")
+        await bgTaskGuard.begin(name: "ICloudMigration")
         defer { bgTaskGuard.end() }
 
         let total = ledger.paperIDs.count

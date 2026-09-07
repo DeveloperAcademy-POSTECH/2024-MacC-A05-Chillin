@@ -662,6 +662,10 @@ extension HomeViewModel {
                 }
             }
             UserDefaults.standard.lastICloudSyncDate = .now
+
+            // 마이그레이션이 북마크를 새 경로로 갱신했으므로, 메모리에 들고 있던 목록을 다시 읽어온다.
+            // (구 북마크를 그대로 쓰면 이미 삭제된 옛 경로를 가리켜 논문이 열리지 않는다)
+            self.fetchPaperList()
         } catch {
             log(error)
         }

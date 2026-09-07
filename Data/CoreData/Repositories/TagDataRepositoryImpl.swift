@@ -41,23 +41,26 @@ final class TagDataRepositoryImpl: TagDataRepository {
             paperTagFetch.predicate = NSPredicate(format: "tagData == %@", tag)
             
             let paperTags = try dataContext.fetch(paperTagFetch)
-            let papers = paperTags.map { paperTag in
-                let paper = paperTag.paperData
+            // 아직 CloudKit 동기화가 끝나지 않아 관계가 비어 있는 항목은 건너뛴다.
+            // 동기화가 완료되면 automaticallyMergesChangesFromParent로 다시 반영된다
+            let papers = paperTags.compactMap { paperTag -> PaperInfo? in
+                guard let paper = paperTag.paperData else { return nil }
                 
-                let tags = Array(paper.paperTags ?? []).map { tagRelation in
-                    Tag(id: tagRelation.tagData.id, name: tagRelation.tagData.name)
+                let tags = Array(paper.paperTags ?? []).compactMap { tagRelation -> Tag? in
+                    guard let tagData = tagRelation.tagData else { return nil }
+                    return Tag(id: tagData.id, name: tagData.name)
                 }
                 
                 return PaperInfo(
-                    id: paperTag.paperData.id,
-                    title: paperTag.paperData.title,
-                    thumbnail: paperTag.paperData.thumbnail,
-                    url: paperTag.paperData.url,
-                    focusURL: paperTag.paperData.focusURL,
-                    lastModifiedDate: paperTag.paperData.lastModifiedDate,
-                    isFavorite: paperTag.paperData.isFavorite,
-                    isFigureSaved: paperTag.paperData.isFigureSaved,
-                    folderID: paperTag.paperData.folderID ?? nil,
+                    id: paper.id,
+                    title: paper.title,
+                    thumbnail: paper.thumbnail,
+                    url: paper.url,
+                    focusURL: paper.focusURL,
+                    lastModifiedDate: paper.lastModifiedDate,
+                    isFavorite: paper.isFavorite,
+                    isFigureSaved: paper.isFigureSaved,
+                    folderID: paper.folderID ?? nil,
                     tags: tags
                 )
             }
