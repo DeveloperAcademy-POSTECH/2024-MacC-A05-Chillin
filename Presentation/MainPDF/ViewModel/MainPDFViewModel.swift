@@ -140,10 +140,10 @@ final class MainPDFViewModel: ObservableObject {
 // MARK: - 초기 세팅 메소드
 extension MainPDFViewModel {
     public func savePDF(pdfView: PDFView) throws {
-        var a = false
         guard let document = pdfView.document else { return }
-        // TODO: 이름 변경시에 URL도 바뀌어야 하는게 아닌가?
-        guard let pdfURL = PDFSharedData.shared.paperInfo?.url, let url = try? URL(resolvingBookmarkData: pdfURL, bookmarkDataIsStale: &a) else {
+        
+        guard let paperInfo = PDFSharedData.shared.paperInfo,
+              let url = PaperFileLocator.resolve(paperInfo)?.url else {
             log("PDF URL을 찾을 수 없습니다.")
             throw HomeViewError.cannotCreateBookmark
         }

@@ -138,6 +138,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: title,
                 thumbnail: thumbnailData,
                 url: urlData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: urlData.1),
                 folderID: folderID
             )
             
@@ -150,6 +151,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: urlData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: urlData.1),
                 folderID: folderID
             )
             
@@ -183,6 +185,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: guideTitle,
                 thumbnail: guideThumbnailData,
                 url: guideURLData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: guideURLData.1),
                 isFigureSaved: true,
                 folderID: sampleFolder.id
             )
@@ -191,6 +194,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: sampleTitle,
                 thumbnail: sampleThumbnailData,
                 url: sampleURLData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: sampleURLData.1),
                 focusURL: sampleFocusURLData,
                 isFigureSaved: true,
                 folderID: sampleFolder.id
@@ -208,6 +212,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: guideTitle,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: guideURLData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: guideURLData.1),
                 isFigureSaved: true
             )
             
@@ -335,10 +340,10 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     }
     
     public func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo? {
-        var isStale = false
-        
         do {
-            let originalUrl = try URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale)
+            guard let originalUrl = PaperFileLocator.resolve(paperInfo)?.url else {
+                throw PDFUploadError.fileNameDuplication
+            }
             
             if let (data, url) = self.copyItem(url: originalUrl) {
                 
@@ -346,6 +351,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     title: url.deletingPathExtension().lastPathComponent,
                     thumbnail: paperInfo.thumbnail,
                     url: data,
+                    relativePath: PaperFileLocator.storageRelativePath(of: url),
                     focusURL: paperInfo.focusURL,
                     lastModifiedDate: Date(),
                     isFavorite: false,

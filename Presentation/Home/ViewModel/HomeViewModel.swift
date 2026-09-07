@@ -587,26 +587,24 @@ extension HomeViewModel {
             return
         }
         
-        var isStale = false
-        let data = selectedPaper.url
-        
-        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            log("bookmarkdata to url failed")
+        guard let resolution = PaperFileLocator.resolve(selectedPaper) else {
+            log("논문 파일을 찾지 못했습니다: \(selectedPaper.title)")
             return
         }
         
-        if isStale {
-            log("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
-                log("Unable to create bookmark")
-                return
-            }
+        var paperToOpen = selectedPaper
+        
+        // 북마크나 제목 추정으로 찾아낸 경우, 알아낸 상대 경로를 기록해 다음부터는 바로 찾게 한다.
+        // CoreData 반영은 실행 시 백필이 담당하므로 여기서는 메모리 상태만 맞춰 둔다
+        if let repaired = resolution.repairedRelativePath {
+            paperToOpen.relativePath = repaired
             
-            let idx = self.paperInfos.firstIndex { $0.id == id }!
-            self.paperInfos[idx].url = newURL
+            if let idx = self.paperInfos.firstIndex(where: { $0.id == id }) {
+                self.paperInfos[idx].relativePath = repaired
+            }
         }
         
-        NavigationCoordinator.shared.push(.mainPDF(paperInfo: selectedPaper))
+        NavigationCoordinator.shared.push(.mainPDF(paperInfo: paperToOpen))
     }
     
     private func updateFilteredList() {

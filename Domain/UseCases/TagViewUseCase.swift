@@ -100,10 +100,10 @@ extension DefaultTagViewUseCase: HomeSearchUseCase {
     }
     
     func duplicatePDF(_ info: PaperInfo) -> Result<PaperInfo, any Error> {
-        var isStale = false
-        
         do {
-            let originalUrl = try URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale)
+            guard let originalUrl = PaperFileLocator.resolve(info)?.url else {
+                throw PDFUploadError.fileNameDuplication
+            }
             
             if let (data, url) = self.copyItem(url: originalUrl) {
                 
@@ -111,6 +111,7 @@ extension DefaultTagViewUseCase: HomeSearchUseCase {
                     title: url.deletingPathExtension().lastPathComponent,
                     thumbnail: info.thumbnail,
                     url: data,
+                    relativePath: PaperFileLocator.storageRelativePath(of: url),
                     focusURL: info.focusURL,
                     lastModifiedDate: Date(),
                     isFavorite: false,
