@@ -45,7 +45,7 @@
         <attribute name="isFigureSaved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="relativePath" optional="YES" attributeType="String"/>
-        <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
+        <attribute name="thumbnail" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="url" optional="YES" attributeType="Binary"/>
         <relationship name="buttonGroup" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ButtonGroupData" inverseName="paperData" inverseEntity="ButtonGroupData"/>
