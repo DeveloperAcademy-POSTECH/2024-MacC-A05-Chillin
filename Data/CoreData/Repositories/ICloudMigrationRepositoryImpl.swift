@@ -128,6 +128,62 @@ final class ICloudMigrationRepositoryImpl: ICloudMigrationRepository {
         return result
     }
 
+    /// 썸네일이 큰 논문을 찾는다.
+    /// 모든 썸네일을 한꺼번에 메모리에 올리면 논문이 많을 때 부담이 크므로,
+    /// 하나씩 확인한 뒤 곧바로 폴트로 되돌려 메모리를 놓아준다
+    func fetchPaperIDsWithLargeThumbnail(largerThan threshold: Int) -> Result<[UUID], Error> {
+        var result: Result<[UUID], Error> = .success([])
+
+        context.performAndWait {
+            let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+            fetchRequest.returnsObjectsAsFaults = true
+
+            do {
+                let papers = try context.fetch(fetchRequest)
+                var ids: [UUID] = []
+
+                for paper in papers {
+                    if paper.thumbnail.count > threshold {
+                        ids.append(paper.id)
+                    }
+                    context.refresh(paper, mergeChanges: false)
+                }
+
+                result = .success(ids)
+            } catch {
+                result = .failure(error)
+            }
+        }
+
+        return result
+    }
+
+    func updateThumbnail(id: UUID, thumbnail: Data) -> Result<VoidResponse, Error> {
+        var result: Result<VoidResponse, Error> = .failure(Self.notFoundError)
+
+        context.performAndWait {
+            let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+
+            do {
+                guard let dataToEdit = try context.fetch(fetchRequest).first else {
+                    result = .failure(Self.notFoundError)
+                    return
+                }
+
+                dataToEdit.thumbnail = thumbnail
+
+                try context.save()
+                result = .success(VoidResponse())
+            } catch {
+                context.rollback()
+                result = .failure(error)
+            }
+        }
+
+        return result
+    }
+
     private static func makeLocation(from paperData: PaperData) -> PaperFileLocation {
         PaperFileLocation(
             id: paperData.id,

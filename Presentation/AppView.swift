@@ -30,6 +30,10 @@ struct AppView: App {
         migrationRepository: ICloudMigrationRepositoryImpl()
     )
     
+    private let thumbnailBackfillUseCase: PaperThumbnailBackfillUseCase = DefaultPaperThumbnailBackfillUseCase(
+        migrationRepository: ICloudMigrationRepositoryImpl()
+    )
+    
     @State private var isUpdateAlertPresented: Bool = false
     
     var body: some Scene {
@@ -54,6 +58,11 @@ struct AppView: App {
                 // 예전 버전에서 만들어져 상대 경로가 비어 있는 논문을 채운다.
                 // 파일을 옮기지 않고 CoreData의 상대 경로만 기록하므로, 실패해도 북마크 폴백으로 계속 동작한다
                 await self.pathBackfillUseCase.backfill()
+                
+                // 예전 규칙으로 만들어진 큰 썸네일을 다시 만든다.
+                // 경로 백필 뒤에 실행해야 파일을 상대 경로로 바로 찾을 수 있다
+                await self.thumbnailBackfillUseCase.backfill()
+                
                 self.homeViewModel.fetchPaperList()
                 
                 #if !DEBUG

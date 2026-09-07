@@ -103,19 +103,9 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.paperDataRepository.deletePDFInfo(id: id)
     }
     
-    /// 홈 목록 셀에 82x110pt로 표시되므로 페이지 원본 크기 그대로 저장할 필요가 없다.
-    /// CloudKit은 레코드 하나당 약 1MB 제한이 있어서, 큰 판형이거나 그림이 많은 페이지를
-    /// 무압축 PNG로 넣으면 그 논문만 조용히 동기화에 실패한다
-    private static let thumbnailMaxLength: CGFloat = 600
-    
+    /// 업로드와 백필이 같은 규칙을 쓰도록 PaperThumbnailMaker에 위임한다
     private func makeThumbnailData(from page: PDFPage) -> Data? {
-        let pageSize = page.bounds(for: .mediaBox).size
-        guard pageSize.width > 0, pageSize.height > 0 else { return nil }
-        
-        let scale = min(1, Self.thumbnailMaxLength / max(pageSize.width, pageSize.height))
-        let targetSize = CGSize(width: pageSize.width * scale, height: pageSize.height * scale)
-        
-        return page.thumbnail(of: targetSize, for: .mediaBox).jpegData(compressionQuality: 0.8)
+        PaperThumbnailMaker.makeData(from: page)
     }
     
     public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {

@@ -24,6 +24,13 @@ protocol ICloudMigrationRepository: Sendable {
         focusRelativePath: String?
     ) -> Result<VoidResponse, Error>
 
+    /// 썸네일이 지정한 크기보다 큰 논문의 id를 찾습니다
+    func fetchPaperIDsWithLargeThumbnail(largerThan threshold: Int) -> Result<[UUID], Error>
+
+    /// 썸네일만 교체합니다. 파일 경로 관련 필드는 건드리지 않습니다
+    @discardableResult
+    func updateThumbnail(id: UUID, thumbnail: Data) -> Result<VoidResponse, Error>
+
     /// 상대 경로만 채워 넣습니다. 북마크(url/focusURL)는 절대 건드리지 않으므로
     /// 백필이 잘못되더라도 기존 경로로 논문을 여는 데는 아무 영향이 없습니다
     @discardableResult
