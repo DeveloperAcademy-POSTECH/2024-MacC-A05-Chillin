@@ -771,6 +771,8 @@ private struct MainOriginalView: View {
             getOrientationFromFace()
         }
         .onReceive(publisher) { _ in
+            guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+
             switch UIDevice.current.orientation {
             case .portrait, .portraitUpsideDown:
                 self.orientation = .vertical
@@ -797,9 +799,15 @@ private struct MainOriginalView: View {
     }
     
     private func getOrientationFromFace() {
+        // 맥은 회전이 없고 interfaceOrientation도 신뢰할 수 없어 항상 가로형으로 고정
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            self.orientation = .horizontal
+            return
+        }
+
         guard let scene = UIApplication.shared.connectedScenes.first,
               let sceneDelegate = scene as? UIWindowScene else { return }
-        
+
         switch sceneDelegate.interfaceOrientation {
         case .portrait, .portraitUpsideDown:
             self.orientation = .vertical
