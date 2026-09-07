@@ -387,13 +387,94 @@ A안이면 상단 배너형 진행 표시, B안이면 실행 시 alert + 진행 
 
 ## 7. 출시 전 체크리스트
 
-### 🔴 반드시 해야 하는 운영 작업
+### 🔴 반드시 해야 하는 운영 작업 — CloudKit 스키마 배포
 
-**CloudKit Dashboard에서 Development → Production 스키마 배포**
+**이걸 빠뜨리고 출시하면 프로덕션 사용자의 동기화가 조용히 멈춥니다.** 앱은 정상 실행되고 에러도 안 뜨는데 기기 간에 아무것도 안 넘어갑니다.
 
-`NSPersistentCloudKitContainer`는 **개발 환경에서만** 스키마를 자동 생성합니다. 이걸 빠뜨리고 출시하면 프로덕션 사용자의 동기화가 **조용히 멈춥니다.**
+#### 왜 필요한가
 
-> CloudKit은 한 번 배포한 필드를 **삭제할 수 없습니다.** 필드명(`relativePath`, `focusRelativePath`)은 이번에 확정됩니다.
+CloudKit에는 환경이 **두 개** 있습니다.
+
+| 환경 | 누가 쓰나 |
+|---|---|
+| **Development** | Xcode에서 직접 빌드해 설치한 앱 |
+| **Production** | TestFlight · App Store로 배포된 앱 |
+
+`NSPersistentCloudKitContainer`는 CoreData 모델을 보고 CloudKit 스키마(레코드 타입·필드)를 **자동 생성해 주는데, Development 환경에서만** 합니다. Production 환경에는 **사람이 직접 배포**해야 합니다.
+
+즉 개발 중에는 잘 되다가 TestFlight에 올리는 순간 동기화가 멈추는 형태로 터집니다.
+
+#### 1단계 — Development 스키마 채우기
+
+배포하려면 Development 쪽에 스키마가 먼저 만들어져 있어야 합니다. 두 가지 방법이 있습니다.
+
+**방법 A: 앱을 실제로 돌려서 채우기 (간단하지만 누락 위험)**
+
+iCloud에 로그인된 실기기에 Xcode로 빌드해 설치하고, **모든 종류의 데이터를 한 번씩 만들어 봅니다** — 논문 추가, 태그 달기, 폴더 만들기, 코멘트 쓰기, figure 저장 등.
+
+한 번도 안 만들어 본 레코드 타입은 스키마에 안 생깁니다. **어떤 엔티티는 동기화되고 어떤 건 안 되는** 상태가 되기 쉬워서 권장하지 않습니다.
+
+**방법 B: `initializeCloudKitSchema`로 한 번에 생성 (권장)**
+
+모델 전체를 훑어 스키마를 만들어 줍니다. 누락이 없습니다.
+
+```swift
+// PersistantContainer의 init 안, loadPersistentStores 직후에 임시로 추가
+#if DEBUG
+do {
+    try self._container.initializeCloudKitSchema(options: [])
+    log("CloudKit 스키마 생성 완료")
+} catch {
+    log("CloudKit 스키마 생성 실패: \(error)")
+}
+#endif
+```
+
+주의할 점:
+
+- **개발용으로 한 번만 돌리고 반드시 지우거나 주석 처리하세요.** 매 실행마다 돌리면 느려집니다
+- 내부적으로 **더미 레코드를 만들었다가 지웁니다.** 실제 사용자 데이터에는 영향이 없지만, 개발용 iCloud 계정으로 돌리세요
+- 실기기 + iCloud 로그인 상태가 필요합니다 (시뮬레이터는 계정이 없으면 안 됩니다)
+- 몇 분 걸릴 수 있습니다
+
+#### 2단계 — Console에서 확인
+
+1. [CloudKit Console](https://icloud.developer.apple.com/dashboard) 접속 (Apple Developer 계정 로그인)
+2. 컨테이너 **`iCloud.com.chillin.reazy`** 선택
+3. 좌측 **Schema → Record Types**
+4. 이번 작업으로 추가된 필드가 있는지 확인:
+
+| 확인할 것 | 있어야 하는 필드 |
+|---|---|
+| `CD_PaperData` | `CD_relativePath`, `CD_focusRelativePath` |
+
+> Core Data가 만드는 레코드 타입·필드에는 **`CD_` 접두사**가 붙습니다. 엔티티 `PaperData` → 레코드 타입 `CD_PaperData`, 속성 `relativePath` → 필드 `CD_relativePath`.
+
+이 두 필드가 안 보이면 1단계가 제대로 안 된 것입니다. **없는 상태로 배포하면 안 됩니다.**
+
+#### 3단계 — Production으로 배포
+
+1. 같은 Console에서 좌측 **Schema** 화면 우측 상단의 **`Deploy Schema Changes...`** 버튼 클릭
+2. Development ↔ Production 차이가 목록으로 나옵니다 — **추가되는 레코드 타입·필드를 눈으로 확인**
+3. 확인 후 배포
+
+배포는 보통 수 초~수 분이면 끝납니다.
+
+#### ⚠️ 배포 전 반드시 알아야 할 것
+
+**되돌릴 수 없습니다.** CloudKit은 Production에 한 번 올라간 **레코드 타입과 필드를 삭제할 수 없습니다.** 이름을 바꾸는 것도 안 됩니다.
+
+이번에 `relativePath` / `focusRelativePath`라는 이름이 **영구 확정**됩니다. 배포 전에 이름이 마음에 드는지 한 번 더 확인하세요.
+
+**앞으로 모델을 바꿀 때마다 이 절차를 반복해야 합니다.** CoreData 모델에 필드를 추가하는 것만으로는 Production에 반영되지 않습니다. 새 버전을 출시할 때 체크리스트에 넣어 두세요.
+
+**배포 순서:** 스키마를 **먼저** 배포하고 앱을 출시하세요. 반대로 하면 그 사이에 업데이트한 사용자의 동기화가 실패합니다.
+
+#### 배포 후 확인
+
+- [ ] TestFlight 빌드를 기기 2대에 설치
+- [ ] 한쪽에서 논문 추가 → 다른 쪽에 나타나는지
+- [ ] 그 논문이 **열리는지** (2장의 `relativePath`가 실제로 넘어갔는지 확인하는 지점)
 
 ### 🟡 실기기 검증이 필요한 것
 
