@@ -129,15 +129,16 @@ final class PaperDataRepositoryImpl: PaperDataRepository {
             
             if let dataToDelete = results.first {
                 // 실제 파일 삭제
-                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStaleOriginal),
-                   let _ = try? Data(contentsOf: url) {
-                    try FileManager.default.removeItem(at: url)
+                // iCloud에 있고 아직 내려받지 않은 파일(placeholder)은 내용을 읽을 수 없어,
+                // 존재 확인용으로 Data(contentsOf:)를 쓰면 삭제를 건너뛰고 고아 파일이 남는다.
+                // 파일이 없으면 removeItem이 조용히 실패하는 것으로 충분하므로 바로 지운다
+                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStaleOriginal) {
+                    try? FileManager.default.removeItem(at: url)
                 }
 
                 if let focusURL = dataToDelete.focusURL,
-                   let url = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStaleConcentrate),
-                   let _ = try? Data(contentsOf: url) {
-                    try FileManager.default.removeItem(at: url)
+                   let url = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStaleConcentrate) {
+                    try? FileManager.default.removeItem(at: url)
                 }
                 
                 dataContext.delete(dataToDelete)
