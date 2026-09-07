@@ -103,6 +103,21 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.paperDataRepository.deletePDFInfo(id: id)
     }
     
+    /// 홈 목록 셀에 82x110pt로 표시되므로 페이지 원본 크기 그대로 저장할 필요가 없다.
+    /// CloudKit은 레코드 하나당 약 1MB 제한이 있어서, 큰 판형이거나 그림이 많은 페이지를
+    /// 무압축 PNG로 넣으면 그 논문만 조용히 동기화에 실패한다
+    private static let thumbnailMaxLength: CGFloat = 600
+    
+    private func makeThumbnailData(from page: PDFPage) -> Data? {
+        let pageSize = page.bounds(for: .mediaBox).size
+        guard pageSize.width > 0, pageSize.height > 0 else { return nil }
+        
+        let scale = min(1, Self.thumbnailMaxLength / max(pageSize.width, pageSize.height))
+        let targetSize = CGSize(width: pageSize.width * scale, height: pageSize.height * scale)
+        
+        return page.thumbnail(of: targetSize, for: .mediaBox).jpegData(compressionQuality: 0.8)
+    }
+    
     public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
         
@@ -117,16 +132,11 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let title = urlData.1.deletingPathExtension().lastPathComponent
         
-        if let firstPage = tempDoc?.page(at: 0) {
-            let width = firstPage.bounds(for: .mediaBox).width
-            let height = firstPage.bounds(for: .mediaBox).height
-            
-            let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
-            let thumbnailData = image.pngData()
-            
+        if let firstPage = tempDoc?.page(at: 0),
+           let thumbnailData = self.makeThumbnailData(from: firstPage) {
             let paperInfo = PaperInfo(
                 title: title,
-                thumbnail: thumbnailData!,
+                thumbnail: thumbnailData,
                 url: urlData.0,
                 folderID: folderID
             )
@@ -163,24 +173,15 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let sampleFocusURLData = self.makeSampleFocus(tempDoc: sampleTempDoc)
         
-        if let guideFirstPage = guideTempDoc?.page(at: 0), let sampleFirstPage = sampleTempDoc?.page(at: 0) {
-            let guideWidth = guideFirstPage.bounds(for: .mediaBox).width
-            let guideHeight = guideFirstPage.bounds(for: .mediaBox).height
-            let sampleWidth = sampleFirstPage.bounds(for: .mediaBox).width
-            let sampleHeight = sampleFirstPage.bounds(for: .mediaBox).height
-            
-            let guideImage = guideFirstPage.thumbnail(of: .init(width: guideWidth, height: guideHeight), for: .mediaBox)
-            let sampleImage = sampleFirstPage.thumbnail(of: .init(width: sampleWidth, height: sampleHeight), for: .mediaBox)
-            
-            let guideThumbnailData = guideImage.pngData()
-            let sampleThumbnailData = sampleImage.pngData()
-            
+        if let guideFirstPage = guideTempDoc?.page(at: 0), let sampleFirstPage = sampleTempDoc?.page(at: 0),
+           let guideThumbnailData = self.makeThumbnailData(from: guideFirstPage),
+           let sampleThumbnailData = self.makeThumbnailData(from: sampleFirstPage) {
             let sampleFolder = Folder(id: .init(), title: "Reazy", color: "folder1", parentFolderID: nil)
             folderDataRepository.saveFolder(sampleFolder)
             
             let guidePaperInfo = PaperInfo(
                 title: guideTitle,
-                thumbnail: guideThumbnailData!,
+                thumbnail: guideThumbnailData,
                 url: guideURLData.0,
                 isFigureSaved: true,
                 folderID: sampleFolder.id
@@ -188,7 +189,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
             
             let samplePaperInfo = PaperInfo(
                 title: sampleTitle,
-                thumbnail: sampleThumbnailData!,
+                thumbnail: sampleThumbnailData,
                 url: sampleURLData.0,
                 focusURL: sampleFocusURLData,
                 isFigureSaved: true,
