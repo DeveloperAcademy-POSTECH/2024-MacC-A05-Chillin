@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import Network
 
 
 class HomeViewModel: ObservableObject {
@@ -100,20 +101,28 @@ class HomeViewModel: ObservableObject {
     // HomeViewModel, TagViewModel
     private let orientationPublisher = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
     
+    // MARK: - iCloud 동기화 관련 변수
+    @Published public var isICloudMigrating: Bool = false
+    @Published public var iCloudMigrationProgress: (completed: Int, total: Int) = (0, 0)
+    private var networkMonitor: NWPathMonitor?
+    private var wasNetworkSatisfied: Bool = true
+
     // MARK: - 나머지
     private let homeViewUseCase: HomeViewUseCase
-    
+    private let migrationUseCase: ICloudMigrationUseCase
+
     private var cancellables: Set<AnyCancellable> = []
-    
+
     private var paperInfos: [PaperInfo] = [] {
         didSet {
             updateFilteredList()
         }
     }
-    
-    init(homeViewUseCase: HomeViewUseCase) {
+
+    init(homeViewUseCase: HomeViewUseCase, migrationUseCase: ICloudMigrationUseCase) {
         self.homeViewUseCase = homeViewUseCase
-        
+        self.migrationUseCase = migrationUseCase
+
         switch homeViewUseCase.loadPDFs() {
         case .success(let paperInfos):
             self.paperInfos = paperInfos
@@ -578,26 +587,24 @@ extension HomeViewModel {
             return
         }
         
-        var isStale = false
-        let data = selectedPaper.url
-        
-        guard let url = try? URL.init(resolvingBookmarkData: data, bookmarkDataIsStale: &isStale) else {
-            log("bookmarkdata to url failed")
+        guard let resolution = PaperFileLocator.resolve(selectedPaper) else {
+            log("논문 파일을 찾지 못했습니다: \(selectedPaper.title)")
             return
         }
         
-        if isStale {
-            log("Bookmark(\(url.lastPathComponent)) is stale")
-            guard let newURL = try? url.bookmarkData(options: .suitableForBookmarkFile) else {
-                log("Unable to create bookmark")
-                return
-            }
+        var paperToOpen = selectedPaper
+        
+        // 북마크나 제목 추정으로 찾아낸 경우, 알아낸 상대 경로를 기록해 다음부터는 바로 찾게 한다.
+        // CoreData 반영은 실행 시 백필이 담당하므로 여기서는 메모리 상태만 맞춰 둔다
+        if let repaired = resolution.repairedRelativePath {
+            paperToOpen.relativePath = repaired
             
-            let idx = self.paperInfos.firstIndex { $0.id == id }!
-            self.paperInfos[idx].url = newURL
+            if let idx = self.paperInfos.firstIndex(where: { $0.id == id }) {
+                self.paperInfos[idx].relativePath = repaired
+            }
         }
         
-        NavigationCoordinator.shared.push(.mainPDF(paperInfo: selectedPaper))
+        NavigationCoordinator.shared.push(.mainPDF(paperInfo: paperToOpen))
     }
     
     private func updateFilteredList() {
@@ -615,6 +622,76 @@ extension HomeViewModel {
                 return true
             }
         }.sorted { $0.lastModifiedDate > $1.lastModifiedDate }
+    }
+}
+
+// MARK: - iCloud 동기화 온보딩
+extension HomeViewModel {
+    /// 신규 설치 또는 이 기능이 포함된 버전으로 업데이트 후 최초 1회만 iCloud 동기화 여부를 묻는다
+    public func checkICloudOnboardingPrompt() {
+        guard !UserDefaults.standard.iCloudOnboardingShown else { return }
+        homeViewAction = .iCloudOnboardingAlert
+    }
+
+    /// 온보딩 alert의 확인 버튼 액션 — 다시는 뜨지 않도록 기록하고, 선택한 토글 상태로 마이그레이션을 실행한다
+    public func confirmICloudOnboarding(useICloud: Bool) {
+        UserDefaults.standard.iCloudOnboardingShown = true
+        homeViewAction = .none
+
+        Task { @MainActor in
+            await self.syncICloudStorage(toICloud: useICloud)
+        }
+    }
+}
+
+// MARK: - iCloud 동기화 실행 및 재시도
+extension HomeViewModel {
+    /// 로컬 ↔ iCloud 간 파일 마이그레이션을 실행한다. 온보딩 확인, 설정 화면 토글, 앱 실행 시/네트워크 재연결 시
+    /// 자동 재시도 등 iCloud 동기화가 필요한 모든 지점에서 이 메소드 하나로 공유한다.
+    @MainActor
+    public func syncICloudStorage(toICloud: Bool) async {
+        self.isICloudMigrating = true
+        self.iCloudMigrationProgress = (0, 0)
+
+        do {
+            try await migrationUseCase.migrate(toICloud: toICloud) { [weak self] completed, total in
+                Task { @MainActor in
+                    self?.iCloudMigrationProgress = (completed, total)
+                }
+            }
+            UserDefaults.standard.lastICloudSyncDate = .now
+
+            // 마이그레이션이 북마크를 새 경로로 갱신했으므로, 메모리에 들고 있던 목록을 다시 읽어온다.
+            // (구 북마크를 그대로 쓰면 이미 삭제된 옛 경로를 가리켜 논문이 열리지 않는다)
+            self.fetchPaperList()
+        } catch {
+            log(error)
+        }
+
+        self.isICloudMigrating = false
+    }
+
+    /// 네트워크가 끊겼다가 다시 연결되는 시점을 감지해서, iCloud 사용이 켜져 있으면 자동으로 재시도한다.
+    /// 앱 프로세스 생명주기 동안 한 번만 시작하면 되므로 AppView의 시작 지점에서 1회 호출한다.
+    public func startICloudRetryMonitoring() {
+        guard networkMonitor == nil else { return }
+
+        let monitor = NWPathMonitor()
+        self.networkMonitor = monitor
+
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let self else { return }
+            let isSatisfied = path.status == .satisfied
+
+            Task { @MainActor in
+                if isSatisfied, !self.wasNetworkSatisfied, UserDefaults.standard.isICloudEnabled {
+                    await self.syncICloudStorage(toICloud: true)
+                }
+                self.wasNetworkSatisfied = isSatisfied
+            }
+        }
+
+        monitor.start(queue: .main)
     }
 }
 

@@ -92,6 +92,9 @@ struct HomeView: View {
         .background(Color(hex: "F7F7FB"))
         .ignoresSafeArea(edges: .top)
         .animation(.easeInOut, value: homeViewModel.homeViewAction)
+        .onAppear {
+            homeViewModel.checkICloudOnboardingPrompt()
+        }
         .alert(isPresented: $tagViewModel.isTagDuplicate) {
             Alert(
                 title: Text("이미 추가된 태그입니다.\n새로운 태그를 입력해 주세요."),
@@ -102,6 +105,8 @@ struct HomeView: View {
             switch homeViewModel.homeViewAction {
             case .setting:
                 SettingView()
+            case .iCloudSettings:
+                ICloudSettingView()
             case .creatingFolder, .editingFolder:
                 FolderView(
                     folder: homeViewModel.folders.first { $0.id == homeViewModel.homeViewStatus.currentFolderID },
@@ -288,6 +293,10 @@ struct HomeView: View {
                         }
                     }
                 )
+            case .iCloudOnboardingAlert:
+                ICloudOnboardingAlertView { useICloud in
+                    homeViewModel.confirmICloudOnboarding(useICloud: useICloud)
+                }
             case .none:
                 EmptyView()
             }

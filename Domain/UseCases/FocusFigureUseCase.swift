@@ -176,7 +176,7 @@ class DefaultFocusFigureUseCase: FocusFigureUseCase {
         let tempPath = FileManager.default.temporaryDirectory
             .appending(path: "combine.pdf")
         
-        let savingURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let savingURL = FileManager.default.pdfStorageDirectory
             .appending(path: "\(fileName)_combine.pdf")
         
         if let _ = try? Data.init(contentsOf: savingURL) {

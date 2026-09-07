@@ -20,7 +20,18 @@ struct AppView: App {
         homeViewUseCase: DefaultHomeViewUseCase(
             paperDataRepository: PaperDataRepositoryImpl(),
             folderDataRepository: FolderDataRepositoryImpl()
+        ),
+        migrationUseCase: DefaultICloudMigrationUseCase(
+            migrationRepository: ICloudMigrationRepositoryImpl()
         )
+    )
+    
+    private let pathBackfillUseCase: PaperPathBackfillUseCase = DefaultPaperPathBackfillUseCase(
+        migrationRepository: ICloudMigrationRepositoryImpl()
+    )
+    
+    private let thumbnailBackfillUseCase: PaperThumbnailBackfillUseCase = DefaultPaperThumbnailBackfillUseCase(
+        migrationRepository: ICloudMigrationRepositoryImpl()
     )
     
     @State private var isUpdateAlertPresented: Bool = false
@@ -44,9 +55,28 @@ struct AppView: App {
             .task {
                 self.homeViewModel.setSample()
                 
+                // 예전 버전에서 만들어져 상대 경로가 비어 있는 논문을 채운다.
+                // 파일을 옮기지 않고 CoreData의 상대 경로만 기록하므로, 실패해도 북마크 폴백으로 계속 동작한다
+                await self.pathBackfillUseCase.backfill()
+                
+                // 예전 규칙으로 만들어진 큰 썸네일을 다시 만든다.
+                // 경로 백필 뒤에 실행해야 파일을 상대 경로로 바로 찾을 수 있다
+                await self.thumbnailBackfillUseCase.backfill()
+                
+                self.homeViewModel.fetchPaperList()
+                
                 #if !DEBUG
                 await self.checkAppVersion()
                 #endif
+
+                // iCloud 사용이 켜져 있는 경우에만 앱 실행 시 자동 재시도 — 온보딩 alert는 플래그가 아직
+                // false일 때만 뜨므로(iCloudOnboardingShown 미확인 상태), 여기와 동시에 뜨는 경우는 없다.
+                if UserDefaults.standard.isICloudEnabled {
+                    Task {
+                        await self.homeViewModel.syncICloudStorage(toICloud: true)
+                    }
+                }
+                self.homeViewModel.startICloudRetryMonitoring()
             }
             .onOpenURL(perform: openUrlScheme)
             .alert("Reazy의 새로운\n버전을 확인해보세요!", isPresented: $isUpdateAlertPresented) {

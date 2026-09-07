@@ -103,6 +103,11 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         self.paperDataRepository.deletePDFInfo(id: id)
     }
     
+    /// 업로드와 백필이 같은 규칙을 쓰도록 PaperThumbnailMaker에 위임한다
+    private func makeThumbnailData(from page: PDFPage) -> Data? {
+        PaperThumbnailMaker.makeData(from: page)
+    }
+    
     public func uploadPDFFile(url: [URL], folderID: UUID?) throws -> PaperInfo? {
         guard let url = url.first else { return nil }
         
@@ -117,17 +122,13 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let title = urlData.1.deletingPathExtension().lastPathComponent
         
-        if let firstPage = tempDoc?.page(at: 0) {
-            let width = firstPage.bounds(for: .mediaBox).width
-            let height = firstPage.bounds(for: .mediaBox).height
-            
-            let image = firstPage.thumbnail(of: .init(width: width, height: height), for: .mediaBox)
-            let thumbnailData = image.pngData()
-            
+        if let firstPage = tempDoc?.page(at: 0),
+           let thumbnailData = self.makeThumbnailData(from: firstPage) {
             let paperInfo = PaperInfo(
                 title: title,
-                thumbnail: thumbnailData!,
+                thumbnail: thumbnailData,
                 url: urlData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: urlData.1),
                 folderID: folderID
             )
             
@@ -140,6 +141,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: title,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: urlData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: urlData.1),
                 folderID: folderID
             )
             
@@ -163,33 +165,26 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
         
         let sampleFocusURLData = self.makeSampleFocus(tempDoc: sampleTempDoc)
         
-        if let guideFirstPage = guideTempDoc?.page(at: 0), let sampleFirstPage = sampleTempDoc?.page(at: 0) {
-            let guideWidth = guideFirstPage.bounds(for: .mediaBox).width
-            let guideHeight = guideFirstPage.bounds(for: .mediaBox).height
-            let sampleWidth = sampleFirstPage.bounds(for: .mediaBox).width
-            let sampleHeight = sampleFirstPage.bounds(for: .mediaBox).height
-            
-            let guideImage = guideFirstPage.thumbnail(of: .init(width: guideWidth, height: guideHeight), for: .mediaBox)
-            let sampleImage = sampleFirstPage.thumbnail(of: .init(width: sampleWidth, height: sampleHeight), for: .mediaBox)
-            
-            let guideThumbnailData = guideImage.pngData()
-            let sampleThumbnailData = sampleImage.pngData()
-            
+        if let guideFirstPage = guideTempDoc?.page(at: 0), let sampleFirstPage = sampleTempDoc?.page(at: 0),
+           let guideThumbnailData = self.makeThumbnailData(from: guideFirstPage),
+           let sampleThumbnailData = self.makeThumbnailData(from: sampleFirstPage) {
             let sampleFolder = Folder(id: .init(), title: "Reazy", color: "folder1", parentFolderID: nil)
             folderDataRepository.saveFolder(sampleFolder)
             
             let guidePaperInfo = PaperInfo(
                 title: guideTitle,
-                thumbnail: guideThumbnailData!,
+                thumbnail: guideThumbnailData,
                 url: guideURLData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: guideURLData.1),
                 isFigureSaved: true,
                 folderID: sampleFolder.id
             )
             
             let samplePaperInfo = PaperInfo(
                 title: sampleTitle,
-                thumbnail: sampleThumbnailData!,
+                thumbnail: sampleThumbnailData,
                 url: sampleURLData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: sampleURLData.1),
                 focusURL: sampleFocusURLData,
                 isFigureSaved: true,
                 folderID: sampleFolder.id
@@ -207,6 +202,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                 title: guideTitle,
                 thumbnail: UIImage(resource: .testThumbnail).pngData()!,
                 url: guideURLData.0,
+                relativePath: PaperFileLocator.storageRelativePath(of: guideURLData.1),
                 isFigureSaved: true
             )
             
@@ -226,7 +222,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     }
     
     private func makeSampleFocus(tempDoc: PDFDocument?) -> Data {
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let path = FileManager.default.pdfStorageDirectory
             .appending(path: "ReazySamplePaper_combine.pdf")
 
         let layout = try! JSONDecoder()
@@ -334,10 +330,10 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     }
     
     public func duplicatePDF(paperInfo: PaperInfo) throws -> PaperInfo? {
-        var isStale = false
-        
         do {
-            let originalUrl = try URL.init(resolvingBookmarkData: paperInfo.url, bookmarkDataIsStale: &isStale)
+            guard let originalUrl = PaperFileLocator.resolve(paperInfo)?.url else {
+                throw PDFUploadError.fileNameDuplication
+            }
             
             if let (data, url) = self.copyItem(url: originalUrl) {
                 
@@ -345,6 +341,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
                     title: url.deletingPathExtension().lastPathComponent,
                     thumbnail: paperInfo.thumbnail,
                     url: data,
+                    relativePath: PaperFileLocator.storageRelativePath(of: url),
                     focusURL: paperInfo.focusURL,
                     lastModifiedDate: Date(),
                     isFavorite: false,
@@ -380,7 +377,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     internal func savePDFIntoDirectory(url: URL, isSample: Bool) throws -> (Data, URL)? {
         do {
             let manager = FileManager.default
-            let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let documentURL = manager.pdfStorageDirectory
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             if let _ = try? Data(contentsOf: fileURL) {
@@ -412,7 +409,7 @@ class DefaultHomeViewUseCase: HomeViewUseCase {
     internal func copyItem(url: URL) -> (Data, URL)? {
         do {
             let manager = FileManager.default
-            let documentURL = manager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let documentURL = manager.pdfStorageDirectory
             let fileURL = documentURL.appending(path: url.lastPathComponent)
             
             var error: NSError?

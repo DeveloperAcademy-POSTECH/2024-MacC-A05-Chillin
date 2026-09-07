@@ -21,11 +21,13 @@
 		2C14739C2CE73B6F00B35D92 /* CommentDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */; };
 		2C14739D2CE73B6F00B35D92 /* FigureDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */; };
 		2C14739E2CE73B6F00B35D92 /* PaperDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */; };
+		E3733A4CD195CE240D93E4D8 /* ICloudMigrationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D5BEF181FD050825CBE4D0 /* ICloudMigrationRepository.swift */; };
 		2C14739F2CE73B6F00B35D92 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473252CE73B6F00B35D92 /* Comment.swift */; };
 		2C1473A02CE73B6F00B35D92 /* DrawingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473262CE73B6F00B35D92 /* DrawingData.swift */; };
 		2C1473A12CE73B6F00B35D92 /* FigureAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */; };
 		2C1473A22CE73B6F00B35D92 /* FocusAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */; };
 		2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473292CE73B6F00B35D92 /* PaperInfo.swift */; };
+		4A85EC437C33E27C1ACCEFCF /* PaperFileLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E22832FE9164546A64BFC15 /* PaperFileLocation.swift */; };
 		2C1473A42CE73B6F00B35D92 /* PDFInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */; };
 		2C1473A62CE73B6F00B35D92 /* TableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14732C2CE73B6F00B35D92 /* TableItem.swift */; };
 		2C1473A72CE73B6F00B35D92 /* NetworkManager + Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C14732E2CE73B6F00B35D92 /* NetworkManager + Error.swift */; };
@@ -54,6 +56,9 @@
 		2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */; };
 		2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */; };
 		2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */; };
+		4595C92BAC202D80D1183A4C /* ICloudMigrationUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8AD0BB77BEC1373D70E5A1 /* ICloudMigrationUseCase.swift */; };
+		E97B60D3C82F41A5730DE621 /* PaperPathBackfillUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A82F6B15CE370948B1E7C0 /* PaperPathBackfillUseCase.swift */; };
+		A8D51C7F396B2E084C71FD90 /* PaperThumbnailBackfillUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B927E4A0C81D6572E4A83B /* PaperThumbnailBackfillUseCase.swift */; };
 		2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */; };
 		2C1473EB2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */; };
 		2C1473F22CE8818200B35D92 /* PageListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1473F12CE8818200B35D92 /* PageListViewModel.swift */; };
@@ -76,6 +81,7 @@
 		2C5C24172CE9DB9E00C37A1B /* PDFUploadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */; };
 		2C5C241A2CE9E1A500C37A1B /* PDFSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */; };
 		2C6A13DD2CEE2D7300518986 /* FileManager + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6A13DC2CEE2D7300518986 /* FileManager + Extension.swift */; };
+		C58F3B2D71A6E04928DF1B53 /* PaperFileLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E14A0C93F2D5618A03CE21 /* PaperFileLocator.swift */; };
 		2C9605DF2EDFFED400C67423 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2C9605DE2EDFFED400C67423 /* FirebaseCrashlytics */; };
 		2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */; };
 		2CC431572CE9CED500E51DB0 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */; };
@@ -105,6 +111,8 @@
 		B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */; };
 		B32E35AD2CEDA34900171F23 /* PDFInfoMenuUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */; };
 		B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E3D292CF23C0800171F23 /* SettingView.swift */; };
+		C28394B26C333C3806B10575 /* ICloudOnboardingAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E96FAC147518379A91D10C1 /* ICloudOnboardingAlertView.swift */; };
+		022F688FAF6A1C82C36F7179 /* ICloudSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F8C8AD92D9FFAAB7DE2D80 /* ICloudSettingView.swift */; };
 		B349C0D42D6362DD00682F5D /* TagViewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B349C0D32D6362DD00682F5D /* TagViewUseCase.swift */; };
 		B3EE45672D43EFA8007804B9 /* BackPageBtnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE45662D43EFA8007804B9 /* BackPageBtnView.swift */; };
 		B3F823412D4CE85300B9FBE9 /* BackPageBtnUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F823402D4CE84500B9FBE9 /* BackPageBtnUseCase.swift */; };
@@ -165,11 +173,13 @@
 		2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDataRepository.swift; sourceTree = "<group>"; };
 		2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureDataRepository.swift; sourceTree = "<group>"; };
 		2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperDataRepository.swift; sourceTree = "<group>"; };
+		F8D5BEF181FD050825CBE4D0 /* ICloudMigrationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudMigrationRepository.swift; sourceTree = "<group>"; };
 		2C1473252CE73B6F00B35D92 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		2C1473262CE73B6F00B35D92 /* DrawingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingData.swift; sourceTree = "<group>"; };
 		2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigureAnnotation.swift; sourceTree = "<group>"; };
 		2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAnnotation.swift; sourceTree = "<group>"; };
 		2C1473292CE73B6F00B35D92 /* PaperInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperInfo.swift; sourceTree = "<group>"; };
+		0E22832FE9164546A64BFC15 /* PaperFileLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperFileLocation.swift; sourceTree = "<group>"; };
 		2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfo.swift; sourceTree = "<group>"; };
 		2C14732C2CE73B6F00B35D92 /* TableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableItem.swift; sourceTree = "<group>"; };
 		2C14732E2CE73B6F00B35D92 /* NetworkManager + Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkManager + Error.swift"; sourceTree = "<group>"; };
@@ -199,6 +209,9 @@
 		2C1473DD2CE73D7600B35D92 /* FocusFigureRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepository.swift; sourceTree = "<group>"; };
 		2C1473DF2CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureRepositoryImpl.swift; sourceTree = "<group>"; };
 		2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureUseCase.swift; sourceTree = "<group>"; };
+		CF8AD0BB77BEC1373D70E5A1 /* ICloudMigrationUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudMigrationUseCase.swift; sourceTree = "<group>"; };
+		D4A82F6B15CE370948B1E7C0 /* PaperPathBackfillUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperPathBackfillUseCase.swift; sourceTree = "<group>"; };
+		F3B927E4A0C81D6572E4A83B /* PaperThumbnailBackfillUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperThumbnailBackfillUseCase.swift; sourceTree = "<group>"; };
 		2C1473E62CE7897A00B35D92 /* FocusFigureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFigureViewModel.swift; sourceTree = "<group>"; };
 		2C1473EA2CE87BC700B35D92 /* PDFLayoutResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLayoutResponseDTO.swift; sourceTree = "<group>"; };
 		2C1473F12CE8818200B35D92 /* PageListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageListViewModel.swift; sourceTree = "<group>"; };
@@ -222,6 +235,7 @@
 		2C5C24162CE9DB9E00C37A1B /* PDFUploadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFUploadError.swift; sourceTree = "<group>"; };
 		2C5C24192CE9E1A500C37A1B /* PDFSharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSharedData.swift; sourceTree = "<group>"; };
 		2C6A13DC2CEE2D7300518986 /* FileManager + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager + Extension.swift"; sourceTree = "<group>"; };
+		B7E14A0C93F2D5618A03CE21 /* PaperFileLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperFileLocator.swift; sourceTree = "<group>"; };
 		2C7AE88A2CBCF290004098AF /* Reazy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reazy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CC431532CE9CA3E00E51DB0 /* HomeViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewUseCase.swift; sourceTree = "<group>"; };
 		2CC431562CE9CED500E51DB0 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
@@ -236,6 +250,8 @@
 		2CE743912D65BBE6006A81BE /* DynamicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCell.swift; sourceTree = "<group>"; };
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
+		436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.1.xcdatamodel; sourceTree = "<group>"; };
+		A1C4E29B7F3D486510BE2740 /* Reazy4.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.2.xcdatamodel; sourceTree = "<group>"; };
 		67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemporaryAlertView.swift; sourceTree = "<group>"; };
 		6E130D542D5860C40089A493 /* TagDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagDataRepository.swift; sourceTree = "<group>"; };
 		6E130D562D5861E10089A493 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
@@ -252,6 +268,8 @@
 		B32E328B2CEB71E500171F23 /* PDFInfoMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenu.swift; sourceTree = "<group>"; };
 		B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFInfoMenuUseCase.swift; sourceTree = "<group>"; };
 		B32E3D292CF23C0800171F23 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		2E96FAC147518379A91D10C1 /* ICloudOnboardingAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudOnboardingAlertView.swift; sourceTree = "<group>"; };
+		46F8C8AD92D9FFAAB7DE2D80 /* ICloudSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudSettingView.swift; sourceTree = "<group>"; };
 		B349C0D32D6362DD00682F5D /* TagViewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewUseCase.swift; sourceTree = "<group>"; };
 		B3EE45662D43EFA8007804B9 /* BackPageBtnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackPageBtnView.swift; sourceTree = "<group>"; };
 		B3F823402D4CE84500B9FBE9 /* BackPageBtnUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackPageBtnUseCase.swift; sourceTree = "<group>"; };
@@ -266,6 +284,7 @@
 				CollectionDataRepositoryImpl.swift,
 				CommentDataRepositoryImpl.swift,
 				FigureDataRepositoryImpl.swift,
+				ICloudMigrationRepositoryImpl.swift,
 				FolderDataRepositoryImpl.swift,
 				PaperDataRepositoryImpl.swift,
 				PaperDataRepositoryTagImpl.swift,
@@ -512,6 +531,7 @@
 				2C1473212CE73B6F00B35D92 /* CommentDataRepository.swift */,
 				2C1473222CE73B6F00B35D92 /* FigureDataRepository.swift */,
 				2C1473232CE73B6F00B35D92 /* PaperDataRepository.swift */,
+				F8D5BEF181FD050825CBE4D0 /* ICloudMigrationRepository.swift */,
 				6EAC57FD2CEC7D07003D96AF /* FolderDataRepository.swift */,
 				6ED57B5F2CF747F500358561 /* CollectionDataRepository.swift */,
 				6E130D542D5860C40089A493 /* TagDataRepository.swift */,
@@ -523,6 +543,9 @@
 			isa = PBXGroup;
 			children = (
 				2C1473E22CE7878100B35D92 /* FocusFigureUseCase.swift */,
+				CF8AD0BB77BEC1373D70E5A1 /* ICloudMigrationUseCase.swift */,
+				D4A82F6B15CE370948B1E7C0 /* PaperPathBackfillUseCase.swift */,
+				F3B927E4A0C81D6572E4A83B /* PaperThumbnailBackfillUseCase.swift */,
 				B32E35AC2CEDA34900171F23 /* PDFInfoMenuUseCase.swift */,
 				2C1473F32CE8828800B35D92 /* PageListUseCase.swift */,
 				2C1474112CE8EC6E00B35D92 /* IndexUseCase.swift */,
@@ -739,6 +762,8 @@
 				2CC431552CE9CECB00E51DB0 /* ViewModel */,
 				2C1473392CE73B6F00B35D92 /* HomeView.swift */,
 				B32E3D292CF23C0800171F23 /* SettingView.swift */,
+				2E96FAC147518379A91D10C1 /* ICloudOnboardingAlertView.swift */,
+				46F8C8AD92D9FFAAB7DE2D80 /* ICloudSettingView.swift */,
 				6E241BDD2CEDF47600AE3EB4 /* MoveFolderView.swift */,
 				2C2A56BD2D941BE100BEC95D /* HomeFolderPopoverView.swift */,
 				2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */,
@@ -756,6 +781,7 @@
 				2C1473272CE73B6F00B35D92 /* FigureAnnotation.swift */,
 				2C1473282CE73B6F00B35D92 /* FocusAnnotation.swift */,
 				2C1473292CE73B6F00B35D92 /* PaperInfo.swift */,
+				0E22832FE9164546A64BFC15 /* PaperFileLocation.swift */,
 				2C14732A2CE73B6F00B35D92 /* PDFInfo.swift */,
 				2C14732C2CE73B6F00B35D92 /* TableItem.swift */,
 				6EBB167A2CEB6005001F9EA0 /* Folder.swift */,
@@ -822,6 +848,7 @@
 			isa = PBXGroup;
 			children = (
 				2C6A13DC2CEE2D7300518986 /* FileManager + Extension.swift */,
+				B7E14A0C93F2D5618A03CE21 /* PaperFileLocator.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1145,6 +1172,7 @@
 				2C14739C2CE73B6F00B35D92 /* CommentDataRepository.swift in Sources */,
 				2C14739D2CE73B6F00B35D92 /* FigureDataRepository.swift in Sources */,
 				2C14739E2CE73B6F00B35D92 /* PaperDataRepository.swift in Sources */,
+				E3733A4CD195CE240D93E4D8 /* ICloudMigrationRepository.swift in Sources */,
 				2C14739F2CE73B6F00B35D92 /* Comment.swift in Sources */,
 				67E8AB792CF0C33000FACBAB /* TemporaryAlertView.swift in Sources */,
 				2C1473A02CE73B6F00B35D92 /* DrawingData.swift in Sources */,
@@ -1153,6 +1181,7 @@
 				6E74E5092D47A7C6004248EE /* HomeListView.swift in Sources */,
 				2C1473A22CE73B6F00B35D92 /* FocusAnnotation.swift in Sources */,
 				2C1473A32CE73B6F00B35D92 /* PaperInfo.swift in Sources */,
+				4A85EC437C33E27C1ACCEFCF /* PaperFileLocation.swift in Sources */,
 				2C1473DE2CE73D7600B35D92 /* FocusFigureRepository.swift in Sources */,
 				6E130D552D5860C40089A493 /* TagDataRepository.swift in Sources */,
 				2CEBB6292D5A36BA00EC04D2 /* Date + Extension.swift in Sources */,
@@ -1172,11 +1201,15 @@
 				2C1474412CE900A700B35D92 /* PDFDrawer.swift in Sources */,
 				2C1473E02CE73ED900B35D92 /* FocusFigureRepositoryImpl.swift in Sources */,
 				2C6A13DD2CEE2D7300518986 /* FileManager + Extension.swift in Sources */,
+				C58F3B2D71A6E04928DF1B53 /* PaperFileLocator.swift in Sources */,
 				2C1473E72CE7897A00B35D92 /* FocusFigureViewModel.swift in Sources */,
 				2C1473BB2CE73B6F00B35D92 /* SearchView.swift in Sources */,
 				2C1473BC2CE73B6F00B35D92 /* SearchViewModel.swift in Sources */,
 				B32E328C2CEB71E500171F23 /* PDFInfoMenu.swift in Sources */,
 				2C1473E32CE7878100B35D92 /* FocusFigureUseCase.swift in Sources */,
+				4595C92BAC202D80D1183A4C /* ICloudMigrationUseCase.swift in Sources */,
+				E97B60D3C82F41A5730DE621 /* PaperPathBackfillUseCase.swift in Sources */,
+				A8D51C7F396B2E084C71FD90 /* PaperThumbnailBackfillUseCase.swift in Sources */,
 				6ED57B602CF747F500358561 /* CollectionDataRepository.swift in Sources */,
 				2C1473BD2CE73B6F00B35D92 /* ThumbnailTableViewCell.swift in Sources */,
 				2C1473BE2CE73B6F00B35D92 /* ThumbnailTableViewController.swift in Sources */,
@@ -1195,6 +1228,8 @@
 				2C1473C82CE73B6F00B35D92 /* OriginalViewRepresentable.swift in Sources */,
 				2CE05C1E2EB61C3D00341B46 /* MainPDFViewAction.swift in Sources */,
 				B32E3D2A2CF23C0800171F23 /* SettingView.swift in Sources */,
+				C28394B26C333C3806B10575 /* ICloudOnboardingAlertView.swift in Sources */,
+				022F688FAF6A1C82C36F7179 /* ICloudSettingView.swift in Sources */,
 				2C1473C92CE73B6F00B35D92 /* CommentViewModel.swift in Sources */,
 				2CC431542CE9CA3E00E51DB0 /* HomeViewUseCase.swift in Sources */,
 				2CDB3D352E32052D00609333 /* HomeViewStatus.swift in Sources */,
@@ -1517,6 +1552,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2026041301;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1541,6 +1577,7 @@
 				MARKETING_VERSION = 4.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -1556,6 +1593,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Reazy.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2026041301;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1580,6 +1618,7 @@
 				MARKETING_VERSION = 4.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chillin.reazy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -1667,10 +1706,12 @@
 		2C14730E2CE73B6F00B35D92 /* Reazy.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				A1C4E29B7F3D486510BE2740 /* Reazy4.2.xcdatamodel */,
+				436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */,
 				6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */,
 				2C1473762CE73B6F00B35D92 /* Reazy.xcdatamodel */,
 			);
-			currentVersion = 6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */;
+			currentVersion = A1C4E29B7F3D486510BE2740 /* Reazy4.2.xcdatamodel */;
 			path = Reazy.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

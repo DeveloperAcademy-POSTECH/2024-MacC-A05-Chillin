@@ -83,12 +83,10 @@ extension FocusFigureViewModel {
         
         switch self.focusFigureUseCase.loadFigures() {
         case .success(let figureList):
-            var isStale = false
-            
             let height = document!.page(at: 0)!.bounds(for: .mediaBox).height
             let result = figureList.map { $0.toEntity(pageHeight: height) }
-            if let focusURL = paperInfo?.focusURL,
-               let focusUrl = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStale) {
+            if let paperInfo,
+               let focusUrl = PaperFileLocator.resolveFocus(paperInfo)?.url {
                 self.focusDocument = PDFDocument(url: focusUrl)
             }
             
@@ -143,17 +141,14 @@ extension FocusFigureViewModel {
             return
         }
         
-        var isStale: Bool = false
-        
-        guard let url = try? URL.init(
-            resolvingBookmarkData: self.focusFigureUseCase.pdfSharedData.paperInfo!.url,
-            bookmarkDataIsStale: &isStale) else {
+        guard let currentPaper = self.focusFigureUseCase.pdfSharedData.paperInfo,
+              let url = PaperFileLocator.resolve(currentPaper)?.url else {
             self.focusStatus = .empty
             return
         }
         
         let height = self.focusFigureUseCase.getPDFHeight()
-        var paperInfo = self.focusFigureUseCase.pdfSharedData.paperInfo!
+        var paperInfo = currentPaper
         
         let result = await self.focusFigureUseCase.excuteFocus(url: url)
         
@@ -208,11 +203,9 @@ extension FocusFigureViewModel {
         
         self.figureStatus = .loading
         
-        var isStale = false
-        
-        guard let url = try? URL.init(
-            resolvingBookmarkData: self.focusFigureUseCase.pdfSharedData.paperInfo!.url,
-            bookmarkDataIsStale: &isStale) else {
+        guard let currentPaper = self.focusFigureUseCase.pdfSharedData.paperInfo,
+              let url = PaperFileLocator.resolve(currentPaper)?.url else {
+            self.figureStatus = .empty
             return
         }
         

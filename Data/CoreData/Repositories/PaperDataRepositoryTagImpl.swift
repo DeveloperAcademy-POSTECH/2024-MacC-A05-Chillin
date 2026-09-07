@@ -27,8 +27,11 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
             let fetchedDataList = try dataContext.fetch(fetchRequest)
             let pdfDataList = fetchedDataList.map { paperData -> PaperInfo in
                 
-                let tags = Array(paperData.paperTags ?? []).map { paperTag in
-                    Tag(id: paperTag.tagData.id, name: paperTag.tagData.name)
+                // 아직 CloudKit 동기화가 끝나지 않아 tagData가 비어 있는 관계는 건너뛴다.
+                // 동기화가 완료되면 automaticallyMergesChangesFromParent로 다시 반영된다
+                let tags = Array(paperData.paperTags ?? []).compactMap { paperTag -> Tag? in
+                    guard let tagData = paperTag.tagData else { return nil }
+                    return Tag(id: tagData.id, name: tagData.name)
                 }
                 
                 return PaperInfo(
@@ -36,7 +39,9 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
                     title: paperData.title,
                     thumbnail: paperData.thumbnail,
                     url: paperData.url,
+                    relativePath: paperData.relativePath,
                     focusURL: paperData.focusURL,
+                    focusRelativePath: paperData.focusRelativePath,
                     lastModifiedDate: paperData.lastModifiedDate,
                     isFavorite: paperData.isFavorite,
                     isFigureSaved: paperData.isFigureSaved,
@@ -58,7 +63,9 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
         newPaperData.id = info.id
         newPaperData.title = info.title
         newPaperData.url = info.url
+        newPaperData.relativePath = info.relativePath
         newPaperData.focusURL = info.focusURL
+        newPaperData.focusRelativePath = info.focusRelativePath
         newPaperData.thumbnail = info.thumbnail
         newPaperData.lastModifiedDate = info.lastModifiedDate
         newPaperData.isFavorite = info.isFavorite
@@ -74,20 +81,22 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", info.id as CVarArg)
         
-        var isStale = false
-        
         do {
             let results = try dataContext.fetch(fetchRequest)
             if let dataToEdit = results.first {
                 if info.title != dataToEdit.title {
-                    if let url = try? URL.init(resolvingBookmarkData: info.url, bookmarkDataIsStale: &isStale) {
+                    if let url = PaperFileLocator.resolve(info)?.url {
                         // 실제 파일 이름 변경
                         let newUrl = url.deletingLastPathComponent().appending(path: info.title + ".pdf")
                         
                         if let _ = try? FileManager.default.moveItem(at: url, to: newUrl) {
                             let newBookmarkData = try! newUrl.bookmarkData(options: .suitableForBookmarkFile)
+                            let newRelativePath = PaperFileLocator.storageRelativePath(of: newUrl)
+                            
                             dataToEdit.url = newBookmarkData
+                            dataToEdit.relativePath = newRelativePath
                             PDFSharedData.shared.paperInfo?.url = newBookmarkData
+                            PDFSharedData.shared.paperInfo?.relativePath = newRelativePath
                         } else {
                             return .failure(PDFUploadError.fileNameDuplication)
                         }
@@ -97,6 +106,7 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
                 // 기존 데이터 수정
                 dataToEdit.title = info.title
                 dataToEdit.focusURL = info.focusURL
+                dataToEdit.focusRelativePath = info.focusRelativePath
                 dataToEdit.lastModifiedDate = info.lastModifiedDate
                 dataToEdit.isFavorite = info.isFavorite
                 dataToEdit.isFigureSaved = info.isFigureSaved
@@ -117,23 +127,28 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
         let fetchRequest: NSFetchRequest<PaperData> = PaperData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
-        var isStaleOriginal = false
-        var isStaleConcentrate = false
-        
         do {
             let results = try dataContext.fetch(fetchRequest)
             
             if let dataToDelete = results.first {
                 // 실제 파일 삭제
-                if let url = try? URL.init(resolvingBookmarkData: dataToDelete.url, bookmarkDataIsStale: &isStaleOriginal),
-                   let _ = try? Data(contentsOf: url) {
-                    try FileManager.default.removeItem(at: url)
+                // iCloud에 있고 아직 내려받지 않은 파일(placeholder)은 내용을 읽을 수 없어,
+                // 존재 확인용으로 Data(contentsOf:)를 쓰면 삭제를 건너뛰고 고아 파일이 남는다.
+                // 파일이 없으면 removeItem이 조용히 실패하는 것으로 충분하므로 바로 지운다
+                if let url = PaperFileLocator.resolve(
+                    relativePath: dataToDelete.relativePath,
+                    bookmark: dataToDelete.url,
+                    title: dataToDelete.title
+                )?.url {
+                    try? FileManager.default.removeItem(at: url)
                 }
 
-                if let focusURL = dataToDelete.focusURL,
-                   let url = try? URL.init(resolvingBookmarkData: focusURL, bookmarkDataIsStale: &isStaleConcentrate),
-                   let _ = try? Data(contentsOf: url) {
-                    try FileManager.default.removeItem(at: url)
+                if let url = PaperFileLocator.resolve(
+                    relativePath: dataToDelete.focusRelativePath,
+                    bookmark: dataToDelete.focusURL,
+                    title: nil
+                )?.url {
+                    try? FileManager.default.removeItem(at: url)
                 }
                 
                 dataContext.delete(dataToDelete)
@@ -197,6 +212,8 @@ final class PaperDataRepositoryTagImpl: PaperDataRepository {
                 newPaperData.lastModifiedDate = info.lastModifiedDate
                 newPaperData.thumbnail = info.thumbnail
                 newPaperData.url = info.url
+                newPaperData.relativePath = info.relativePath
+                newPaperData.focusRelativePath = info.focusRelativePath
                 newPaperData.folderID = info.folderID
                 
                 return .success(VoidResponse())

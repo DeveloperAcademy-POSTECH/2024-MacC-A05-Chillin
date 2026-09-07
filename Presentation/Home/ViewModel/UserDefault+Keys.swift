@@ -11,6 +11,10 @@ struct UserDefaultsKeys {
     static let recentSearches = "RecentSearches"
     static let lastSearchTags = "LastSearchTags"
     static let focusGuideViewDoNotShowAgain = "FocusGuideViewDoNotShowAgain"
+    static let isICloudEnabled = "IsICloudEnabled"
+    static let icloudMigrationLedger = "ICloudMigrationLedger"
+    static let iCloudOnboardingShown = "ICloudOnboardingShown"
+    static let lastICloudSyncDate = "LastICloudSyncDate"
 }
 
 extension UserDefaults {
@@ -40,6 +44,54 @@ extension UserDefaults {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.focusGuideViewDoNotShowAgain)
+        }
+    }
+
+    // iCloud Drive에 PDF 파일 저장 여부 (기본값: false → 기존 동작 유지)
+    public var isICloudEnabled: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: UserDefaultsKeys.isICloudEnabled)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.isICloudEnabled)
+        }
+    }
+
+    // 진행 중인(또는 중단된) iCloud 파일 이동 원장 — JSON 인코딩된 ICloudMigrationLedger
+    var icloudMigrationLedgerData: Data? {
+        get {
+            UserDefaults.standard.data(forKey: UserDefaultsKeys.icloudMigrationLedger)
+        }
+        set {
+            if let newValue {
+                UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.icloudMigrationLedger)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.icloudMigrationLedger)
+            }
+        }
+    }
+
+    // iCloud 동기화 여부를 묻는 온보딩 alert 노출 여부 (기본값: false → 신규 설치/업데이트 후 최초 1회 노출)
+    public var iCloudOnboardingShown: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: UserDefaultsKeys.iCloudOnboardingShown)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.iCloudOnboardingShown)
+        }
+    }
+
+    // 마지막으로 iCloud 동기화(마이그레이션)가 성공한 시각
+    public var lastICloudSyncDate: Date? {
+        get {
+            UserDefaults.standard.object(forKey: UserDefaultsKeys.lastICloudSyncDate) as? Date
+        }
+        set {
+            if let newValue {
+                UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.lastICloudSyncDate)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.lastICloudSyncDate)
+            }
         }
     }
 }

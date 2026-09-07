@@ -11,7 +11,8 @@ import SwiftUI
 
 enum HomeViewAction: Hashable {
     case setting
-    
+    case iCloudSettings
+
     case creatingFolder
     case creatingMovingFolder(UUID?)
     case editingFolder
@@ -28,6 +29,7 @@ enum HomeViewAction: Hashable {
     case deletingPaperAlert([UUID])
     case deletingFolderAlert
     case folderDepthAlert
+    case iCloudOnboardingAlert
     case none
     
     

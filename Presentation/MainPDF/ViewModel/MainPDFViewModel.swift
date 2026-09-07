@@ -140,10 +140,10 @@ final class MainPDFViewModel: ObservableObject {
 // MARK: - 초기 세팅 메소드
 extension MainPDFViewModel {
     public func savePDF(pdfView: PDFView) throws {
-        var a = false
         guard let document = pdfView.document else { return }
-        // TODO: 이름 변경시에 URL도 바뀌어야 하는게 아닌가?
-        guard let pdfURL = PDFSharedData.shared.paperInfo?.url, let url = try? URL(resolvingBookmarkData: pdfURL, bookmarkDataIsStale: &a) else {
+        
+        guard let paperInfo = PDFSharedData.shared.paperInfo,
+              let url = PaperFileLocator.resolve(paperInfo)?.url else {
             log("PDF URL을 찾을 수 없습니다.")
             throw HomeViewError.cannotCreateBookmark
         }
@@ -159,14 +159,32 @@ extension MainPDFViewModel {
             }
         }
         
+        guard let pdfData = document.dataRepresentation() else {
+            log("PDF 데이터를 만들 수 없어 저장을 건너뜁니다.")
+            return
+        }
+        
         // PDF 파일을 지정한 URL에 덮어쓰기 저장
-        do {
-            let pdfData = document.dataRepresentation()
-            try pdfData?.write(to: url)
-            
+        // iCloud Drive의 파일은 동기화 데몬이 동시에 접근할 수 있어, 조정 없이 덮어쓰면
+        // 업로드 도중 파일이 깨질 수 있다. 필기는 PDF 파일 자체에 저장되므로
+        // 파일이 깨지면 그 논문의 작업 내용 전체가 사라진다
+        var coordinatorError: NSError?
+        var writeError: Error?
+        
+        NSFileCoordinator().coordinate(writingItemAt: url, options: .forReplacing, error: &coordinatorError) { writeURL in
+            do {
+                try pdfData.write(to: writeURL)
+            } catch {
+                writeError = error
+            }
+        }
+        
+        if let coordinatorError {
+            log("PDF 저장 중 파일 조정 실패: \(coordinatorError.localizedDescription)")
+        } else if let writeError {
+            log("PDF 저장 중 오류 발생: \(writeError.localizedDescription)")
+        } else {
             log("PDF 저장이 완료되었습니다.")
-        } catch {
-            log("PDF 저장 중 오류 발생: \(error.localizedDescription)")
         }
     }
     

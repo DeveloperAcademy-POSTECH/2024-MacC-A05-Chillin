@@ -15,7 +15,9 @@ struct PaperInfo: Identifiable, Hashable, Codable, Transferable {
     var title: String
     let thumbnail: Data
     var url: Data
+    var relativePath: String?
     var focusURL: Data?
+    var focusRelativePath: String?
     var lastModifiedDate: Date
     var isFavorite: Bool
     var isFigureSaved: Bool
@@ -28,7 +30,9 @@ struct PaperInfo: Identifiable, Hashable, Codable, Transferable {
         title: String,
         thumbnail: Data,
         url: Data,
+        relativePath: String? = nil,
         focusURL: Data? = nil,
+        focusRelativePath: String? = nil,
         lastModifiedDate: Date = .init(),
         isFavorite: Bool = false,
         isFigureSaved: Bool = false,
@@ -39,7 +43,9 @@ struct PaperInfo: Identifiable, Hashable, Codable, Transferable {
         self.title = title
         self.thumbnail = thumbnail
         self.url = url
+        self.relativePath = relativePath
         self.focusURL = focusURL
+        self.focusRelativePath = focusRelativePath
         self.lastModifiedDate = lastModifiedDate
         self.isFavorite = isFavorite
         self.isFigureSaved = isFigureSaved
