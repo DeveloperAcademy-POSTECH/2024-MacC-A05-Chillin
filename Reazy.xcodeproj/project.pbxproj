@@ -245,6 +245,7 @@
 		2CE9E4E32D9BD22400DA3A81 /* PaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperListView.swift; sourceTree = "<group>"; };
 		2CEBB6282D5A36BA00EC04D2 /* Date + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extension.swift"; sourceTree = "<group>"; };
 		436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.1.xcdatamodel; sourceTree = "<group>"; };
+		A1C4E29B7F3D486510BE2740 /* Reazy4.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Reazy4.2.xcdatamodel; sourceTree = "<group>"; };
 		67E8AB782CF0C31300FACBAB /* TemporaryAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemporaryAlertView.swift; sourceTree = "<group>"; };
 		6E130D542D5860C40089A493 /* TagDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagDataRepository.swift; sourceTree = "<group>"; };
 		6E130D562D5861E10089A493 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
@@ -1693,11 +1694,12 @@
 		2C14730E2CE73B6F00B35D92 /* Reazy.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				A1C4E29B7F3D486510BE2740 /* Reazy4.2.xcdatamodel */,
 				436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */,
 				6E9312DC2D50EBFE00BD8A89 /* Reazy4.0.xcdatamodel */,
 				2C1473762CE73B6F00B35D92 /* Reazy.xcdatamodel */,
 			);
-			currentVersion = 436BEE4CA3A4A9537C281DBD /* Reazy4.1.xcdatamodel */;
+			currentVersion = A1C4E29B7F3D486510BE2740 /* Reazy4.2.xcdatamodel */;
 			path = Reazy.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
